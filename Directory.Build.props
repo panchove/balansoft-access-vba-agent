@@ -1,0 +1,33 @@
+<Project>
+
+  <!--
+    Propiedades comunes a todos los proyectos. Este fichero es la fuente de
+    verdad de la política de warnings; la versión la gestiona
+    Nerdbank.GitVersioning (version.json). Ver AGENTS.md regla 7 y
+    docs/constitution.md (restricciones técnicas).
+  -->
+
+  <PropertyGroup>
+    <!-- AGENTS.md regla 7: los warnings bloquean el merge. -->
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningLevel>4</WarningLevel>
+
+    <!--
+      Access x86 no puede cargar un assembly x64 y el fallo en carga es fatal
+      (constitución P3). PlatformTarget es lo que decide el encabezado PE;
+      'Platform' solo decide la carpeta de salida, y por eso los scripts
+      compilan los .csproj directamente en lugar de la solución.
+    -->
+    <PlatformTarget>x86</PlatformTarget>
+    <Prefer32Bit>true</Prefer32Bit>
+
+    <LangVersion>10</LangVersion>
+    <Deterministic>true</Deterministic>
+  </PropertyGroup>
+
+  <!-- Nerdbank.GitVersioning inyecta Version / PackageVersion / InformationalVersion -->
+  <ItemGroup>
+    <PackageReference Include="Nerdbank.GitVersioning" Version="3.6.*" PrivateAssets="all" />
+  </ItemGroup>
+
+</Project>

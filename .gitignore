@@ -1,0 +1,19 @@
+# Credenciales y secretos: nunca versionar
+.env
+*.env
+!.env.example
+
+# Salidas de compilación
+[Bb]in/
+[Oo]bj/
+dist/
+*.user
+*.suo
+.vs/
+
+# Registro de Access instalado por RegisterAddin.ps1
+*.tlb
+*.reg
+
+# Ignorar carpeta ajena
+balansoft-aiaddin-access/

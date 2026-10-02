@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RunSettings>
+  <!--
+    Configuración de la suite. Se invoca con vstest.console.exe pasando
+    /Settings: apuntando a este fichero sobre el DLL de salida en
+    bin\x86\<Config>\net48\.
+
+    Los tests de integración contra la API de Nvidia están marcados
+    Category=Integration y necesitan NIM_API_KEY en el entorno, así que quedan
+    fuera de la ejecución por defecto (AGENTS.md: comando canónico de test).
+  -->
+  <RunConfiguration>
+    <TargetFrameworkVersion>net48</TargetFrameworkVersion>
+    <TargetPlatform>x86</TargetPlatform>
+    <TestSessionTimeout>900000</TestSessionTimeout>
+    <TestCaseFilter>TestCategory!=Integration</TestCaseFilter>
+    <TreatTestAdapterErrorsAsWarnings>false</TreatTestAdapterErrorsAsWarnings>
+  </RunConfiguration>
+
+  <MSTest>
+    <!-- Ningún test debe necesitar más de 60 s; si lo necesita, el problema
+         está en el test, no en el timeout. -->
+    <TestTimeout>60000</TestTimeout>
+    <CaptureTraceOutput>false</CaptureTraceOutput>
+    <MapNotRunnableToFailed>true</MapNotRunnableToFailed>
+  </MSTest>
+
+  <!--
+    Cobertura: NO se activa aquí a propósito. El proyecto referencia
+    coverlet.collector, pero su collector no llega a la carpeta de salida, así
+    que activarlo haría fallar la ejecución. Para tener cobertura hay que
+    copiar coverlet.collector.dll al bin o usar /p:CollectCoverage con
+    coverlet.msbuild. Pendiente de cerrar.
+  -->
+
+</RunSettings>

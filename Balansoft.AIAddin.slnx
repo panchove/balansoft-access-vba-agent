@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/Balansoft.AIAddin.Access/Balansoft.AIAddin.Access.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/Balansoft.AIAddin.Tests/Balansoft.AIAddin.Tests.csproj" />
+  </Folder>
+</Solution>

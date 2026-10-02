@@ -1,0 +1,54 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  build-pack-release:
+    name: Build + Pack + Release
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', 'Directory.Build.props') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      - name: Build Release x86
+        run: >
+          dotnet build tests\Balansoft.AIAddin.Tests\Balansoft.AIAddin.Tests.csproj
+          -t:Restore,Build
+          -c Release
+          -p:Platform=x86
+          -v:minimal
+          --nologo
+
+      - name: Pack
+        shell: pwsh
+        run: .\scripts\Pack.ps1 -Configuration Release
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: Balansoft.AIAddin.Access-*-x86.zip
+          generate_release_notes: true
+          draft: false
+          prerelease: false

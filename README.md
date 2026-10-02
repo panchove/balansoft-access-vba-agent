@@ -130,4 +130,5 @@ scripts/
 ---
 
 ## 📄 Licencia
-[MIT](LICENSE) – © Balansoft 2026.
+Este proyecto se distribuye bajo la **GNU Lesser General Public License v3.0** (o cualquier versión posterior).
+Véase `LICENSE` para el texto completo. – © Balansoft 2026.

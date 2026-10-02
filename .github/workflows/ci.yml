@@ -1,0 +1,390 @@
+name: CI
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch:
+
+# Cancela runs previos del mismo PR/branch si se pushea de nuevo.
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
+jobs:
+  build-and-test:
+    name: Build + Test (x86)
+    runs-on: windows-latest
+
+    steps:
+      # ─────────────────────────────────────────────
+      # 1. Checkout
+      # ─────────────────────────────────────────────
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # para git rev-parse HEAD (Pack.ps1)
+
+      # ─────────────────────────────────────────────
+      # 2. Setup .NET SDK
+      # ─────────────────────────────────────────────
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+
+# ─────────────────────────────────────────────
+      # 3. Cache NuGet
+      # ─────────────────────────────────────────────
+      - name: Cache NuGet
+        uses: actions/cache@v4
+        with:
+          path: ~/.nuget/packages
+          key: ${{ runner.os }}-nuget-${{ hashFiles('**/*.csproj', 'Directory.Build.props') }}
+          restore-keys: |
+            ${{ runner.os }}-nuget-
+
+      # ─────────────────────────────────────────────
+      # 4. Build Debug x86
+      #
+      # `dotnet build` y no `msbuild`: es el MSBuild del .NET SDK, que es el
+      # único que resuelve Microsoft.NET.Sdk. Un MSBuild de Visual Studio
+      # instalado sin el workload de .NET falla con MSB4236. La arquitectura la
+      # fija Directory.Build.props (PlatformTarget=x86, Prefer32Bit), que es
+      # lo que hace que el ensamblado sea x86 de verdad.
+      #
+      # Se compilan los .csproj, NO la solución. Motivo:
+      # `msbuild Balansoft.AIAddin.slnx /p:Platform=x86` no propaga Platform a
+      # los proyectos SDK-style y escribe en bin\<Config>\ en vez de
+      # bin\x86\<Config>\. Compilando los csproj, la ruta es siempre
+      # bin\x86\<Config>\net48\ y coincide con la que usan Pack.ps1 y
+      # RegisterAddin.ps1.
+      # ─────────────────────────────────────────────
+      - name: Build (Debug x86)
+        run: >
+          dotnet build src\Balansoft.AIAddin.Access\Balansoft.AIAddin.Access.csproj
+          -t:Restore,Build
+          -c Debug
+          -p:Platform=x86
+          -v:minimal
+          --nologo
+
+      - name: Build tests (Debug x86)
+        run: >
+          dotnet build tests\Balansoft.AIAddin.Tests\Balansoft.AIAddin.Tests.csproj
+          -t:Restore,Build
+          -c Debug
+          -p:Platform=x86
+          -v:minimal
+          --nologo
+
+      # ─────────────────────────────────────────────
+      # 5. Build Release x86
+      # ─────────────────────────────────────────────
+      - name: Build (Release x86)
+        run: >
+          dotnet build tests\Balansoft.AIAddin.Tests\Balansoft.AIAddin.Tests.csproj
+          -t:Restore,Build
+          -c Release
+          -p:Platform=x86
+          -v:minimal
+          --nologo
+
+      # ─────────────────────────────────────────────
+      # 6. Test (sin integración NIM)
+      #
+      # `dotnet vstest` y no `dotnet test`: `dotnet test` mete al SDK de por medio
+      # (proyecto de test, trx, cobertura) y para un proyecto de net48 clasico
+      # sustituye el host de test. `dotnet vstest` es el vstest.console.exe del
+      # SDK hablando directo con la DLL: es exactamente lo que se ha verificado
+      # en local (99/99). El switch es /Settings:, no --settings, y el logger
+      # va entrecomillado porque PowerShell trata el punto y coma como
+      # separador de sentencia.
+      # ─────────────────────────────────────────────
+      - name: Test (sin integración NIM)
+        run: >
+          dotnet vstest
+          tests\Balansoft.AIAddin.Tests\bin\x86\Debug\net48\Balansoft.AIAddin.Tests.dll
+          /Settings:.runsettings
+          /Platform:x86
+          '/Logger:trx;LogFileName=test-results.trx'
+
+      # ─────────────────────────────────────────────
+      # 7. Publicar resultados de test
+      #
+      # El .trx lo deja vstest en TestResults\, no en la raíz.
+      # ─────────────────────────────────────────────
+      - name: Publicar resultados de test
+        uses: dorny/test-reporter@v1
+        if: always()
+        with:
+          name: MSTest
+          path: 'TestResults/*.trx'
+          reporter: dotnet-trx
+          fail-on-error: true
+
+      # ─────────────────────────────────────────────
+      # 8. Verificar documentos obligatorios
+      # ─────────────────────────────────────────────
+      - name: Verificar documentos obligatorios
+        shell: pwsh
+        run: |
+          $root = $PWD.Path
+          $errors = @()
+
+          $expected = @(
+              "AGENTS.md",
+              "MEMORY.md",
+              "docs/PRD.md",
+              "docs/constitution.md",
+              "docs/design/ADR-001-project-identity.md",
+              "docs/design/ADR-002-pipe-framing.md",
+              "docs/design/ADR-003-abort-model.md",
+              "docs/design/ADR-004-object-detail.md",
+              "docs/design/20250101-vbe-bridge.md",
+              "docs/design/20250102-nim-client.md",
+              "docs/design/20250103-nim-terminal.md",
+              "docs/design/20250104-secure-store.md",
+              "docs/design/20250106-registration-scripts.md",
+              "docs/design/20250107-logging-version.md",
+              "docs/design/20250108-addin-lifecycle.md",
+              "specs/README.md",
+              "specs/001-addin-lifecycle.md",
+              "specs/002-vbe-bridge.md",
+              "specs/003-nim-client.md",
+              "specs/004-nim-terminal.md",
+              "specs/005-secure-store.md",
+              "specs/006-chat-history.md",
+              "specs/007-access-readonly.md",
+              "specs/008-logging-errors.md",
+              "specs/009-registration.md",
+              "Directory.Build.props",
+              ".runsettings",
+              "Balansoft.AIAddin.slnx",
+              ".opencode/skills/00-project-context.md",
+              ".opencode/skills/01-com-late-binding.md",
+              ".opencode/skills/02-vbe-automation.md",
+              ".opencode/skills/03-nim-client-streaming.md",
+              ".opencode/skills/04-jsonrpc-pipe-bridge.md",
+              ".opencode/skills/05-secure-store-dpapi.md",
+              ".opencode/skills/06-winforms-threading.md",
+              ".opencode/skills/07-registration-scripts.md",
+              ".opencode/skills/08-logging-errors.md",
+              ".opencode/skills/09-testing-strategy.md",
+              ".opencode/skills/10-workflow-big-pickle-nemotron.md"
+          )
+
+          foreach ($f in $expected) {
+              if (-not (Test-Path (Join-Path $root $f))) {
+                  $errors += "Falta: $f"
+              }
+          }
+
+          if ($errors.Count -gt 0) {
+              Write-Host "::error::Faltan documentos obligatorios:"
+              foreach ($e in $errors) { Write-Host "  - $e" }
+              exit 1
+          }
+          Write-Host "OK: los $($expected.Count) documentos están presentes."
+
+      # ─────────────────────────────────────────────
+      # 9. Verificar ausencia de PIAs de Office
+      # ─────────────────────────────────────────────
+      - name: Verificar ausencia de PIAs de Office
+        shell: pwsh
+        run: |
+          $srcDir = Join-Path $PWD "src"
+          if (-not (Test-Path $srcDir)) {
+              Write-Host "ERROR: falta src/."
+              exit 1
+          }
+
+          $hits = Get-ChildItem -Path $srcDir -Recurse -Filter "*.cs" -File |
+                  Where-Object { $_.FullName -notmatch '\\(bin|obj)\\' } |
+                  Select-String -Pattern "Microsoft\.Office\.Interop" -ErrorAction SilentlyContinue
+
+          if ($hits) {
+              Write-Host "::error::Se detectaron referencias a PIAs de Office:"
+              $hits | ForEach-Object { Write-Host "  $($_.Path):$($_.LineNumber): $($_.Line.Trim())" }
+              exit 1
+          }
+          Write-Host "OK: sin PIAs de Office."
+
+      # ─────────────────────────────────────────────
+      # 10. Verificar aislamiento de dynamic
+      # ─────────────────────────────────────────────
+      - name: Verificar aislamiento de dynamic
+        shell: pwsh
+        run: |
+          $srcDir = Join-Path $PWD "src"
+          if (-not (Test-Path $srcDir)) {
+              Write-Host "ERROR: falta src/."
+              exit 1
+          }
+
+          $hits = Get-ChildItem -Path $srcDir -Recurse -Filter "*.cs" -File |
+                  Where-Object { $_.FullName -notmatch '\\(bin|obj)\\' } |
+                  Select-String -Pattern "\bdynamic\b" -ErrorAction SilentlyContinue |
+                  Where-Object { $_.Path -notlike "*\Helpers\BlsComHelper.cs" }
+
+          if ($hits) {
+              Write-Host "::error::'dynamic' fuera de Helpers/BlsComHelper.cs:"
+              $hits | ForEach-Object { Write-Host "  $($_.Path):$($_.LineNumber): $($_.Line.Trim())" }
+              exit 1
+          }
+          Write-Host "OK: 'dynamic' aislado en Helpers/BlsComHelper.cs."
+
+      # ─────────────────────────────────────────────
+      # 11. Verificar que no hay Thread.Sleep en tests
+      # ─────────────────────────────────────────────
+      - name: Verificar ausencia de Thread.Sleep en tests
+        shell: pwsh
+        run: |
+          $testsDir = Join-Path $PWD "tests"
+          if (-not (Test-Path $testsDir)) {
+              Write-Host "ERROR: falta tests/."
+              exit 1
+          }
+
+          $hits = Get-ChildItem -Path $testsDir -Recurse -Filter "*.cs" -File |
+                  Where-Object { $_.FullName -notmatch '\\(bin|obj)\\' } |
+                  Select-String -Pattern "Thread\.Sleep" -ErrorAction SilentlyContinue
+
+          if ($hits) {
+              Write-Host "::error::Thread.Sleep en tests (prohibido por skill 09):"
+              $hits | ForEach-Object { Write-Host "  $($_.Path):$($_.LineNumber): $($_.Line.Trim())" }
+              exit 1
+          }
+          Write-Host "OK: sin Thread.Sleep en tests."
+
+      # ─────────────────────────────────────────────
+      # 12. Verificar que todos los tests de ADR existen
+      #
+      # Gate de aviso, no de fallo: los specs 002/003/005/006/007 están
+      # escritos pero las implementaciones reales de IBlsVbe e IBlsAccess
+      # todavía no existen, así que parte de esta lista no se puede cumplir.
+      # Pasa a exit 1 cuando el MVP esté completo.
+      # ─────────────────────────────────────────────
+      - name: Verificar tests de ADR
+        shell: pwsh
+        run: |
+          $testsDir = Join-Path $PWD "tests"
+          $testFiles = Get-ChildItem -Path $testsDir -Recurse -Filter "*.cs" -File |
+                        Where-Object { $_.FullName -notmatch '\\(bin|obj)\\' }
+          if ($testFiles.Count -eq 0) {
+              Write-Host "::error::No hay tests en tests/."
+              exit 1
+          }
+
+          # Nombres exactos tal y como están en specs/ y en el código.
+          $required = @(
+              # ADR-002 (verificados)
+              "Frame_EnvioSimple_LeeMismoPayload",
+              "Frame_Excede1MB_CierraConError",
+              # ADR-003 (verificados)
+              "SendAsync_CanceladoAntesDelPost_NoHaceRequestYEmiteCancelled",
+              "SendAsync_CanceladoDuranteBackoff_NoReintenta",
+              "SendAsync_SinDatos_LanzaTimeoutReportadoComoError",
+              # ADR-001 (pendiente: IBlsVbe real)
+              "ProjectKey_BaseGuardada_RetornaHash32Hex",
+              "ProjectKey_BaseSinGuardar_RetornaHashConFlagEphemeral",
+              "ProjectKey_DescriptionOverride_UsaValorDeclarado",
+              # ADR-004 (pendiente: IBlsAccess real)
+              "ObjectDetail_Tabla_DevuelveCamposSinSql",
+              "ObjectDetail_SqlExcede8KB_TruncaYMarca"
+          )
+
+          $blocking = @(
+              "Frame_EnvioSimple_LeeMismoPayload",
+              "Frame_Excede1MB_CierraConError",
+              "SendAsync_CanceladoAntesDelPost_NoHaceRequestYEmiteCancelled",
+              "SendAsync_CanceladoDuranteBackoff_NoReintenta",
+              "SendAsync_SinDatos_LanzaTimeoutReportadoComoError"
+          )
+
+          $allContent = ($testFiles | Get-Content -Raw) -join "`n"
+          $missing = @()
+          $missingBlocking = @()
+          foreach ($name in $required) {
+              if ($allContent -notmatch [regex]::Escape($name)) {
+                  $missing += $name
+                  if ($blocking -contains $name) { $missingBlocking += $name }
+              }
+          }
+
+          if ($missing.Count -gt 0) {
+              Write-Host "::warning::Tests de ADR ausentes:"
+              foreach ($m in $missing) { Write-Host "  - $m" }
+          }
+
+          if ($missingBlocking.Count -gt 0) {
+              Write-Host "::error::Tests de ADR implementados que han desaparecido:"
+              foreach ($m in $missingBlocking) { Write-Host "  - $m" }
+              exit 1
+          }
+          Write-Host "OK: los tests de ADR implementados están presentes."
+
+      # ─────────────────────────────────────────────
+      # 13. Verificar referencias cruzadas en MDs
+      # ─────────────────────────────────────────────
+      - name: Verificar referencias cruzadas en MDs
+        shell: pwsh
+        run: |
+          $root = $PWD.Path
+          $patterns = @(
+              @{ Regex = 'docs/design/(ADR-\d{3}-[a-z0-9\-]+\.md)';   Dir = 'docs/design' }
+              @{ Regex = 'docs/design/(\d{8}-[a-z0-9\-]+\.md)';       Dir = 'docs/design' }
+              @{ Regex = '\.opencode/skills/(\d{2}-[a-z0-9\-]+\.md)'; Dir = '.opencode/skills' }
+          )
+
+          $mdFiles = @()
+          $mdFiles += Get-ChildItem -Path (Join-Path $root "docs") -Recurse -Filter "*.md" -File -ErrorAction SilentlyContinue
+          $mdFiles += Get-ChildItem -Path (Join-Path $root ".opencode/skills") -Recurse -Filter "*.md" -File -ErrorAction SilentlyContinue
+          $mdFiles += Get-ChildItem -Path (Join-Path $root "specs") -Filter "*.md" -File -ErrorAction SilentlyContinue
+          $mdFiles += Get-Item (Join-Path $root "AGENTS.md") -ErrorAction SilentlyContinue
+          $mdFiles += Get-Item (Join-Path $root "MEMORY.md") -ErrorAction SilentlyContinue
+
+          $broken = @()
+          foreach ($md in $mdFiles) {
+              $content = Get-Content $md.FullName -Raw -Encoding UTF8
+              foreach ($p in $patterns) {
+                  $matches = [regex]::Matches($content, $p.Regex)
+                  foreach ($m in $matches) {
+                      $refName = $m.Groups[1].Value
+                      $refPath = Join-Path $root "$($p.Dir)/$refName"
+                      if (-not (Test-Path $refPath)) {
+                          $broken += "$($md.Name) -> $refName"
+                      }
+                  }
+              }
+          }
+
+          if ($broken.Count -gt 0) {
+              Write-Host "::error::Referencias cruzadas rotas en MDs:"
+              foreach ($b in $broken) { Write-Host "  - $b" }
+              exit 1
+          }
+          Write-Host "OK: sin referencias cruzadas rotas."
+
+      # ─────────────────────────────────────────────
+      # 14. Pack + Artifact (solo en push a main)
+      # ─────────────────────────────────────────────
+      - name: Pack (solo en main)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        shell: pwsh
+        run: .\scripts\Pack.ps1
+
+      - name: Subir ZIP como artefacto (solo en main)
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: actions/upload-artifact@v4
+        with:
+          name: Balansoft.AIAddin.Access-x86
+          path: Balansoft.AIAddin.Access-*-x86.zip
+          if-no-files-found: warn
+          retention-days: 30
