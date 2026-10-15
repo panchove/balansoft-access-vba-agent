@@ -30,4 +30,17 @@ public sealed class HistoryMessage
     public bool Cancelled { get; set; }
     public string? ToolName { get; set; }       // solo si Role == "tool"
     public string? ToolCallId { get; set; }     // solo si Role == "tool"
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
+    public List<HistoryToolCall>? ToolCalls { get; set; } // solo si Role == "assistant" y llamo herramientas
+}
+
+/// <summary>
+/// Representacion serializable de una tool call realizada por el asistente en el historial.
+/// </summary>
+public sealed class HistoryToolCall
+{
+    public string Id { get; set; } = "";
+    public string Name { get; set; } = "";
+    public string ArgumentsJson { get; set; } = "{}";
 }

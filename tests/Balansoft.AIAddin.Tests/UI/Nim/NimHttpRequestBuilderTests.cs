@@ -129,15 +129,17 @@ public class NimHttpRequestBuilderTests
     [TestMethod]
     public void BuildJson_MensajeTool_IncluyeToolCallId()
     {
+        var call = new ToolCallComplete("call_1", "test_tool", "{}");
         var messages = new List<ChatMessage>
         {
+            ChatMessage.AssistantWithToolCalls(new[] { call }),
             ChatMessage.ToolResult("call_1", "{\"ok\":true}")
         };
 
         var json = Build(null, messages);
 
         using var doc = JsonDocument.Parse(json);
-        var msg = doc.RootElement.GetProperty("messages")[0];
+        var msg = doc.RootElement.GetProperty("messages")[1];
         Assert.AreEqual("tool", msg.GetProperty("role").GetString());
         Assert.AreEqual("call_1", msg.GetProperty("tool_call_id").GetString());
     }

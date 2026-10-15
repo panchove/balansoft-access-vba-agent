@@ -443,7 +443,36 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
             foreach (var msg in _currentDoc?.Messages ?? Enumerable.Empty<HistoryMessage>())
             {
-                messages.Add(new ChatMessage(msg.Role, msg.Content));
+                if (msg.Role == "user")
+                {
+                    messages.Add(new ChatMessage("user", msg.Content));
+                }
+                else if (msg.Role == "assistant")
+                {
+                    if (msg.ToolCalls != null && msg.ToolCalls.Count > 0)
+                    {
+                        var toolCalls = msg.ToolCalls.Select(tc => new AssistantToolCall
+                        {
+                            Id = tc.Id,
+                            Type = "function",
+                            Function = new AssistantToolCallFunction
+                            {
+                                Name = tc.Name,
+                                Arguments = tc.ArgumentsJson
+                            }
+                        }).ToList();
+
+                        messages.Add(new ChatMessage("assistant", msg.Content) { ToolCalls = toolCalls });
+                    }
+                    else
+                    {
+                        messages.Add(new ChatMessage("assistant", msg.Content));
+                    }
+                }
+                else if (msg.Role == "tool")
+                {
+                    messages.Add(new ChatMessage("tool", msg.Content) { ToolCallId = msg.ToolCallId ?? string.Empty });
+                }
             }
 
             messages.Add(new ChatMessage("user", prompt));
@@ -558,7 +587,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             // El modelo pidió tools: primero su mensaje assistant con tool_calls,
             // luego un mensaje role="tool" por cada resultado.
             working.Add(ChatMessage.AssistantWithToolCalls(calls) with { Content = assistantText });
-            CommitAssistantText(assistantText);
+            CommitAssistantText(assistantText, cancelled: false, calls: calls);
 
             SetState("Ejecutando tool");
 
@@ -718,18 +747,29 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         CommitAssistantText(text ?? string.Empty, cancelled);
     }
 
-    private void CommitAssistantText(string text, bool cancelled = false)
+    private void CommitAssistantText(string text, bool cancelled = false, IReadOnlyList<ToolCallComplete>? calls = null)
     {
         OnUi(() =>
         {
-            if (!string.IsNullOrEmpty(text) && _currentDoc != null)
+            var hasCalls = calls != null && calls.Count > 0;
+            if ((!string.IsNullOrEmpty(text) || hasCalls) && _currentDoc != null)
             {
+                var historyCalls = hasCalls
+                    ? calls!.Select(c => new HistoryToolCall
+                    {
+                        Id = c.Id,
+                        Name = c.Name,
+                        ArgumentsJson = c.ArgumentsJson
+                    }).ToList()
+                    : null;
+
                 _currentDoc.Messages.Add(new HistoryMessage
                 {
                     Role = "assistant",
                     Content = text,
                     Ts = DateTime.UtcNow,
-                    Cancelled = cancelled
+                    Cancelled = cancelled,
+                    ToolCalls = historyCalls
                 });
             }
 
@@ -844,12 +884,12 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
     private void AppendToolResultMessage(string toolName, string json, string? toolCallId = null)
     {
-        SetToolRowText(toolCallId ?? string.Empty, "âœ“ ", toolName, json, Color.DarkGreen);
+        SetToolRowText(toolCallId ?? string.Empty, "\u2713 ", toolName, json, Color.DarkGreen);
     }
 
     private void AppendToolErrorMessage(string toolName, string error, string? toolCallId = null)
     {
-        SetToolRowText(toolCallId ?? string.Empty, "âœ— ", toolName, error, Color.DarkRed);
+        SetToolRowText(toolCallId ?? string.Empty, "\u2717 ", toolName, error, Color.DarkRed);
     }
 
     private void AppendError(string message)
@@ -883,7 +923,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             var content = msg.Content;
             if (msg.Role == "tool" && !string.IsNullOrEmpty(msg.ToolName))
             {
-                content = (msg.Content.StartsWith("{\"error") ? "âœ—" : "âœ“") + " " + msg.ToolName + ": " + msg.Content;
+                content = (msg.Content.StartsWith("{\"error") ? "\u2717" : "\u2713") + " " + msg.ToolName + ": " + msg.Content;
             }
             else if (msg.Cancelled)
             {

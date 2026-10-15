@@ -310,9 +310,9 @@ Estos puntos del diagnóstico inicial ya no son deuda; se resuelven con
 - `docs/design/20250103-nim-terminal.md:285-334` describe el `OnToolCall` /
   `OnDone` antiguos, que provocaban una carrera entre el loop de herramientas
   y el cierre del turno. El código ya no los sigue.
-- `HistoryMessage` no tiene campo `ToolCalls`; al reconstruir una conversación
-  desde historial se puede enviar un `role="tool"` sin el `assistant` con
-  `tool_calls` que lo precede, que NIM rechaza con 400.
+- `HistoryMessage` soporta `ToolCalls` y `NimMessageSanitizer` sanea las secuencias
+  de mensajes hacia NIM garantizando correspondencia estricta de `tool_call_id` y
+  `tool_calls` para evitar HTTP 400.
 - La CI espera 7 tests de ADR por nombre que no existen, y dos de los que sí
   existen tienen nombres distintos a los que busca (`Turno_*`).
 - `Frame_Vacio_RespondeInvalidRequest` y `Frame_JsonInvalido_RespondeInvalidRequest`

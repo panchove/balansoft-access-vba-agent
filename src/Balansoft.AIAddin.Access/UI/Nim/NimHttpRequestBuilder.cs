@@ -39,11 +39,12 @@ internal static class NimHttpRequestBuilder
         IReadOnlyList<ToolDefinition> tools)
     {
         var hasTools = tools != null && tools.Count > 0;
+        var sanitizedMessages = NimMessageSanitizer.Sanitize(messages ?? Array.Empty<ChatMessage>());
 
         var payload = new
         {
             model = model,
-            messages = messages ?? new List<ChatMessage>(),
+            messages = sanitizedMessages,
             tools = hasTools ? tools.Select(Wrap).ToList() : (object)null,
             tool_choice = hasTools ? "auto" : (object)null,
             stream = true,
