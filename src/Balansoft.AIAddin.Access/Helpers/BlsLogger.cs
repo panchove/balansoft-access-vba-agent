@@ -39,7 +39,7 @@ namespace Balansoft.AIAddin.Helpers
                 var line = $"{DateTime.UtcNow:O} [{level}] [{component}] {message}";
                 if (ex != null)
                 {
-                    line += $" - Exception: {ex.GetType().Name}: {ex.Message}{Environment.NewLine}{ex.StackTrace}";
+                    line += $" - Exception: {ex.ToString()}";
                 }
 
                 lock (_lock)

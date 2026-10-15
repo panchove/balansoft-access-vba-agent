@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright Â© 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -68,6 +68,12 @@ public sealed class BlsNimClient : IBlsNimClient
         _backoffDelays = (backoffDelays != null && backoffDelays.Length > 0)
             ? backoffDelays
             : BackoffDelays;
+
+        try
+        {
+            ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12 | (SecurityProtocolType)12288;
+        }
+        catch { }
     }
 
     public async Task SendAsync(
@@ -130,8 +136,9 @@ public sealed class BlsNimClient : IBlsNimClient
         }
         catch (Exception ex)
         {
-            _logger.Error("BlsNimClient", "ExcepciÃ³n no controlada en SendAsync", ex);
-            sink.OnError(new BlsNimException("Error interno del cliente NIM", null, ex));
+            _logger.Error("BlsNimClient", "Excepción no controlada en SendAsync", ex);
+            var inner = ex.InnerException != null ? $": {ex.InnerException.Message}" : "";
+            sink.OnError(new BlsNimException($"Error de conexión con NIM ({ex.Message}{inner})", null, ex));
         }
     }
 

@@ -235,19 +235,19 @@ internal interface IAddinLifecycleObserver
 
 ## 4. Invariantes afectados
 
-| Fuente                   | Invariante                    | Cómo se cumple                                     |
-|--------------------------|-------------------------------|----------------------------------------------------|
-| AGENTS.md regla 1        | Sin PIAs                      | `object` + `dynamic` solo en `BlsComHelper`        |
-| AGENTS.md regla 2        | Sin ROT                       | `Application` viene por parámetro                  |
-| AGENTS.md regla 3        | Marshaling UI                 | `IUiScheduler` se crea en `OnConnection` (hilo UI) |
-| AGENTS.md regla 5        | Errores reales                | `OnConnection` nunca traga; loguea y degrada       |
-| ADR-002                  | Bridge arranca en `AttachVbe` | `Start()` llamado tras `VbeAttachResult.Available` |
-| ADR-003                  | Abort al shutdown             | `Shutdown` cancela turno activo vía terminal       |
-| PRD FR-01                | Carga en `OnStartupComplete`  | Todo el arranque se hace ahí, no en `OnConnection` |
-| PRD FR-01                | Tolerante a `COMException`    | `try/catch` en cada callback                       |
-| PRD FR-01                | Tolerante a `VBE == null`     | `VbeAttachResult`                                  |
-| PRD FR-05                | Menú Tools                    | `BlsVbeMenuManager.EnsureMenu` tras VBE            |
-| skill bls-winforms-threading §1              | Una sola terminal             | Gestionada por `BlsNimTerminal.ShowOrFocus`        |
+| Fuente                                   | Invariante                    | Cómo se cumple                                     |
+|------------------------------------------|-------------------------------|----------------------------------------------------|
+| AGENTS.md regla 1                        | Sin PIAs                      | `object` + `dynamic` solo en `BlsComHelper`        |
+| AGENTS.md regla 2                        | Sin ROT                       | `Application` viene por parámetro                  |
+| AGENTS.md regla 3                        | Marshaling UI                 | `IUiScheduler` se crea en `OnConnection` (hilo UI) |
+| AGENTS.md regla 5                        | Errores reales                | `OnConnection` nunca traga; loguea y degrada       |
+| ADR-002                                  | Bridge arranca en `AttachVbe` | `Start()` llamado tras `VbeAttachResult.Available` |
+| ADR-003                                  | Abort al shutdown             | `Shutdown` cancela turno activo vía terminal       |
+| PRD FR-01                                | Carga en `OnStartupComplete`  | Todo el arranque se hace ahí, no en `OnConnection` |
+| PRD FR-01                                | Tolerante a `COMException`    | `try/catch` en cada callback                       |
+| PRD FR-01                                | Tolerante a `VBE == null`     | `VbeAttachResult`                                  |
+| PRD FR-05                                | Menú Tools                    | `BlsVbeMenuManager.EnsureMenu` tras VBE            |
+| skill bls-winforms-threading §1          | Una sola terminal             | Gestionada por `BlsNimTerminal.ShowOrFocus`        |
 | skill bls-logging-errors §Captura global | Handlers al arranque          | `GlobalExceptionHandlers.Register`                 |
 | skill bls-vbe-automation                 | `AttachVbe` antes de bridge   | Orden explícito en `AddinServiceContainer`         |
 

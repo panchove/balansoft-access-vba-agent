@@ -141,19 +141,19 @@ loguear el estado (skill bls-logging-errors).
 
 ## 4. Invariantes afectados
 
-| Fuente            | Invariante                             | Cómo se cumple                             |
-|-------------------|----------------------------------------|--------------------------------------------|
-| AGENTS.md regla 6 | `PlatformTarget=x86`                   | `Directory.Build.props`                    |
-| AGENTS.md regla 7 | Warnings as errors                     | `Directory.Build.props`                    |
-| PRD FR-06         | Solo HKCU                              | `BlsAddinRegistrar` escribe en `HKCU`      |
-| PRD FR-06         | LoadBehavior = 3                       | `EnsureAddinKey` y script                  |
-| PRD FR-06         | Scripts (des)registro                  | `RegisterAddin.ps1`, `UnregisterAddin.ps1` |
-| PRD FR-06         | Sin admin                              | No hay escritura en HKLM                   |
-| skill bls-registration-scripts          | regasm x86                             | `Framework\v4.0.30319\regasm.exe`          |
-| skill bls-registration-scripts          | Idempotencia                           | Scripts con `-Force` y tolerancia          |
-| skill bls-registration-scripts          | PS 5.1                                 | Sintaxis compatible                        |
-| skill bls-registration-scripts          | Verificar `LoadBehavior` tras arranque | Log de arranque con `GetRegistrationInfo`  |
-| PRD §11.1         | Carga sin errores                      | Verificado por checklist manual            |
+| Fuente                         | Invariante                             | Cómo se cumple                             |
+|--------------------------------|----------------------------------------|--------------------------------------------|
+| AGENTS.md regla 6              | `PlatformTarget=x86`                   | `Directory.Build.props`                    |
+| AGENTS.md regla 7              | Warnings as errors                     | `Directory.Build.props`                    |
+| PRD FR-06                      | Solo HKCU                              | `BlsAddinRegistrar` escribe en `HKCU`      |
+| PRD FR-06                      | LoadBehavior = 3                       | `EnsureAddinKey` y script                  |
+| PRD FR-06                      | Scripts (des)registro                  | `RegisterAddin.ps1`, `UnregisterAddin.ps1` |
+| PRD FR-06                      | Sin admin                              | No hay escritura en HKLM                   |
+| skill bls-registration-scripts | regasm x86                             | `Framework\v4.0.30319\regasm.exe`          |
+| skill bls-registration-scripts | Idempotencia                           | Scripts con `-Force` y tolerancia          |
+| skill bls-registration-scripts | PS 5.1                                 | Sintaxis compatible                        |
+| skill bls-registration-scripts | Verificar `LoadBehavior` tras arranque | Log de arranque con `GetRegistrationInfo`  |
+| PRD §11.1                      | Carga sin errores                      | Verificado por checklist manual            |
 
 ---
 

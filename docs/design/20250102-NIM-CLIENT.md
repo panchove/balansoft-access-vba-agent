@@ -205,19 +205,19 @@ internal static class NimHttpRequestBuilder
 
 ## 4. Invariantes afectados
 
-| Fuente             | Invariante                | Cómo se cumple                                                                     |
-|--------------------|---------------------------|------------------------------------------------------------------------------------|
-| AGENTS.md regla 4  | API key solo DPAPI        | Se lee de `IBlsSecureStore`, nunca se loguea                                       |
-| AGENTS.md regla 5  | Errores reales            | Excepciones tipadas, body preservado                                               |
-| AGENTS.md regla 10 | Abort ADR-003             | `CancellationToken` por turno, `OnCancelled()` no error                            |
-| ADR-003            | Cancelación ≠ timeout     | `OperationCanceledException` → `OnCancelled()`; timeout → `BlsNimTimeoutException` |
-| ADR-003            | Retry respeta cancelación | `ct.ThrowIfCancellationRequested()` antes de cada retry                            |
-| PRD FR-09          | Timeout 120s              | Timeout por chunk con `CancelAfter(120s)`                                          |
-| PRD FR-09          | Tool calls via bridge     | El cliente **no** ejecuta; emite `OnToolCall`                                      |
-| PRD FR-09          | Reconexión                | Retry con backoff 1s/2s/4s en 429/5xx                                              |
-| skill bls-nim-client-streaming §1        | HttpClient único          | Inyectado, no creado por request                                                   |
-| skill bls-nim-client-streaming §2        | `ResponseHeadersRead`     | Forzado en `HttpRequestMessage`                                                    |
-| skill bls-nim-client-streaming §4        | Tool_calls por `index`    | `NimStreamParser` acumula por índice                                               |
+| Fuente                            | Invariante                | Cómo se cumple                                                                     |
+|-----------------------------------|---------------------------|------------------------------------------------------------------------------------|
+| AGENTS.md regla 4                 | API key solo DPAPI        | Se lee de `IBlsSecureStore`, nunca se loguea                                       |
+| AGENTS.md regla 5                 | Errores reales            | Excepciones tipadas, body preservado                                               |
+| AGENTS.md regla 10                | Abort ADR-003             | `CancellationToken` por turno, `OnCancelled()` no error                            |
+| ADR-003                           | Cancelación ≠ timeout     | `OperationCanceledException` → `OnCancelled()`; timeout → `BlsNimTimeoutException` |
+| ADR-003                           | Retry respeta cancelación | `ct.ThrowIfCancellationRequested()` antes de cada retry                            |
+| PRD FR-09                         | Timeout 120s              | Timeout por chunk con `CancelAfter(120s)`                                          |
+| PRD FR-09                         | Tool calls via bridge     | El cliente **no** ejecuta; emite `OnToolCall`                                      |
+| PRD FR-09                         | Reconexión                | Retry con backoff 1s/2s/4s en 429/5xx                                              |
+| skill bls-nim-client-streaming §1 | HttpClient único          | Inyectado, no creado por request                                                   |
+| skill bls-nim-client-streaming §2 | `ResponseHeadersRead`     | Forzado en `HttpRequestMessage`                                                    |
+| skill bls-nim-client-streaming §4 | Tool_calls por `index`    | `NimStreamParser` acumula por índice                                               |
 
 ---
 

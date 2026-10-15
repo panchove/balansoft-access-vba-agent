@@ -124,7 +124,11 @@ namespace Balansoft.AIAddin.Access.Helpers
             try
             {
                 dynamic v = vbe;
-                return (IntPtr)(long)v.MainWindow.HWnd;
+                object rawHwnd = v.MainWindow.HWnd;
+                if (rawHwnd is int intVal) return new IntPtr(intVal);
+                if (rawHwnd is long longVal) return new IntPtr(longVal);
+                if (rawHwnd is IntPtr ptrVal) return ptrVal;
+                return new IntPtr(Convert.ToInt32(rawHwnd));
             }
             catch
             {

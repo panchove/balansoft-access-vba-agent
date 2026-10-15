@@ -1,4 +1,4 @@
-﻿# Registro de Code Issues y Good Practices - Balansoft Access VBA Agent
+# Registro de Code Issues y Good Practices - Balansoft Access VBA Agent
 
 ## Versión: 1.0.0
 ## Fecha: 2025-10-15

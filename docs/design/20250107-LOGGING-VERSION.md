@@ -182,18 +182,18 @@ internal static class GlobalExceptionHandlers
 
 ## 4. Invariantes afectados
 
-| Fuente            | Invariante                        | Cómo se cumple                                    |
-|-------------------|-----------------------------------|---------------------------------------------------|
-| AGENTS.md regla 4 | Nunca API key en log              | Revisión de cada llamada + test                   |
-| AGENTS.md regla 5 | Errores reales                    | `Error(ex)` incluye tipo + mensaje + HResult      |
-| PRD FR-07         | Rotación 7 días                   | `RotateOldLogs()` en constructor                  |
-| PRD FR-07         | Captura global                    | `GlobalExceptionHandlers.Register`                |
-| PRD FR-07         | Versión + commit en primera línea | `BlsVersionContext.BuildFirstLine`                |
-| skill bls-logging-errors          | Formato canónico                  | `Write(...)` centralizado                         |
-| skill bls-logging-errors          | Nivel alineado 5 chars            | `level.PadRight(5)`                               |
-| skill bls-logging-errors          | Stack solo en Debug               | `#if DEBUG` en `Error`                            |
-| skill bls-logging-errors          | Cancelación ≠ error               | `BlsLogger` no distingue; lo hacen los llamadores |
-| skill bls-logging-errors          | No loguear código VBA completo    | Llamadores truncan a 80 chars                     |
+| Fuente                   | Invariante                        | Cómo se cumple                                    |
+|--------------------------|-----------------------------------|---------------------------------------------------|
+| AGENTS.md regla 4        | Nunca API key en log              | Revisión de cada llamada + test                   |
+| AGENTS.md regla 5        | Errores reales                    | `Error(ex)` incluye tipo + mensaje + HResult      |
+| PRD FR-07                | Rotación 7 días                   | `RotateOldLogs()` en constructor                  |
+| PRD FR-07                | Captura global                    | `GlobalExceptionHandlers.Register`                |
+| PRD FR-07                | Versión + commit en primera línea | `BlsVersionContext.BuildFirstLine`                |
+| skill bls-logging-errors | Formato canónico                  | `Write(...)` centralizado                         |
+| skill bls-logging-errors | Nivel alineado 5 chars            | `level.PadRight(5)`                               |
+| skill bls-logging-errors | Stack solo en Debug               | `#if DEBUG` en `Error`                            |
+| skill bls-logging-errors | Cancelación ≠ error               | `BlsLogger` no distingue; lo hacen los llamadores |
+| skill bls-logging-errors | No loguear código VBA completo    | Llamadores truncan a 80 chars                     |
 
 ---
 

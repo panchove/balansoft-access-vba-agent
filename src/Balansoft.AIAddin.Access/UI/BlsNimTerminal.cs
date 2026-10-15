@@ -1,10 +1,12 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright Â© 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -21,6 +23,46 @@ namespace Balansoft.AIAddin.UI;
 /// </summary>
 public sealed class BlsNimTerminal : Form, IBlsNimSink
 {
+    static BlsNimTerminal()
+    {
+        AppDomain.CurrentDomain.AssemblyResolve += ResolveAddinAssembly;
+    }
+
+    private static Assembly? ResolveAddinAssembly(object? sender, ResolveEventArgs args)
+    {
+        try
+        {
+            var requestedName = new AssemblyName(args.Name).Name;
+            if (string.IsNullOrEmpty(requestedName)) return null;
+
+            string? addinDir = null;
+            var location = typeof(BlsNimTerminal).Assembly.Location;
+            if (!string.IsNullOrEmpty(location))
+            {
+                addinDir = Path.GetDirectoryName(location);
+            }
+            else
+            {
+                var codeBase = typeof(BlsNimTerminal).Assembly.CodeBase;
+                if (!string.IsNullOrEmpty(codeBase))
+                {
+                    var uri = new Uri(codeBase);
+                    addinDir = Path.GetDirectoryName(uri.LocalPath);
+                }
+            }
+
+            if (string.IsNullOrEmpty(addinDir)) return null;
+
+            var targetFile = Path.Combine(addinDir, requestedName + ".dll");
+            if (File.Exists(targetFile))
+            {
+                return Assembly.LoadFrom(targetFile);
+            }
+        }
+        catch { }
+        return null;
+    }
+
     private const int MaxSelectionLength = 32 * 1024; // 32 KB
 
     /// <summary>Tope de vueltas de herramientas por turno, para no entrar en bucle infinito.</summary>
@@ -53,6 +95,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     // Controles UI
     private ListView _conversation = null!;
     private TextBox _input = null!;
+    private Button _btnEnviar = null!;
     private Button _btnDetener = null!;
     private Label _lblStatus = null!;
 
@@ -118,33 +161,45 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             userInputDialog);
 
         _instanceRef = new WeakReference<BlsNimTerminal>(terminal);
-        terminal.Show(owner);
+        if (owner != null && owner.Handle != IntPtr.Zero)
+        {
+            terminal.Show(owner);
+        }
+        else
+        {
+            terminal.Show();
+        }
+        terminal.BringToFront();
+        terminal.Activate();
         return terminal;
     }
 
     private void InitializeComponent()
     {
-        // ConfiguraciÃ³n del Form
+        // Configuracion del Form
         Text = "NIM Terminal";
+        Size = new Size(800, 600);
         MinimumSize = new Size(600, 400);
-        StartPosition = FormStartPosition.CenterParent;
-        ShowInTaskbar = false;
+        StartPosition = FormStartPosition.CenterScreen;
+        ShowInTaskbar = true;
         MinimizeBox = true;
         MaximizeBox = true;
         FormBorderStyle = FormBorderStyle.Sizable;
         KeyPreview = true;
 
-        // SplitContainer principal
+        // SplitContainer principal (Horizontal: Arriba conversación, Abajo caja de entrada)
         var split = new SplitContainer
         {
             Dock = DockStyle.Fill,
-            Orientation = Orientation.Vertical,
-            SplitterDistance = 300,
+            Orientation = Orientation.Horizontal,
+            SplitterDistance = 420,
             FixedPanel = FixedPanel.Panel2,
+            Panel2MinSize = 110,
+            SplitterWidth = 4,
             IsSplitterFixed = false
         };
 
-        // Panel superior: ListView de conversaciÃ³n
+        // Panel superior: ListView de conversación
         _conversation = new ListView
         {
             Dock = DockStyle.Fill,
@@ -157,9 +212,19 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             Scrollable = true,
             Font = new Font("Segoe UI", 9F)
         };
-        _conversation.Columns.Add("Rol", 80);
+        _conversation.Columns.Add("Rol", 85);
         _conversation.Columns.Add("Mensaje", -2); // Fill
-        _conversation.HeaderStyle = ColumnHeaderStyle.Nonclickable;
+        _conversation.Resize += (s, e) =>
+        {
+            if (_conversation.Columns.Count > 1)
+            {
+                int remaining = _conversation.ClientSize.Width - _conversation.Columns[0].Width - SystemInformation.VerticalScrollBarWidth - 4;
+                if (remaining > 100)
+                {
+                    _conversation.Columns[1].Width = remaining;
+                }
+            }
+        };
 
         split.Panel1.Controls.Add(_conversation);
 
@@ -167,25 +232,14 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         var bottomPanel = new Panel
         {
             Dock = DockStyle.Fill,
-            Padding = new Padding(5)
-        };
-
-        _input = new TextBox
-        {
-            Dock = DockStyle.Fill,
-            Multiline = true,
-            AcceptsReturn = true,
-            ScrollBars = ScrollBars.Vertical,
-            Font = new Font("Consolas", 9F),
-            AcceptsTab = false,
-            Height = 80
+            Padding = new Padding(6)
         };
 
         var bottomControls = new Panel
         {
             Dock = DockStyle.Bottom,
-            Height = 40,
-            Padding = new Padding(5)
+            Height = 32,
+            Padding = new Padding(0, 4, 0, 0)
         };
 
         _btnDetener = new Button
@@ -194,38 +248,50 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             Dock = DockStyle.Right,
             Enabled = false,
             Width = 80,
-            Height = 30,
-            Anchor = AnchorStyles.Top | AnchorStyles.Right
+            Height = 28
+        };
+
+        _btnEnviar = new Button
+        {
+            Text = "Enviar",
+            Dock = DockStyle.Right,
+            Width = 80,
+            Height = 28
         };
 
         _lblStatus = new Label
         {
             Text = "Listo",
-            Dock = DockStyle.Left,
-            AutoSize = true,
-            Anchor = AnchorStyles.Top | AnchorStyles.Left,
+            Dock = DockStyle.Fill,
+            TextAlign = ContentAlignment.MiddleLeft,
             ForeColor = Color.DimGray,
-            Font = new Font("Segoe UI", 8F, FontStyle.Italic)
+            Font = new Font("Segoe UI", 8.5F, FontStyle.Italic)
         };
 
+        // En WinForms Dock=Right, el primero agregado queda al extremo derecho
         bottomControls.Controls.Add(_lblStatus);
+        bottomControls.Controls.Add(_btnEnviar);
         bottomControls.Controls.Add(_btnDetener);
+
+        _input = new TextBox
+        {
+            Dock = DockStyle.Fill,
+            Multiline = true,
+            AcceptsReturn = true,
+            ScrollBars = ScrollBars.Vertical,
+            Font = new Font("Consolas", 9.5F),
+            AcceptsTab = false
+        };
 
         _input.KeyDown += OnInputKeyDown;
         _btnDetener.Click += OnDetenerClick;
+        _btnEnviar.Click += (s, e) => OnSendClick(this, EventArgs.Empty);
 
-        var inputPanel = new Panel
-        {
-            Dock = DockStyle.Top,
-            Height = 85,
-            Padding = new Padding(5, 0, 5, 5)
-        };
-        inputPanel.Controls.Add(_input);
-
-        bottomPanel.Controls.Add(inputPanel);
+        bottomPanel.Controls.Add(_input);
         bottomPanel.Controls.Add(bottomControls);
-        split.Panel2.Controls.Add(bottomPanel);
+        _input.BringToFront();
 
+        split.Panel2.Controls.Add(bottomPanel);
         Controls.Add(split);
 
         // Eventos
@@ -295,9 +361,19 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
         _currentTurnCts = new CancellationTokenSource();
         _btnDetener.Enabled = true;
+        _btnEnviar.Enabled = false;
         SetState("Pensando...");
 
-        await RunTurnAsync(prompt, _currentTurnCts.Token);
+        try
+        {
+            await RunTurnAsync(prompt, _currentTurnCts.Token);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error("BlsNimTerminal", "Excepción en OnSendClick", ex);
+            AppendError($"Error: {ex.Message}");
+            SetState("Error");
+        }
     }
 
     private void OnDetenerClick(object? sender, EventArgs e)
@@ -336,13 +412,6 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             var context = await _vbeContext.GetAsync(ct);
             var projectKeyInfo = _vbe.GetProjectKey();
 
-            // Obtener info del proyecto para el prompt
-            var projectSummary = await _bridgeClient.InvokeAsync<JsonElement>(
-                "project_summary", null, ct);
-
-            var projectName = projectSummary.GetProperty("name").GetString() ?? "Desconocido";
-            var counts = projectSummary.GetProperty("counts");
-
             var tools = BuildToolDefinitions();
 
             var systemPrompt = _promptBuilder.Build(
@@ -378,11 +447,17 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
-            // OnCancelled ya se llamÃ³ desde el cliente
+            // OnCancelled ya se llamó desde el cliente
             CommitAssistantMessage(cancelled: true);
         }
         catch (BlsNimException ex)
         {
+            AppendError(ex.Message);
+            CommitAssistantMessage(cancelled: false);
+        }
+        catch (Exception ex)
+        {
+            _logger.Error("BlsNimTerminal", "Error durante el turno", ex);
             AppendError(ex.Message);
             CommitAssistantMessage(cancelled: false);
         }
@@ -391,6 +466,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             _currentTurnCts?.Dispose();
             _currentTurnCts = null;
             _btnDetener.Enabled = false;
+            _btnEnviar.Enabled = true;
 
             string? terminal;
             lock (_turnSync)

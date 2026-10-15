@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
+using System.IO;
 using System.Net.Http;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -24,6 +25,50 @@ namespace Balansoft.AIAddin.Access
     [ComDefaultInterface(typeof(IDTExtensibility2))]
     public class AddinConnect : IDTExtensibility2
     {
+        static AddinConnect()
+        {
+            AppDomain.CurrentDomain.AssemblyResolve += ResolveAddinAssembly;
+        }
+
+        private static Assembly? ResolveAddinAssembly(object? sender, ResolveEventArgs args)
+        {
+            try
+            {
+                var requestedName = new AssemblyName(args.Name).Name;
+                if (string.IsNullOrEmpty(requestedName)) return null;
+
+                string? addinDir = null;
+                var location = typeof(AddinConnect).Assembly.Location;
+                if (!string.IsNullOrEmpty(location))
+                {
+                    addinDir = Path.GetDirectoryName(location);
+                }
+                else
+                {
+                    var codeBase = typeof(AddinConnect).Assembly.CodeBase;
+                    if (!string.IsNullOrEmpty(codeBase))
+                    {
+                        var uri = new Uri(codeBase);
+                        addinDir = Path.GetDirectoryName(uri.LocalPath);
+                    }
+                }
+
+                if (string.IsNullOrEmpty(addinDir)) return null;
+
+                var targetFile = Path.Combine(addinDir, requestedName + ".dll");
+                if (File.Exists(targetFile))
+                {
+                    return Assembly.LoadFrom(targetFile);
+                }
+            }
+            catch
+            {
+                // Ignorar fallos de resolución secundarios
+            }
+
+            return null;
+        }
+
         private object? _accessApp;
         private object? _vbe;
         private object? _commandBarButton;
@@ -42,6 +87,7 @@ namespace Balansoft.AIAddin.Access
         private IVbeContextProvider? _vbeContext;
         private ISystemPromptBuilder? _promptBuilder;
         private IUserInputDialog? _userInputDialog;
+        private BlsNimTerminal? _terminal;
 
         public void OnConnection(object application, ext_ConnectMode connectMode, object addInInst, ref Array custom)
         {
@@ -62,21 +108,44 @@ namespace Balansoft.AIAddin.Access
             RemoveMenu();
             try
             {
-                _bridgeServer?.StopAsync(TimeSpan.FromSeconds(2)).GetAwaiter().GetResult();
+                if (_terminal != null && !_terminal.IsDisposed)
+                {
+                    _terminal.Close();
+                    _terminal.Dispose();
+                    _terminal = null;
+                }
+
+                _bridgeServer?.StopAsync(TimeSpan.FromSeconds(1)).GetAwaiter().GetResult();
                 _bridgeServer?.Dispose();
                 _bridgeClient?.Dispose();
                 (_chatHistory as IDisposable)?.Dispose();
                 _httpClient?.Dispose();
             }
-            catch { throw; }
+            catch (Exception ex)
+            {
+                _logger?.Error("AddinConnect", "Error durante OnDisconnection", ex);
+            }
 
+            _terminal = null;
             _bridgeServer = null;
             _bridgeClient = null;
             _chatHistory = null;
             _httpClient = null;
             _nimClient = null;
+            _vbeService = null;
+            _accessService = null;
+            _uiScheduler = null;
+            _vbeContext = null;
+            _promptBuilder = null;
+            _userInputDialog = null;
+            _secureStore = null;
+            _logger = null;
             _vbe = null;
             _accessApp = null;
+
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            GC.Collect();
         }
 
         public void OnStartupComplete(ref Array custom)
@@ -213,7 +282,7 @@ namespace Balansoft.AIAddin.Access
                     _commandBarButton = null;
                 }
             }
-            catch { throw; }
+            catch { }
         }
 
         internal void OnMenuClick(object ctrl, ref bool cancelDefault)
@@ -229,10 +298,21 @@ namespace Balansoft.AIAddin.Access
                     return;
                 }
 
+                // Asegurarse de que dispongamos de un VBE (puede ser nulo si no hay proyecto abierto)
+                if (_vbe == null && _accessApp != null)
+                {
+                    _vbe = BlsComHelper.GetVbe(_accessApp);
+                }
+                if (_vbe == null)
+                {
+                    MessageBox.Show("No se puede abrir la terminal NIM sin un proyecto de VBA abierto.", "Balansoft AI Add-in", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    return;
+                }
+
                 IntPtr vbeHwnd = BlsComHelper.GetVbeHwnd(_vbe);
                 IWin32Window? owner = vbeHwnd != IntPtr.Zero ? new WindowWrapper(vbeHwnd) : null;
 
-                BlsNimTerminal.ShowOrFocus(
+                _terminal = BlsNimTerminal.ShowOrFocus(
                     owner!,
                     _nimClient,
                     _bridgeClient,
@@ -243,6 +323,10 @@ namespace Balansoft.AIAddin.Access
                     _vbeContext,
                     _promptBuilder,
                     _userInputDialog);
+
+                _terminal.FormClosed += (s, e) => { _terminal = null; };
+                _terminal.BringToFront();
+                _terminal.Activate();
             }
             catch (Exception ex)
             {

@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright Â© 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -39,6 +39,7 @@ public sealed class BlsVbeBridgeServer : IBlsBridgeServer
     private volatile bool _isRunning;
     private readonly TaskCompletionSource<bool> _startedTcs = new(TaskCreationOptions.RunContinuationsAsynchronously);
     private readonly ConcurrentBag<Task> _backgroundTasks = new();
+    private NamedPipeServerStream? _currentListeningPipe;
 
     public BlsVbeBridgeServer(
         IBlsVbe vbe,
@@ -90,6 +91,13 @@ public sealed class BlsVbeBridgeServer : IBlsBridgeServer
         _logger.Info("BlsVbeBridgeServer", "Deteniendo bridge...");
         _isRunning = false;
         _loopCts?.Cancel();
+        try
+        {
+            _currentListeningPipe?.Close();
+            _currentListeningPipe?.Dispose();
+        }
+        catch { }
+        _currentListeningPipe = null;
 
         if (_acceptLoop != null)
         {
@@ -160,7 +168,9 @@ public sealed class BlsVbeBridgeServer : IBlsBridgeServer
                     continue;
                 }
 
+                _currentListeningPipe = pipe;
                 await pipe.WaitForConnectionAsync(cts.Token).ConfigureAwait(false);
+                _currentListeningPipe = null;
                 if (cts.Token.IsCancellationRequested)
                     break;
 
