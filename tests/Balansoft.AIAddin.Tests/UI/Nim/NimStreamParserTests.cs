@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -101,7 +101,7 @@ public class NimStreamParserTests
     [TestMethod]
     public void Feed_MultiplesToolCalls_EmiteEnOrdenDeIndex()
     {
-        // Se emiten index 1 antes que index 0 a propÃ³sito para verificar el orden.
+        // Se emiten index 1 antes que index 0 a propósito para verificar el orden.
         _parser.Feed("{\"choices\":[{\"delta\":{\"tool_calls\":[{\"index\":1,\"id\":\"call_2\",\"type\":\"function\",\"function\":{\"name\":\"read_module\",\"arguments\":\"{}\"}},{\"index\":0,\"id\":\"call_1\",\"type\":\"function\",\"function\":{\"name\":\"write_module\",\"arguments\":\"{}\"}}]}}]}");
 
         _parser.Complete();

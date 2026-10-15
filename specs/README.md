@@ -23,27 +23,27 @@ Un spec por archivo, nombrado `NNN-slug.md`, con esta estructura:
 
 ## Estados
 
-| Estado | Significado |
-|---|---|
-| `borrador` | El spec se está escribiendo o no está aprobado. |
-| `aceptado` | El spec es el contrato. La implementación está parcial. |
+| Estado         | Significado                                              |
+|----------------|----------------------------------------------------------|
+| `borrador`     | El spec se está escribiendo o no está aprobado.          |
+| `aceptado`     | El spec es el contrato. La implementación está parcial.  |
 | `implementado` | El código cumple todos los criterios y hay tests verdes. |
-| `obsoleto` | Reemplazado por otro spec. Se conserva por historial. |
+| `obsoleto`     | Reemplazado por otro spec. Se conserva por historial.    |
 
 ## Índice
 
-| ID | Spec | PRD | ADRs | Estado | Tests |
-|---|---|---|---|---|---|
-| 001 | [addin-lifecycle](001-addin-lifecycle.md) | FR-01, FR-05 | — | `borrador` | 0/5 |
-| 002 | [vbe-bridge](002-vbe-bridge.md) | FR-03, FR-04 | ADR-001, ADR-002 | `aceptado` | 46 verdes |
-| 003 | [nim-client](003-nim-client.md) | FR-09 | ADR-003 | `implementado` | 53 verdes |
-| 004 | [nim-terminal](004-nim-terminal.md) | FR-02, FR-03 | ADR-003 | `aceptado` | 0/10 |
-| 005 | [secure-store](005-secure-store.md) | FR-08 | — | `aceptado` | 0/6 |
-| 006 | [chat-history](006-chat-history.md) | FR-10 | ADR-001 | `aceptado` | 0/7 |
-| 007 | [access-readonly](007-access-readonly.md) | FR-11 | ADR-004 | `borrador` | 3 verdes, 6 pendientes |
-| 008 | [logging-errors](008-logging-errors.md) | FR-07, FR-12 | — | `borrador` | 2 verdes, 7 pendientes |
-| 009 | [registration](009-registration.md) | FR-06 | — | `borrador` | 0/8 |
-| 010 | [design-by-contract](010-design-by-contract.md) | Calidad / DbC | ADR-005 | `implementado` | 17 verdes |
+| ID  | Spec                                            | PRD           | ADRs             | Estado         | Tests                  |
+|-----|-------------------------------------------------|---------------|------------------|----------------|------------------------|
+| 001 | [addin-lifecycle](001-addin-lifecycle.md)       | FR-01, FR-05  | —                | `borrador`     | 0/5                    |
+| 002 | [vbe-bridge](002-vbe-bridge.md)                 | FR-03, FR-04  | ADR-001, ADR-002 | `aceptado`     | 46 verdes              |
+| 003 | [nim-client](003-nim-client.md)                 | FR-09         | ADR-003          | `implementado` | 53 verdes              |
+| 004 | [nim-terminal](004-nim-terminal.md)             | FR-02, FR-03  | ADR-003          | `aceptado`     | 0/10                   |
+| 005 | [secure-store](005-secure-store.md)             | FR-08         | —                | `aceptado`     | 0/6                    |
+| 006 | [chat-history](006-chat-history.md)             | FR-10         | ADR-001          | `aceptado`     | 0/7                    |
+| 007 | [access-readonly](007-access-readonly.md)       | FR-11         | ADR-004          | `borrador`     | 3 verdes, 6 pendientes |
+| 008 | [logging-errors](008-logging-errors.md)         | FR-07, FR-12  | —                | `borrador`     | 2 verdes, 7 pendientes |
+| 009 | [registration](009-registration.md)             | FR-06         | —                | `borrador`     | 0/8                    |
+| 010 | [design-by-contract](010-design-by-contract.md) | Calidad / DbC | ADR-005          | `implementado` | 17 verdes              |
 
 `implementado` solo si hay tests verdes. Los specs 005 y 006 tienen el código
 completo pero ninguna aserción que lo valide, así que no pueden declararse
@@ -98,28 +98,28 @@ de 001: ~600 líneas de WinForms sin un solo test.
 
 ## Trazabilidad con el PRD
 
-| PRD | Cubierto por |
-|---|---|
-| FR-01, FR-05 | 001 |
+| PRD          | Cubierto por                   |
+|--------------|--------------------------------|
+| FR-01, FR-05 | 001                            |
 | FR-02, FR-03 | 004 (y 002 para el transporte) |
-| FR-04 | 002 |
-| FR-06 | 009 |
-| FR-07, FR-12 | 008 |
-| FR-08 | 005 |
-| FR-09 | 003 |
-| FR-10 | 006 |
-| FR-11 | 007 |
+| FR-04        | 002                            |
+| FR-06        | 009                            |
+| FR-07, FR-12 | 008                            |
+| FR-08        | 005                            |
+| FR-09        | 003                            |
+| FR-10        | 006                            |
+| FR-11        | 007                            |
 
 FR-01 a FR-12 están cubiertos por al menos un spec. Ningún spec queda fuera
 del PRD.
 
 ## Trazabilidad con los ADRs
 
-| ADR | Decisión | Reflejado en |
-|---|---|---|
+| ADR     | Decisión                                             | Reflejado en           |
+|---------|------------------------------------------------------|------------------------|
 | ADR-001 | Identidad de proyecto: SHA256 de la ruta normalizada | 002 (R007), 006 (R001) |
-| ADR-002 | Framing: 4 bytes LE + JSON UTF-8, máx. 1 MB | 002 (R001), 007 (R006) |
-| ADR-003 | Un `CancellationTokenSource` por turno | 003 (R005), 004 (R004) |
-| ADR-004 | `object_detail`: campos siempre, SQL opt-in | 007 (R005) |
+| ADR-002 | Framing: 4 bytes LE + JSON UTF-8, máx. 1 MB          | 002 (R001), 007 (R006) |
+| ADR-003 | Un `CancellationTokenSource` por turno               | 003 (R005), 004 (R004) |
+| ADR-004 | `object_detail`: campos siempre, SQL opt-in          | 007 (R005)             |
 
 Los cuatro ADRs aceptados están reflejados. Ningún spec contradice un ADR.

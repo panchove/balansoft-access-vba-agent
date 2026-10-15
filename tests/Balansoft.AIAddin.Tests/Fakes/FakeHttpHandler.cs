@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -14,8 +14,8 @@ using System.Threading.Tasks;
 namespace Balansoft.AIAddin.Tests.Fakes;
 
 /// <summary>
-/// PeticiÃ³n registrada por <see cref="FakeHttpHandler"/>.
-/// El cuerpo y los headers se copian en el momento del envÃ­o porque
+/// Petición registrada por <see cref="FakeHttpHandler"/>.
+/// El cuerpo y los headers se copian en el momento del envío porque
 /// <see cref="BlsNimClient"/> descarta (dispone) el request al terminar.
 /// </summary>
 public sealed class RecordedRequest
@@ -51,7 +51,7 @@ public sealed class FakeHttpHandler : HttpMessageHandler
     }
 
     /// <summary>
-    /// Encola una respuesta SSE construida con las lÃ­neas dadas.
+    /// Encola una respuesta SSE construida con las líneas dadas.
     /// </summary>
     public void EnqueueSseSuccess(params string[] lines)
     {
@@ -125,7 +125,7 @@ public sealed class FakeHttpHandler : HttpMessageHandler
     }
 
     /// <summary>
-    /// Content que emite lÃ­neas SSE y cierra el stream al final.
+    /// Content que emite líneas SSE y cierra el stream al final.
     /// </summary>
     private sealed class SseStreamContent : HttpContent
     {
@@ -191,7 +191,7 @@ public sealed class FakeHttpHandler : HttpMessageHandler
 
     /// <summary>
     /// Stream que entrega el primer chunk y luego bloquea honrando el token,
-    /// de forma similar a una conexiÃ³n SSE que deja de enviar datos.
+    /// de forma similar a una conexión SSE que deja de enviar datos.
     /// </summary>
     private sealed class BlockingAfterFirstChunkStream : Stream
     {
@@ -228,7 +228,7 @@ public sealed class FakeHttpHandler : HttpMessageHandler
 
         public override int Read(byte[] buffer, int offset, int count)
         {
-            throw new NotSupportedException("Solo lectura asÃ­ncrona.");
+            throw new NotSupportedException("Solo lectura asíncrona.");
         }
 
         public override void Flush()

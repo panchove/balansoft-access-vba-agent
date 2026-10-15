@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -9,7 +9,7 @@ using Balansoft.AIAddin.Helpers;
 namespace Balansoft.AIAddin.Tests.Fakes;
 
 /// <summary>
-/// Logger fake que captura mensajes en memoria para verificaciÃ³n en tests.
+/// Logger fake que captura mensajes en memoria para verificación en tests.
 /// </summary>
 public sealed class FakeLogger : IBlsLogger
 {

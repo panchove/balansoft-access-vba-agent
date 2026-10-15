@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System.Collections.Generic;
@@ -14,7 +14,7 @@ internal sealed class SystemPromptBuilder : ISystemPromptBuilder
     private const string BasePrompt = "Eres un asistente integrado en el editor VBA de Microsoft Access.\n\n" +
         "Reglas fundamentales:\n" +
         "- Si una tool falla, propaga el error al usuario con la informacion recibida. NUNCA inventes que la operacion tuvo exito.\n" +
-        "- Si no estas seguro de si una operacion se completÃ³, verifica con otra tool antes de afirmar nada.\n" +
+        "- Si no estas seguro de si una operacion se completó, verifica con otra tool antes de afirmar nada.\n" +
         "- Trabaja en el proyecto Access actual.\n" +
         "- Puedes leer y escribir modulos VBA usando las herramientas disponibles.\n" +
         "- Responde siempre en espanol.\n\n" +

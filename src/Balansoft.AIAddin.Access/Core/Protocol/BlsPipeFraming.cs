@@ -1,4 +1,4 @@
-// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -129,7 +129,7 @@ public static class BlsPipeFraming
                 {
                     if (totalRead == 0)
                         return null; // EOF limpio al inicio
-                    throw new BlsFrameIncompleteException($"EOF inesperado: leÃ­dos {totalRead} de {count} bytes");
+                    throw new BlsFrameIncompleteException($"EOF inesperado: leídos {totalRead} de {count} bytes");
                 }
                 totalRead += read;
             }
@@ -139,8 +139,8 @@ public static class BlsPipeFraming
             }
             catch (OperationCanceledException) when (ct.IsCancellationRequested)
             {
-                // CancelaciÃ³n externa durante la lectura = frame incompleto
-                throw new BlsFrameIncompleteException($"CancelaciÃ³n externa: frame incompleto ({totalRead}/{count} bytes)");
+                // Cancelación externa durante la lectura = frame incompleto
+                throw new BlsFrameIncompleteException($"Cancelación externa: frame incompleto ({totalRead}/{count} bytes)");
             }
         }
 

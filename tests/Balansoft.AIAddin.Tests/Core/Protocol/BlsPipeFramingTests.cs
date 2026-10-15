@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -120,7 +120,7 @@ public class BlsPipeFramingTests
         // Act
         var result = await BlsPipeFraming.ReadFrameAsync(stream, CancellationToken.None);
 
-        // Assert: devuelve array vacÃ­o (el caller decide responder -32600)
+        // Assert: devuelve array vacío (el caller decide responder -32600)
         Assert.IsNotNull(result);
         Assert.AreEqual(0, result!.Length);
     }
@@ -128,8 +128,8 @@ public class BlsPipeFramingTests
     [TestMethod]
     public async Task Frame_JsonInvalido_RespondeInvalidRequest()
     {
-        // Este test verifica el framing, no la deserializaciÃ³n JSON.
-        // La validaciÃ³n JSON se prueba en JsonRpcDeserializationTests.
+        // Este test verifica el framing, no la deserialización JSON.
+        // La validación JSON se prueba en JsonRpcDeserializationTests.
         var invalidJson = Encoding.UTF8.GetBytes("{ not valid json }");
         var stream = new MemoryStream();
         await WriteFrameDirect(stream, invalidJson);
@@ -138,7 +138,7 @@ public class BlsPipeFramingTests
         // Act
         var result = await BlsPipeFraming.ReadFrameAsync(stream, CancellationToken.None);
 
-        // Assert: framing OK, payload leÃ­do correctamente
+        // Assert: framing OK, payload leído correctamente
         Assert.IsNotNull(result);
         CollectionAssert.AreEqual(invalidJson, result!);
     }
@@ -147,11 +147,11 @@ public class BlsPipeFramingTests
     public async Task Frame_TimeoutInactivo_MitadDeFrame_Cierra()
     {
         // Arrange: stream que nunca entrega datos, timeout interno de 30s es muy largo
-        // Usamos un timeout externo mÃ¡s corto para forzar la cancelaciÃ³n
+        // Usamos un timeout externo más corto para forzar la cancelación
         var stream = new NeverEndingStream();
         var cts = new CancellationTokenSource(TimeSpan.FromMilliseconds(50));
 
-        // Act & Assert: el timeout externo deberÃ­a causar BlsFrameIncompleteException
+        // Act & Assert: el timeout externo debería causar BlsFrameIncompleteException
         // porque el framing usa un CTS vinculado con timeout de 30s
         await Assert.ThrowsExceptionAsync<BlsFrameIncompleteException>(
             () => BlsPipeFraming.ReadFrameAsync(stream, cts.Token));
@@ -160,7 +160,7 @@ public class BlsPipeFramingTests
     [TestMethod]
     public async Task Frame_TimeoutIdle_EntreFrames_NoCierra()
     {
-        // Arrange: dos frames vÃ¡lidos completos con pausa entre ellos
+        // Arrange: dos frames válidos completos con pausa entre ellos
         var payload1 = Encoding.UTF8.GetBytes("{}");
         var payload2 = Encoding.UTF8.GetBytes("{\"id\":1}");
         var frame1 = WriteFrame(payload1);
@@ -171,7 +171,7 @@ public class BlsPipeFramingTests
         var result1 = await BlsPipeFraming.ReadFrameAsync(stream, CancellationToken.None);
         var result2 = await BlsPipeFraming.ReadFrameAsync(stream, CancellationToken.None);
 
-        // Assert: ambos frames leÃ­dos correctamente
+        // Assert: ambos frames leídos correctamente
         Assert.IsNotNull(result1);
         Assert.IsNotNull(result2);
         CollectionAssert.AreEqual(payload1, result1!);

@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System.Security.Cryptography;
@@ -7,7 +7,7 @@ using System.Text;
 namespace Balansoft.AIAddin.Helpers;
 
 /// <summary>
-/// ImplementaciÃ³n real de IDataProtector usando DPAPI (CurrentUser).
+/// Implementación real de IDataProtector usando DPAPI (CurrentUser).
 /// </summary>
 internal sealed class DpapiDataProtector : IDataProtector
 {

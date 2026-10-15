@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -15,7 +15,7 @@ namespace Balansoft.AIAddin.UI.Nim;
 internal static class NimHttpRequestBuilder
 {
     /// <summary>
-    /// Modelo por defecto si no se pasa parÃ¡metro ni hay NIM_MODEL en el entorno.
+    /// Modelo por defecto si no se pasa parámetro ni hay NIM_MODEL en el entorno.
     /// </summary>
     public const string DefaultModel = "nvidia/nemotron-3-ultra-550b-a55b";
 
@@ -29,7 +29,7 @@ internal static class NimHttpRequestBuilder
     };
 
     /// <summary>
-    /// Serializa el cuerpo JSON de la peticiÃ³n POST.
+    /// Serializa el cuerpo JSON de la petición POST.
     /// Los headers (Authorization, Accept) los fija <see cref="BlsNimClient"/> sobre
     /// el <c>HttpRequestMessage</c>, no sobre el contenido.
     /// </summary>
@@ -72,7 +72,7 @@ internal static class NimHttpRequestBuilder
     }
 
     /// <summary>
-    /// Resuelve el modelo con prioridad: parÃ¡metro &gt; env &gt; default.
+    /// Resuelve el modelo con prioridad: parámetro &gt; env &gt; default.
     /// </summary>
     public static string ResolveModel(string model)
     {

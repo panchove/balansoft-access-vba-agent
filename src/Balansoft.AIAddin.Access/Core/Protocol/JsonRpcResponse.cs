@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System.Text.Json;
@@ -12,7 +12,7 @@ namespace Balansoft.AIAddin.Core.Protocol;
 /// <param name="JsonRpc">Siempre "2.0".</param>
 /// <param name="Id">Identificador replicado de la solicitud.</param>
 /// <param name="Result">Resultado exitoso (mutuamente exclusivo con <see cref="Error"/>).</param>
-/// <param name="Error">InformaciÃ³n de error (mutuamente exclusivo con <see cref="Result"/>).</param>
+/// <param name="Error">Información de error (mutuamente exclusivo con <see cref="Result"/>).</param>
 public sealed record JsonRpcResponse(
     [property: JsonPropertyName("jsonrpc")] string JsonRpc,
     [property: JsonPropertyName("id")] JsonElement Id,

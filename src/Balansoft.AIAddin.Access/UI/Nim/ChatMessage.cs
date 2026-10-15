@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System.Collections.Generic;
@@ -23,7 +23,7 @@ public sealed record ChatMessage(
     public string ToolCallId { get; init; }
 
     /// <summary>
-    /// Presente en role="assistant" cuando el modelo pidiÃ³ herramientas.
+    /// Presente en role="assistant" cuando el modelo pidió herramientas.
     /// </summary>
     [JsonPropertyName("tool_calls")]
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]

@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -48,14 +48,14 @@ public class BlsVbeBridgeServerTests
             await _server.StopAsync(TimeSpan.FromSeconds(5));
         }
         _server.Dispose();
-        // PequeÃ±a pausa para permitir que el named pipe se libere completamente
+        // Pequeña pausa para permitir que el named pipe se libere completamente
         await Task.Delay(100);
     }
 
     private async Task<NamedPipeClientStream> ConnectClientAsync()
     {
         var client = new NamedPipeClientStream(".", _testPipeName, PipeDirection.InOut, PipeOptions.Asynchronous);
-        // Reintentar conexiÃ³n hasta que el servidor estÃ© listo
+        // Reintentar conexión hasta que el servidor esté listo
         for (int i = 0; i < 10; i++)
         {
             try
@@ -68,7 +68,7 @@ public class BlsVbeBridgeServerTests
                 await Task.Delay(50);
             }
         }
-        await client.ConnectAsync(1000); // Ãºltimo intento
+        await client.ConnectAsync(1000); // último intento
         return client;
     }
 
@@ -123,7 +123,7 @@ public class BlsVbeBridgeServerTests
     {
         var completedTask = await Task.WhenAny(startedTask, Task.Delay(timeout));
         if (completedTask != startedTask)
-            throw new TimeoutException("El servidor no se iniciÃ³ a tiempo");
+            throw new TimeoutException("El servidor no se inició a tiempo");
         await startedTask; // propagar excepciones
     }
 
@@ -201,7 +201,7 @@ public class BlsVbeBridgeServerTests
         await WaitForStartedAsync(_server.StartedAsync, TimeSpan.FromSeconds(5));
         var client = await ConnectClientAsync();
 
-        // Act: enviar JSON invÃ¡lido
+        // Act: enviar JSON inválido
         var invalidJson = Encoding.UTF8.GetBytes("{ not valid }");
         var header = BitConverter.GetBytes((uint)invalidJson.Length);
         await client.WriteAsync(header, 0, header.Length);
@@ -226,7 +226,7 @@ public class BlsVbeBridgeServerTests
     [TestMethod]
     public async Task Frame_SegundoCliente_RespondeBusy()
     {
-        // Arrange: el primer cliente ocupa la Ãºnica conexiÃ³n serviced.
+        // Arrange: el primer cliente ocupa la única conexión serviced.
         _server.Start();
         await WaitForStartedAsync(_server.StartedAsync, TimeSpan.FromSeconds(5));
 
@@ -252,7 +252,7 @@ public class BlsVbeBridgeServerTests
     [TestMethod]
     public async Task Turno_CanceladoAntesDeTool_NoEjecutaTool()
     {
-        // Arrange: el token del turno ya estÃ¡ cancelado antes de despachar.
+        // Arrange: el token del turno ya está cancelado antes de despachar.
         _vbe.Reset();
         var cts = new CancellationTokenSource();
         cts.Cancel();
@@ -263,17 +263,17 @@ public class BlsVbeBridgeServerTests
         // Act
         var response = await dispatcher.DispatchAsync(request, cts.Token);
 
-        // Assert: no es un error, es cancelaciÃ³n, y la herramienta no se ejecutÃ³.
+        // Assert: no es un error, es cancelación, y la herramienta no se ejecutó.
         Assert.IsNull(response.Error);
         Assert.IsNotNull(response.Result);
         Assert.AreEqual(0, _vbe.ExecutedMethods.Count,
-            $"La herramienta se ejecutÃ³ pese a la cancelaciÃ³n: {string.Join(",", _vbe.ExecutedMethods)}");
+            $"La herramienta se ejecutó pese a la cancelación: {string.Join(",", _vbe.ExecutedMethods)}");
     }
 
     [TestMethod]
     public async Task Turno_NoCancelado_EjecutaTool()
     {
-        // Contrapeso del test anterior: sin cancelaciÃ³n la tool sÃ­ se ejecuta.
+        // Contrapeso del test anterior: sin cancelación la tool sí se ejecuta.
         _vbe.Reset();
         _vbe.Code["Modulo1"] = "Sub foo()\nEnd Sub";
 
@@ -295,7 +295,7 @@ public class BlsVbeBridgeServerTests
         await WaitForStartedAsync(_server.StartedAsync, TimeSpan.FromSeconds(5));
         var client = await ConnectClientAsync();
 
-        // Act: read_module de mÃ³dulo inexistente
+        // Act: read_module de módulo inexistente
         var request = CreateRequest("read_module", 1, new { name = "NoExiste" });
         var responseBytes = await SendReceiveAsync(client, request);
 
@@ -356,7 +356,7 @@ public class BlsVbeBridgeServerTests
     [TestMethod]
     public async Task Bridge_DosInvocacionesConcurrentes_NoIntercalanFrames()
     {
-        // El protocolo es request/response: dos llamadas simultÃ¡neas sobre el mismo
+        // El protocolo es request/response: dos llamadas simultáneas sobre el mismo
         // pipe deben serializarse y devolver cada una su propia respuesta.
         _server.Start();
         await WaitForStartedAsync(_server.StartedAsync, TimeSpan.FromSeconds(5));

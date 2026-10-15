@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -10,7 +10,7 @@ using Balansoft.AIAddin.Helpers;
 namespace Balansoft.AIAddin.Tests.Fakes;
 
 /// <summary>
-/// ImplementaciÃ³n fake de IBlsAccess para tests unitarios.
+/// Implementación fake de IBlsAccess para tests unitarios.
 /// </summary>
 public sealed class FakeAccess : IBlsAccess
 {
@@ -65,7 +65,7 @@ public sealed class FakeAccess : IBlsAccess
             "Form" => GetFormDetail(name, maxFields),
             "Report" => GetReportDetail(name, maxFields),
             "Macro" => GetMacroDetail(name),
-            _ => throw new BlsInvalidParamsException($"type invÃ¡lido: {type}. VÃ¡lidos: Table,Query,Form,Report,Macro")
+            _ => throw new BlsInvalidParamsException($"type inválido: {type}. Válidos: Table,Query,Form,Report,Macro")
         };
     }
 
@@ -75,7 +75,7 @@ public sealed class FakeAccess : IBlsAccess
         {
             new("Id", "Long", 4, true, "Identificador"),
             new("Nombre", "Text", 50, true, "Nombre del cliente"),
-            new("Email", "Text", 120, false, "Correo electrÃ³nico"),
+            new("Email", "Text", 120, false, "Correo electrónico"),
             new("FechaAlta", "DateTime", 8, false, "Fecha de alta"),
             new("Activo", "YesNo", 1, true, "Cliente activo")
         };

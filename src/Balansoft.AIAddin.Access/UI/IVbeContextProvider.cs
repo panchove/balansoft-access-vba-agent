@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -15,8 +15,8 @@ public interface IVbeContextProvider
     /// <summary>
     /// Obtiene el contexto actual del VBE.
     /// </summary>
-    /// <param name="ct">Token de cancelaciÃ³n.</param>
-    /// <returns>Contexto VBE con mÃ³dulo activo y selecciÃ³n.</returns>
+    /// <param name="ct">Token de cancelación.</param>
+    /// <returns>Contexto VBE con módulo activo y selección.</returns>
     Task<VbeContext> GetAsync(CancellationToken ct);
 }
 

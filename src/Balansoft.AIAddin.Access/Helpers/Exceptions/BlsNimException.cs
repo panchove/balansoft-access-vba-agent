@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -6,12 +6,12 @@ using System;
 namespace Balansoft.AIAddin.Helpers;
 
 /// <summary>
-/// ExcepciÃ³n base para errores del cliente NIM.
+/// Excepción base para errores del cliente NIM.
 /// </summary>
 public class BlsNimException : BlsException
 {
     /// <summary>
-    /// Body de la respuesta HTTP (truncado a 8 KB) para diagnÃ³stico.
+    /// Body de la respuesta HTTP (truncado a 8 KB) para diagnóstico.
     /// </summary>
     public string? ResponseBody { get; init; }
 
@@ -29,7 +29,7 @@ public class BlsNimException : BlsException
 }
 
 /// <summary>
-/// 401 Unauthorized - API key invÃ¡lida o ausente.
+/// 401 Unauthorized - API key inválida o ausente.
 /// </summary>
 public sealed class BlsNimAuthException : BlsNimException
 {

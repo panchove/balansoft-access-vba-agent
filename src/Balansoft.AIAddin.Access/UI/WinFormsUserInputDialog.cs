@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -8,7 +8,7 @@ using Balansoft.AIAddin.Helpers;
 namespace Balansoft.AIAddin.UI;
 
 /// <summary>
-/// ImplementaciÃ³n WinForms de IUserInputDialog para el prompt de API key.
+/// Implementación WinForms de IUserInputDialog para el prompt de API key.
 /// </summary>
 internal sealed class WinFormsUserInputDialog : IUserInputDialog
 {

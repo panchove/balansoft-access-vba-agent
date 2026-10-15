@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -15,12 +15,12 @@ namespace Balansoft.AIAddin.UI;
 public interface IBlsNimClient : IDisposable
 {
     /// <summary>
-    /// EnvÃ­a mensajes al modelo NIM y emite eventos al sink.
+    /// Envía mensajes al modelo NIM y emite eventos al sink.
     /// </summary>
     /// <param name="messages">Historial + prompt actual.</param>
-    /// <param name="tools">Definiciones de tools disponibles (puede ser vacÃ­o).</param>
+    /// <param name="tools">Definiciones de tools disponibles (puede ser vacío).</param>
     /// <param name="sink">Receptor de eventos (text chunks, tool calls, done/error/cancelled).</param>
-    /// <param name="ct">Token de cancelaciÃ³n del turno (ADR-003).</param>
+    /// <param name="ct">Token de cancelación del turno (ADR-003).</param>
     Task SendAsync(
         IReadOnlyList<ChatMessage> messages,
         IReadOnlyList<ToolDefinition> tools,

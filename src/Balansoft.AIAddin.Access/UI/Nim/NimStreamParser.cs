@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System.Collections.Generic;
@@ -22,7 +22,7 @@ internal sealed class NimStreamParser
     }
 
     /// <summary>
-    /// Procesa una lÃ­nea SSE (sin el prefijo "data:") ni el centinela [DONE].
+    /// Procesa una línea SSE (sin el prefijo "data:") ni el centinela [DONE].
     /// </summary>
     public void Feed(string dataLine)
     {
@@ -37,7 +37,7 @@ internal sealed class NimStreamParser
         catch (JsonException ex)
         {
             throw new BlsNimProtocolException(
-                "LÃ­nea SSE con JSON invÃ¡lido",
+                "Línea SSE con JSON inválido",
                 Truncate(dataLine, 2048),
                 ex);
         }
@@ -104,7 +104,7 @@ internal sealed class NimStreamParser
 
     /// <summary>
     /// Emite las tool calls acumuladas en orden de index. Idempotente: las
-    /// llamadas ya emitidas no se repiten aunque se invoque mÃ¡s de una vez.
+    /// llamadas ya emitidas no se repiten aunque se invoque más de una vez.
     /// </summary>
     public void Complete()
     {
@@ -130,7 +130,7 @@ internal sealed class NimStreamParser
             catch (JsonException ex)
             {
                 _sink.OnError(new BlsNimProtocolException(
-                    $"tool_call {acc.Id} con argumentos JSON invÃ¡lido",
+                    $"tool_call {acc.Id} con argumentos JSON inválido",
                     Truncate(acc.Arguments, 2048),
                     ex));
                 continue;

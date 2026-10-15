@@ -1,4 +1,4 @@
-// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -15,7 +15,7 @@ using Balansoft.AIAddin.Core.Protocol;
 namespace Balansoft.AIAddin.UI;
 
 /// <summary>
-/// Cliente JSON-RPC 2.0 sobre Named Pipe para comunicaciÃ³n con BlsVbeBridgeServer.
+/// Cliente JSON-RPC 2.0 sobre Named Pipe para comunicación con BlsVbeBridgeServer.
 /// </summary>
 public sealed class BlsBridgeClient : IBlsBridgeClient
 {
@@ -26,7 +26,7 @@ public sealed class BlsBridgeClient : IBlsBridgeClient
     private readonly IBlsLogger _logger;
     private readonly TimeSpan _toolTimeout;
 
-    // El protocolo es estrictamente request/response sobre un Ãºnico pipe: se
+    // El protocolo es estrictamente request/response sobre un único pipe: se
     // serializan las invocaciones para que dos llamadas concurrentes no
     // intercalen sus frames ni roben la respuesta de la otra.
     private readonly SemaphoreSlim _gate = new SemaphoreSlim(1, 1);
@@ -106,13 +106,13 @@ public sealed class BlsBridgeClient : IBlsBridgeClient
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
-            // El turno se cancelÃ³: la conexiÃ³n queda en estado desconocido.
+            // El turno se canceló: la conexión queda en estado desconocido.
             Disconnect();
             throw;
         }
         catch (IOException)
         {
-            // Pipe roto: se descarta para forzar reconexiÃ³n en la prÃ³xima llamada.
+            // Pipe roto: se descarta para forzar reconexión en la próxima llamada.
             Disconnect();
             throw;
         }
@@ -164,7 +164,7 @@ public sealed class BlsBridgeClient : IBlsBridgeClient
         try
         {
             payload = await BlsPipeFraming.ReadFrameAsync(pipe, readCts.Token).ConfigureAwait(false)
-                ?? throw new IOException("ConexiÃ³n cerrada por el servidor");
+                ?? throw new IOException("Conexión cerrada por el servidor");
         }
         catch (OperationCanceledException) when (!ct.IsCancellationRequested)
         {
@@ -173,7 +173,7 @@ public sealed class BlsBridgeClient : IBlsBridgeClient
 
         var json = Encoding.UTF8.GetString(payload);
         return JsonSerializer.Deserialize<JsonRpcResponse>(json)
-            ?? throw new BlsBridgeException("Respuesta JSON-RPC vacÃ­a o invÃ¡lida");
+            ?? throw new BlsBridgeException("Respuesta JSON-RPC vacía o inválida");
     }
 
     private static Exception MapError(JsonRpcError error)

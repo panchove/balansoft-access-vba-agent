@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -9,8 +9,8 @@ using Balansoft.AIAddin.UI;
 namespace Balansoft.AIAddin.Tests.Fakes;
 
 /// <summary>
-/// ImplementaciÃ³n de IUiScheduler para tests: ejecuta en el hilo actual.
-/// Registra invocaciones para verificaciÃ³n.
+/// Implementación de IUiScheduler para tests: ejecuta en el hilo actual.
+/// Registra invocaciones para verificación.
 /// </summary>
 public sealed class TestUiScheduler : IUiScheduler
 {

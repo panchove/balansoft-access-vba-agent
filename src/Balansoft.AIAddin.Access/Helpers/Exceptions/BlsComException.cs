@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System.Runtime.InteropServices;
@@ -6,8 +6,8 @@ using System.Runtime.InteropServices;
 namespace Balansoft.AIAddin.Helpers;
 
 /// <summary>
-/// ExcepciÃ³n COM envuelta con categorÃ­a mapeada.
-/// JSON-RPC -32000 con categorÃ­a "ComException" y HRESULT en data.
+/// Excepción COM envuelta con categoría mapeada.
+/// JSON-RPC -32000 con categoría "ComException" y HRESULT en data.
 /// </summary>
 public sealed class BlsComException : BlsException
 {
@@ -25,7 +25,7 @@ public sealed class BlsComException : BlsException
 }
 
 /// <summary>
-/// CategorÃ­a de error COM.
+/// Categoría de error COM.
 /// </summary>
 public enum BlsComCategory
 {

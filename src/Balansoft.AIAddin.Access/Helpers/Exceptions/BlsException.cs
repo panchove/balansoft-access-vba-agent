@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -6,7 +6,7 @@ using System;
 namespace Balansoft.AIAddin.Helpers;
 
 /// <summary>
-/// ExcepciÃ³n base del proyecto. Todas las excepciones tipadas heredan de esta.
+/// Excepción base del proyecto. Todas las excepciones tipadas heredan de esta.
 /// </summary>
 public abstract class BlsException : Exception
 {

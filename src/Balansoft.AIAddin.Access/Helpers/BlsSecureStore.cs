@@ -1,4 +1,4 @@
-// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -8,7 +8,7 @@ using System.Text;
 namespace Balansoft.AIAddin.Helpers;
 
 /// <summary>
-/// AlmacÃ©n seguro para la API key usando DPAPI (CurrentUser + entropÃ­a).
+/// Almacén seguro para la API key usando DPAPI (CurrentUser + entropía).
 /// </summary>
 public sealed class BlsSecureStore : IBlsSecureStore
 {
@@ -56,7 +56,7 @@ public sealed class BlsSecureStore : IBlsSecureStore
     public void SaveApiKey(string key)
     {
         if (string.IsNullOrWhiteSpace(key))
-            throw new BlsInvalidParamsException("API key no puede ser null, vacÃ­o o solo whitespace");
+            throw new BlsInvalidParamsException("API key no puede ser null, vacío o solo whitespace");
 
         var plain = Encoding.UTF8.GetBytes(key);
         var cipher = _protector.Protect(plain);

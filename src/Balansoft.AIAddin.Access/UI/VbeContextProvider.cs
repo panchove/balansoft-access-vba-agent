@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -10,7 +10,7 @@ using Balansoft.AIAddin.VbeIntegration;
 namespace Balansoft.AIAddin.UI;
 
 /// <summary>
-/// Proveedor de contexto VBE que obtiene informaciÃ³n del mÃ³dulo activo y selecciÃ³n.
+/// Proveedor de contexto VBE que obtiene información del módulo activo y selección.
 /// </summary>
 internal sealed class VbeContextProvider : IVbeContextProvider
 {

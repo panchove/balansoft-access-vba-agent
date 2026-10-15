@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -23,7 +23,7 @@ public sealed class FakeSecureStore : IBlsSecureStore
     public void SaveApiKey(string key)
     {
         if (string.IsNullOrWhiteSpace(key))
-            throw new BlsInvalidParamsException("API key no puede ser null, vacÃ­o o solo whitespace");
+            throw new BlsInvalidParamsException("API key no puede ser null, vacío o solo whitespace");
         _apiKey = key;
     }
 

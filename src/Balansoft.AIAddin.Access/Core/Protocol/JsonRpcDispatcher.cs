@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -16,7 +16,7 @@ namespace Balansoft.AIAddin.Core.Protocol;
 
 /// <summary>
 /// Despacha solicitudes JSON-RPC a los handlers correspondientes.
-/// Valida whitelist, parÃ¡metros y mapea excepciones a cÃ³digos de error.
+/// Valida whitelist, parámetros y mapea excepciones a códigos de error.
 /// </summary>
 public sealed class JsonRpcDispatcher
 {
@@ -43,7 +43,7 @@ public sealed class JsonRpcDispatcher
     /// </summary>
     public async Task<JsonRpcResponse> DispatchAsync(JsonRpcRequest request, CancellationToken ct)
     {
-        // ValidaciÃ³n JSON-RPC bÃ¡sica
+        // Validación JSON-RPC básica
         if (!string.Equals(request.JsonRpc, "2.0", StringComparison.Ordinal))
         {
             return JsonRpcResponse.CreateError(request.Id, new JsonRpcError(
@@ -57,7 +57,7 @@ public sealed class JsonRpcDispatcher
         {
             return JsonRpcResponse.CreateError(request.Id, new JsonRpcError(
                 JsonRpcErrorCodes.MethodNotFound,
-                $"MÃ©todo no encontrado: {request.Method}",
+                $"Método no encontrado: {request.Method}",
                 new JsonRpcErrorData("MethodNotFound", request.Method, null, null)));
         }
 
@@ -86,7 +86,7 @@ public sealed class JsonRpcDispatcher
                     GetIntParam(request, "maxFields", 200))),
                 _ => JsonRpcResponse.CreateError(request.Id, new JsonRpcError(
                     JsonRpcErrorCodes.MethodNotFound,
-                    $"MÃ©todo no implementado: {request.Method}",
+                    $"Método no implementado: {request.Method}",
                     new JsonRpcErrorData("MethodNotFound", request.Method, null, null)))
             };
         }
@@ -269,7 +269,7 @@ public sealed class JsonRpcDispatcher
             "Standard" => VbeComponentType.Standard,
             "Class"    => VbeComponentType.Class,
             "Form"     => VbeComponentType.Form,
-            _ => throw new BlsInvalidParamsException($"type invÃ¡lido: {type}. VÃ¡lidos: Standard, Class, Form")
+            _ => throw new BlsInvalidParamsException($"type inválido: {type}. Válidos: Standard, Class, Form")
         };
     }
 

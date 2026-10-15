@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -6,7 +6,7 @@ using System;
 namespace Balansoft.AIAddin.Helpers;
 
 /// <summary>
-/// ExcepciÃ³n base para errores del Secure Store (DPAPI).
+/// Excepción base para errores del Secure Store (DPAPI).
 /// </summary>
 public class BlsSecureStoreException : BlsException
 {
@@ -15,7 +15,7 @@ public class BlsSecureStoreException : BlsException
 }
 
 /// <summary>
-/// ExcepciÃ³n base para errores de Chat History.
+/// Excepción base para errores de Chat History.
 /// </summary>
 public class BlsHistoryException : BlsException
 {
@@ -33,7 +33,7 @@ public class BlsHistoryIOException : BlsHistoryException
 }
 
 /// <summary>
-/// Historial corrupto (JSON invÃ¡lido o versiÃ³n desconocida).
+/// Historial corrupto (JSON inválido o versión desconocida).
 /// </summary>
 public class BlsHistoryCorruptException : BlsHistoryException
 {
@@ -42,14 +42,14 @@ public class BlsHistoryCorruptException : BlsHistoryException
 }
 
 /// <summary>
-/// VersiÃ³n de esquema de historial desconocida.
+/// Versión de esquema de historial desconocida.
 /// </summary>
 public class BlsHistorySchemaException : BlsHistoryException
 {
     public int Version { get; }
 
     public BlsHistorySchemaException(int version, string? message = null, Exception? inner = null)
-        : base(message ?? $"VersiÃ³n de historial desconocida: {version}", inner)
+        : base(message ?? $"Versión de historial desconocida: {version}", inner)
     {
         Version = version;
     }

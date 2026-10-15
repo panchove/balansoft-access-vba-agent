@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -67,7 +67,7 @@ public class NimHttpRequestBuilderTests
         var schema = ParseSchema("{\"type\":\"object\",\"properties\":{}}");
         var tools = new List<ToolDefinition>
         {
-            new ToolDefinition("write_module", "Escribe un mÃ³dulo", schema)
+            new ToolDefinition("write_module", "Escribe un módulo", schema)
         };
 
         var json = Build(null, new List<ChatMessage> { new ChatMessage("user", "Hola") }, tools);
@@ -84,7 +84,7 @@ public class NimHttpRequestBuilderTests
 
         var function = first.GetProperty("function");
         Assert.AreEqual("write_module", function.GetProperty("name").GetString());
-        Assert.AreEqual("Escribe un mÃ³dulo", function.GetProperty("description").GetString());
+        Assert.AreEqual("Escribe un módulo", function.GetProperty("description").GetString());
         Assert.AreEqual("object", function.GetProperty("parameters").GetProperty("type").GetString());
     }
 

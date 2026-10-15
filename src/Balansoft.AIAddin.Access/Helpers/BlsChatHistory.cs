@@ -1,4 +1,4 @@
-// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -14,7 +14,7 @@ namespace Balansoft.AIAddin.Helpers;
 
 /// <summary>
 /// Persistencia del historial de chat por proyecto (ADR-001).
-/// Escritura atÃ³mica, debounce 500ms, rotaciÃ³n 1MB/5 archivos.
+/// Escritura atómica, debounce 500ms, rotación 1MB/5 archivos.
 /// </summary>
 public sealed class BlsChatHistory : IBlsChatHistory, IDisposable
 {
@@ -77,7 +77,7 @@ public sealed class BlsChatHistory : IBlsChatHistory, IDisposable
         catch (BlsHistorySchemaException ex)
         {
             RenameCorrupt(path);
-            _logger.Warn("BlsChatHistory", $"VersiÃ³n desconocida: {ex.Version}");
+            _logger.Warn("BlsChatHistory", $"Versión desconocida: {ex.Version}");
             return Task.FromResult(new HistoryDocument { ProjectKey = projectKey });
         }
         catch (IOException)

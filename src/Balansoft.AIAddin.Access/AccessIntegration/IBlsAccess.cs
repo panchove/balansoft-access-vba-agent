@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System.Collections.Generic;
@@ -18,7 +18,7 @@ public sealed record ProjectSummaryResult(
     string Bitness);
 
 /// <summary>
-/// Conteos por categorÃ­a de objeto.
+/// Conteos por categoría de objeto.
 /// </summary>
 public sealed record ObjectCounts(
     int Tables,
@@ -87,9 +87,9 @@ public interface IBlsAccess
     /// <summary>Resumen del proyecto Access.</summary>
     ProjectSummaryResult ProjectSummary();
 
-    /// <summary>Lista objetos por categorÃ­a (sin SQL, sin campos, sin controles).</summary>
+    /// <summary>Lista objetos por categoría (sin SQL, sin campos, sin controles).</summary>
     ListObjectsResult ListObjects();
 
-    /// <summary>Detalle de un objeto especÃ­fico.</summary>
+    /// <summary>Detalle de un objeto específico.</summary>
     ObjectDetailResult ObjectDetail(string name, string type, bool includeSql, int maxFields);
 }

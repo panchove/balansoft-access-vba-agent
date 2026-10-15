@@ -1,4 +1,4 @@
-// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -15,7 +15,7 @@ using Balansoft.AIAddin.UI.Nim;
 namespace Balansoft.AIAddin.UI;
 
 /// <summary>
-/// Cliente HTTP SSE para la API NIM con tool calls, cancelaciÃ³n cooperativa,
+/// Cliente HTTP SSE para la API NIM con tool calls, cancelación cooperativa,
 /// retry con backoff para 429/5xx y timeout por chunk.
 /// </summary>
 public sealed class BlsNimClient : IBlsNimClient
@@ -208,7 +208,7 @@ public sealed class BlsNimClient : IBlsNimClient
 
     /// <summary>
     /// Devuelve el delay a esperar antes de reintentar, o null si el status
-    /// no es reintentable. Respeta Retry-After con tope de 30 s (doc Â§9.8).
+    /// no es reintentable. Respeta Retry-After con tope de 30 s (doc §9.8).
     /// </summary>
     private TimeSpan? ResolveRetry(HttpResponseMessage response, int attempt)
     {
@@ -255,7 +255,7 @@ public sealed class BlsNimClient : IBlsNimClient
 
         if (code == 401)
         {
-            sink.OnError(new BlsNimAuthException("API key invÃ¡lida", body));
+            sink.OnError(new BlsNimAuthException("API key inválida", body));
             return;
         }
 

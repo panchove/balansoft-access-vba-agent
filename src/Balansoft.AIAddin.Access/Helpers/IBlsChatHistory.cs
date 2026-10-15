@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -17,7 +17,7 @@ public interface IBlsChatHistory
     /// Carga el historial de un proyecto.
     /// </summary>
     /// <param name="projectKey">Clave del proyecto (ADR-001).</param>
-    /// <param name="ct">Token de cancelaciÃ³n.</param>
+    /// <param name="ct">Token de cancelación.</param>
     /// <returns>Documento de historial (nuevo si no existe).</returns>
     Task<HistoryDocument> LoadAsync(string projectKey, CancellationToken ct);
 
@@ -26,7 +26,7 @@ public interface IBlsChatHistory
     /// </summary>
     /// <param name="projectKey">Clave del proyecto.</param>
     /// <param name="doc">Documento a guardar.</param>
-    /// <param name="ct">Token de cancelaciÃ³n.</param>
+    /// <param name="ct">Token de cancelación.</param>
     Task SaveAsync(string projectKey, HistoryDocument doc, CancellationToken ct);
 
     /// <summary>

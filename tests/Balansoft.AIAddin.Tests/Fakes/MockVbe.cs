@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -11,7 +11,7 @@ using Balansoft.AIAddin.Helpers;
 namespace Balansoft.AIAddin.Tests.Fakes;
 
 /// <summary>
-/// ImplementaciÃ³n fake de IBlsVbe para tests unitarios.
+/// Implementación fake de IBlsVbe para tests unitarios.
 /// </summary>
 public sealed class MockVbe : IBlsVbe
 {
@@ -29,14 +29,14 @@ public sealed class MockVbe : IBlsVbe
     };
 
     /// <summary>
-    /// ExcepciÃ³n a lanzar en la prÃ³xima invocaciÃ³n de una operaciÃ³n VBE.
+    /// Excepción a lanzar en la próxima invocación de una operación VBE.
     /// Permite verificar el mapeo de errores del dispatcher.
     /// </summary>
     public Exception NextException { get; set; }
 
     /// <summary>
-    /// Nombres de los mÃ©todos que realmente se ejecutaron, en orden.
-    /// Permite verificar que una cancelaciÃ³n no llegÃ³ a ejecutar la herramienta.
+    /// Nombres de los métodos que realmente se ejecutaron, en orden.
+    /// Permite verificar que una cancelación no llegó a ejecutar la herramienta.
     /// </summary>
     public List<string> ExecutedMethods { get; } = new List<string>();
 
@@ -136,7 +136,7 @@ public sealed class MockVbe : IBlsVbe
     }
 
     /// <summary>
-    /// Devuelve y consume la excepciÃ³n inyectada, o null si no hay ninguna.
+    /// Devuelve y consume la excepción inyectada, o null si no hay ninguna.
     /// </summary>
     private Exception TakeInjection()
     {

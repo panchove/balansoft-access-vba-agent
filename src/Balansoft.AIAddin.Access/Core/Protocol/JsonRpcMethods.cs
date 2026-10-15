@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -7,7 +7,7 @@ using System.Collections.Generic;
 namespace Balansoft.AIAddin.Core.Protocol;
 
 /// <summary>
-/// Nombres de mÃ©todos JSON-RPC soportados por el bridge.
+/// Nombres de métodos JSON-RPC soportados por el bridge.
 /// </summary>
 public static class JsonRpcMethods
 {
@@ -26,7 +26,7 @@ public static class JsonRpcMethods
     public const string ObjectDetail     = "object_detail";
 
     /// <summary>
-    /// Conjunto inmutable con los 10 mÃ©todos para validaciÃ³n de whitelist.
+    /// Conjunto inmutable con los 10 métodos para validación de whitelist.
     /// </summary>
     public static readonly IReadOnlyCollection<string> All =
         new HashSet<string>(StringComparer.Ordinal)

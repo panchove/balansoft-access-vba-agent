@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -10,11 +10,11 @@ using System.Threading.Tasks;
 namespace Balansoft.AIAddin.UI.Nim;
 
 /// <summary>
-/// Lector de lÃ­neas SSE con cancelaciÃ³n real.
+/// Lector de líneas SSE con cancelación real.
 /// <see cref="StreamReader.ReadLineAsync()"/> no acepta un token en .NET Framework,
-/// por lo que un timeout por chunk basado en CancellationToken no serÃ­a observable.
+/// por lo que un timeout por chunk basado en CancellationToken no sería observable.
 /// Esta clase lee del <see cref="Stream"/> subyacente con
-/// <see cref="Stream.ReadAsync(byte[],int,int,CancellationToken)"/>, que sÃ­ honra el token.
+/// <see cref="Stream.ReadAsync(byte[],int,int,CancellationToken)"/>, que sí honra el token.
 /// </summary>
 internal sealed class SseLineReader
 {
@@ -33,7 +33,7 @@ internal sealed class SseLineReader
     }
 
     /// <summary>
-    /// Lee la siguiente lÃ­nea sin el terminador. Devuelve null en EOF.
+    /// Lee la siguiente línea sin el terminador. Devuelve null en EOF.
     /// </summary>
     public async Task<string> ReadLineAsync(CancellationToken ct)
     {

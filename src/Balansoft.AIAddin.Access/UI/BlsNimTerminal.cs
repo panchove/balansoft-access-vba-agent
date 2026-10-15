@@ -1,4 +1,4 @@
-// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -99,7 +99,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     private Button _btnDetener = null!;
     private Label _lblStatus = null!;
 
-    // Singleton dÃ©bil para una sola terminal
+    // Singleton débil para una sola terminal
     private static WeakReference<BlsNimTerminal>? _instanceRef;
 
     public BlsNimTerminal(
@@ -495,8 +495,8 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         IReadOnlyList<ToolDefinition> tools,
         CancellationToken ct)
     {
-        // Copia local: se aÃ±ade el assistant con tool_calls y el/los role="tool"
-        // en cada iteraciÃ³n, sin mutar la lista que ve el historial persistido.
+        // Copia local: se añade el assistant con tool_calls y el/los role="tool"
+        // en cada iteración, sin mutar la lista que ve el historial persistido.
         var working = new List<ChatMessage>(messages);
 
         for (var iteration = 0; ; iteration++)
@@ -537,12 +537,12 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
             if (iteration >= MaxToolIterations)
             {
-                AppendError($"Se alcanzÃ³ el mÃ¡ximo de {MaxToolIterations} iteraciones de herramientas");
+                AppendError($"Se alcanzó el máximo de {MaxToolIterations} iteraciones de herramientas");
                 CommitAssistantMessage(assistantText, cancelled: false);
                 break;
             }
 
-            // El modelo pidiÃ³ tools: primero su mensaje assistant con tool_calls,
+            // El modelo pidió tools: primero su mensaje assistant con tool_calls,
             // luego un mensaje role="tool" por cada resultado.
             working.Add(ChatMessage.AssistantWithToolCalls(calls) with { Content = assistantText });
             CommitAssistantText(assistantText);
@@ -579,7 +579,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
     public void OnToolCall(ToolCallComplete call)
     {
-        // Solo se registra: la ejecuciÃ³n ocurre en RunToolLoopAsync cuando
+        // Solo se registra: la ejecución ocurre en RunToolLoopAsync cuando
         // SendAsync termina, para no solapar el loop de herramientas con el stream.
         lock (_turnSync)
         {
@@ -626,7 +626,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     }
 
     /// <summary>
-    /// Ejecuta una tool contra el bridge y devuelve el JSON que se envÃ­a de vuelta
+    /// Ejecuta una tool contra el bridge y devuelve el JSON que se envía de vuelta
     /// al modelo. Los errores se reportan como JSON {"error": ...} para que el
     /// modelo pueda reaccionar en vez de abortar el turno.
     /// </summary>
@@ -693,7 +693,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     /// <summary>
     /// Persiste el texto acumulado del asistente y guarda el historial.
     /// </summary>
-    /// <param name="text">Texto a persistir; null o vacÃ­o usa el bÃºfer del turno.</param>
+    /// <param name="text">Texto a persistir; null o vacío usa el búfer del turno.</param>
     /// <param name="cancelled">Marca la respuesta como cancelada.</param>
     private void CommitAssistantMessage(string? text = null, bool cancelled = false)
     {

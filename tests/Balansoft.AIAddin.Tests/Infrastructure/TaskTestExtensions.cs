@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -8,7 +8,7 @@ namespace Balansoft.AIAddin.Tests.Infrastructure;
 
 /// <summary>
 /// Utilidades de test compatibles con .NET Framework 4.8.
-/// <c>Task.WaitAsync</c> solo existe en .NET 6+, por lo que aquÃ­ se
+/// <c>Task.WaitAsync</c> solo existe en .NET 6+, por lo que aquí se
 /// implementa con <see cref="Task.WhenAny(Task, Task)"/>.
 /// </summary>
 public static class TaskTestExtensions
@@ -23,7 +23,7 @@ public static class TaskTestExtensions
         var finished = await Task.WhenAny(task, Task.Delay(timeout)).ConfigureAwait(false);
 
         if (!ReferenceEquals(finished, task))
-            throw new TimeoutException($"La tarea no terminÃ³ en {timeout.TotalSeconds:F1}s");
+            throw new TimeoutException($"La tarea no terminó en {timeout.TotalSeconds:F1}s");
 
         await task.ConfigureAwait(false);
     }

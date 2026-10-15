@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using Balansoft.AIAddin.Helpers;
@@ -32,7 +32,7 @@ public interface IBlsNimSink
     void OnDone();
 
     /// <summary>
-    /// Usuario cancelÃ³ la operaciÃ³n (no es error).
+    /// Usuario canceló la operación (no es error).
     /// </summary>
     void OnCancelled();
 }

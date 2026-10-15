@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -8,7 +8,7 @@ using System.Windows.Forms;
 namespace Balansoft.AIAddin.UI;
 
 /// <summary>
-/// DiÃ¡logo modal para ingresar la API key de NVIDIA NIM.
+/// Diálogo modal para ingresar la API key de NVIDIA NIM.
 /// </summary>
 internal sealed class ApiKeyPromptForm : Form
 {
