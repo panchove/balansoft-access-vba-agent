@@ -187,6 +187,19 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         FormBorderStyle = FormBorderStyle.Sizable;
         KeyPreview = true;
 
+        try
+        {
+            using var iconStream = typeof(BlsNimTerminal).Assembly.GetManifestResourceStream("Balansoft.AIAddin.Access.Resources.NimTerminal.ico");
+            if (iconStream != null)
+            {
+                Icon = new Icon(iconStream);
+            }
+        }
+        catch
+        {
+            // Icono opcional si el recurso o soporte GDI no estuviese disponible
+        }
+
         // SplitContainer principal (Horizontal: Arriba conversación, Abajo caja de entrada)
         var split = new SplitContainer
         {
