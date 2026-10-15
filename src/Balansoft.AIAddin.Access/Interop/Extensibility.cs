@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright Â© 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -6,14 +6,34 @@ using System.Runtime.InteropServices;
 
 namespace Balansoft.AIAddin.Access.Interop
 {
-    [ComImport, Guid("00000000-0000-0000-0000-000000000000"), InterfaceType(ComInterfaceType.InterfaceIsIUnknown)]
+    [ComImport]
+    [Guid("b65ad801-abaf-11d0-bb8b-00a0c90f2744")]
+    [InterfaceType(ComInterfaceType.InterfaceIsDual)]
     public interface IDTExtensibility2
     {
-        void OnConnection(object Application, ext_ConnectMode ConnectMode, object AddInInst, ref Array custom);
-        void OnDisconnection(ext_DisconnectMode RemoveMode, ref Array custom);
-        void OnAddInsUpdate(ref Array custom);
-        void OnStartupComplete(ref Array custom);
-        void OnBeginShutdown(ref Array custom);
+        [DispId(1)]
+        void OnConnection(
+            [MarshalAs(UnmanagedType.IDispatch)] object Application,
+            ext_ConnectMode ConnectMode,
+            [MarshalAs(UnmanagedType.IDispatch)] object AddInInst,
+            [MarshalAs(UnmanagedType.SafeArray, SafeArraySubType = VarEnum.VT_VARIANT)] ref Array custom);
+
+        [DispId(2)]
+        void OnDisconnection(
+            ext_DisconnectMode RemoveMode,
+            [MarshalAs(UnmanagedType.SafeArray, SafeArraySubType = VarEnum.VT_VARIANT)] ref Array custom);
+
+        [DispId(3)]
+        void OnAddInsUpdate(
+            [MarshalAs(UnmanagedType.SafeArray, SafeArraySubType = VarEnum.VT_VARIANT)] ref Array custom);
+
+        [DispId(4)]
+        void OnStartupComplete(
+            [MarshalAs(UnmanagedType.SafeArray, SafeArraySubType = VarEnum.VT_VARIANT)] ref Array custom);
+
+        [DispId(5)]
+        void OnBeginShutdown(
+            [MarshalAs(UnmanagedType.SafeArray, SafeArraySubType = VarEnum.VT_VARIANT)] ref Array custom);
     }
 
     public enum ext_ConnectMode
@@ -33,4 +53,14 @@ namespace Balansoft.AIAddin.Access.Interop
         ext_dm_Suspended = 2,
         ext_dm_UISetupComplete = 3
     }
+
+    [ComImport]
+    [Guid("000C0351-0000-0000-C000-000000000046")]
+    [InterfaceType(ComInterfaceType.InterfaceIsIDispatch)]
+    public interface _CommandBarButtonEvents
+    {
+        [DispId(1)]
+        void Click([MarshalAs(UnmanagedType.IDispatch)] object ctrl, ref bool cancelDefault);
+    }
 }
+
