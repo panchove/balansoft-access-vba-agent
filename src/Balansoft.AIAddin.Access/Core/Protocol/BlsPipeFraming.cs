@@ -1,17 +1,18 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright Â© 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
 using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
+using Balansoft.AIAddin.Helpers;
 
 namespace Balansoft.AIAddin.Core.Protocol;
 
 /// <summary>
 /// Lectura y escritura de frames del Named Pipe.
 /// Framing: [uint32 LE length (4 bytes)][UTF-8 JSON payload].
-/// MÃ¡ximo 1 MB por frame (ADR-002).
+/// Máximo 1 MB por frame (ADR-002).
 /// </summary>
 public static class BlsPipeFraming
 {
@@ -29,7 +30,7 @@ public static class BlsPipeFraming
     /// <summary>
     /// Normaliza un nombre de pipe: acepta tanto "balansoft-opencode" como
     /// "\\\\.\\pipe\\balansoft-opencode" y devuelve siempre la forma sin prefijo.
-    /// AsÃ­ servidor y cliente coinciden aunque el nombre venga de configuraciÃ³n.
+    /// Así servidor y cliente coinciden aunque el nombre venga de configuración.
     /// </summary>
     public static string NormalizePipeName(string? pipeName)
     {
@@ -44,19 +45,23 @@ public static class BlsPipeFraming
             name = name.Substring(prefix.Length);
         }
 
-        return name.Length == 0 ? DefaultPipeName : name;
+        var result = name.Length == 0 ? DefaultPipeName : name;
+        return BlsContract.EnsuresNotNull(result, "El nombre de pipe normalizado no puede ser nulo.");
     }
 
     /// <summary>
     /// Lee un frame completo del stream.
     /// </summary>
     /// <param name="stream">Stream del Named Pipe.</param>
-    /// <param name="ct">Token de cancelaciÃ³n del loop del servidor.</param>
+    /// <param name="ct">Token de cancelación del loop del servidor.</param>
     /// <returns>Bytes del payload JSON, o null si EOF limpio.</returns>
     /// <exception cref="BlsFrameTooLargeException">Si length > 1 MB.</exception>
     /// <exception cref="BlsFrameIncompleteException">Si timeout a mitad de frame.</exception>
     public static async Task<byte[]?> ReadFrameAsync(Stream stream, CancellationToken ct)
     {
+        BlsContract.RequiresNotNull(stream, nameof(stream));
+        BlsContract.Requires(stream.CanRead, "El stream debe permitir lectura para leer un frame.");
+
         var header = await ReadExactAsync(stream, HeaderSize, ct).ConfigureAwait(false);
         if (header == null)
             return null; // EOF limpio
@@ -65,7 +70,7 @@ public static class BlsPipeFraming
 
         if (length == 0)
         {
-            // Frame vacÃ­o: no es error fatal, el caller decide responder -32600
+            // Frame vacío: no es error fatal, el caller decide responder -32600
             return Array.Empty<byte>();
         }
 
@@ -88,9 +93,13 @@ public static class BlsPipeFraming
     /// </summary>
     /// <param name="stream">Stream del Named Pipe.</param>
     /// <param name="payload">Bytes UTF-8 del JSON serializado.</param>
-    /// <param name="ct">Token de cancelaciÃ³n.</param>
+    /// <param name="ct">Token de cancelación.</param>
     public static async Task WriteFrameAsync(Stream stream, byte[] payload, CancellationToken ct)
     {
+        BlsContract.RequiresNotNull(stream, nameof(stream));
+        BlsContract.Requires(stream.CanWrite, "El stream debe permitir escritura para enviar un frame.");
+        BlsContract.RequiresNotNull(payload, nameof(payload));
+
         var length = payload.Length;
         if (length > MaxFrameSize)
         {

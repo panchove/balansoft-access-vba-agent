@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright Â© 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -32,8 +32,8 @@ public sealed class BlsChatHistory : IBlsChatHistory, IDisposable
         IBlsLogger logger,
         TimeSpan? debounce = null)
     {
-        _directory = directory ?? throw new ArgumentNullException(nameof(directory));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _directory = BlsContract.RequiresNotNull(directory, nameof(directory));
+        _logger = BlsContract.RequiresNotNull(logger, nameof(logger));
         _debounce = debounce ?? TimeSpan.FromMilliseconds(500);
 
         if (!Directory.Exists(_directory))
@@ -51,6 +51,8 @@ public sealed class BlsChatHistory : IBlsChatHistory, IDisposable
 
     public Task<HistoryDocument> LoadAsync(string projectKey, CancellationToken ct)
     {
+        BlsContract.RequiresNotNullOrWhiteSpace(projectKey, nameof(projectKey));
+
         var path = Path.Combine(_directory, $"{projectKey}.json");
 
         if (!File.Exists(path))

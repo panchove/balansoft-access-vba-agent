@@ -29,6 +29,11 @@ namespace Balansoft.AIAddin.AccessIntegration
         public ListObjectsResult ListObjects() => BlsComHelper.ListAccessObjects(_accessApp);
 
         public ObjectDetailResult ObjectDetail(string name, string type, bool includeSql, int maxFields)
-            => BlsComHelper.GetObjectDetail(_accessApp, name, type, includeSql, maxFields);
+        {
+            BlsContract.RequiresNotNullOrWhiteSpace(name, nameof(name));
+            BlsContract.RequiresNotNullOrWhiteSpace(type, nameof(type));
+            BlsContract.Requires(maxFields > 0, "maxFields debe ser un entero positivo.");
+            return BlsComHelper.GetObjectDetail(_accessApp, name, type, includeSql, maxFields);
+        }
     }
 }

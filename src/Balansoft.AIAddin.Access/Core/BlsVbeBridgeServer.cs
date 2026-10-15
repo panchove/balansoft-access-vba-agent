@@ -48,10 +48,10 @@ public sealed class BlsVbeBridgeServer : IBlsBridgeServer
         IBlsLogger logger,
         string pipeName = DefaultPipeName)
     {
-        _vbe = vbe;
-        _access = access;
-        _ui = ui;
-        _logger = logger;
+        _vbe = BlsContract.RequiresNotNull(vbe, nameof(vbe));
+        _access = BlsContract.RequiresNotNull(access, nameof(access));
+        _ui = BlsContract.RequiresNotNull(ui, nameof(ui));
+        _logger = BlsContract.RequiresNotNull(logger, nameof(logger));
         _pipeName = BlsPipeFraming.NormalizePipeName(pipeName);
         _dispatcher = new JsonRpcDispatcher(vbe, access, ui, logger);
     }

@@ -53,6 +53,12 @@ Documentar issues de código, buenas prácticas,anti-patrones y sugerencias de m
 - [x] Tests de integración NIM con `NIM_API_KEY` en env
 - [x] No depender del orden de ejecución de tests
 
+### Diseño por Contrato (DbC)
+- [x] Validar precondiciones (`Requires*`) en todo constructor y método público
+- [x] Validar postcondiciones (`Ensures*`) en métodos generadores y transformadores
+- [x] Validar invariantes (`Invariant`) en estados críticos de clase
+- [x] Usar la clase canónica `Balansoft.AIAddin.Helpers.BlsContract`
+
 ---
 
 ## Code Issues Identificados (Pending)

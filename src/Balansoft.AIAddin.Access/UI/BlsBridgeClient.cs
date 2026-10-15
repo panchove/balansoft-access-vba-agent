@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright Â© 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -51,6 +51,9 @@ public sealed class BlsBridgeClient : IBlsBridgeClient
         object? parameters,
         CancellationToken ct)
     {
+        BlsContract.RequiresState(!_disposed, "El cliente del bridge ha sido dispuesto.");
+        BlsContract.RequiresNotNullOrWhiteSpace(method, nameof(method));
+
         if (_disposed)
         {
             throw new ObjectDisposedException(nameof(BlsBridgeClient));

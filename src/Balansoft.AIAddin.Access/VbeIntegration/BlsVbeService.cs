@@ -28,13 +28,31 @@ namespace Balansoft.AIAddin.VbeIntegration
 
         public IReadOnlyList<string> ListModules() => BlsComHelper.ListModules(_vbe);
 
-        public string ReadModule(string name) => BlsComHelper.ReadModule(_vbe, name);
+        public string ReadModule(string name)
+        {
+            BlsContract.RequiresNotNullOrWhiteSpace(name, nameof(name));
+            return BlsComHelper.ReadModule(_vbe, name);
+        }
 
-        public void WriteModule(string name, string code) => BlsComHelper.WriteModule(_vbe, name, code);
+        public void WriteModule(string name, string code)
+        {
+            BlsContract.RequiresNotNullOrWhiteSpace(name, nameof(name));
+            BlsContract.RequiresNotNull(code, nameof(code));
+            BlsComHelper.WriteModule(_vbe, name, code);
+        }
 
-        public void CreateModule(string name, string code, VbeComponentType type) => BlsComHelper.CreateModule(_vbe, name, code, type);
+        public void CreateModule(string name, string code, VbeComponentType type)
+        {
+            BlsContract.RequiresNotNullOrWhiteSpace(name, nameof(name));
+            BlsContract.RequiresNotNull(code, nameof(code));
+            BlsComHelper.CreateModule(_vbe, name, code, type);
+        }
 
-        public void DeleteModule(string name, bool confirm) => BlsComHelper.DeleteModule(_vbe, name, confirm);
+        public void DeleteModule(string name, bool confirm)
+        {
+            BlsContract.RequiresNotNullOrWhiteSpace(name, nameof(name));
+            BlsComHelper.DeleteModule(_vbe, name, confirm);
+        }
 
         public SelectionInfo GetSelection() => BlsComHelper.GetSelection(_vbe);
 

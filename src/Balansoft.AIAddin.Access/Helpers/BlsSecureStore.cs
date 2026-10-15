@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright Â© 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -21,9 +21,9 @@ public sealed class BlsSecureStore : IBlsSecureStore
         string filePath,
         IBlsLogger logger)
     {
-        _protector = protector ?? throw new ArgumentNullException(nameof(protector));
-        _filePath = filePath ?? throw new ArgumentNullException(nameof(filePath));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _protector = BlsContract.RequiresNotNull(protector, nameof(protector));
+        _filePath = BlsContract.RequiresNotNullOrWhiteSpace(filePath, nameof(filePath));
+        _logger = BlsContract.RequiresNotNull(logger, nameof(logger));
 
         // Asegurar directorio
         var dir = Path.GetDirectoryName(_filePath);

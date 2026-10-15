@@ -115,6 +115,13 @@ que el PR toca, se documenta como deuda y se deja para otro cambio.
 Textos visibles al usuario y mensajes de log en español. Los identificadores
 siguen convención de C# en inglés. El inglés está pendiente (PRD §4).
 
+### P13 — Diseño por Contrato (Design by Contract - DbC)
+
+Todo servicio, componente y método público debe validar formalmente su contrato:
+- **Precondiciones (`Requires`):** Validación estricta a la entrada de métodos y constructores mediante `BlsContract.Requires*`. Si una precondición falla, la responsabilidad es del llamador (`BlsPreconditionException`, `ArgumentNullException`, `ArgumentException`).
+- **Postcondiciones (`Ensures`):** Garantía del valor de retorno o del estado terminal tras la ejecución mediante `BlsContract.Ensures*`. Si una postcondición falla, la responsabilidad es de la implementación (`BlsPostconditionException`).
+- **Invariantes (`Invariant`):** Condiciones permanentes del estado del componente que se mantienen verdaderas en todo momento público mediante `BlsContract.Invariant`.
+
 ---
 
 ## II. Restricciones técnicas

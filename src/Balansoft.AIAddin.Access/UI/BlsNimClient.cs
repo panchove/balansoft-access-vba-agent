@@ -59,9 +59,9 @@ public sealed class BlsNimClient : IBlsNimClient
         TimeSpan? chunkTimeout,
         TimeSpan[] backoffDelays)
     {
-        _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _secureStore = secureStore ?? throw new ArgumentNullException(nameof(secureStore));
-        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+        _httpClient = BlsContract.RequiresNotNull(httpClient, nameof(httpClient));
+        _secureStore = BlsContract.RequiresNotNull(secureStore, nameof(secureStore));
+        _logger = BlsContract.RequiresNotNull(logger, nameof(logger));
         _model = model;
         _endpoint = string.IsNullOrEmpty(endpoint) ? DefaultEndpoint : endpoint;
         _chunkTimeout = chunkTimeout ?? TimeSpan.FromSeconds(ChunkTimeoutSeconds);
@@ -82,7 +82,9 @@ public sealed class BlsNimClient : IBlsNimClient
         IBlsNimSink sink,
         CancellationToken ct)
     {
-        if (sink == null) throw new ArgumentNullException(nameof(sink));
+        BlsContract.RequiresNotNull(sink, nameof(sink));
+        BlsContract.RequiresNotNull(messages, nameof(messages));
+        BlsContract.RequiresNotNull(tools, nameof(tools));
 
         try
         {

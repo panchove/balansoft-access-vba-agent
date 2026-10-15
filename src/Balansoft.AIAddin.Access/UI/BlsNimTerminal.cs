@@ -113,15 +113,15 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         ISystemPromptBuilder promptBuilder,
         IUserInputDialog userInputDialog)
     {
-        _nimClient = nimClient;
-        _bridgeClient = bridgeClient;
-        _history = history;
-        _secureStore = secureStore;
-        _vbe = vbe;
-        _logger = logger;
-        _vbeContext = vbeContext;
-        _promptBuilder = promptBuilder;
-        _userInputDialog = userInputDialog;
+        _nimClient = BlsContract.RequiresNotNull(nimClient, nameof(nimClient));
+        _bridgeClient = BlsContract.RequiresNotNull(bridgeClient, nameof(bridgeClient));
+        _history = BlsContract.RequiresNotNull(history, nameof(history));
+        _secureStore = BlsContract.RequiresNotNull(secureStore, nameof(secureStore));
+        _vbe = BlsContract.RequiresNotNull(vbe, nameof(vbe));
+        _logger = BlsContract.RequiresNotNull(logger, nameof(logger));
+        _vbeContext = BlsContract.RequiresNotNull(vbeContext, nameof(vbeContext));
+        _promptBuilder = BlsContract.RequiresNotNull(promptBuilder, nameof(promptBuilder));
+        _userInputDialog = BlsContract.RequiresNotNull(userInputDialog, nameof(userInputDialog));
 
         InitializeComponent();
         _logger.Info("BlsNimTerminal", "Terminal creada");
