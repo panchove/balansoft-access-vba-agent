@@ -167,17 +167,17 @@ jobs:
               "Directory.Build.props",
               ".runsettings",
               "Balansoft.AIAddin.slnx",
-              ".opencode/skills/00-project-context.md",
-              ".opencode/skills/01-com-late-binding.md",
-              ".opencode/skills/02-vbe-automation.md",
-              ".opencode/skills/03-nim-client-streaming.md",
-              ".opencode/skills/04-jsonrpc-pipe-bridge.md",
-              ".opencode/skills/05-secure-store-dpapi.md",
-              ".opencode/skills/06-winforms-threading.md",
-              ".opencode/skills/07-registration-scripts.md",
-              ".opencode/skills/08-logging-errors.md",
-              ".opencode/skills/09-testing-strategy.md",
-              ".opencode/skills/10-workflow-big-pickle-nemotron.md"
+              ".opencode/skills/bls-project-context/SKILL.md",
+              ".opencode/skills/bls-com-late-binding/SKILL.md",
+              ".opencode/skills/bls-vbe-automation/SKILL.md",
+              ".opencode/skills/bls-nim-client-streaming/SKILL.md",
+              ".opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md",
+              ".opencode/skills/bls-secure-store-dpapi/SKILL.md",
+              ".opencode/skills/bls-winforms-threading/SKILL.md",
+              ".opencode/skills/bls-registration-scripts/SKILL.md",
+              ".opencode/skills/bls-logging-errors/SKILL.md",
+              ".opencode/skills/bls-testing-strategy/SKILL.md",
+              ".opencode/skills/bls-workflow-nemotron/SKILL.md"
           )
 
           foreach ($f in $expected) {
@@ -340,7 +340,7 @@ jobs:
           $patterns = @(
               @{ Regex = 'docs/design/(ADR-\d{3}-[a-z0-9\-]+\.md)';   Dir = 'docs/design' }
               @{ Regex = 'docs/design/(\d{8}-[a-z0-9\-]+\.md)';       Dir = 'docs/design' }
-              @{ Regex = '\.opencode/skills/(\d{2}-[a-z0-9\-]+\.md)'; Dir = '.opencode/skills' }
+              @{ Regex = '\.opencode/skills/(bls-[a-z0-9\-]+/SKILL\.md)'; Dir = '.opencode/skills' }
           )
 
           $mdFiles = @()

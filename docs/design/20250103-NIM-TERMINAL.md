@@ -1,4 +1,4 @@
-# Feature: NIM Terminal (WinForms + integración VBE)
+﻿# Feature: NIM Terminal (WinForms + integración VBE)
 
 ## Estado
 Aprobado para implementación.
@@ -60,8 +60,8 @@ Y materializa:
 - Contexto automático: módulo activo + selección se inyectan en el
   system prompt.
 - Cancelación con botón Detener / tecla Escape (ADR-003).
-- Historial: carga al abrir, guarda con debounce (skill 05).
-- Prompt de API key si no existe (skill 05).
+- Historial: carga al abrir, guarda con debounce (skill bls-secure-store-dpapi).
+- Prompt de API key si no existe (skill bls-secure-store-dpapi).
 - Una sola instancia por proceso (invariante).
 - Todos los textos en español.
 
@@ -172,10 +172,10 @@ internal sealed record VbeContext(
 - Vive en `UI/`, no en `VbeIntegration/`, porque es específico de cómo
   la terminal construye el prompt.
 - Usa `IBlsVbe` para leer módulo activo y selección.
-- `SelectionText` se trunca a 32 KB (skill 02).
+- `SelectionText` se trunca a 32 KB (skill bls-vbe-automation).
 
 ### 3.5 `ISystemPromptBuilder` (UI/, interno)
-Construye el system prompt con contexto VBE + reglas del skill 08.
+Construye el system prompt con contexto VBE + reglas del skill bls-logging-errors.
 
 ```csharp
 internal interface ISystemPromptBuilder
@@ -186,7 +186,7 @@ internal interface ISystemPromptBuilder
 
 **Notas:**
 - Incluye la regla de oro: "Si una tool falla, propaga el error. No
-  inventes éxito" (skill 08).
+  inventes éxito" (skill bls-logging-errors).
 - Incluye la lista de tools disponibles.
 - Incluye el contexto VBE activo (módulo + selección).
 
@@ -210,7 +210,7 @@ internal interface IUserInputDialog
 
 | Fuente             | Invariante               | Cómo se cumple                                        |
 |--------------------|--------------------------|-------------------------------------------------------|
-| AGENTS.md regla 3  | Marshaling al hilo UI    | Toda actualización de controles vía `OnUi` (skill 06) |
+| AGENTS.md regla 3  | Marshaling al hilo UI    | Toda actualización de controles vía `OnUi` (skill bls-winforms-threading) |
 | AGENTS.md regla 4  | API key DPAPI            | Prompt → `BlsSecureStore.SaveApiKey`                  |
 | AGENTS.md regla 5  | Errores reales           | `OnError` muestra mensaje; nunca éxito falso          |
 | AGENTS.md regla 10 | Abort ADR-003            | Botón Detener + Escape → `_currentTurnCts.Cancel()`   |
@@ -220,11 +220,11 @@ internal interface IUserInputDialog
 | PRD FR-02          | Streaming en vivo        | `OnTextChunk` → `AppendChunk`                         |
 | PRD FR-02          | Tool calls               | `OnToolCall` → `bridgeClient.InvokeAsync`             |
 | PRD FR-03          | Contexto VBE             | `IVbeContextProvider` + `ISystemPromptBuilder`        |
-| PRD FR-05          | Tools → "NIM Terminal"   | `BlsVbeMenuManager` (skill 02)                        |
+| PRD FR-05          | Tools → "NIM Terminal"   | `BlsVbeMenuManager` (skill bls-vbe-automation)                        |
 | PRD FR-05          | Textos en español        | Todos los strings de UI en español                    |
-| skill 06 §1        | Creación en hilo UI      | Menú se dispara desde el VBE (hilo UI)                |
-| skill 06 §2        | Marshaling               | `OnUi` para todos los callbacks del sink              |
-| skill 06 §5        | Cierre limpio            | `OnFormClosing` cancela + flush historial             |
+| skill bls-winforms-threading §1        | Creación en hilo UI      | Menú se dispara desde el VBE (hilo UI)                |
+| skill bls-winforms-threading §2        | Marshaling               | `OnUi` para todos los callbacks del sink              |
+| skill bls-winforms-threading §5        | Cierre limpio            | `OnFormClosing` cancela + flush historial             |
 
 ---
 
@@ -602,7 +602,7 @@ uno nuevo por cada reenvío. Un turno del usuario puede tener varios
 
 ### 10.6 El historial se guarda al final del turno, no por chunk
 `OnTextChunk` **no** dispara guardado. Solo `OnDone`, `OnCancelled` y
-`OnError`. El debounce 500 ms del skill 05 se usa para ediciones
+`OnError`. El debounce 500 ms del skill bls-secure-store-dpapi se usa para ediciones
 posteriores, pero no es necesario en streaming.
 
 ### 10.7 `Escape` cancela
@@ -625,7 +625,7 @@ van abajo. Simple.
 fuente por defecto del sistema.
 
 ### 10.11 Truncado de selección a 32 KB
-`IVbeContextProvider` trunca `SelectionText` a 32 KB (skill 02). El
+`IVbeContextProvider` trunca `SelectionText` a 32 KB (skill bls-vbe-automation). El
 contexto completo se construye en cada turno, no se cachea.
 
 ### 10.12 Reenvío de tool results en el mismo CTS
@@ -662,14 +662,14 @@ modelo ve el error y puede reaccionar. Nunca se oculta.
 En este orden:
 
 1. `AGENTS.md`.
-2. `.opencode/skills/00-project-context.md`.
-3. `.opencode/skills/02-vbe-automation.md` (`IBlsVbe`, menú Tools).
-4. `.opencode/skills/03-nim-client-streaming.md` (`IBlsNimSink`).
-5. `.opencode/skills/04-jsonrpc-pipe-bridge.md` (contrato del bridge).
-6. `.opencode/skills/05-secure-store-dpapi.md` (prompt API key, historial).
-7. `.opencode/skills/06-winforms-threading.md` (marshaling, ciclo de vida).
-8. `.opencode/skills/08-logging-errors.md` (errores tipados, system prompt).
-9. `.opencode/skills/09-testing-strategy.md` (fakes).
+2. `.opencode/skills/bls-project-context/SKILL.md`.
+3. `.opencode/skills/bls-vbe-automation/SKILL.md` (`IBlsVbe`, menú Tools).
+4. `.opencode/skills/bls-nim-client-streaming/SKILL.md` (`IBlsNimSink`).
+5. `.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md` (contrato del bridge).
+6. `.opencode/skills/bls-secure-store-dpapi/SKILL.md` (prompt API key, historial).
+7. `.opencode/skills/bls-winforms-threading/SKILL.md` (marshaling, ciclo de vida).
+8. `.opencode/skills/bls-logging-errors/SKILL.md` (errores tipados, system prompt).
+9. `.opencode/skills/bls-testing-strategy/SKILL.md` (fakes).
 10. `docs/design/ADR-001-project-identity.md`.
 11. `docs/design/ADR-003-abort-model.md`.
 12. `docs/design/20250101-vbe-bridge.md` (interfaz `IBlsBridgeServer`).
@@ -722,13 +722,13 @@ Cuando Nemotron termine, el PR debe:
 - `docs/design/20250101-vbe-bridge.md`.
 - `docs/design/20250102-nim-client.md`.
 - `PRD.md` §3.4, §7 FR-02, FR-03, FR-05, §11.
-- `.opencode/skills/02-vbe-automation.md`.
-- `.opencode/skills/03-nim-client-streaming.md`.
-- `.opencode/skills/04-jsonrpc-pipe-bridge.md`.
-- `.opencode/skills/05-secure-store-dpapi.md`.
-- `.opencode/skills/06-winforms-threading.md`.
-- `.opencode/skills/08-logging-errors.md`.
-- `.opencode/skills/09-testing-strategy.md`.
+- `.opencode/skills/bls-vbe-automation/SKILL.md`.
+- `.opencode/skills/bls-nim-client-streaming/SKILL.md`.
+- `.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md`.
+- `.opencode/skills/bls-secure-store-dpapi/SKILL.md`.
+- `.opencode/skills/bls-winforms-threading/SKILL.md`.
+- `.opencode/skills/bls-logging-errors/SKILL.md`.
+- `.opencode/skills/bls-testing-strategy/SKILL.md`.
 ```
 
 ---
@@ -743,7 +743,7 @@ opencode --model nemotron-3-ultra \
 
 Lee en este orden:
 1. AGENTS.md
-2. .opencode/skills/00-project-context.md
+2. .opencode/skills/bls-project-context/SKILL.md
 3. docs/design/20250103-nim-terminal.md (el diseño)
 4. Los skills citados en §12 del diseño
 5. Los ADRs y diseños referenciados en §15
@@ -762,17 +762,17 @@ opencode --model big-pickle \
 
 Lee:
 1. AGENTS.md
-2. .opencode/skills/10-workflow-big-pickle-nemotron.md (checklist de rechazo)
+2. .opencode/skills/bls-workflow-nemotron/SKILL.md (checklist de rechazo)
 3. docs/design/20250103-nim-terminal.md (diseño)
 4. El diff del PR
 
-Aplica el checklist de rechazo del skill 10.
+Aplica el checklist de rechazo del skill bls-workflow-nemotron.
 Presta especial atención a:
-- Marshaling al hilo UI (skill 06 §2).
+- Marshaling al hilo UI (skill bls-winforms-threading §2).
 - Cancelación ≠ error (ADR-003).
 - Historial guardado al final del turno, no por chunk (§10.6).
 - Reenvío de tool results con el mismo CTS (§10.12).
-- System prompt incluye la regla 'no inventes éxito' (skill 08).
+- System prompt incluye la regla 'no inventes éxito' (skill bls-logging-errors).
 
 Si todo pasa, aprueba con 'LGTM'. Si algo falla, indica la regla violada."
 ```

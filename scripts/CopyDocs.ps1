@@ -113,17 +113,17 @@ $manifest = @(
     @{ Pattern = "20250108-addin-lifecycle.md"; Dest = "docs/design/20250108-addin-lifecycle.md"; Required = $true }
 
     # Skills (00–10)
-    @{ Pattern = "00-project-context.md"; Dest = ".opencode/skills/00-project-context.md"; Required = $true }
-    @{ Pattern = "01-com-late-binding.md"; Dest = ".opencode/skills/01-com-late-binding.md"; Required = $true }
-    @{ Pattern = "02-vbe-automation.md"; Dest = ".opencode/skills/02-vbe-automation.md"; Required = $true }
-    @{ Pattern = "03-nim-client-streaming.md"; Dest = ".opencode/skills/03-nim-client-streaming.md"; Required = $true }
-    @{ Pattern = "04-jsonrpc-pipe-bridge.md"; Dest = ".opencode/skills/04-jsonrpc-pipe-bridge.md"; Required = $true }
-    @{ Pattern = "05-secure-store-dpapi.md"; Dest = ".opencode/skills/05-secure-store-dpapi.md"; Required = $true }
-    @{ Pattern = "06-winforms-threading.md"; Dest = ".opencode/skills/06-winforms-threading.md"; Required = $true }
-    @{ Pattern = "07-registration-scripts.md"; Dest = ".opencode/skills/07-registration-scripts.md"; Required = $true }
-    @{ Pattern = "08-logging-errors.md"; Dest = ".opencode/skills/08-logging-errors.md"; Required = $true }
-    @{ Pattern = "09-testing-strategy.md"; Dest = ".opencode/skills/09-testing-strategy.md"; Required = $true }
-    @{ Pattern = "10-workflow-big-pickle-nemotron.md"; Dest = ".opencode/skills/10-workflow-big-pickle-nemotron.md"; Required = $true }
+    @{ Pattern = "00-project-context.md"; Dest = ".opencode/skills/bls-project-context/SKILL.md"; Required = $true }
+    @{ Pattern = "01-com-late-binding.md"; Dest = ".opencode/skills/bls-com-late-binding/SKILL.md"; Required = $true }
+    @{ Pattern = "02-vbe-automation.md"; Dest = ".opencode/skills/bls-vbe-automation/SKILL.md"; Required = $true }
+    @{ Pattern = "03-nim-client-streaming.md"; Dest = ".opencode/skills/bls-nim-client-streaming/SKILL.md"; Required = $true }
+    @{ Pattern = "04-jsonrpc-pipe-bridge.md"; Dest = ".opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md"; Required = $true }
+    @{ Pattern = "05-secure-store-dpapi.md"; Dest = ".opencode/skills/bls-secure-store-dpapi/SKILL.md"; Required = $true }
+    @{ Pattern = "06-winforms-threading.md"; Dest = ".opencode/skills/bls-winforms-threading/SKILL.md"; Required = $true }
+    @{ Pattern = "07-registration-scripts.md"; Dest = ".opencode/skills/bls-registration-scripts/SKILL.md"; Required = $true }
+    @{ Pattern = "08-logging-errors.md"; Dest = ".opencode/skills/bls-logging-errors/SKILL.md"; Required = $true }
+    @{ Pattern = "09-testing-strategy.md"; Dest = ".opencode/skills/bls-testing-strategy/SKILL.md"; Required = $true }
+    @{ Pattern = "10-workflow-big-pickle-nemotron.md"; Dest = ".opencode/skills/bls-workflow-nemotron/SKILL.md"; Required = $true }
 )
 
 # ─────────────────────────────────────────────────────────────
@@ -236,8 +236,7 @@ Write-Host "  + Los 23 archivos están en su destino" -ForegroundColor Green
 $refPatterns = @(
     @{ Regex = 'docs/design/(ADR-\d{3}-[a-z0-9\-]+\.md)'; Type = 'ADR' }
     @{ Regex = 'docs/design/(\d{8}-[a-z0-9\-]+\.md)'; Type = 'Design' }
-    @{ Regex = '\.opencode/skills/(\d{2}-[a-z0-9\-]+\.md)'; Type = 'Skill' }
-    @{ Regex = 'skills/(\d{2}-[a-z0-9\-]+\.md)'; Type = 'Skill' }
+    @{ Regex = '\.opencode/skills/(bls-[a-z0-9\-]+/SKILL\.md)'; Type = 'Skill' }
 )
 
 $allMdFiles = @()
@@ -340,7 +339,7 @@ if ($brokenRefs.Count -eq 0) {
     Write-Host "       ls .opencode/skills/"
     Write-Host ""
     Write-Host "  2. Revisa las referencias cruzadas en un MD al azar:" -ForegroundColor White
-    Write-Host "       Get-Content .opencode/skills/04-jsonrpc-pipe-bridge.md | Select-String 'ADR-'"
+    Write-Host "       Get-Content .opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md | Select-String 'ADR-'"
     Write-Host ""
     Write-Host "  3. Compila y testea:" -ForegroundColor White
     Write-Host "       msbuild Balansoft.AIAddin.sln /p:Configuration=Debug /p:Platform=x86 /v:minimal"

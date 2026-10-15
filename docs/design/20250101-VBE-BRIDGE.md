@@ -1,4 +1,4 @@
-# Feature: VBE Bridge (JSON-RPC 2.0 sobre Named Pipe)
+﻿# Feature: VBE Bridge (JSON-RPC 2.0 sobre Named Pipe)
 
 ## Estado
 Aprobado para implementación.
@@ -207,10 +207,10 @@ public sealed class BlsVbeBridgeServer : IBlsBridgeServer
 
 **Dependencias inyectadas** (todas interfaces, cero acoplamiento a COM):
 
-- `IBlsVbe`: automatización VBE (skill 02).
-- `IBlsAccess`: lectura de objetos Access (skill 02 / AccessIntegration).
-- `IUiScheduler`: marshaling al hilo UI (skill 06).
-- `IBlsLogger`: logging (skill 08).
+- `IBlsVbe`: automatización VBE (skill bls-vbe-automation).
+- `IBlsAccess`: lectura de objetos Access (skill bls-vbe-automation / AccessIntegration).
+- `IUiScheduler`: marshaling al hilo UI (skill bls-winforms-threading).
+- `IBlsLogger`: logging (skill bls-logging-errors).
 - `pipeName`: por defecto el de ADR-002, parametrizable para tests.
 
 ---
@@ -296,7 +296,7 @@ try
     var result = await _ui.RunAsync(op);   // marshaling al hilo UI
     return Ok(id, result);
 }
-catch (BlsException ex)              // skill 08
+catch (BlsException ex)              // skill bls-logging-errors
 {
     return ErrorFrom(ex, method, id);
 }
@@ -366,7 +366,7 @@ Defaults: `includeSql=false`, `maxFields=200`. `maxFields` ∈ [1, 1000].
 
 ## 7. Criterios de aceptación
 
-Cada criterio lleva su test asociado (skill 09).
+Cada criterio lleva su test asociado (skill bls-testing-strategy).
 
 ### CA-01 — Framing
 - [ ] `BlsPipeFraming.ReadFrameAsync` lee correctamente frames
@@ -490,7 +490,7 @@ desconecta, se reabre la instancia en el siguiente `WaitForConnectionAsync`.
 Esto simplifica el estado y evita carreras.
 
 ### 9.2 Serialización con `System.Text.Json`
-Alineado con AGENTS.md y skill 04. Sin Newtonsoft. Fuente única.
+Alineado con AGENTS.md y skill bls-jsonrpc-pipe-bridge. Sin Newtonsoft. Fuente única.
 
 ### 9.3 `JsonElement` para `params`, no `object`
 Recibir `params` como `JsonElement?` permite deserializar al tipo
@@ -537,18 +537,18 @@ poder leer el error antes del cierre. Esto se garantiza con un
 En este orden:
 
 1. `AGENTS.md` (reglas duras).
-2. `.opencode/skills/00-project-context.md` (contexto general).
-3. `.opencode/skills/01-com-late-binding.md` (envoltura COM).
-4. `.opencode/skills/02-vbe-automation.md` (contrato `IBlsVbe`, `IUiScheduler`).
-5. `.opencode/skills/04-jsonrpc-pipe-bridge.md` (este dominio).
-6. `.opencode/skills/08-logging-errors.md` (mapeo de errores).
-7. `.opencode/skills/09-testing-strategy.md` (tests obligatorios).
+2. `.opencode/skills/bls-project-context/SKILL.md` (contexto general).
+3. `.opencode/skills/bls-com-late-binding/SKILL.md` (envoltura COM).
+4. `.opencode/skills/bls-vbe-automation/SKILL.md` (contrato `IBlsVbe`, `IUiScheduler`).
+5. `.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md` (este dominio).
+6. `.opencode/skills/bls-logging-errors/SKILL.md` (mapeo de errores).
+7. `.opencode/skills/bls-testing-strategy/SKILL.md` (tests obligatorios).
 8. `docs/design/ADR-002-pipe-framing.md`.
 9. `docs/design/ADR-003-abort-model.md`.
 10. `docs/design/ADR-004-object-detail.md`.
 
 Opcional pero recomendado:
-- `.opencode/skills/06-winforms-threading.md` (cómo funciona el
+- `.opencode/skills/bls-winforms-threading/SKILL.md` (cómo funciona el
   `IUiScheduler`).
 
 ---
@@ -596,11 +596,11 @@ Cuando Nemotron termine, el PR debe:
 - `docs/design/ADR-003-abort-model.md`.
 - `docs/design/ADR-004-object-detail.md`.
 - `PRD.md` §3.2, §7 FR-04, FR-12, §11.
-- `.opencode/skills/01-com-late-binding.md`.
-- `.opencode/skills/02-vbe-automation.md`.
-- `.opencode/skills/04-jsonrpc-pipe-bridge.md`.
-- `.opencode/skills/08-logging-errors.md`.
-- `.opencode/skills/09-testing-strategy.md`.
+- `.opencode/skills/bls-com-late-binding/SKILL.md`.
+- `.opencode/skills/bls-vbe-automation/SKILL.md`.
+- `.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md`.
+- `.opencode/skills/bls-logging-errors/SKILL.md`.
+- `.opencode/skills/bls-testing-strategy/SKILL.md`.
 ```
 
 ---
@@ -615,7 +615,7 @@ opencode --model nemotron-3-ultra \
 
 Lee en este orden:
 1. AGENTS.md
-2. .opencode/skills/00-project-context.md
+2. .opencode/skills/bls-project-context/SKILL.md
 3. docs/design/20250101-vbe-bridge.md (el diseño)
 4. Los skills citados en §11 del diseño
 5. Los ADRs referenciados en §14 del diseño
@@ -633,11 +633,11 @@ opencode --model big-pickle \
 
 Lee:
 1. AGENTS.md
-2. .opencode/skills/10-workflow-big-pickle-nemotron.md (checklist de rechazo)
+2. .opencode/skills/bls-workflow-nemotron/SKILL.md (checklist de rechazo)
 3. docs/design/20250101-vbe-bridge.md (diseño)
 4. El diff del PR
 
-Aplica el checklist de rechazo del skill 10. Si todo pasa, aprueba con
+Aplica el checklist de rechazo del skill bls-workflow-nemotron. Si todo pasa, aprueba con
 'LGTM'. Si algo falla, indica la regla violada y el skill a releer.
 NO reescribas el código tú mismo."
 ```

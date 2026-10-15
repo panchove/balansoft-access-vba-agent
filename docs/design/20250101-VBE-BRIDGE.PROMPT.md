@@ -1,4 +1,4 @@
-Actúa como implementador del proyecto Balansoft Access VBA Agent (NIM Direct).
+﻿Actúa como implementador del proyecto Balansoft Access VBA Agent (NIM Direct).
 
 CONTEXTO
 ========
@@ -10,12 +10,12 @@ Estado del repo: scaffolding completo, sin código de implementación aún.
 LECTURA OBLIGATORIA (en este orden)
 ===================================
 1. AGENTS.md
-2. .opencode/skills/00-project-context.md
-3. .opencode/skills/01-com-late-binding.md
-4. .opencode/skills/02-vbe-automation.md
-5. .opencode/skills/04-jsonrpc-pipe-bridge.md
-6. .opencode/skills/08-logging-errors.md
-7. .opencode/skills/09-testing-strategy.md
+2. .opencode/skills/bls-project-context/SKILL.md
+3. .opencode/skills/bls-com-late-binding/SKILL.md
+4. .opencode/skills/bls-vbe-automation/SKILL.md
+5. .opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md
+6. .opencode/skills/bls-logging-errors/SKILL.md
+7. .opencode/skills/bls-testing-strategy/SKILL.md
 8. docs/design/ADR-002-pipe-framing.md
 9. docs/design/ADR-003-abort-model.md
 10. docs/design/ADR-004-object-detail.md

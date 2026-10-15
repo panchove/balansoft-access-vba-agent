@@ -1,4 +1,26 @@
-# Sub‑agente Planner – Balansoft Access VBA Agent
+---
+name: bls-planner
+description: Transformar especificaciones (specs/NNN-*.md) en planes de trabajo técnicos estructurados y verificables.
+mode: subagent
+permissions:
+  - action: subagent
+    resource: "*"
+    effect: deny
+  - action: shell
+    resource: "*"
+    effect: deny
+  - action: edit
+    resource: "src/*"
+    effect: deny
+  - action: edit
+    resource: "tests/*"
+    effect: deny
+  - action: edit
+    resource: "*"
+    effect: allow
+---
+
+# Sub‑agente Planner (bls-planner) – Balansoft Access VBA Agent
 
 ## Objetivo
 Transformar un spec (p. ej. `specs/002-vbe-bridge.md`) en una **lista de tareas técnicas** ordenadas, con criterios de aceptación claros y dependencias explicitadas.
@@ -21,9 +43,9 @@ Transformar un spec (p. ej. `specs/002-vbe-bridge.md`) en una **lista de tarea
 ## Reglas de planificación
 - Cada requisito `R###` del spec debe tener al menos una tarea.  
 - Cada criterio `Given/When/Then` debe mapear a un test nombrado exactamente como aparece en la tabla *Tests obligatorios* del spec.  
-- Las tareas que añadan **dynamic** deben confinarse a `Helpers/BlsComHelper.cs` (regla P4).  
+- Las tareas que añadan **dynamic** deben confinarse exclusivamente a `Helpers/BlsComHelper.cs` (regla dura P4).  
 - Cualquier cambio que toque la capa COM (`IDTExtensibility2`, registro) debe actualizar `RegisterAddin.ps1` / `UnregisterAddin.ps1`.  
 - No tocar `Directory.Build.props` ni `version.json` salvo que el spec lo requiera explícitamente.  
 
 ## Entregable
-Archivo `plan-<spec>.md` colocado en la raíz del repo (o en `docs/plans/`) y referenciado desde el PR.
+Archivo `plan-<spec>.md` colocado en la raíz del repo (o en `docs/plans/`) y referenciado desde el PR para ser consumido por **bls-implementer**.

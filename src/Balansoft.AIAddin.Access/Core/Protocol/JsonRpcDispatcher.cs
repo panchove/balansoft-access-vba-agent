@@ -127,12 +127,12 @@ public sealed class JsonRpcDispatcher
         }
         catch (OperationCanceledException) when (ct.IsCancellationRequested)
         {
-            _logger.Info("JsonRpcDispatcher", $"CancelaciÃ³n de usuario en {request.Method}");
+            _logger.Info("JsonRpcDispatcher", $"Cancelación de usuario en {request.Method}");
             return JsonRpcResponse.Cancelled(request.Id);
         }
         catch (Exception ex)
         {
-            _logger.Error("JsonRpcDispatcher", $"ExcepciÃ³n no controlada en {request.Method}", ex);
+            _logger.Error("JsonRpcDispatcher", $"Excepción no controlada en {request.Method}", ex);
             return JsonRpcResponse.CreateError(request.Id, new JsonRpcError(
                 JsonRpcErrorCodes.InternalError,
                 $"InternalError: {ex.Message}",
@@ -207,21 +207,21 @@ public sealed class JsonRpcDispatcher
     private string GetStringParam(JsonRpcRequest request, string name, bool allowEmpty = false)
     {
         if (!request.Params.HasValue || request.Params.Value.ValueKind == JsonValueKind.Null)
-            throw new BlsInvalidParamsException($"ParÃ¡metro requerido: {name}");
+            throw new BlsInvalidParamsException($"Parámetro requerido: {name}");
 
         var elem = request.Params.Value;
         if (elem.ValueKind != JsonValueKind.Object)
             throw new BlsInvalidParamsException("params debe ser un objeto");
 
         if (!elem.TryGetProperty(name, out var prop))
-            throw new BlsInvalidParamsException($"ParÃ¡metro requerido: {name}");
+            throw new BlsInvalidParamsException($"Parámetro requerido: {name}");
 
         if (prop.ValueKind != JsonValueKind.String)
-            throw new BlsInvalidParamsException($"ParÃ¡metro '{name}' debe ser string");
+            throw new BlsInvalidParamsException($"Parámetro '{name}' debe ser string");
 
         var value = prop.GetString();
         if (!allowEmpty && string.IsNullOrEmpty(value))
-            throw new BlsInvalidParamsException($"ParÃ¡metro '{name}' no puede ser vacÃ­o");
+            throw new BlsInvalidParamsException($"Parámetro '{name}' no puede ser vacío");
 
         return value!;
     }
@@ -239,7 +239,7 @@ public sealed class JsonRpcDispatcher
             return defaultValue;
 
         if (prop.ValueKind != JsonValueKind.True && prop.ValueKind != JsonValueKind.False)
-            throw new BlsInvalidParamsException($"ParÃ¡metro '{name}' debe ser boolean");
+            throw new BlsInvalidParamsException($"Parámetro '{name}' debe ser boolean");
 
         return prop.GetBoolean();
     }
@@ -257,7 +257,7 @@ public sealed class JsonRpcDispatcher
             return defaultValue;
 
         if (prop.ValueKind != JsonValueKind.Number)
-            throw new BlsInvalidParamsException($"ParÃ¡metro '{name}' debe ser nÃºmero");
+            throw new BlsInvalidParamsException($"Parámetro '{name}' debe ser número");
 
         return prop.GetInt32();
     }

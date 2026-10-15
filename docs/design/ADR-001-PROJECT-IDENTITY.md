@@ -1,4 +1,4 @@
-# ADR-001 — Identidad estable de proyecto Access
+﻿# ADR-001 — Identidad estable de proyecto Access
 
 ## Estado
 Aceptado — resuelve gap del PRD §3.6 y §7 FR-10.
@@ -142,7 +142,7 @@ legibilidad (128 bits efectivos, colisión despreciable en este dominio).
 
 ## Referencias
 - PRD §3.6 (historial persistente), §7 FR-10.
-- `skills/00-project-context.md` (resumen de la decisión).
-- `skills/02-vbe-automation.md` (dónde se implementa).
-- `skills/05-secure-store-dpapi.md` (cómo se usa para el archivo).
-- `skills/09-testing-strategy.md` (tests obligatorios).
+- `.opencode/skills/bls-project-context/SKILL.md` (resumen de la decisión).
+- `.opencode/skills/bls-vbe-automation/SKILL.md` (dónde se implementa).
+- `.opencode/skills/bls-secure-store-dpapi/SKILL.md` (cómo se usa para el archivo).
+- `.opencode/skills/bls-testing-strategy/SKILL.md` (tests obligatorios).

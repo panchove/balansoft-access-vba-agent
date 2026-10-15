@@ -1,4 +1,4 @@
-# Feature: Logging + Version (BlsLogger, BlsVersion)
+﻿# Feature: Logging + Version (BlsLogger, BlsVersion)
 
 ## Estado
 Aprobado para implementación.
@@ -28,7 +28,7 @@ Dos utilidades transversales que **todo** el resto del código usa:
    de arranque.
 
 Sin ellas no hay forma de:
-- Diagnosticar fallos en producción (skill 08).
+- Diagnosticar fallos en producción (skill bls-logging-errors).
 - Saber qué versión está corriendo cada usuario.
 - Cumplir la promesa de "versión + commit en primera línea del log"
   (PRD FR-07).
@@ -40,7 +40,7 @@ Cubre:
 Y materializa:
 - AGENTS.md regla 4 (nunca API key en log).
 - AGENTS.md regla 5 (errores reales, nunca éxito falso).
-- skill 08 (logging y propagación de errores).
+- skill bls-logging-errors (logging y propagación de errores).
 
 ---
 
@@ -189,11 +189,11 @@ internal static class GlobalExceptionHandlers
 | PRD FR-07         | Rotación 7 días                   | `RotateOldLogs()` en constructor                  |
 | PRD FR-07         | Captura global                    | `GlobalExceptionHandlers.Register`                |
 | PRD FR-07         | Versión + commit en primera línea | `BlsVersionContext.BuildFirstLine`                |
-| skill 08          | Formato canónico                  | `Write(...)` centralizado                         |
-| skill 08          | Nivel alineado 5 chars            | `level.PadRight(5)`                               |
-| skill 08          | Stack solo en Debug               | `#if DEBUG` en `Error`                            |
-| skill 08          | Cancelación ≠ error               | `BlsLogger` no distingue; lo hacen los llamadores |
-| skill 08          | No loguear código VBA completo    | Llamadores truncan a 80 chars                     |
+| skill bls-logging-errors          | Formato canónico                  | `Write(...)` centralizado                         |
+| skill bls-logging-errors          | Nivel alineado 5 chars            | `level.PadRight(5)`                               |
+| skill bls-logging-errors          | Stack solo en Debug               | `#if DEBUG` en `Error`                            |
+| skill bls-logging-errors          | Cancelación ≠ error               | `BlsLogger` no distingue; lo hacen los llamadores |
+| skill bls-logging-errors          | No loguear código VBA completo    | Llamadores truncan a 80 chars                     |
 
 ---
 
@@ -626,14 +626,14 @@ es frágil y se descarta.
 En este orden:
 
 1. `AGENTS.md` (reglas 4, 5).
-2. `.opencode/skills/00-project-context.md`.
-3. `.opencode/skills/08-logging-errors.md` (este dominio).
-4. `.opencode/skills/09-testing-strategy.md` (temp dirs, fakes).
+2. `.opencode/skills/bls-project-context/SKILL.md`.
+3. `.opencode/skills/bls-logging-errors/SKILL.md` (este dominio).
+4. `.opencode/skills/bls-testing-strategy/SKILL.md` (temp dirs, fakes).
 5. `docs/design/20250106-registration-scripts.md` (version.txt en el
    ZIP).
 
 Opcional:
-- `.opencode/skills/07-registration-scripts.md` (relación con el
+- `.opencode/skills/bls-registration-scripts/SKILL.md` (relación con el
   packaging).
 
 ---
@@ -678,8 +678,8 @@ Cuando Nemotron termine, el PR debe:
 
 - `AGENTS.md` reglas 4, 5.
 - `PRD.md` §7 FR-07, §11 criterio 8.
-- `.opencode/skills/08-logging-errors.md`.
-- `.opencode/skills/09-testing-strategy.md`.
+- `.opencode/skills/bls-logging-errors/SKILL.md`.
+- `.opencode/skills/bls-testing-strategy/SKILL.md`.
 - `docs/design/20250104-secure-store.md` (`BlsPaths`).
 - `docs/design/20250106-registration-scripts.md` (`version.txt` en el ZIP).
 - `docs/design/20250108-addin-lifecycle.md` (integración en `OnConnection`).
@@ -697,7 +697,7 @@ opencode --model nemotron-3-ultra \
 
 Lee en este orden:
 1. AGENTS.md
-2. .opencode/skills/00-project-context.md
+2. .opencode/skills/bls-project-context/SKILL.md
 3. docs/design/20250107-logging-version.md (el diseño)
 4. Los skills citados en §13 del diseño
 
@@ -721,16 +721,16 @@ opencode --model big-pickle \
 
 Lee:
 1. AGENTS.md
-2. .opencode/skills/10-workflow-big-pickle-nemotron.md (checklist de rechazo)
+2. .opencode/skills/bls-workflow-nemotron/SKILL.md (checklist de rechazo)
 3. docs/design/20250107-logging-version.md (diseño)
 4. El diff del PR
 
-Aplica el checklist de rechazo del skill 10.
+Aplica el checklist de rechazo del skill bls-workflow-nemotron.
 Presta especial atención a:
 - Nunca loguear la API key (regla 4).
-- Stack solo en Debug (skill 08 §Error).
-- UnhandledException no relanza (skill 08 §Captura global).
-- UnobservedTaskException llama SetObserved (skill 08 §Captura global).
+- Stack solo en Debug (skill bls-logging-errors §Error).
+- UnhandledException no relanza (skill bls-logging-errors §Captura global).
+- UnobservedTaskException llama SetObserved (skill bls-logging-errors §Captura global).
 - Formato canónico de línea (timestamp ISO 8601 UTC, nivel 5 chars).
 - Rotación 7 días en constructor (no en cada Write).
 

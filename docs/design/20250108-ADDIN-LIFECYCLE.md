@@ -1,4 +1,4 @@
-# Feature: Add-in Lifecycle (OnConnection → OnDisconnection)
+﻿# Feature: Add-in Lifecycle (OnConnection → OnDisconnection)
 
 ## Estado
 Aprobado para implementación.
@@ -56,9 +56,9 @@ Cubre:
 Y materializa:
 - AGENTS.md reglas 1, 2, 3, 5.
 - ADR-002, ADR-003 (aplicados al shutdown).
-- skill 02 (`AttachVbe`, `GetVbeHwnd`, menú Tools).
-- skill 06 (una sola terminal, cierre limpio).
-- skill 08 (log de arranque, captura global).
+- skill bls-vbe-automation (`AttachVbe`, `GetVbeHwnd`, menú Tools).
+- skill bls-winforms-threading (una sola terminal, cierre limpio).
+- skill bls-logging-errors (log de arranque, captura global).
 
 ---
 
@@ -247,9 +247,9 @@ internal interface IAddinLifecycleObserver
 | PRD FR-01                | Tolerante a `COMException`    | `try/catch` en cada callback                       |
 | PRD FR-01                | Tolerante a `VBE == null`     | `VbeAttachResult`                                  |
 | PRD FR-05                | Menú Tools                    | `BlsVbeMenuManager.EnsureMenu` tras VBE            |
-| skill 06 §1              | Una sola terminal             | Gestionada por `BlsNimTerminal.ShowOrFocus`        |
-| skill 08 §Captura global | Handlers al arranque          | `GlobalExceptionHandlers.Register`                 |
-| skill 02                 | `AttachVbe` antes de bridge   | Orden explícito en `AddinServiceContainer`         |
+| skill bls-winforms-threading §1              | Una sola terminal             | Gestionada por `BlsNimTerminal.ShowOrFocus`        |
+| skill bls-logging-errors §Captura global | Handlers al arranque          | `GlobalExceptionHandlers.Register`                 |
+| skill bls-vbe-automation                 | `AttachVbe` antes de bridge   | Orden explícito en `AddinServiceContainer`         |
 
 ---
 
@@ -796,17 +796,17 @@ En producción se usa `NullLifecycleObserver` (no-op). En tests, un
 En este orden:
 
 1. `AGENTS.md` (reglas 1, 2, 3, 5).
-2. `.opencode/skills/00-project-context.md`.
-3. `.opencode/skills/01-com-late-binding.md` (`Application` como
+2. `.opencode/skills/bls-project-context/SKILL.md`.
+3. `.opencode/skills/bls-com-late-binding/SKILL.md` (`Application` como
    `dynamic`).
-4. `.opencode/skills/02-vbe-automation.md` (`AttachVbe`, menú Tools).
-5. `.opencode/skills/06-winforms-threading.md` (UI scheduler, cierre
+4. `.opencode/skills/bls-vbe-automation/SKILL.md` (`AttachVbe`, menú Tools).
+5. `.opencode/skills/bls-winforms-threading/SKILL.md` (UI scheduler, cierre
    limpio).
-6. `.opencode/skills/07-registration-scripts.md` (verificación en
+6. `.opencode/skills/bls-registration-scripts/SKILL.md` (verificación en
    runtime).
-7. `.opencode/skills/08-logging-errors.md` (log de arranque, handlers
+7. `.opencode/skills/bls-logging-errors/SKILL.md` (log de arranque, handlers
    globales).
-8. `.opencode/skills/09-testing-strategy.md` (fakes, observer).
+8. `.opencode/skills/bls-testing-strategy/SKILL.md` (fakes, observer).
 9. `docs/design/ADR-003-abort-model.md` (shutdown con turno activo).
 
 Y los 7 docs de diseño previos:
@@ -881,12 +881,12 @@ Cuando Nemotron termine, el PR debe:
 - `docs/design/20250104-secure-store.md`.
 - `docs/design/20250106-registration-scripts.md`.
 - `docs/design/20250107-logging-version.md`.
-- `.opencode/skills/01-com-late-binding.md`.
-- `.opencode/skills/02-vbe-automation.md`.
-- `.opencode/skills/06-winforms-threading.md`.
-- `.opencode/skills/07-registration-scripts.md`.
-- `.opencode/skills/08-logging-errors.md`.
-- `.opencode/skills/09-testing-strategy.md`.
+- `.opencode/skills/bls-com-late-binding/SKILL.md`.
+- `.opencode/skills/bls-vbe-automation/SKILL.md`.
+- `.opencode/skills/bls-winforms-threading/SKILL.md`.
+- `.opencode/skills/bls-registration-scripts/SKILL.md`.
+- `.opencode/skills/bls-logging-errors/SKILL.md`.
+- `.opencode/skills/bls-testing-strategy/SKILL.md`.
 ```
 
 ---
@@ -901,7 +901,7 @@ opencode --model nemotron-3-ultra \
 
 Lee en este orden:
 1. AGENTS.md
-2. .opencode/skills/00-project-context.md
+2. .opencode/skills/bls-project-context/SKILL.md
 3. docs/design/20250108-addin-lifecycle.md (el diseño)
 4. Los skills citados en §13 del diseño
 5. Los 6 docs de diseño previos citados en §16
@@ -927,11 +927,11 @@ opencode --model big-pickle \
 
 Lee:
 1. AGENTS.md
-2. .opencode/skills/10-workflow-big-pickle-nemotron.md (checklist de rechazo)
+2. .opencode/skills/bls-workflow-nemotron/SKILL.md (checklist de rechazo)
 3. docs/design/20250108-addin-lifecycle.md (diseño)
 4. El diff del PR
 
-Aplica el checklist de rechazo del skill 10.
+Aplica el checklist de rechazo del skill bls-workflow-nemotron.
 Presta especial atención a:
 - OnConnection sin lógica pesada (FR-01).
 - Tolerancia a VBE == null y COMException (FR-01).

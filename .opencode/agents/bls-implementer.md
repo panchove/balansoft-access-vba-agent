@@ -1,11 +1,27 @@
-# Sub‑agente Implementer – Balansoft Access VBA Agent
+---
+name: bls-implementer
+description: Ejecutar tareas de desarrollo en C# .NET 4.8 x86 siguiendo los contratos del spec y las reglas duras del proyecto.
+mode: subagent
+permissions:
+  - action: subagent
+    resource: "*"
+    effect: deny
+  - action: shell
+    resource: "*"
+    effect: allow
+  - action: edit
+    resource: "*"
+    effect: allow
+---
+
+# Sub‑agente Implementer (bls-implementer) – Balansoft Access VBA Agent
 
 ## Objetivo
-Ejecutar las tareas del plan generado por el **Planner**, produciendo código que compile, pase los tests y respete todas las reglas del proyecto.
+Ejecutar las tareas del plan generado por **bls-planner**, produciendo código que compile, pase los tests y respete todas las reglas del proyecto.
 
 ## Entrada
 - Plan de trabajo (`plan-<spec>.md`).  
-- Espec correspondiente (`specs/NNN-*.md`).  
+- Spec correspondiente (`specs/NNN-*.md`).  
 - Código base actual.
 
 ## Flujo de implementación por tarea
@@ -36,8 +52,8 @@ Ejecutar las tareas del plan generado por el **Planner**, produciendo código qu
 - [ ] `dynamic` solo en `Helpers/BlsComHelper.cs`.  
 - [ ] No `Thread.Sleep` en `tests/`.  
 - [ ] Docs obligatorias presentes (`AGENTS.md`, `MEMORY.md`, `constitution.md`, `specs/`, `docs/design/`, `.opencode/skills/`).  
-- [ ] Cross‑refs limpias (`codebase‑memory` gate).  
+- [ ] Cross‑refs limpias (CI gate).  
 - [ ] `Pack.ps1 -Configuration Release` genera ZIP con `version.txt` correcto.  
 
 ## Entregable
-PR con commits atómicos por tarea, descripción referenciando el spec y el plan. El **Coordinator** validará y mergará.
+PR con commits atómicos por tarea, descripción referenciando el spec y el plan. El **bls-architect** validará y coordinará la revisión con **bls-reviewer**.

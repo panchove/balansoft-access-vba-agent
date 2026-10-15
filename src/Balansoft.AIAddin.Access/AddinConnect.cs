@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright Â© 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -15,11 +15,11 @@ namespace Balansoft.AIAddin.Access
     [ProgId("Balansoft.AIAddin.Access")]
     public class AddinConnect : IDTExtensibility2
     {
-        private dynamic _accessApp;
-        private dynamic _vbe;
-        private object _commandBarButton;
-        private EventInfo _clickEvent;
-        private Delegate _clickHandler;
+        private object? _accessApp;
+        private object? _vbe;
+        private object? _commandBarButton;
+        private EventInfo? _clickEvent;
+        private Delegate? _clickHandler;
 
         public void OnConnection(object application, ext_ConnectMode connectMode, object addInInst, ref Array custom)
         {
@@ -53,13 +53,8 @@ namespace Balansoft.AIAddin.Access
 
         internal void CreateMenu()
         {
-            var commandBars = _vbe.CommandBars;
-            var toolsBar = commandBars["Tools"];
-            if (toolsBar == null) return;
-
-            _commandBarButton = toolsBar.Controls.Add(Type: 1, Temporary: true); // msoControlButton
-            _commandBarButton.GetType().InvokeMember("Caption", BindingFlags.SetProperty, null, _commandBarButton, new object[] { "NIM Terminal" });
-            _commandBarButton.GetType().InvokeMember("Tag", BindingFlags.SetProperty, null, _commandBarButton, new object[] { "BalansoftNimTerminal" });
+            _commandBarButton = BlsComHelper.AddToolsMenuItem(_vbe, "NIM Terminal", "BalansoftNimTerminal");
+            if (_commandBarButton == null) return;
 
             _clickEvent = _commandBarButton.GetType().GetEvent("Click");
             if (_clickEvent != null)

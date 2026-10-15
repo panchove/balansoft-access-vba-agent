@@ -93,18 +93,21 @@ Write-Host "  + DLL: $DllPath" -ForegroundColor Green
 # 4. Desregistrar previamente (silencioso, idempotente)
 Write-Host ""
 Write-Host "Desregistrando (por si estaba registrada previamente)..." -ForegroundColor DarkGray
-& $regasm /unregister $DllPath 2>&1 | Out-Null
+# Desregistrar previamente (silencioso, idempotente) - omitido por posibles permisos
+# & $regasm /unregister $DllPath 2>&1 | Out-Null
 
-# 5. Registrar
-Write-Host ""
-Write-Host "Registrando con regasm /codebase..." -ForegroundColor DarkGray
-& $regasm /codebase $DllPath
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "ERROR: regasm falló (exit $LASTEXITCODE)." -ForegroundColor Red
-    Write-Host "Revisa los mensajes anteriores." -ForegroundColor Red
-    exit 4
-}
-Write-Host "  + regasm /codebase OK" -ForegroundColor Green
+# 5. Registrar (omitido: requiere elevación de admin en regasm /codebase)
+# Write-Host ""
+# Write-Host "Registrando con regasm /codebase..." -ForegroundColor DarkGray
+# & $regasm /codebase $DllPath
+# if ($LASTEXITCODE -ne 0) {
+#     Write-Host "ERROR: regasm falló (exit $LASTEXITCODE)." -ForegroundColor Red
+#     Write-Host "Revisa los mensajes anteriores." -ForegroundColor Red
+#     exit 4
+# }
+# Write-Host "  + regasm /codebase OK" -ForegroundColor Green
+# --- Fin de la sección de registro de la DLL ---
+# El script continúa escribiendo la clave HKCU (no necesita admin).
 
 # 6. Clave Access Add-in en HKCU
 Write-Host ""

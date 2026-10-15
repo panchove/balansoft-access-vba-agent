@@ -61,7 +61,7 @@ public sealed class MockVbe : IBlsVbe
         if (injected != null) throw injected;
 
         if (!Code.TryGetValue(name, out var code))
-            throw new BlsVbeException($"MÃ³dulo '{name}' no encontrado");
+            throw new BlsVbeException($"Módulo '{name}' no encontrado");
         return code;
     }
 
@@ -72,7 +72,7 @@ public sealed class MockVbe : IBlsVbe
         if (injected != null) throw injected;
 
         if (!Code.ContainsKey(name))
-            throw new BlsVbeException($"MÃ³dulo '{name}' no encontrado");
+            throw new BlsVbeException($"Módulo '{name}' no encontrado");
         Code[name] = codeToWrite;
     }
 
@@ -83,10 +83,10 @@ public sealed class MockVbe : IBlsVbe
         if (injected != null) throw injected;
 
         if (Modules.Any(m => string.Equals(m, name, StringComparison.OrdinalIgnoreCase)))
-            throw new BlsVbeException($"MÃ³dulo '{name}' ya existe");
+            throw new BlsVbeException($"Módulo '{name}' ya existe");
 
         if (string.IsNullOrWhiteSpace(name) || !Regex.IsMatch(name, @"^[A-Za-z_][A-Za-z0-9_]{0,30}$"))
-            throw new BlsInvalidParamsException($"Nombre de mÃ³dulo invÃ¡lido: {name}");
+            throw new BlsInvalidParamsException($"Nombre de módulo inválido: {name}");
 
         Modules.Add(name);
         Code[name] = code;
@@ -102,10 +102,10 @@ public sealed class MockVbe : IBlsVbe
             throw new BlsInvalidParamsException("delete_module requiere confirm:true");
 
         if (!Modules.Contains(name))
-            throw new BlsVbeException($"MÃ³dulo '{name}' no encontrado");
+            throw new BlsVbeException($"Módulo '{name}' no encontrado");
 
         if (Modules.Count == 1)
-            throw new BlsVbeException("No se puede borrar el Ãºltimo mÃ³dulo del proyecto");
+            throw new BlsVbeException("No se puede borrar el último módulo del proyecto");
 
         Modules.Remove(name);
         Code.Remove(name);

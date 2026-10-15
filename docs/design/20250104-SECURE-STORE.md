@@ -1,4 +1,4 @@
-# Feature: Secure Store (DPAPI) + Chat History
+﻿# Feature: Secure Store (DPAPI) + Chat History
 
 ## Estado
 Aprobado para implementación.
@@ -30,7 +30,7 @@ usuario** viven en `Helpers/`:
 Ambas comparten:
 - Ciclo de vida del add-in (`%APPDATA%\Balansoft\AIAddin\`).
 - Inyección de dependencias para tests (sin tocar el perfil del dev).
-- Reglas duras de seguridad (skill 05).
+- Reglas duras de seguridad (skill bls-secure-store-dpapi).
 
 Cubre:
 - PRD §3.5 (API key en DPAPI).
@@ -251,12 +251,12 @@ internal sealed class DpapiDataProtector : IDataProtector
 | AGENTS.md regla 4 | API key solo DPAPI              | `DpapiDataProtector` con `CurrentUser`              |
 | AGENTS.md regla 4 | Nunca en claro                  | Archivo binario, sin base64/JSON/logs               |
 | ADR-001           | projectKey para historial       | `BlsChatHistory` recibe `projectKey` como parámetro |
-| skill 05          | Entropía fija                   | `"Balansoft.AIAddin.Access.v1"`                     |
-| skill 05          | Escritura atómica               | `.tmp` + `File.Replace`                             |
-| skill 05          | Debounce 500 ms                 | `System.Threading.Timer` interno                    |
-| skill 05          | Rotación a 1 MB, máx 5          | `RotateIfNeeded()`                                  |
-| skill 05          | Fallo historial no bloquea chat | `LoadAsync` devuelve vacío en error                 |
-| skill 08          | Nunca loguear API key           | Revisión de cada `logger.*` en la clase             |
+| skill bls-secure-store-dpapi          | Entropía fija                   | `"Balansoft.AIAddin.Access.v1"`                     |
+| skill bls-secure-store-dpapi          | Escritura atómica               | `.tmp` + `File.Replace`                             |
+| skill bls-secure-store-dpapi          | Debounce 500 ms                 | `System.Threading.Timer` interno                    |
+| skill bls-secure-store-dpapi          | Rotación a 1 MB, máx 5          | `RotateIfNeeded()`                                  |
+| skill bls-secure-store-dpapi          | Fallo historial no bloquea chat | `LoadAsync` devuelve vacío en error                 |
+| skill bls-logging-errors          | Nunca loguear API key           | Revisión de cada `logger.*` en la clase             |
 | PRD FR-08         | Prompt si no existe             | El diálogo vive en UI, no en store                  |
 
 ---
@@ -611,15 +611,15 @@ se conserva (evita borrados accidentales).
 En este orden:
 
 1. `AGENTS.md` (regla 4 en particular).
-2. `.opencode/skills/00-project-context.md`.
-3. `.opencode/skills/05-secure-store-dpapi.md` (este dominio).
-4. `.opencode/skills/08-logging-errors.md` (nunca loguear la key).
-5. `.opencode/skills/09-testing-strategy.md` (fakes, temp dirs).
+2. `.opencode/skills/bls-project-context/SKILL.md`.
+3. `.opencode/skills/bls-secure-store-dpapi/SKILL.md` (este dominio).
+4. `.opencode/skills/bls-logging-errors/SKILL.md` (nunca loguear la key).
+5. `.opencode/skills/bls-testing-strategy/SKILL.md` (fakes, temp dirs).
 6. `docs/design/ADR-001-project-identity.md` (projectKey).
 
 Opcional:
-- `.opencode/skills/03-nim-client-streaming.md` (consumidor de la key).
-- `.opencode/skills/06-winforms-threading.md` (consumidor del historial).
+- `.opencode/skills/bls-nim-client-streaming/SKILL.md` (consumidor de la key).
+- `.opencode/skills/bls-winforms-threading/SKILL.md` (consumidor del historial).
 
 ---
 
@@ -665,9 +665,9 @@ Cuando Nemotron termine, el PR debe:
 - `docs/design/ADR-001-project-identity.md`.
 - `docs/design/ADR-003-abort-model.md` (marca `cancelled`).
 - `PRD.md` §3.5, §3.6, §7 FR-08, FR-10, §11.
-- `.opencode/skills/05-secure-store-dpapi.md`.
-- `.opencode/skills/08-logging-errors.md`.
-- `.opencode/skills/09-testing-strategy.md`.
+- `.opencode/skills/bls-secure-store-dpapi/SKILL.md`.
+- `.opencode/skills/bls-logging-errors/SKILL.md`.
+- `.opencode/skills/bls-testing-strategy/SKILL.md`.
 ```
 
 ---
@@ -682,7 +682,7 @@ opencode --model nemotron-3-ultra \
 
 Lee en este orden:
 1. AGENTS.md
-2. .opencode/skills/00-project-context.md
+2. .opencode/skills/bls-project-context/SKILL.md
 3. docs/design/20250104-secure-store.md (el diseño)
 4. Los skills citados en §11 del diseño
 5. ADR-001 y ADR-003
@@ -701,11 +701,11 @@ opencode --model big-pickle \
 
 Lee:
 1. AGENTS.md
-2. .opencode/skills/10-workflow-big-pickle-nemotron.md (checklist de rechazo)
+2. .opencode/skills/bls-workflow-nemotron/SKILL.md (checklist de rechazo)
 3. docs/design/20250104-secure-store.md (diseño)
 4. El diff del PR
 
-Aplica el checklist de rechazo del skill 10.
+Aplica el checklist de rechazo del skill bls-workflow-nemotron.
 Presta especial atención a:
 - API key nunca en claro (log, JSON, excepciones).
 - DataProtectionScope.CurrentUser (no LocalMachine).

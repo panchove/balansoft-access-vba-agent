@@ -1,4 +1,4 @@
-# ADR-002 — Framing del Named Pipe JSON-RPC
+﻿# ADR-002 — Framing del Named Pipe JSON-RPC
 
 ## Estado
 Aceptado — resuelve gap del PRD §3.2.
@@ -128,9 +128,9 @@ Flush()
    `-32004 "busy"` en el primer frame, luego cierra.
 3. El listener corre en hilo dedicado (`Task` con
    `TaskCreationOptions.LongRunning`).
-4. El despacho al hilo UI (VBE) se hace vía el scheduler del skill 02.
+4. El despacho al hilo UI (VBE) se hace vía el scheduler del skill bls-vbe-automation.
 5. Nunca bloquear el hilo del pipe con operaciones VBE lentas: usar cola
-   + worker (ver skill 04).
+   + worker (ver skill bls-jsonrpc-pipe-bridge).
 6. Toda excepción no controlada en el loop de lectura:
    - log `ERROR`
    - intentar enviar `-32603 "internal_error"` si el pipe sigue vivo
@@ -165,6 +165,6 @@ Flush()
 
 ## Referencias
 - PRD §3.2 (bridge JSON-RPC), §7 FR-04.
-- `skills/04-jsonrpc-pipe-bridge.md` (implementación).
-- `skills/09-testing-strategy.md` (tests).
+- `.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md` (implementación).
+- `.opencode/skills/bls-testing-strategy/SKILL.md` (tests).
 - ADR-003 (abort y tool_timeout).

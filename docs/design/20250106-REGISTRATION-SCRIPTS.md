@@ -1,4 +1,4 @@
-# Feature: Registration + Packaging (regasm HKCU + scripts)
+﻿# Feature: Registration + Packaging (regasm HKCU + scripts)
 
 ## Estado
 Aprobado para implementación.
@@ -135,7 +135,7 @@ internal sealed record RegistrationInfo(
 ```
 
 Usado por `BlsAddinRegistrar.GetRegistrationInfo()` en el arranque para
-loguear el estado (skill 08).
+loguear el estado (skill bls-logging-errors).
 
 ---
 
@@ -149,10 +149,10 @@ loguear el estado (skill 08).
 | PRD FR-06         | LoadBehavior = 3                       | `EnsureAddinKey` y script                  |
 | PRD FR-06         | Scripts (des)registro                  | `RegisterAddin.ps1`, `UnregisterAddin.ps1` |
 | PRD FR-06         | Sin admin                              | No hay escritura en HKLM                   |
-| skill 07          | regasm x86                             | `Framework\v4.0.30319\regasm.exe`          |
-| skill 07          | Idempotencia                           | Scripts con `-Force` y tolerancia          |
-| skill 07          | PS 5.1                                 | Sintaxis compatible                        |
-| skill 07          | Verificar `LoadBehavior` tras arranque | Log de arranque con `GetRegistrationInfo`  |
+| skill bls-registration-scripts          | regasm x86                             | `Framework\v4.0.30319\regasm.exe`          |
+| skill bls-registration-scripts          | Idempotencia                           | Scripts con `-Force` y tolerancia          |
+| skill bls-registration-scripts          | PS 5.1                                 | Sintaxis compatible                        |
+| skill bls-registration-scripts          | Verificar `LoadBehavior` tras arranque | Log de arranque con `GetRegistrationInfo`  |
 | PRD §11.1         | Carga sin errores                      | Verificado por checklist manual            |
 
 ---
@@ -660,13 +660,13 @@ indent_size = 4
 En este orden:
 
 1. `AGENTS.md` (reglas 6, 7).
-2. `.opencode/skills/00-project-context.md`.
-3. `.opencode/skills/07-registration-scripts.md` (este dominio).
-4. `.opencode/skills/08-logging-errors.md` (log de arranque).
-5. `.opencode/skills/09-testing-strategy.md` (fakes de registro).
+2. `.opencode/skills/bls-project-context/SKILL.md`.
+3. `.opencode/skills/bls-registration-scripts/SKILL.md` (este dominio).
+4. `.opencode/skills/bls-logging-errors/SKILL.md` (log de arranque).
+5. `.opencode/skills/bls-testing-strategy/SKILL.md` (fakes de registro).
 
 Opcional:
-- `.opencode/skills/10-workflow-big-pickle-nemotron.md` (para entender por qué los
+- `.opencode/skills/bls-workflow-nemotron/SKILL.md` (para entender por qué los
   scripts no van en el assembly).
 
 ---
@@ -719,10 +719,10 @@ Cuando Nemotron termine, el PR debe:
 
 - `AGENTS.md` reglas 6, 7.
 - `PRD.md` §3.1, §7 FR-06, §11.
-- `.opencode/skills/07-registration-scripts.md`.
-- `.opencode/skills/08-logging-errors.md`.
-- `.opencode/skills/09-testing-strategy.md`.
-- `.opencode/skills/10-workflow-big-pickle-nemotron.md`.
+- `.opencode/skills/bls-registration-scripts/SKILL.md`.
+- `.opencode/skills/bls-logging-errors/SKILL.md`.
+- `.opencode/skills/bls-testing-strategy/SKILL.md`.
+- `.opencode/skills/bls-workflow-nemotron/SKILL.md`.
 - `docs/design/20250107-logging-version.md` (BlsVersion usado en logs y
   version.txt).
 ```
@@ -739,7 +739,7 @@ opencode --model nemotron-3-ultra \
 
 Lee en este orden:
 1. AGENTS.md
-2. .opencode/skills/00-project-context.md
+2. .opencode/skills/bls-project-context/SKILL.md
 3. docs/design/20250106-registration-scripts.md (el diseño)
 4. Los skills citados en §13 del diseño
 
@@ -764,11 +764,11 @@ opencode --model big-pickle \
 
 Lee:
 1. AGENTS.md
-2. .opencode/skills/10-workflow-big-pickle-nemotron.md (checklist de rechazo)
+2. .opencode/skills/bls-workflow-nemotron/SKILL.md (checklist de rechazo)
 3. docs/design/20250106-registration-scripts.md (diseño)
 4. El diff del PR
 
-Aplica el checklist de rechazo del skill 10.
+Aplica el checklist de rechazo del skill bls-workflow-nemotron.
 Presta especial atención a:
 - Nunca tocar HKLM (regla 6).
 - PlatformTarget=x86 (regla 6).

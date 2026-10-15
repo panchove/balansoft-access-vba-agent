@@ -1,4 +1,4 @@
-# Feature: NIM Client (HTTP/2 SSE streaming + tool_calls)
+﻿# Feature: NIM Client (HTTP/2 SSE streaming + tool_calls)
 
 ## Estado
 Aprobado para implementación.
@@ -215,9 +215,9 @@ internal static class NimHttpRequestBuilder
 | PRD FR-09          | Timeout 120s              | Timeout por chunk con `CancelAfter(120s)`                                          |
 | PRD FR-09          | Tool calls via bridge     | El cliente **no** ejecuta; emite `OnToolCall`                                      |
 | PRD FR-09          | Reconexión                | Retry con backoff 1s/2s/4s en 429/5xx                                              |
-| skill 03 §1        | HttpClient único          | Inyectado, no creado por request                                                   |
-| skill 03 §2        | `ResponseHeadersRead`     | Forzado en `HttpRequestMessage`                                                    |
-| skill 03 §4        | Tool_calls por `index`    | `NimStreamParser` acumula por índice                                               |
+| skill bls-nim-client-streaming §1        | HttpClient único          | Inyectado, no creado por request                                                   |
+| skill bls-nim-client-streaming §2        | `ResponseHeadersRead`     | Forzado en `HttpRequestMessage`                                                    |
+| skill bls-nim-client-streaming §4        | Tool_calls por `index`    | `NimStreamParser` acumula por índice                                               |
 
 ---
 
@@ -473,15 +473,15 @@ Prioridad explícita para permitir tests deterministas.
 En este orden:
 
 1. `AGENTS.md` (reglas duras).
-2. `.opencode/skills/00-project-context.md` (contexto general).
-3. `.opencode/skills/03-nim-client-streaming.md` (este dominio).
-4. `.opencode/skills/05-secure-store-dpapi.md` (origen de la API key).
-5. `.opencode/skills/08-logging-errors.md` (excepciones tipadas).
-6. `.opencode/skills/09-testing-strategy.md` (fake HttpMessageHandler).
+2. `.opencode/skills/bls-project-context/SKILL.md` (contexto general).
+3. `.opencode/skills/bls-nim-client-streaming/SKILL.md` (este dominio).
+4. `.opencode/skills/bls-secure-store-dpapi/SKILL.md` (origen de la API key).
+5. `.opencode/skills/bls-logging-errors/SKILL.md` (excepciones tipadas).
+6. `.opencode/skills/bls-testing-strategy/SKILL.md` (fake HttpMessageHandler).
 7. `docs/design/ADR-003-abort-model.md` (cancelación vs timeout).
 
 Opcional:
-- `.opencode/skills/06-winforms-threading.md` (cómo la terminal consume
+- `.opencode/skills/bls-winforms-threading/SKILL.md` (cómo la terminal consume
   los eventos).
 
 ---
@@ -528,11 +528,11 @@ Cuando Nemotron termine, el PR debe:
 - `AGENTS.md` reglas 4, 5, 10.
 - `docs/design/ADR-003-abort-model.md`.
 - `PRD.md` §3.3, §7 FR-09, §11.
-- `.opencode/skills/03-nim-client-streaming.md`.
-- `.opencode/skills/05-secure-store-dpapi.md`.
-- `.opencode/skills/08-logging-errors.md`.
-- `.opencode/skills/09-testing-strategy.md`.
-- `.opencode/skills/06-winforms-threading.md`.
+- `.opencode/skills/bls-nim-client-streaming/SKILL.md`.
+- `.opencode/skills/bls-secure-store-dpapi/SKILL.md`.
+- `.opencode/skills/bls-logging-errors/SKILL.md`.
+- `.opencode/skills/bls-testing-strategy/SKILL.md`.
+- `.opencode/skills/bls-winforms-threading/SKILL.md`.
 ```
 
 ---
@@ -547,7 +547,7 @@ opencode --model nemotron-3-ultra \
 
 Lee en este orden:
 1. AGENTS.md
-2. .opencode/skills/00-project-context.md
+2. .opencode/skills/bls-project-context/SKILL.md
 3. docs/design/20250102-nim-client.md (el diseño)
 4. Los skills citados en §11 del diseño
 5. Los ADRs referenciados en §14 del diseño
@@ -565,15 +565,15 @@ opencode --model big-pickle \
 
 Lee:
 1. AGENTS.md
-2. .opencode/skills/10-workflow-big-pickle-nemotron.md (checklist de rechazo)
+2. .opencode/skills/bls-workflow-nemotron/SKILL.md (checklist de rechazo)
 3. docs/design/20250102-nim-client.md (diseño)
 4. El diff del PR
 
-Aplica el checklist de rechazo del skill 10.
+Aplica el checklist de rechazo del skill bls-workflow-nemotron.
 Presta especial atención a:
 - Cancelación ≠ timeout (ADR-003).
-- HttpClient único (skill 03 §1).
-- API key nunca en log (skill 03 §anti-patrones).
+- HttpClient único (skill bls-nim-client-streaming §1).
+- API key nunca en log (skill bls-nim-client-streaming §anti-patrones).
 
 Si todo pasa, aprueba con 'LGTM'. Si algo falla, indica la regla violada."
 ```

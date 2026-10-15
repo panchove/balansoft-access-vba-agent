@@ -46,7 +46,7 @@ internal sealed class ApiKeyPromptForm : Form
         {
             Location = new Point(20, 130),
             Size = new Size(360, 25),
-            PasswordChar = 'â—',
+            PasswordChar = '*',
             UseSystemPasswordChar = true,
             Font = new Font("Consolas", 9F)
         };

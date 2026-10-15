@@ -1,4 +1,4 @@
-# ADR-003 — Modelo de cancelación (abort)
+﻿# ADR-003 — Modelo de cancelación (abort)
 
 ## Estado
 Aceptado — resuelve gap del PRD §3.3 y §7 FR-09.
@@ -102,7 +102,7 @@ Estos timeouts **no** activan `OnCancelled()`; activan errores tipados:
    la operación VBE. El historial guarda el tool result si llegó antes
    del cancel; si no, se marca `"tool_cancelled": true`.
 3. **Cerrar la terminal con turno activo**: se cancela el CTS, se espera
-   2 s (skill 06), luego `Dispose`. Si el bridge no responde, se descarta.
+   2 s (skill bls-winforms-threading), luego `Dispose`. Si el bridge no responde, se descarta.
 4. **Pulsar "Detener" dos veces**: el segundo click es no-op (CTS ya
    cancelado o `null`).
 5. **Cancelación durante retry de NIM (429/5xx)**: el retry respeta el
@@ -200,8 +200,8 @@ public async Task<JsonRpcResponse> WriteModuleAsync(Params p, CancellationToken 
 
 ## Referencias
 - PRD §3.3 (cliente NIM), §7 FR-09.
-- `skills/03-nim-client-streaming.md` (token en streaming).
-- `skills/04-jsonrpc-pipe-bridge.md` (tool_timeout y dispatch).
-- `skills/06-winforms-threading.md` (botón Detener, cierre de ventana).
-- `skills/08-logging-errors.md` (INFO vs ERROR).
+- `.opencode/skills/bls-nim-client-streaming/SKILL.md` (token en streaming).
+- `.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md` (tool_timeout y dispatch).
+- `.opencode/skills/bls-winforms-threading/SKILL.md` (botón Detener, cierre de ventana).
+- `.opencode/skills/bls-logging-errors/SKILL.md` (INFO vs ERROR).
 - ADR-002 (códigos -32002, -32003).

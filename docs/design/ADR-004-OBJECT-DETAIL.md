@@ -1,4 +1,4 @@
-# ADR-004 — Contrato de `object_detail` (Access read-only)
+﻿# ADR-004 — Contrato de `object_detail` (Access read-only)
 
 ## Estado
 Aceptado — resuelve gap del PRD §3.2 y §7 FR-11.
@@ -230,7 +230,7 @@ public ObjectDetailResult GetObjectDetail(
 
 ## Referencias
 - PRD §3.2 (bridge), §7 FR-11 (read-only Access).
-- `skills/02-vbe-automation.md` (identidad de proyecto).
-- `skills/04-jsonrpc-pipe-bridge.md` (códigos de error).
-- `skills/09-testing-strategy.md` (tests).
+- `.opencode/skills/bls-vbe-automation/SKILL.md` (identidad de proyecto).
+- `.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md` (códigos de error).
+- `.opencode/skills/bls-testing-strategy/SKILL.md` (tests).
 - ADR-001 (projectKey en `project_summary`).

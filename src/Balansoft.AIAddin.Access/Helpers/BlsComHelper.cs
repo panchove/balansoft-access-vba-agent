@@ -1,4 +1,4 @@
-﻿// Copyright Â© 2026 Balansoft
+// Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
@@ -34,6 +34,27 @@ namespace Balansoft.AIAddin.Access.Helpers
                 refs.AddFromGuid(guid, major, minor);
             }
             catch { }
+        }
+
+        public static object? AddToolsMenuItem(object? vbe, string caption, string tag)
+        {
+            if (vbe == null) return null;
+            try
+            {
+                dynamic v = vbe;
+                var commandBars = v.CommandBars;
+                var toolsBar = commandBars["Tools"];
+                if (toolsBar == null) return null;
+
+                object button = toolsBar.Controls.Add(Type: 1, Temporary: true);
+                button.GetType().InvokeMember("Caption", BindingFlags.SetProperty, null, button, new object[] { caption });
+                button.GetType().InvokeMember("Tag", BindingFlags.SetProperty, null, button, new object[] { tag });
+                return button;
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }

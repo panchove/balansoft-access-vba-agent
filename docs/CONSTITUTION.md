@@ -194,12 +194,12 @@ Puntos que **solo** puede verificar una persona y por eso son bloqueantes:
 
 ```
 1. Spec (specs/NNN-*.md) con alcance + criterios de aceptación + tests
-2. Revisión del spec            ← Big Pickle
+2. Revisión del spec            ← bls-architect
 3. ADR si la decisión es estructural y no está cubierta
-4. Implementación + tests       ← Nemotron 3 Ultra
+4. Implementación + tests       ← bls-implementer
 5. Verificación: build Debug + Release x86 + suite completa
 6. PR con checklist de rechazo y referencias cruzadas válidas
-7. Revisión humana             ← Big Pickle
+7. Revisión y auditoría         ← bls-reviewer + bls-iso
 8. Merge
 ```
 
@@ -294,7 +294,7 @@ Estos puntos del diagnóstico inicial ya no son deuda; se resuelven con
 - **`msbuild` de Visual Studio no sirve** en un equipo con VS/BuildTools sin el
   workload de .NET: falla con MSB4236 al no resolver `Microsoft.NET.Sdk`. El
   comando canónico es `dotnet build`.
-- **Referencias cruzadas**: los ficheros apuntaban al skill 10 con otro nombre
+- **Referencias cruzadas**: los ficheros apuntaban al skill bls-workflow-nemotron con otro nombre
   y `AGENTS.md` a un nombre de skills que no existe. Corregidos; el gate de
   referencias pasa.
 

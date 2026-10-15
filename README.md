@@ -10,7 +10,7 @@ Permite chatear con modelos LLM, ejecutar *tool calls* y persistir el historial 
 - **Cliente NIM** con streaming SSE, reintentos (429/5xx), backoff exponencial y cancelación por turno (ADR‑003).
 - **Almacén seguro** DPAPI para la API key (nunca en disco ni logs).
 - **Historial de chat** por proyecto (identidad = SHA‑256 de la ruta normalizada – ADR‑001).
-- **Terminal NIM** WinForms con loop de herramientas, *tool calls* y 렌더izado de resultados.
+- **Terminal NIM** WinForms con loop de herramientas, *tool calls* y renderizado de resultados.
 - **Registro COM** per‑user / per‑machine mediante scripts PowerShell x86.
 - **CI/CD** completo: build x86, 99 tests unitarios, 8 gates de calidad, versionado SemVer automático (Nerdbank.GitVersioning) y release automático al pushear tag `v*`.
 
@@ -79,8 +79,8 @@ scripts/
   ci.yml          # build + test + 8 gates
   release.yml     # tag v* → GitHub Release + ZIP
 .opencode/
-  agents/         # coordinator, planner, implementer, reviewer
-  skills/         # 11 guías de implementación
+  agents/         # bls-architect, bls-planner, bls-implementer, bls-reviewer, bls-iso
+  skills/         # 11 skills modulares (bls-*/SKILL.md)
 ```
 
 ---

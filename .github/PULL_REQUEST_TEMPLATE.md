@@ -1,4 +1,4 @@
-# Pull Request
+﻿# Pull Request
 
 ## Descripción
 
@@ -164,15 +164,15 @@ No la toca el autor.
 
 ### Skills que el autor debe releer (si aplica)
 
-- [ ] `skills/01-com-late-binding.md`
-- [ ] `skills/02-vbe-automation.md`
-- [ ] `skills/03-nim-client-streaming.md`
-- [ ] `skills/04-jsonrpc-pipe-bridge.md`
-- [ ] `skills/05-secure-store-dpapi.md`
-- [ ] `skills/06-winforms-threading.md`
-- [ ] `skills/07-registration-scripts.md`
-- [ ] `skills/08-logging-errors.md`
-- [ ] `skills/09-testing-strategy.md`
+- [ ] `.opencode/skills/bls-com-late-binding/SKILL.md`
+- [ ] `.opencode/skills/bls-vbe-automation/SKILL.md`
+- [ ] `.opencode/skills/bls-nim-client-streaming/SKILL.md`
+- [ ] `.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md`
+- [ ] `.opencode/skills/bls-secure-store-dpapi/SKILL.md`
+- [ ] `.opencode/skills/bls-winforms-threading/SKILL.md`
+- [ ] `.opencode/skills/bls-registration-scripts/SKILL.md`
+- [ ] `.opencode/skills/bls-logging-errors/SKILL.md`
+- [ ] `.opencode/skills/bls-testing-strategy/SKILL.md`
 - [ ] `skills/10-workflow-models.md`
 
 ### Comentarios
