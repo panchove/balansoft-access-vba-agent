@@ -1,0 +1,73 @@
+{
+  "name": "Balansoft.Access.VBA-Agent",
+  "description": "COM Add-in para Access 2010+ (x86) que integra Nvidia NIM en el VBE",
+  "progid": "Balansoft.AIAddin.Access",
+  "clsid": "{d31bf73e-dbe1-4739-84bc-2c974fcd3171}",
+  "platform": "x86",
+  "framework": "net48",
+  "langVersion": "10",
+  "settings": {
+    "Nullable": "annotations",
+    "TreatWarningsAsErrors": true,
+    "EnableNETAnalyzers": true,
+    "AnalysisLevel": "latest"
+  },
+  "structure": {
+    "src": "src/Balansoft.AIAddin.Access",
+    "tests": "tests/Balansoft.AIAddin.Tests",
+    "docs": "docs",
+    "design": "docs/design",
+    "skills": ".opencode/skills",
+    "agents": ".opencode/agents"
+  },
+  "rules": {
+    "no_PIAs": true,
+    "no_dynamic_outside_Helpers": true,
+    "marshaling_explicit_UI": true,
+    "api_key_DPAPI_only": true,
+    "error_propagate_category": true,
+    "platformTarget_x86": true
+  },
+  "commands": {
+    "build": "dotnet build src/Balansoft.AIAddin.Access/Balansoft.AIAddin.Access.csproj -c Debug -p:Platform=x86",
+    "build_tests": "dotnet build tests/Balansoft.AIAddin.Tests/Balansoft.AIAddin.Tests.csproj -c Debug -p:Platform=x86",
+    "test": "dotnet vstest tests/Balansoft.AIAddin.Tests/bin/x86/Debug/net48/Balansoft.AIAddin.Tests.dll /Settings:.runsettings /Platform:x86",
+    "register": "pwsh -ExecutionPolicy Bypass -File scripts/RegisterAddin.ps1",
+    "unregister": "pwsh -ExecutionPolicy Bypass -File scripts/UnregisterAddin.ps1",
+    "pack": "pwsh -ExecutionPolicy Bypass -File scripts/Pack.ps1 -Configuration Release"
+  },
+  "adrs": [
+    "ADR-001-project-identity",
+    "ADR-002-pipe-framing",
+    "ADR-003-abort-model",
+    "ADR-004-object-detail"
+  ],
+  "skills_index": [
+    "bls-project-context",
+    "bls-com-late-binding",
+    "bls-vbe-automation",
+    "bls-nim-client-streaming",
+    "bls-jsonrpc-pipe-bridge",
+    "bls-secure-store-dpapi",
+    "bls-winforms-threading",
+    "bls-registration-scripts",
+    "bls-logging-errors",
+    "bls-testing-strategy",
+    "bls-workflow-nemotron"
+  ],
+  "default_agent": "bls-architect",
+  "agents_index": [
+    "bls-architect",
+    "bls-planner",
+    "bls-implementer",
+    "bls-reviewer",
+    "bls-iso",
+    "bls-testing-qta"
+  ],
+  "model": {
+    "primary": "nvidia/nemotron-3-ultra-550b-a55b",
+    "override_env": "NIM_MODEL",
+    "unique": true,
+    "big_pickle": false
+  }
+}

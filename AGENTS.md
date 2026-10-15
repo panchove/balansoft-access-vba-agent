@@ -1,74 +1,100 @@
 # AGENTS.md — Balansoft Access VBA Agent (NIM Direct)
 
-## Contexto
-COM Add-in para Access 2010+ (x86) que integra Nvidia NIM en el VBE.
-ProgID: Balansoft.AIAddin.Access
-CLSID:  {d31bf73e-dbe1-4739-84bc-2c974fcd3171}
-Stack:  C# .NET Framework 4.8, LangVersion 10, **Nullable=annotations**,
-        x86 only, sin PIAs, enlace tardío vía dynamic.
+**ProgID:** `Balansoft.AIAddin.Access`  
+**CLSID:** `{d31bf73e-dbe1-4739-84bc-2c974fcd3171}`  
+**Stack:** C# .NET Framework 4.8, LangVersion 10, `Nullable=annotations`, **x86 only**, sin PIAs, enlace tardío vía `dynamic`.
 
-## Primer uso (repo nuevo)
-1. Clonar este repo como template (no usar `Scaffold.ps1`: está roto, 4 errores parser)
-2. `dotnet build src\Balansoft.AIAddin.Access\Balansoft.AIAddin.Access.csproj -c Debug -p:Platform=x86`
-3. `dotnet vstest tests\Balansoft.AIAddin.Tests\bin\x86\Debug\net48\Balansoft.AIAddin.Tests.dll /Settings:.runsettings /Platform:x86`
-4. `powershell -ExecutionPolicy Bypass -File scripts/RegisterAddin.ps1` — **requiere PowerShell x86**
-5. Abrir Access → VBE → Tools → NIM Terminal
+---
 
-## Versionado y release
-- **SemVer automático** con **Nerdbank.GitVersioning** (`version.json`).
-  - La versión viene de tags `vX.Y.Z` + altura de commit desde el tag.
-  - `Directory.Build.props` **no** tiene `<Version>` hardcoded; NBGV lo inyecta.
-- **Release flow**: push tag `vX.Y.Z` → CI (`.github/workflows/release.yml`) build + Pack → GitHub Release con ZIP + `version.txt`.
-- **CHANGELOG.md** (Keep a Changelog) actualizado a mano en cada PR.
+## Modelo de IA (único)
+
+- **Modelo:** `nvidia/nemotron-3-ultra-550b-a55b` (overrideable vía `NIM_MODEL`)
+- **API key:** solo en DPAPI (`BlsSecureStore`). Nunca en log, JSON, excepción ni disco.
+- **Historial:** por proyecto, identidad = SHA-256 de la ruta normalizada (ADR-001).
+- **Framing pipe:** `[uint32 LE length][UTF-8 JSON]`, máx 1 MB (ADR-002).
+- **Abort por turno:** un `CancellationTokenSource` por turno de usuario (ADR-003).
+- **object_detail:** campos siempre, SQL solo con `includeSql:true`, `maxFields` default 200 (ADR-004).
+
+---
 
 ## Reglas duras (no negociables)
-1. NUNCA añadir referencia a PIAs de Office (Microsoft.Office.Interop.*).
-2. NUNCA usar Marshal.GetActiveObject ni ROT para obtener VBE/Application.
-3. TODO acceso a VBE/Access desde hilos no-UI pasa por marshaling explícito.
-4. API key SOLO en DPAPI. Prohibido log, config, JSON, registry en claro.
+
+1. **NUNCA** añadir referencia a PIAs de Office (`Microsoft.Office.Interop.*`).
+2. **NUNCA** usar `Marshal.GetActiveObject` ni ROT para obtener VBE/Application.
+3. **TODO** acceso a VBE/Access desde hilos no-UI pasa por marshaling explícito (skill bls-winforms-threading).
+4. **API key SOLO en DPAPI.** Prohibido log, config, JSON, registry en claro.
 5. Errores COM/NIM se propagan como excepción con categoría + mensaje original.
-   PROHIBIDO devolver éxito falso ante fallo.
-6. PlatformTarget=x86 obligatorio. No tocar a AnyCPU ni x64.
-7. TreatWarningsAsErrors=true. Los warnings bloquean merge.
-8. Framing del Named Pipe: 4 bytes LE (longitud) + UTF-8 JSON. Ver ADR-002.
-9. Identidad de proyecto: SHA256(ruta normalizada). Ver ADR-001.
-10. Abort: un CancellationTokenSource por turno de usuario. Ver ADR-003.
-11. **Antes de cada compactación de la conversación (resumen), reindexar el repositorio con `codebase-memory`** (`index_repository` mode `fast`).
+   **PROHIBIDO** devolver éxito falso ante fallo.
+6. **PlatformTarget=x86** obligatorio. No tocar a AnyCPU ni x64.
+7. **TreatWarningsAsErrors=true**. Los warnings bloquean merge.
+8. **Framing del Named Pipe:** 4 bytes LE (longitud) + UTF-8 JSON. Ver ADR-002.
+9. **Identidad de proyecto:** SHA-256(ruta normalizada). Ver ADR-001.
+10. **Abort:** un `CancellationTokenSource` por turno de usuario. Ver ADR-003.
 
-## Flujo de trabajo entre modelos
-- Big Pickle: diseño de interfaces, contratos, revisión.
-- Nemotron 3 Ultra: implementación, scripts, tests.
-- Antes de implementar, leer los skills 00-10 en .opencode/skills/.
-- ADRs vigentes en docs/design/. Si un ADR contradice un skill, gana el ADR
-  y hay que abrir PR para actualizar el skill.
+---
 
-## Comandos canónicos
-- Build:      `dotnet build src\Balansoft.AIAddin.Access\Balansoft.AIAddin.Access.csproj -c Debug -p:Platform=x86`
-- Build tests:`dotnet build tests\Balansoft.AIAddin.Tests\Balansoft.AIAddin.Tests.csproj -c Debug -p:Platform=x86`
-- Test (unit):`dotnet vstest tests\Balansoft.AIAddin.Tests\bin\x86\Debug\net48\Balansoft.AIAddin.Tests.dll /Settings:.runsettings /Platform:x86`
-- Integr (NIM):`$env:NIM_API_KEY="..."; dotnet vstest ...` (sin `/Settings:`)
-- Reg (x86 PS):`powershell -ExecutionPolicy Bypass -File scripts/RegisterAddin.ps1`
-- Unreg (x86 PS):`powershell -ExecutionPolicy Bypass -File scripts/UnregisterAddin.ps1`
-- Pack:      `powershell -ExecutionPolicy Bypass -File scripts/Pack.ps1 -Configuration Release`
+## Comandos canónicos (usar `pwsh`)
 
-## Estilo
-- Español en UI y mensajes de log.
-- Comentarios XML en APIs públicas de Core/ y Helpers/.
-- Sin regiones; sin #if DEBUG salvo en tests.
+| Acción                                              | Comando                                                                                                                            |
+|-----------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| **Build Debug x86**                                 | `dotnet build src\Balansoft.AIAddin.Access\Balansoft.AIAddin.Access.csproj -c Debug -p:Platform=x86`                               |
+| **Build tests**                                     | `dotnet build tests\Balansoft.AIAddin.Tests\Balansoft.AIAddin.Tests.csproj -c Debug -p:Platform=x86`                               |
+| **Test unit** (solo unitarios, sin integración NIM) | `dotnet vstest tests\Balansoft.AIAddin.Tests\bin\x86\Debug\net48\Balansoft.AIAddin.Tests.dll /Settings:.runsettings /Platform:x86` |
+| **Registrar add-in**                                | `pwsh -ExecutionPolicy Bypass -File scripts\RegisterAddin.ps1` **(x86 only)**                                                      |
+| **Desregistrar**                                    | `pwsh -ExecutionPolicy Bypass -File scripts\UnregisterAddin.ps1` **(x86 only)**                                                    |
+| **Empaquetar Release**                              | `pwsh -ExecutionPolicy Bypass -File scripts/Pack.ps1 -Configuration Release`                                                       |
+| **Verificar tests** (canónico)                      | `pwsh -c "dotnet test tests/Balansoft.AIAddin.Tests/Balansoft.AIAddin.Tests.csproj -c Debug -p:Platform=x86"`                      |
+
+---
+
+## Flujo de trabajo Nemotron 3 Ultra
+
+1. **Leer contexto:** `AGENTS.md`, `.opencode/opencode.json`, skills en `.opencode/skills/bls-*/SKILL.md`.
+2. **Implementar:** C# .NET 4.8 x86, sin PIAs, con tests.
+3. **Verificar:** `dotnet test` verde (tests de unidad; tests de integración requieren `NIM_API_KEY`).
+4. **Commit:** mensaje `feat: <nombre> (refs design/YYYYMMDD-feature.md)`.
+5. **Revisar:** checklist Nemotron (sin Big Pickle).
+6. **Merge:** un solo commit por feature a `main`.
+
+---
 
 ## Archivos clave
-- `.runsettings` — filtra tests, configura coverage, TargetFramework=net48
-- `Directory.Build.props` — x86, LangVersion 10, TreatWarningsAsErrors, NBGV package
-- `version.json` — config Nerdbank.GitVersioning (semVer 2, publicReleaseRefSpec main + tags)
-- `.env` — API key local para desarrollo (no se commitea, ver `.env.example`)
-- `docs/design/` — ADRs (001-004) + 8 docs de diseño (20250101–20250108)
-- `.opencode/skills/` — 11 guías de implementación por frente (`00-` a `10-`)
-- `CHANGELOG.md` — historial de cambios (Keep a Changelog)
 
-## Gotchas operativos
-- `RegisterAddin.ps1` / `UnregisterAddin.ps1` **deben** correr en PowerShell **x86** (menú "Windows PowerShell (x86)")
-- Tests de integración NIM requieren `NIM_API_KEY` en env (o `.env`)
-- `Scaffold.ps1` **roto** (4 errores parser líneas 762-775); no usar
-- Build con `dotnet build` (el MSBuild del SDK es el único que resuelve `Microsoft.NET.Sdk`; un MSBuild de VS sin el workload de .NET falla con MSB4236)
-- Compilar **los `.csproj`, no `Balansoft.AIAddin.slnx`**: la solución no propaga `Platform` a proyectos SDK-style y escribe en `bin\<Config>\` en vez de `bin\x86\<Config>\net48\`
-- Release: **solo tag `v*` en `main`** dispara workflow release; no hay release manual ni `draft`
+- `.runsettings` — filtra tests (category≠Integration), configura coverage, TargetFramework=net48
+- `Directory.Build.props` — x86, LangVersion 10, TreatWarningsAsErrors, NBGV package
+- `version.json` — config Nerdbank.GitVersioning (semVer 2)
+- `.env` — API key local para desarrollo (no se commitea)
+- `docs/design/` — ADRs (001‑004)
+- `.opencode/opencode.json` — configuración y skills index
+- `scripts/` — `RegisterAddin.ps1` / `UnregisterAddin.ps1` deben correr en PowerShell **x86**
+
+---
+
+## Gotchas operativas
+
+- **Scripts de registro:** `RegisterAddin.ps1` / `UnregisterAddin.ps1` **deben** correr en PowerShell **x86** (usar `pwsh` desde menú x86 o verificar `[Environment]::Is64BitProcess`).
+- **Tests de integración NIM:** requieren `NIM_API_KEY` en el entorno (o `.`). No se ejecutan en CI por defecto (filtro `TestCategory!=Integration` en `.runsettings`).
+- **Scaffold.ps1 roto:** 4 errores parser líneas 762‑775; **no usar**.
+- **Compilar .csproj, no .slnx:** la solución no propaga `Platform` a proyectos SDK-style; usar siempre `dotnet build src/... -c Debug -p:Platform=x86`.
+- **Release:** solo tag `v*` en `main` dispara workflow `release.yml`; no hay release manual ni `draft`.
+- **Uniquete modelo:** `nvidia/nemotron-3-ultra-550b-a55b` (override por `NIM_MODEL`).
+- **Compilación en Windows:** .NET SDK 9.0.x requerido; Access 2010+ (32 bit) solo x86.
+
+---
+
+## Anti‑patrones prohibidos (rechazo automático en PR)
+
+| Anti‑patrón                                     | Por qué                                                |
+|-------------------------------------------------|--------------------------------------------------------|
+| `dynamic` fuera de `Helpers/BlsComHelper.cs`    | Dispersión incontrolable de late-binding               |
+| `Marshal.GetActiveObject("Access.Application")` | ROT prohibido                                          |
+| `Marshal.ReleaseComObject(vbe)`                 | Doble release, cierres inesperados de Access           |
+| `catch (Exception) { }` en llamadas COM         | Traga errores; usar `BlsComHelper` / `BlsComException` |
+| Llamar COM desde hilo NIM sin marshaling        | Crash del host                                         |
+| `Application.VBE` sin comprobar `null`          | Rompe en runtime/ACCDE                                 |
+| Referencias a `Microsoft.Office.Interop.*`      | Bloquea merge (TreatWarningsAsErrors)
+
+## Testing & QA
+- **Tests unitarios:** `dotnet test ... -c Debug -p:Platform=x86` (99 tests, sin clave NIM).
+- **Tests de integración:** requieren `NIM_API_KEY` en el entorno; están excluidos de la CI por filtro `TestCategory!=Integration` en `.runsettings`.
+- **Skill de testing:** `bls-testing-strategy` — directrices para escribir tests y fakes sin COM real.                  |
