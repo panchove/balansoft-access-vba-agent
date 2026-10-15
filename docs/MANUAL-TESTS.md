@@ -46,19 +46,19 @@ Documentar el procedimiento y la lista de comprobación de pruebas de integraci�
 
 ## Lista de Comprobación Manual (Gate de Release)
 
-| # | Escenario de Prueba | Resultado Esperado | Estado |
-|---|---------------------|--------------------|--------|
-| 1 | **Arranque de Access x86** | Access abre sin errores ni advertencias de seguridad. | [ ] |
-| 2 | **Persistencia de LoadBehavior** | `LoadBehavior` permanece en `3` (no se degrada a `2`). | [ ] |
-| 3 | **Menú Tools en VBE** | Al abrir el Editor VBA (Alt+F11), el menú *Tools* contiene el comando *"NIM Terminal"*. | [ ] |
-| 4 | **Apertura de Ventana Terminal** | Al hacer clic en *"NIM Terminal"*, se abre la ventana WinForms con el VBE como ventana propietaria (owner). | [ ] |
-| 5 | **Solicitud y Almacenamiento de API Key** | Si no existe clave, se solicita mediante diálogo y se almacena en DPAPI (`%APPDATA%\Balansoft\AIAddin\apikey.bin`). | [ ] |
-| 6 | **Streaming en Tiempo Real** | Al enviar un prompt simple, los tokens SSE se renderizan de forma progresiva sin congelar el editor. | [ ] |
-| 7 | **Tool Call: create_module** | El modelo invoca la herramienta y se crea un módulo real en el proyecto VBA visible en el Explorador de Proyectos. | [ ] |
-| 8 | **Cancelación de Turno** | Al pulsar el botón *"Detener"*, se cancela el request inmediatamente y no se reporta como error en UI. | [ ] |
-| 9 | **Persistencia de Historial** | Al cerrar la ventana terminal y volver a abrirla, la conversación previa se restaura desde `{projectKey}.json`. | [ ] |
-| 10 | **Modo Runtime (.accde / /runtime)** | Al abrir una base en runtime donde `VBE == null`, el add-in degrada limpiamente y no genera crash. | [ ] |
-| 11 | **Verificación de Logs** | El log en `%APPDATA%\Balansoft\AIAddin\logs\` no contiene claves API ni fragmentos `nvapi-...`. | [ ] |
+| #  | Escenario de Prueba                       | Resultado Esperado                                                                                                  | Estado |
+|----|-------------------------------------------|---------------------------------------------------------------------------------------------------------------------|--------|
+| 1  | **Arranque de Access x86**                | Access abre sin errores ni advertencias de seguridad.                                                               | [ ]    |
+| 2  | **Persistencia de LoadBehavior**          | `LoadBehavior` permanece en `3` (no se degrada a `2`).                                                              | [ ]    |
+| 3  | **Menú Tools en VBE**                     | Al abrir el Editor VBA (Alt+F11), el menú *Tools* contiene el comando *"NIM Terminal"*.                             | [ ]    |
+| 4  | **Apertura de Ventana Terminal**          | Al hacer clic en *"NIM Terminal"*, se abre la ventana WinForms con el VBE como ventana propietaria (owner).         | [ ]    |
+| 5  | **Solicitud y Almacenamiento de API Key** | Si no existe clave, se solicita mediante diálogo y se almacena en DPAPI (`%APPDATA%\Balansoft\AIAddin\apikey.bin`). | [ ]    |
+| 6  | **Streaming en Tiempo Real**              | Al enviar un prompt simple, los tokens SSE se renderizan de forma progresiva sin congelar el editor.                | [ ]    |
+| 7  | **Tool Call: create_module**              | El modelo invoca la herramienta y se crea un módulo real en el proyecto VBA visible en el Explorador de Proyectos.  | [ ]    |
+| 8  | **Cancelación de Turno**                  | Al pulsar el botón *"Detener"*, se cancela el request inmediatamente y no se reporta como error en UI.              | [ ]    |
+| 9  | **Persistencia de Historial**             | Al cerrar la ventana terminal y volver a abrirla, la conversación previa se restaura desde `{projectKey}.json`.     | [ ]    |
+| 10 | **Modo Runtime (.accde / /runtime)**      | Al abrir una base en runtime donde `VBE == null`, el add-in degrada limpiamente y no genera crash.                  | [ ]    |
+| 11 | **Verificación de Logs**                  | El log en `%APPDATA%\Balansoft\AIAddin\logs\` no contiene claves API ni fragmentos `nvapi-...`.                     | [ ]    |
 
 ---
 

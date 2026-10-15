@@ -69,7 +69,7 @@ else {
     Write-Host "  = regasm o DLL ausente, se omite regasm" -ForegroundColor DarkGray
 }
 
-# 4. Eliminar la clave HKCU
+# 4. Eliminar la clave HKCU de Access Add-in y clases COM
 Write-Host ""
 if (Test-Path $AddinKeyPath) {
     Remove-Item -Path $AddinKeyPath -Recurse -Force
@@ -78,6 +78,14 @@ if (Test-Path $AddinKeyPath) {
 else {
     Write-Host "  = Clave HKCU no existía (nada que borrar)" -ForegroundColor DarkGray
 }
+
+$clsidKey = "HKCU:\Software\Classes\CLSID\{d31bf73e-dbe1-4739-84bc-2c974fcd3171}"
+$wowClsidKey = "HKCU:\Software\Classes\Wow6432Node\CLSID\{d31bf73e-dbe1-4739-84bc-2c974fcd3171}"
+$progidKey = "HKCU:\Software\Classes\Balansoft.AIAddin.Access"
+if (Test-Path $clsidKey) { Remove-Item -Path $clsidKey -Recurse -Force -ErrorAction SilentlyContinue }
+if (Test-Path $wowClsidKey) { Remove-Item -Path $wowClsidKey -Recurse -Force -ErrorAction SilentlyContinue }
+if (Test-Path $progidKey) { Remove-Item -Path $progidKey -Recurse -Force -ErrorAction SilentlyContinue }
+Write-Host "  + Clases COM de HKCU eliminadas" -ForegroundColor Green
 
 Write-Host ""
 Write-Host "Add-in desregistrado." -ForegroundColor Yellow

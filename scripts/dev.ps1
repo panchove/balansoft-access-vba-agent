@@ -217,9 +217,14 @@ function Invoke-Script([string]$scriptName, [string[]]$scriptArgs = @()) {
         Write-Host "ERROR: script no encontrado: $path" -ForegroundColor Red
         exit 1
     }
-    Write-Host ""
-    Write-Host ">>> $scriptName" -ForegroundColor Cyan
-    & powershell -ExecutionPolicy Bypass -File $path @scriptArgs
+    $psExe = if ($scriptName -match 'RegisterAddin\.ps1') {
+        Join-Path $env:WINDIR "SysWOW64\WindowsPowerShell\v1.0\powershell.exe"
+    } else {
+        "powershell"
+    }
+    if (-not (Test-Path $psExe)) { $psExe = "powershell" }
+
+    & $psExe -NoProfile -ExecutionPolicy Bypass -File $path @scriptArgs
     if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 }
 

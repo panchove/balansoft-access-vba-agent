@@ -1,114 +1,92 @@
 # Script: CheckAddinRegistration.ps1
-# Descripción: Verifica el estado de registro del add-in COM Balansoft.AIAddin.Access
-#   - Comprueba la clave HKCU
-#   - Comprueba la clave HKLM (vista de 32 bits en sistemas x64)
+# Descripcion: Verifica el estado de registro del add-in COM Balansoft.AIAddin.Access
+#   - Comprueba la clave HKCU de Office Access
+#   - Comprueba el registro COM (CLSID y ProgID en HKCU / Wow6432Node)
 #   - Informa si LoadBehavior = 3 (cargar al iniciar Access)
-#   - Muestra FriendlyName y otros valores
 
-# Opcional: Recordar al usuario que debe ejecutarse en PowerShell x86
 if ([Environment]::Is64BitProcess) {
-    Write-Warning "Este script está diseñado para PowerShell x86. Se detectó un proceso de 64 bits."
-    Write-Warning "Se recomienda abrir 'Windows PowerShell (x86)' desde el menú Inicio."
+    Write-Warning "Este script esta disenado para PowerShell x86. Se detecto un proceso de 64 bits."
+    Write-Warning "Se recomienda abrir 'Windows PowerShell (x86)' desde el menu Inicio."
 }
 
-# Rutas de las claves de registro (usando rutas de texto sin expandir variables)
 $keyPathHKCU = "HKCU:\Software\Microsoft\Office\Access\Addins\Balansoft.AIAddin.Access"
-$keyPathHKLM = "HKLM:\Wow6432Node\Software\Microsoft\Office\Access\Addins\Balansoft.AIAddin.Access"
+$progidKey   = "HKCU:\Software\Classes\Balansoft.AIAddin.Access"
+$clsidKey    = "HKCU:\Software\Classes\Wow6432Node\CLSID\{D31BF73E-DBE1-4739-84BC-2C974FCD3171}"
 
 function Test-AddinKey {
-    param(
-        [string]$Path
-    )
+    param([string]$Path)
     if (Test-Path $Path) {
         $props = (Get-ItemProperty -Path $Path).PSObject.Properties
-        # Construir un hashtable con nombre=valor para acceso seguro
         $dict = @{}
         foreach ($prop in $props) {
             $dict[$prop.Name] = $prop.Value
         }
         return $dict
     }
-    else {
-        return $null
-    }
+    return $null
 }
 
-Write-Host "=== Comprobación de registro del add-in Balansoft.AIAddin.Access ===" -ForegroundColor Cyan
+Write-Host ""
+Write-Host "=== Comprobacion de registro del add-in Balansoft.AIAddin.Access ===" -ForegroundColor Cyan
+Write-Host ""
 
-# 1. Clave HKCU
-Write-Host "`n[1/2] Leyendo clave HKCU:`n" -ForegroundColor Yellow
+# 1. Clave HKCU en Office Access
+Write-Host "[1/3] Clave Office Access en HKCU:" -ForegroundColor Yellow
 $hkcuProps = Test-AddinKey -Path $keyPathHKCU
 if ($hkcuProps -eq $null) {
-    Write-Host "❌ No existe la clave HKCU: $keyPathHKCU" -ForegroundColor Red
+    Write-Host "  [X] No existe la clave HKCU: $keyPathHKCU" -ForegroundColor Red
 }
 else {
-    Write-Host "✔ Clave HKCU encontrada." -ForegroundColor Green
-    # Obtener valores seguros usando Try/Get
+    Write-Host "  [OK] Clave HKCU encontrada." -ForegroundColor Green
     $lb = if ($hkcuProps.ContainsKey("LoadBehavior")) { $hkcuProps["LoadBehavior"] } else { $null }
     $fb = if ($hkcuProps.ContainsKey("FriendlyName")) { $hkcuProps["FriendlyName"] } else { $null }
-    Write-Host "   • LoadBehavior = $lb ( esperado: 3 )"
+    Write-Host "    * LoadBehavior = $lb (esperado: 3)"
     if ($lb -eq 3) {
-        Write-Host "   → Correcto: el add-in se cargará al iniciar Access." -ForegroundColor Green
+        Write-Host "    -> Correcto: el add-in se cargara al iniciar Access." -ForegroundColor Green
     }
     else {
-        Write-Host "   → Advertencia: LoadBehavior distinto de 3." -ForegroundColor Yellow
+        Write-Host "    -> Advertencia: LoadBehavior distinto de 3." -ForegroundColor Yellow
     }
-    Write-Host "   • FriendlyName = $fb"
-    # Mostrar otros valores opcionales (Description, CommandLineSafe)
-    foreach ($key in @("Description","CommandLineSafe")) {
-        if ($hkcuProps.ContainsKey($key)) {
-            Write-Host "   • $key = $($hkcuProps[$key])"
-        }
-    }
+    Write-Host "    * FriendlyName = $fb"
 }
 
-# 2. Clave HKLM (vista de 32 bits)
-Write-Host "`n[2/2] Leyendo clave HKLM (vista de 32 bits):`n" -ForegroundColor Yellow
-$hklmProps = Test-AddinKey -Path $keyPathHKLM
-if ($hklmProps -eq $null) {
-    Write-Host "❌ No existe la clave HKLM: $keyPathHKLM" -ForegroundColor Red
-    Write-Host "   (Esto puede impedir que Access de 64 bits cargue el add-in.)" -ForegroundColor DarkYellow
+# 2. Clave ProgID en HKCU
+Write-Host ""
+Write-Host "[2/3] ProgID COM en HKCU:" -ForegroundColor Yellow
+if (Test-Path $progidKey) {
+    Write-Host "  [OK] ProgID encontrado: $progidKey" -ForegroundColor Green
 }
 else {
-    Write-Host "✔ Clave HKLM encontrada." -ForegroundColor Green
-    $lb = if ($hklmProps.ContainsKey("LoadBehavior")) { $hklmProps["LoadBehavior"] } else { $null }
-    $fb = if ($hklmProps.ContainsKey("FriendlyName")) { $hklmProps["FriendlyName"] } else { $null }
-    Write-Host "   • LoadBehavior = $lb ( esperado: 3 )"
-    if ($lb -eq 3) {
-        Write-Host "   → Correcto: el add-in se cargará para todos los usuarios." -ForegroundColor Green
-    }
-    else {
-        Write-Host "   → Advertencia: LoadBehavior distinto de 3." -ForegroundColor Yellow
-    }
-    Write-Host "   • FriendlyName = $fb"
-    foreach ($key in @("Description","CommandLineSafe")) {
-        if ($hklmProps.ContainsKey($key)) {
-            Write-Host "   • $key = $($hklmProps[$key])"
-        }
-    }
+    Write-Host "  [X] ProgID no registrado: $progidKey" -ForegroundColor Red
 }
 
-# Resumen final
-Write-Host "`n=== Resumen ===" -ForegroundColor Cyan
-$okUser = ($hkcuProps -ne $null) -and ($hkcuProps["LoadBehavior"] -eq 3)
-$okMachine = ($hklmProps -ne $null) -and ($hklmProps["LoadBehavior"] -eq 3)
-
-if ($okUser) {
-    Write-Host "El add-in está correctamente configurado para el usuario actual (LoadBehavior=3)." -ForegroundColor Green
+# 3. Clave CLSID (x86 WOW64)
+Write-Host ""
+Write-Host "[3/3] CLSID COM en HKCU (Wow6432Node):" -ForegroundColor Yellow
+if (Test-Path $clsidKey) {
+    Write-Host "  [OK] CLSID registrado: $clsidKey" -ForegroundColor Green
+    $inprocKey = "$clsidKey\InprocServer32"
+    if (Test-Path $inprocKey) {
+        $inproc = Get-ItemProperty -Path $inprocKey
+        Write-Host "    * InprocServer32 = $($inproc.'(default)')"
+        Write-Host "    * Class          = $($inproc.Class)"
+        Write-Host "    * CodeBase       = $($inproc.CodeBase)"
+    }
 }
 else {
-    Write-Host "Es necesario registrar o crear la clave con LoadBehavior = 3." -ForegroundColor Red
+    Write-Host "  [X] CLSID no encontrado en $clsidKey" -ForegroundColor Red
 }
 
-if ($okMachine) {
-    Write-Host "La clave de máquina también está configurada (carga para todos los usuarios)." -ForegroundColor Green
+# Resumen
+Write-Host ""
+Write-Host "=== Resumen ===" -ForegroundColor Cyan
+$okAccess = ($hkcuProps -ne $null) -and ($hkcuProps["LoadBehavior"] -eq 3)
+$okCom    = (Test-Path $progidKey) -and (Test-Path $clsidKey)
+
+if ($okAccess -and $okCom) {
+    Write-Host "El add-in esta completamente registrado y listo para Access x86." -ForegroundColor Green
 }
 else {
-    Write-Host "La clave de máquina no está presente o no tiene LoadBehavior=3." -ForegroundColor DarkYellow
+    Write-Host "El registro esta incompleto. Ejecuta scripts\RegisterAddin.ps1 en PowerShell x86." -ForegroundColor Red
 }
-
-Write-Host "`nFin de la comprobación.`n`nPara activar el add-in en Access:`n"
-Write-Host "- Abre Access (versión de 32 bits)." -ForegroundColor White
-Write-Host "- Ve a Archivo → Opciones → Complementos → Complementos de COM → Ir." -ForegroundColor White
-Write-Host "- Asegúrate de que la casilla ""Balansoft Access VBA Agent (NIM)"" esté marcada." -ForegroundColor White
-Write-Host "- Si no aparece, vuelve a ejecutar RegisterAddin.ps1 con privilegios de administrador." -ForegroundColor White
+Write-Host ""
