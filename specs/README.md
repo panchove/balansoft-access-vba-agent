@@ -43,6 +43,7 @@ Un spec por archivo, nombrado `NNN-slug.md`, con esta estructura:
 | 007 | [access-readonly](007-access-readonly.md) | FR-11 | ADR-004 | `borrador` | 3 verdes, 6 pendientes |
 | 008 | [logging-errors](008-logging-errors.md) | FR-07, FR-12 | — | `borrador` | 2 verdes, 7 pendientes |
 | 009 | [registration](009-registration.md) | FR-06 | — | `borrador` | 0/8 |
+| 010 | [design-by-contract](010-design-by-contract.md) | Calidad / DbC | ADR-005 | `implementado` | 17 verdes |
 
 `implementado` solo si hay tests verdes. Los specs 005 y 006 tienen el código
 completo pero ninguna aserción que lo valide, así que no pueden declararse

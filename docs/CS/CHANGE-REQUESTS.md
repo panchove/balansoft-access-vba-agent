@@ -85,4 +85,22 @@
 
 ---
 
-## 3. Próximo CR ID disponible: `CR-006`
+### CR-006: Adopción obligatoria de Diseño por Contrato (Design by Contract - DbC)
+* **ID:** `CR-006`
+* **Título:** Estandarización de contratos formales (Precondiciones, Postcondiciones e Invariantes)
+* **Prioridad:** Crítica
+* **Área:** `Core / Helpers / Architecture`
+* **Fecha:** 2026-10-15
+* **Estado:** `Implementado en v0.1.8`
+* **Justificación:**  
+  La arquitectura de COM Add-in dentro de Microsoft Access exige máxima robustez y prevención temprana de fallos. La validación ad-hoc dispersa se sustituye por contratos canónicos estrictos.
+* **Detalle de implementación:**  
+  - Creación de `Balansoft.AIAddin.Helpers.BlsContract`.
+  - Creación de `docs/design/ADR-005-DESIGN-BY-CONTRACT.md` y `specs/010-design-by-contract.md`.
+  - Incorporación a `docs/CONSTITUTION.md` (P13) y `AGENTS.md` (Regla 12).
+  - Aplicación en todos los servicios y componentes del add-in.
+  - Creación de suite `BlsContractTests` (17 pruebas unitarias).
+
+---
+
+## 3. Próximo CR ID disponible: `CR-007`

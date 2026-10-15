@@ -13,6 +13,7 @@
 - **Framing pipe:** `[uint32 LE length][UTF-8 JSON]`, máx 1 MB (ADR-002).
 - **Abort por turno:** un `CancellationTokenSource` por turno de usuario (ADR-003).
 - **object_detail:** campos siempre, SQL solo con `includeSql:true`, `maxFields` default 200 (ADR-004).
+- **Diseño por Contrato (DbC):** contratos formales en APIs públicas vía `BlsContract` (ADR-005).
 
 ---
 ## Reglas duras (no negociables)
@@ -28,6 +29,7 @@
 9. **Identidad de proyecto:** SHA‑256(ruta normalizada). Ver ADR‑001.
 10. **Abort:** un `CancellationTokenSource` por turno de usuario. Ver ADR‑003.
 11. **Nullable=annotations** (no `disable`).
+12. **DbC:** todo método o servicio público debe validar precondiciones vía `BlsContract` (ADR-005).
 
 ---
 ## Comandos canónicos (usar `pwsh`)
@@ -59,7 +61,7 @@
 - `Directory.Build.props` — x86, LangVersion 10, TreatWarningsAsErrors, NBGV package
 - `version.json` — config Nerdbank.GitVersioning (semVer 2)
 - `.env` — API key local para desarrollo (no se commitea)
-- `docs/design/` — ADRs (001‑004)
+- `docs/design/` — ADRs (001‑005)
 - `.opencode/opencode.json` — configuración y skills index
 - `scripts/` — `RegisterAddin.ps1` / `UnregisterAddin.ps1` deben correr en PowerShell **x86**
 
@@ -92,7 +94,7 @@
 ---
 ## Testing & QA
 
-- **Tests unitarios:** `dotnet test ... -c Debug -p:Platform=x86` (99 tests, sin clave NIM).
+- **Tests unitarios:** `dotnet test ... -c Debug -p:Platform=x86` (123 tests, sin clave NIM).
 - **Tests de integración:** requieren `NIM_API_KEY` en el entorno; están excluidos de la CI por filtro `TestCategory!=Integration` en `.runsettings`.
 - **Skill de testing:** `bls-testing-strategy` — directrices para escribir tests y fakes sin COM real.
 
