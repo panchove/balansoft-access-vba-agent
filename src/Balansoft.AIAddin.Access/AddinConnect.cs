@@ -68,7 +68,7 @@ namespace Balansoft.AIAddin.Access
                 (_chatHistory as IDisposable)?.Dispose();
                 _httpClient?.Dispose();
             }
-            catch { }
+            catch { throw; }
 
             _bridgeServer = null;
             _bridgeClient = null;
@@ -107,7 +107,7 @@ namespace Balansoft.AIAddin.Access
                     CreateMenu();
                 }
             }
-            catch { }
+            catch { throw; }
         }
 
         private void EnsureServices()
@@ -213,7 +213,7 @@ namespace Balansoft.AIAddin.Access
                     _commandBarButton = null;
                 }
             }
-            catch { }
+            catch { throw; }
         }
 
         internal void OnMenuClick(object ctrl, ref bool cancelDefault)
@@ -291,7 +291,7 @@ namespace Balansoft.AIAddin.Access
                 {
                     _connectionPoint.Unadvise(_cookie);
                 }
-                catch { }
+                catch { throw; }
                 _cookie = 0;
                 _connectionPoint = null;
             }

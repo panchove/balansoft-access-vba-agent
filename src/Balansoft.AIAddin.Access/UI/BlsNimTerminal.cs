@@ -324,7 +324,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
                 _history.FlushAsync(CancellationToken.None).Wait(TimeSpan.FromSeconds(2));
             }
         }
-        catch { }
+        catch { throw; }
 
         _bridgeClient.Dispose();
     }

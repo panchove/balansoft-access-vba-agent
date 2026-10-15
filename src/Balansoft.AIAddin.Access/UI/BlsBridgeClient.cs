@@ -142,7 +142,7 @@ public sealed class BlsBridgeClient : IBlsBridgeClient
 
     private void Disconnect()
     {
-        try { _pipe?.Dispose(); } catch { }
+        try { _pipe?.Dispose(); } catch { throw; }
         _pipe = null;
     }
 

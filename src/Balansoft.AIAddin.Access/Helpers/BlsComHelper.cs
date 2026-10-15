@@ -35,7 +35,7 @@ namespace Balansoft.AIAddin.Access.Helpers
             {
                 refs.AddFromGuid(guid, major, minor);
             }
-            catch { }
+            catch { throw; }
         }
 
         public static object? AddToolsMenuItem(object? vbe, string caption, string tag)
@@ -54,7 +54,7 @@ namespace Balansoft.AIAddin.Access.Helpers
                 {
                     toolsMenu = commandBars["Tools"];
                 }
-                catch { }
+                catch { throw; }
 
                 if (toolsMenu == null)
                 {
@@ -62,7 +62,7 @@ namespace Balansoft.AIAddin.Access.Helpers
                     {
                         toolsMenu = commandBars["Herramientas"];
                     }
-                    catch { }
+                    catch { throw; }
                 }
 
                 // 2. Busqueda universal por control incorporado ID 30007
@@ -72,7 +72,7 @@ namespace Balansoft.AIAddin.Access.Helpers
                     {
                         toolsMenu = commandBars.FindControl(Type: 10, Id: 30007);
                     }
-                    catch { }
+                    catch { throw; }
                 }
 
                 // 3. Fallback: inspeccionar la barra de menus principal (CommandBars[1])
@@ -98,7 +98,7 @@ namespace Balansoft.AIAddin.Access.Helpers
                             }
                         }
                     }
-                    catch { }
+                    catch { throw; }
                 }
 
                 if (toolsMenu == null) return null;
@@ -156,7 +156,7 @@ namespace Balansoft.AIAddin.Access.Helpers
                             }
                         }
                     }
-                    catch { }
+                    catch { throw; }
                 }
 
                 if (accessApp != null)
@@ -176,7 +176,7 @@ namespace Balansoft.AIAddin.Access.Helpers
                             return new ProjectKeyInfo { Key = key, Ephemeral = false, Source = "path" };
                         }
                     }
-                    catch { }
+                    catch { throw; }
                 }
 
                 string projName = "UnknownProject";
@@ -187,7 +187,7 @@ namespace Balansoft.AIAddin.Access.Helpers
                         dynamic v = vbe;
                         projName = (string)v.ActiveVBProject?.Name ?? "UnknownProject";
                     }
-                    catch { }
+                    catch { throw; }
                 }
                 var seed = $"{projName}|{Environment.MachineName}|{Environment.UserName}";
                 using (var sha = System.Security.Cryptography.SHA256.Create())
@@ -288,7 +288,7 @@ namespace Balansoft.AIAddin.Access.Helpers
                     }
                 }
             }
-            catch { }
+            catch { throw; }
             return list;
         }
 
@@ -309,7 +309,7 @@ namespace Balansoft.AIAddin.Access.Helpers
                     }
                 }
             }
-            catch { }
+            catch { throw; }
             return string.Empty;
         }
 
@@ -334,7 +334,7 @@ namespace Balansoft.AIAddin.Access.Helpers
                     }
                 }
             }
-            catch { }
+            catch { throw; }
         }
 
         public static void CreateModule(object? vbe, string name, string code, VbeComponentType type)
@@ -357,7 +357,7 @@ namespace Balansoft.AIAddin.Access.Helpers
                     }
                 }
             }
-            catch { }
+            catch { throw; }
         }
 
         public static void DeleteModule(object? vbe, string name, bool confirm)
@@ -372,7 +372,7 @@ namespace Balansoft.AIAddin.Access.Helpers
                     v.ActiveVBProject.VBComponents.Remove(comp);
                 }
             }
-            catch { }
+            catch { throw; }
         }
 
         public static ProjectSummaryResult GetProjectSummary(object? accessApp, IBlsVbe vbe)
@@ -389,7 +389,7 @@ namespace Balansoft.AIAddin.Access.Helpers
                     name = (string)app.CurrentProject?.Name ?? "Unknown";
                     version = (string)app.Version ?? "14.0";
                 }
-                catch { }
+                catch { throw; }
             }
             return new ProjectSummaryResult(name, keyInfo.Key, keyInfo.Ephemeral, counts, vbe.ListModules().Count, version, "x86");
         }

@@ -183,7 +183,7 @@ public sealed class BlsChatHistory : IBlsChatHistory, IDisposable
         catch (Exception ex)
         {
             // Limpiar .tmp si existe
-            try { if (File.Exists(tmpPath)) File.Delete(tmpPath); } catch { }
+            try { if (File.Exists(tmpPath)) File.Delete(tmpPath); } catch { throw; }
             throw new BlsHistoryIOException($"Error guardando historial de {projectKey}", ex);
         }
     }
