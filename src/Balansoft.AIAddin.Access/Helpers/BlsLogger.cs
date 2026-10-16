@@ -1,5 +1,7 @@
 // Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
+// Standard: ISO/IEC 25010:2023 / ISO/IEC 26514:2022
+// Architecture Reference: ADR-011-LOGGING-VERSION.md
 
 using System;
 using System.IO;
@@ -8,7 +10,8 @@ using System.Text;
 namespace Balansoft.AIAddin.Helpers
 {
     /// <summary>
-    /// Logger del add-in que escribe en %APPDATA%\Balansoft\AIAddin\logs\.
+    /// Logger del add-in que escribe en %APPDATA%\Balansoft\AIAddin\logs\ según ADR-011.
+    /// Thread-safe, con rotación diaria y saneamiento estricto de secretos (prohibición de API keys).
     /// </summary>
     public sealed class BlsLogger : IBlsLogger, IDisposable
     {

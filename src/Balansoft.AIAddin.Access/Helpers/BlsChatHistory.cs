@@ -1,5 +1,7 @@
 // Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
+// Standard: ISO/IEC 25010:2023 / ISO/IEC 26514:2022
+// Architecture Reference: ADR-001-PROJECT-IDENTITY.md / ADR-009-SECURE-STORE.md
 
 using System;
 using System.Collections.Generic;
@@ -13,8 +15,8 @@ using System.Linq;
 namespace Balansoft.AIAddin.Helpers;
 
 /// <summary>
-/// Persistencia del historial de chat por proyecto (ADR-001).
-/// Escritura atómica, debounce 500ms, rotación 1MB/5 archivos.
+/// Persistencia del historial de chat por proyecto según ADR-001 y ADR-009.
+/// Escritura atómica, debounce 500ms, rotación 1MB/5 archivos. Cumple con ISO/IEC 25010 (Fiabilidad e Integridad).
 /// </summary>
 public sealed class BlsChatHistory : IBlsChatHistory, IDisposable
 {

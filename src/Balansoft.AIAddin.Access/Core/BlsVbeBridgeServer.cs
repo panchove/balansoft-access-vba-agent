@@ -1,5 +1,7 @@
 // Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
+// Standard: ISO/IEC 25010:2023 / ISO/IEC 26514:2022
+// Architecture Reference: ADR-002-PIPE-FRAMING.md / ADR-006-VBE-BRIDGE.md
 
 using System;
 using System.Collections.Concurrent;
@@ -17,7 +19,8 @@ using Balansoft.AIAddin.UI;
 namespace Balansoft.AIAddin.Core;
 
 /// <summary>
-/// Servidor JSON-RPC 2.0 sobre Named Pipe para el bridge VBE/Access.
+/// Servidor JSON-RPC 2.0 sobre Named Pipe para el bridge VBE/Access según ADR-002 y ADR-006.
+/// Implementa framing determinista por longitud prefijada y control de concurrencia.
 /// </summary>
 public sealed class BlsVbeBridgeServer : IBlsBridgeServer
 {

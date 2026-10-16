@@ -1,5 +1,7 @@
 // Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
+// Standard: ISO/IEC 25010:2023 / ISO/IEC 26514:2022
+// Architecture Reference: ADR-008-NIM-TERMINAL.md
 
 using System;
 using System.Collections.Generic;
@@ -19,7 +21,9 @@ using Balansoft.AIAddin.VbeIntegration;
 namespace Balansoft.AIAddin.UI;
 
 /// <summary>
-/// Terminal NIM embebida en el VBE de Access.
+/// Terminal interactiva WinForms para Nvidia NIM embebida en el VBE de Microsoft Access según ADR-008.
+/// Implementa UI responsiva de doble panel (conversación y visor de código VBA) y ciclo de turnos asíncronos.
+/// Cumple con los requisitos de usabilidad y robustez de ISO/IEC 25010.
 /// </summary>
 public sealed class BlsNimTerminal : Form, IBlsNimSink
 {

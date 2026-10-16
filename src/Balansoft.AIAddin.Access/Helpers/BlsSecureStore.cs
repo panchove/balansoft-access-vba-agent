@@ -1,5 +1,7 @@
 // Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
+// Standard: ISO/IEC 25010:2023 (Seguridad) / ISO/IEC 26514:2022
+// Architecture Reference: ADR-009-SECURE-STORE.md
 
 using System;
 using System.IO;
@@ -8,7 +10,8 @@ using System.Text;
 namespace Balansoft.AIAddin.Helpers;
 
 /// <summary>
-/// Almacén seguro para la API key usando DPAPI (CurrentUser + entropía).
+/// Almacén seguro para la API key usando DPAPI (CurrentUser + entropía fija).
+/// Implementa las garantías de confidencialidad de ISO/IEC 25010 y ADR-009.
 /// </summary>
 public sealed class BlsSecureStore : IBlsSecureStore
 {

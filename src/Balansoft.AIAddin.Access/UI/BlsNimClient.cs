@@ -1,5 +1,7 @@
 // Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
+// Standard: ISO/IEC 25010:2023 / ISO/IEC 26514:2022
+// Architecture Reference: ADR-003-ABORT-MODEL.md / ADR-007-NIM-CLIENT.md
 
 using System;
 using System.Collections.Generic;
@@ -15,8 +17,8 @@ using Balansoft.AIAddin.UI.Nim;
 namespace Balansoft.AIAddin.UI;
 
 /// <summary>
-/// Cliente HTTP SSE para la API NIM con tool calls, cancelación cooperativa,
-/// retry con backoff para 429/5xx y timeout por chunk.
+/// Cliente HTTP SSE para la API Nvidia NIM con tool calls, cancelación cooperativa según ADR-003 y ADR-007,
+/// retry con backoff exponencial para 429/5xx y timeout por chunk. Cumple con ISO/IEC 25010 (Resiliencia de Red).
 /// </summary>
 public sealed class BlsNimClient : IBlsNimClient
 {

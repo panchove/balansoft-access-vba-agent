@@ -1,5 +1,7 @@
 // Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
+// Standard: ISO/IEC 26514:2022 / ISO/IEC 25010:2023 / ISO/IEC 12207:2017
+// Architecture Reference: ADR-012-ADDIN-LIFECYCLE.md
 
 using System;
 using System.IO;
@@ -18,6 +20,11 @@ using Balansoft.AIAddin.VbeIntegration;
 
 namespace Balansoft.AIAddin.Access
 {
+    /// <summary>
+    /// Punto de entrada COM para el complemento de Microsoft Access (IDTExtensibility2).
+    /// Orquesta el ciclo de vida, integración del menú en el VBE, inicialización de servicios y arranque de la UI.
+    /// Cumple con las especificaciones ISO/IEC 26514 (Developer Documentation) e ISO/IEC 12207 (Lifecycle Processes).
+    /// </summary>
     [ComVisible(true)]
     [Guid("d31bf73e-dbe1-4739-84bc-2c974fcd3171")]
     [ProgId("Balansoft.AIAddin.Access")]
@@ -89,6 +96,13 @@ namespace Balansoft.AIAddin.Access
         private IUserInputDialog? _userInputDialog;
         private BlsNimTerminal? _terminal;
 
+        /// <summary>
+        /// Se invoca cuando el host Microsoft Access carga el complemento COM.
+        /// </summary>
+        /// <param name="application">Instancia nativa de Microsoft Access.</param>
+        /// <param name="connectMode">Modo de conexión COM.</param>
+        /// <param name="addInInst">Instancia del objeto Add-in.</param>
+        /// <param name="custom">Parámetros personalizados del host.</param>
         public void OnConnection(object application, ext_ConnectMode connectMode, object addInInst, ref Array custom)
         {
             _accessApp = application;
@@ -103,6 +117,12 @@ namespace Balansoft.AIAddin.Access
             }
         }
 
+        /// <summary>
+        /// Se invoca cuando el host descarga el complemento o se cierra Access.
+        /// Realiza la disposición segura de recursos y recolecta objetos COM.
+        /// </summary>
+        /// <param name="disconnectMode">Modo de desconexión COM.</param>
+        /// <param name="custom">Parámetros personalizados del host.</param>
         public void OnDisconnection(ext_DisconnectMode disconnectMode, ref Array custom)
         {
             RemoveMenu();
@@ -148,6 +168,10 @@ namespace Balansoft.AIAddin.Access
             GC.Collect();
         }
 
+        /// <summary>
+        /// Se invoca cuando el host ha completado su proceso de inicio y el modelo de objetos está plenamente disponible.
+        /// </summary>
+        /// <param name="custom">Parámetros personalizados del host.</param>
         public void OnStartupComplete(ref Array custom)
         {
             EnsureInitialized();
@@ -164,11 +188,19 @@ namespace Balansoft.AIAddin.Access
             }
         }
 
+        /// <summary>
+        /// Se invoca inmediatamente antes de que el host comience a cerrarse.
+        /// </summary>
+        /// <param name="custom">Parámetros personalizados del host.</param>
         public void OnBeginShutdown(ref Array custom)
         {
             OnDisconnection(ext_DisconnectMode.ext_dm_HostShutdown, ref custom);
         }
 
+        /// <summary>
+        /// Se invoca cuando cambia el conjunto de complementos registrados en el host.
+        /// </summary>
+        /// <param name="custom">Parámetros personalizados del host.</param>
         public void OnAddInsUpdate(ref Array custom)
         {
             EnsureInitialized();

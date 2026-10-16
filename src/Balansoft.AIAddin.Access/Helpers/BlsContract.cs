@@ -1,5 +1,7 @@
 // Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
+// Standard: ISO/IEC 25010:2023 / ISO/IEC 26514:2022
+// Architecture Reference: ADR-005-DESIGN-BY-CONTRACT.md
 
 using System;
 using System.Runtime.CompilerServices;
@@ -7,7 +9,7 @@ using System.Runtime.CompilerServices;
 namespace Balansoft.AIAddin.Helpers
 {
     /// <summary>
-    /// Soporte de Diseño por Contrato (Design by Contract - DbC).
+    /// Soporte de Diseño por Contrato (Design by Contract - DbC) conforme a ISO/IEC 25010 (Robustez y Fiabilidad).
     /// Define y valida precondiciones (Requires), postcondiciones (Ensures) e invariantes (Invariant).
     /// </summary>
     public static class BlsContract
