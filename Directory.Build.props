@@ -13,14 +13,11 @@
     <WarningLevel>4</WarningLevel>
 
     <!--
-      Access x86 no puede cargar un assembly x64 y el fallo en carga es fatal
-      (constitución P3). PlatformTarget es lo que decide el encabezado PE;
-      'Platform' solo decide la carpeta de salida, y por eso los scripts
-      compilan los .csproj directamente en lugar de la solución.
+      CPU-agnóstico: no se fuerza PlatformTarget aquí. Se pasa desde la línea
+      de comandos o la CI con -p:PlatformTarget=x86|x64. Access 32-bit no puede
+      cargar ensamblados x64 y viceversa; la arquitectura del add-in debe
+      coincidir con la de Access instalada.
     -->
-    <PlatformTarget>x86</PlatformTarget>
-    <Prefer32Bit>true</Prefer32Bit>
-
     <LangVersion>10</LangVersion>
     <Deterministic>true</Deterministic>
   </PropertyGroup>

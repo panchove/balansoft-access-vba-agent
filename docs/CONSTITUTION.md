@@ -68,14 +68,19 @@ Un spec describe **el comportamiento real**, no el deseado: cuando el código y
 el doc de diseño discrepan, el spec documenta lo que hace el código y anota la
 discrepancia. `implementado` solo es válido con tests verdes.
 
-### P3 — x86 es una restricción dura
+### P3 — CPU-agnóstico: x86 y x64 soportados
 
-`PlatformTarget=x86` y `Prefer32Bit=true` en los dos `.csproj`. Nada de AnyCPU
-ni x64. `Pack.ps1` empaqueta la variante x86. Access x86 no puede cargar un
-assembly x64 y el fallo en carga es fatal.
+No se fuerza `PlatformTarget` ni `Prefer32Bit` en los archivos de proyecto; la
+arquitectura se pasa con `-p:PlatformTarget=x86|x64` desde la línea de comandos
+o la CI. La arquitectura del add-in debe coincidir con la de Access instalada:
+Access 32-bit no carga ensamblados x64 y viceversa.
 
-El `AssemblyName` es `Balansoft.AIAddin.Access`, sin sufijo de plataforma: la
-garantía de x86 la da `PlatformTarget`, no el nombre.
+El `AssemblyName` es `Balansoft.AIAddin.Access`, sin sufijo de plataforma.
+
+### P3.1 — Empaquetado por arquitectura
+
+`Pack.ps1` genera un ZIP por arquitectura (`-x86.zip` y `-x64.zip`). Cada
+variante se registra con su propio `RegisterAddin.ps1 -Architecture <arch>`.
 
 ### P4 — Sin PIAs, sin ROT
 
@@ -163,7 +168,7 @@ Todo documento Markdown (`.md`) dentro del repositorio debe declarar taxativamen
 | Target        | `net48`                   | Access 2010+ sobre .NET Framework                |
 | Lenguaje      | C# 10 (`LangVersion`)     | Sin raw strings ni features de C# 11             |
 | Nullable      | `disable`                 | El código usa `dynamic`; nullable(ref) no aporta |
-| Platform      | x86 únicamente            | P3                                               |
+| Platform      | x86 y x64                 | P3                                               |
 | Serialización | `System.Text.Json` 8.0.5  | Sin Newtonsoft; más apto para AOT                |
 | HTTP          | `System.Net.Http`         | Sin `System.Net.Http.Json` en net48              |
 | Testing       | MSTest + `VSTest.Console` | Sin infrastructure externa                       |

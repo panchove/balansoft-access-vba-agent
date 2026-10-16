@@ -3,7 +3,7 @@
   "description": "COM Add-in para Access 2010+ (x86) que integra Nvidia NIM en el VBE",
   "progid": "Balansoft.AIAddin.Access",
   "clsid": "{d31bf73e-dbe1-4739-84bc-2c974fcd3171}",
-  "platform": "x86",
+  "platform": "x86|x64",
   "framework": "net48",
   "langVersion": "10",
   "settings": {
@@ -26,11 +26,11 @@
     "marshaling_explicit_UI": true,
     "api_key_DPAPI_only": true,
     "error_propagate_category": true,
-    "platformTarget_x86": true
+    "platformTarget_x86": false
   },
   "commands": {
-    "build": "dotnet build src/Balansoft.AIAddin.Access/Balansoft.AIAddin.Access.csproj -c Debug -p:Platform=x86",
-    "build_tests": "dotnet build tests/Balansoft.AIAddin.Tests/Balansoft.AIAddin.Tests.csproj -c Debug -p:Platform=x86",
+    "build": "dotnet build src/Balansoft.AIAddin.Access/Balansoft.AIAddin.Access.csproj -c Debug -p:Platform=x86 -p:PlatformTarget=x86",
+    "build_tests": "dotnet build tests/Balansoft.AIAddin.Tests/Balansoft.AIAddin.Tests.csproj -c Debug -p:Platform=x86 -p:PlatformTarget=x86",
     "test": "dotnet vstest tests/Balansoft.AIAddin.Tests/bin/x86/Debug/net48/Balansoft.AIAddin.Tests.dll /Settings:.runsettings /Platform:x86",
     "register": "pwsh -ExecutionPolicy Bypass -File scripts/RegisterAddin.ps1",
     "unregister": "pwsh -ExecutionPolicy Bypass -File scripts/UnregisterAddin.ps1",

@@ -101,6 +101,10 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     private SplitContainer _topSplit = null!;
     private ComboBox _cmbSessions = null!;
     private Button _btnNuevaSesion = null!;
+    private Button _btnEliminarSesion = null!;
+    private Label _lblLanguage = null!;
+    private ComboBox _cmbLanguage = null!;
+    private Label _lblDetalleTitulo = null!;
     private ListView _conversation = null!;
     private RichTextBox _txtDetalle = null!;
     private Button _btnCopiarDetalle = null!;
@@ -190,7 +194,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     private void InitializeComponent()
     {
         // Configuracion del Form
-        Text = "NIM Terminal";
+        Text = BlsStrings.Get("AppTitle");
         Size = new Size(1000, 700);
         MinimumSize = new Size(750, 480);
         StartPosition = FormStartPosition.CenterScreen;
@@ -246,8 +250,8 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             Scrollable = true,
             Font = new Font("Segoe UI", 9F)
         };
-        _conversation.Columns.Add("Rol", 85);
-        _conversation.Columns.Add("Mensaje", 440);
+        _conversation.Columns.Add(BlsStrings.Get("ColumnRole"), 85);
+        _conversation.Columns.Add(BlsStrings.Get("ColumnMessage"), 440);
         _conversation.SelectedIndexChanged += OnConversationSelectedIndexChanged;
 
         _conversation.Resize += (s, e) =>
@@ -277,13 +281,24 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
         _btnNuevaSesion = new Button
         {
-            Text = "+ Nueva",
+            Text = BlsStrings.Get("BtnNewSession"),
             Dock = DockStyle.Right,
             Width = 75,
             Height = 26,
             Font = new Font("Segoe UI", 8.5F)
         };
         _btnNuevaSesion.Click += OnNuevaSesionClick;
+
+        _btnEliminarSesion = new Button
+        {
+            Text = BlsStrings.Get("BtnDeleteSession"),
+            Dock = DockStyle.Right,
+            Width = 70,
+            Height = 26,
+            Font = new Font("Segoe UI", 8.5F),
+            Enabled = false
+        };
+        _btnEliminarSesion.Click += OnEliminarSesionClick;
 
         _cmbSessions = new ComboBox
         {
@@ -294,7 +309,35 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         _cmbSessions.SelectedIndexChanged += OnSessionsSelectedIndexChanged;
 
         sessionBar.Controls.Add(_cmbSessions);
+        sessionBar.Controls.Add(_btnEliminarSesion);
         sessionBar.Controls.Add(_btnNuevaSesion);
+
+        _lblLanguage = new Label
+        {
+            Text = BlsStrings.Get("LangLabel"),
+            Dock = DockStyle.Right,
+            Width = 55,
+            Height = 26,
+            Font = new Font("Segoe UI", 8.5F),
+            TextAlign = ContentAlignment.MiddleRight
+        };
+        _cmbLanguage = new ComboBox
+        {
+            Dock = DockStyle.Right,
+            Width = 90,
+            Height = 26,
+            Font = new Font("Segoe UI", 9F),
+            DropDownStyle = ComboBoxStyle.DropDownList
+        };
+        foreach (var lang in BlsStrings.GetSupportedLanguages())
+        {
+            _cmbLanguage.Items.Add(lang);
+        }
+        _cmbLanguage.SelectedItem = BlsStrings.CurrentLanguage;
+        _cmbLanguage.SelectedIndexChanged += OnLanguageChanged;
+
+        sessionBar.Controls.Add(_lblLanguage);
+        sessionBar.Controls.Add(_cmbLanguage);
 
         leftPanel.Controls.Add(_conversation);
         leftPanel.Controls.Add(sessionBar);
@@ -309,9 +352,9 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             Padding = new Padding(6, 4, 6, 6)
         };
 
-        var lblDetalleTitulo = new Label
+        _lblDetalleTitulo = new Label
         {
-            Text = "DETALLE DEL MENSAJE / CÓDIGO SELECCIONADO",
+            Text = BlsStrings.Get("DetailTitle"),
             Dock = DockStyle.Top,
             Height = 24,
             TextAlign = ContentAlignment.MiddleLeft,
@@ -339,7 +382,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
         _btnCopiarDetalle = new Button
         {
-            Text = "Copiar Detalle",
+            Text = BlsStrings.Get("BtnCopyDetail"),
             Width = 115,
             Height = 28,
             Location = new Point(0, 4),
@@ -349,7 +392,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
         _btnLimpiarDetalle = new Button
         {
-            Text = "Limpiar Detalle",
+            Text = BlsStrings.Get("BtnClearDetail"),
             Width = 115,
             Height = 28,
             Location = new Point(125, 4),
@@ -361,7 +404,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         detailButtonsPanel.Controls.Add(_btnLimpiarDetalle);
 
         rightPanel.Controls.Add(_txtDetalle);
-        rightPanel.Controls.Add(lblDetalleTitulo);
+        rightPanel.Controls.Add(_lblDetalleTitulo);
         rightPanel.Controls.Add(detailButtonsPanel);
         _txtDetalle.BringToFront();
 
@@ -384,7 +427,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
         _btnDetener = new Button
         {
-            Text = "Detener",
+            Text = BlsStrings.Get("BtnStop"),
             Dock = DockStyle.Right,
             Enabled = false,
             Width = 85,
@@ -394,7 +437,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
         _btnEnviar = new Button
         {
-            Text = "Enviar",
+            Text = BlsStrings.Get("BtnSend"),
             Dock = DockStyle.Right,
             Width = 85,
             Height = 28,
@@ -403,7 +446,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
         _lblStatus = new Label
         {
-            Text = "Listo",
+            Text = BlsStrings.Get("StatusReady"),
             Dock = DockStyle.Fill,
             TextAlign = ContentAlignment.MiddleLeft,
             ForeColor = Color.DimGray,
@@ -425,12 +468,12 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             AutoScroll = true
         };
 
-        AddQuickCommandButton("/explain", "Explicar código activo", () => ExecuteQuickCommand("/explain"));
-        AddQuickCommandButton("/doc", "Documentar funciones", () => ExecuteQuickCommand("/doc"));
-        AddQuickCommandButton("/refactor", "Refactorizar y optimizar", () => ExecuteQuickCommand("/refactor"));
-        AddQuickCommandButton("/test", "Generar tests VBA", () => ExecuteQuickCommand("/test"));
-        AddQuickCommandButton("/context", "Ver contexto VBE", () => ExecuteQuickCommand("/context"));
-        AddQuickCommandButton("/clear", "Limpiar / Nueva sesión", () => ExecuteQuickCommand("/clear"));
+        AddQuickCommandButton("/explain", BlsStrings.Get("TooltipExplain"), () => ExecuteQuickCommand("/explain"));
+        AddQuickCommandButton("/doc", BlsStrings.Get("TooltipDoc"), () => ExecuteQuickCommand("/doc"));
+        AddQuickCommandButton("/refactor", BlsStrings.Get("TooltipRefactor"), () => ExecuteQuickCommand("/refactor"));
+        AddQuickCommandButton("/test", BlsStrings.Get("TooltipTest"), () => ExecuteQuickCommand("/test"));
+        AddQuickCommandButton("/context", BlsStrings.Get("TooltipContext"), () => ExecuteQuickCommand("/context"));
+        AddQuickCommandButton("/clear", BlsStrings.Get("TooltipClear"), () => ExecuteQuickCommand("/clear"));
 
         _input = new TextBox
         {
@@ -508,7 +551,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             }
 
             SetDetailContent(fullContent ?? string.Empty);
-            _lblStatus.Text = "Listo, visualizando detalle...";
+            _lblStatus.Text = BlsStrings.Get("StatusViewingDetail");
         }
     }
 
@@ -519,7 +562,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             if (!string.IsNullOrEmpty(_txtDetalle.Text))
             {
                 Clipboard.SetText(_txtDetalle.Text);
-                _lblStatus.Text = "Detalle copiado al portapapeles";
+                _lblStatus.Text = BlsStrings.Get("StatusDetailCopied");
             }
         }
         catch (Exception ex)
@@ -535,7 +578,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         {
             _conversation.SelectedItems.Clear();
         }
-        _lblStatus.Text = "Listo";
+        _lblStatus.Text = BlsStrings.Get("StatusReady");
     }
 
     private static readonly System.Text.RegularExpressions.Regex VbaKeywordRegex = new System.Text.RegularExpressions.Regex(
@@ -671,7 +714,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         try
         {
             var projectKeyInfo = _vbe.GetProjectKey();
-            _lblStatus.Text = projectKeyInfo.Ephemeral ? "Historial no persistente" : "Listo";
+            _lblStatus.Text = projectKeyInfo.Ephemeral ? BlsStrings.Get("MsgHistoryNotPersistent") : BlsStrings.Get("StatusReady");
             if (projectKeyInfo.Ephemeral)
             {
                 _lblStatus.ForeColor = Color.Orange;
@@ -688,7 +731,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         catch (Exception ex)
         {
             _logger.Error("BlsNimTerminal", "Error en carga inicial", ex);
-            AppendError("Error al inicializar la terminal");
+            AppendError(BlsStrings.Get("MsgErrorInitializing"));
         }
     }
 
@@ -717,10 +760,11 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
                 _cmbSessions.SelectedIndex = indexToSelect;
                 var selectedMeta = (SessionMetadata)_cmbSessions.SelectedItem!;
                 _currentDoc = await _history.LoadSessionAsync(projectKeyInfo.Key, selectedMeta.Id, CancellationToken.None);
+                _btnEliminarSesion.Enabled = true;
             }
             else
             {
-                _currentDoc = await _history.CreateSessionAsync(projectKeyInfo.Key, "Sesión inicial", CancellationToken.None);
+                _currentDoc = await _history.CreateSessionAsync(projectKeyInfo.Key, BlsStrings.Get("SessionInitialTitle"), CancellationToken.None);
                 _cmbSessions.Items.Add(new SessionMetadata
                 {
                     Id = _currentDoc.SessionId,
@@ -730,6 +774,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
                     MessageCount = 0
                 });
                 _cmbSessions.SelectedIndex = 0;
+                _btnEliminarSesion.Enabled = true;
             }
 
             RenderHistory(_currentDoc);
@@ -744,6 +789,8 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     {
         if (_loadingSessions || _cmbSessions.SelectedItem is not SessionMetadata meta) return;
 
+        _btnEliminarSesion.Enabled = true;
+
         try
         {
             // Guardar cualquier estado de la sesión previa
@@ -755,12 +802,12 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             var projectKeyInfo = _vbe.GetProjectKey();
             _currentDoc = await _history.LoadSessionAsync(projectKeyInfo.Key, meta.Id, CancellationToken.None);
             RenderHistory(_currentDoc);
-            _lblStatus.Text = $"Sesión cargada: {meta.Title}";
+            _lblStatus.Text = BlsStrings.Get("MsgSessionLoaded", meta.Title);
         }
         catch (Exception ex)
         {
             _logger.Error("BlsNimTerminal", "Error cambiando de sesión", ex);
-            AppendError("Error al cambiar de sesión: " + ex.Message);
+            AppendError(BlsStrings.Get("MsgErrorChangingSession", ex.Message));
         }
     }
 
@@ -768,7 +815,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     {
         if (_currentTurnCts != null)
         {
-            MessageBox.Show("Hay una consulta en ejecución. Deténla antes de crear una nueva sesión.", "NIM Terminal", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(BlsStrings.Get("MsgTurnInProgress", "crear una nueva sesión"), BlsStrings.Get("AppTitle"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
 
@@ -780,15 +827,104 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             }
 
             var projectKeyInfo = _vbe.GetProjectKey();
-            var newDoc = await _history.CreateSessionAsync(projectKeyInfo.Key, "Nueva sesión", CancellationToken.None);
+            var newDoc = await _history.CreateSessionAsync(projectKeyInfo.Key, BlsStrings.Get("MsgSessionCreated"), CancellationToken.None);
             await RefreshSessionsListAsync(newDoc.SessionId);
-            _lblStatus.Text = "Nueva sesión creada";
+            _lblStatus.Text = BlsStrings.Get("MsgSessionCreated");
             _input.Focus();
         }
         catch (Exception ex)
         {
             _logger.Error("BlsNimTerminal", "Error creando nueva sesión", ex);
-            AppendError("Error creando nueva sesión: " + ex.Message);
+            AppendError(BlsStrings.Get("MsgErrorCreatingSession", ex.Message));
+        }
+    }
+
+    private async void OnEliminarSesionClick(object? sender, EventArgs e)
+    {
+        if (_currentTurnCts != null)
+        {
+            MessageBox.Show(BlsStrings.Get("MsgTurnInProgress", "eliminar la sesión"), BlsStrings.Get("AppTitle"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        if (_cmbSessions.SelectedItem is not SessionMetadata meta)
+        {
+            MessageBox.Show(BlsStrings.Get("MsgSelectSession", "eliminar"), BlsStrings.Get("AppTitle"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        var confirm = MessageBox.Show(
+            BlsStrings.Get("MsgConfirmDelete", meta.Title),
+            BlsStrings.Get("MsgConfirmDeleteTitle", BlsStrings.Get("AppTitle")),
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Question);
+
+        if (confirm != DialogResult.Yes)
+            return;
+
+        try
+        {
+            if (_currentDoc != null && _currentDoc.SessionId == meta.Id)
+            {
+                await _history.FlushAsync(CancellationToken.None);
+            }
+
+            var projectKeyInfo = _vbe.GetProjectKey();
+            await _history.DeleteSessionAsync(projectKeyInfo.Key, meta.Id, CancellationToken.None);
+
+            // Si la sesión eliminada era la actual, recargar lista (creará una nueva si queda vacía)
+            if (_currentDoc != null && _currentDoc.SessionId == meta.Id)
+            {
+                await RefreshSessionsListAsync(selectSessionId: null);
+            }
+            else
+            {
+                await RefreshSessionsListAsync(selectSessionId: _currentDoc?.SessionId);
+            }
+
+            _lblStatus.Text = BlsStrings.Get("MsgSessionDeleted", meta.Title);
+            _input.Focus();
+        }
+        catch (Exception ex)
+        {
+            _logger.Error("BlsNimTerminal", "Error eliminando sesión", ex);
+            AppendError(BlsStrings.Get("MsgErrorDeletingSession", ex.Message));
+        }
+    }
+
+    private void OnLanguageChanged(object? sender, EventArgs e)
+    {
+        if (_cmbLanguage.SelectedItem is not string lang) return;
+
+        try
+        {
+            BlsStrings.CurrentLanguage = lang;
+
+            // Refresh all localized UI texts
+            Text = BlsStrings.Get("AppTitle");
+            _lblLanguage.Text = BlsStrings.Get("LangLabel");
+            _btnNuevaSesion.Text = BlsStrings.Get("BtnNewSession");
+            _btnEliminarSesion.Text = BlsStrings.Get("BtnDeleteSession");
+            _btnCopiarDetalle.Text = BlsStrings.Get("BtnCopyDetail");
+            _btnLimpiarDetalle.Text = BlsStrings.Get("BtnClearDetail");
+            _btnDetener.Text = BlsStrings.Get("BtnStop");
+            _btnEnviar.Text = BlsStrings.Get("BtnSend");
+            _lblStatus.Text = BlsStrings.Get("StatusReady");
+
+            // Refresh session list and detail title
+            _lblDetalleTitulo.Text = BlsStrings.Get("DetailTitle");
+            RefreshSessionsListAsync(selectSessionId: _currentDoc?.SessionId).GetAwaiter().GetResult();
+
+            // Refresh column headers of the conversation grid
+            if (_conversation.Columns.Count >= 2)
+            {
+                _conversation.Columns[0].Text = BlsStrings.Get("ColumnRole");
+                _conversation.Columns[1].Text = BlsStrings.Get("ColumnMessage");
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Error("BlsNimTerminal", "Error cambiando idioma", ex);
         }
     }
 
@@ -818,19 +954,19 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         switch (command.ToLowerInvariant())
         {
             case "/explain":
-                _input.Text = "Por favor, explica en detalle el código del módulo activo o la selección actual, su estructura y posibles áreas de mejora.";
+                _input.Text = BlsStrings.Get("PromptExplain");
                 OnSendClick(this, EventArgs.Empty);
                 break;
             case "/doc":
-                _input.Text = "Por favor, revisa el módulo actual y genera comentarios de documentación estándar (descripción, parámetros, valor retornado) para cada función y procedimiento.";
+                _input.Text = BlsStrings.Get("PromptDoc");
                 OnSendClick(this, EventArgs.Empty);
                 break;
             case "/refactor":
-                _input.Text = "Por favor, analiza el código actual y propón una refactorización limpia y optimizada, manteniendo la lógica funcional pero mejorando legibilidad y buenas prácticas VBA.";
+                _input.Text = BlsStrings.Get("PromptRefactor");
                 OnSendClick(this, EventArgs.Empty);
                 break;
             case "/test":
-                _input.Text = "Genera procedimientos de prueba unitaria en VBA para verificar las funciones del módulo activo con aserciones de casos típicos y límites.";
+                _input.Text = BlsStrings.Get("PromptTest");
                 OnSendClick(this, EventArgs.Empty);
                 break;
             case "/context":
@@ -852,23 +988,23 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         try
         {
             var ctx = await _vbeContext.GetAsync(CancellationToken.None);
-            var mod = ctx.ActiveModuleName ?? "(sin módulo activo)";
-            var tipo = ctx.ActiveModuleType ?? "(desconocido)";
+            var mod = ctx.ActiveModuleName ?? BlsStrings.Get("MsgNoActiveModule");
+            var tipo = ctx.ActiveModuleType ?? BlsStrings.Get("MsgUnknownModule");
             var selLen = ctx.SelectionText?.Length ?? 0;
 
-            var msg = $"[Contexto VBE Actual]\nMódulo: {mod} ({tipo})\nSelección: {selLen} caracteres{(ctx.SelectionTruncated ? " [Truncado]" : "")}";
+            var msg = BlsStrings.Get("MsgContextHeader", mod, tipo, selLen, ctx.SelectionTruncated ? " [Truncado]" : "");
             AppendUserMessage("/context");
             AppendAssistantMessageDirect(msg);
         }
         catch (Exception ex)
         {
-            AppendError("Error obteniendo contexto: " + ex.Message);
+            AppendError(BlsStrings.Get("MsgContextError", ex.Message));
         }
     }
 
     private void AppendAssistantMessageDirect(string text)
     {
-        var item = new ListViewItem("Asistente") { Tag = text };
+        var item = new ListViewItem(BlsStrings.Get("RoleAssistant")) { Tag = text };
         item.SubItems.Add(text);
         item.ForeColor = Color.DarkBlue;
         _conversation.Items.Add(item);
@@ -962,7 +1098,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         _currentTurnCts = new CancellationTokenSource();
         _btnDetener.Enabled = true;
         _btnEnviar.Enabled = false;
-        SetState("Pensando...");
+        SetState(BlsStrings.Get("StatusThinking"));
 
         try
         {
@@ -971,8 +1107,8 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         catch (Exception ex)
         {
             _logger.Error("BlsNimTerminal", "Excepción en OnSendClick", ex);
-            AppendError($"Error: {ex.Message}");
-            SetState("Error");
+            AppendError(BlsStrings.Get("MsgErrorPrefix", ex.Message));
+            SetState(BlsStrings.Get("StatusError"));
         }
     }
 
@@ -1193,7 +1329,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
                 break;
             }
 
-            SetState("Pensando...");
+            SetState(BlsStrings.Get("StatusThinking"));
         }
     }
 

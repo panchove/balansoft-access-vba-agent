@@ -21,6 +21,8 @@ ProgID: `Balansoft.AIAddin.Access` | CLSID: `{d31bf73e-dbe1-4739-84bc-2c974fcd31
 
 ## Comandos canónicos
 
+## Comandos canónicos
+
 Compilar los `.csproj` directamente, **no** la solución `.slnx` (no propaga `Platform` a proyectos SDK-style; la salida debe ir a `bin\x86\<Config>\net48\`):
 
 ```powershell
@@ -29,6 +31,7 @@ dotnet build src\Balansoft.AIAddin.Access\Balansoft.AIAddin.Access.csproj -c Deb
 
 # Build tests
 dotnet build tests\Balansoft.AIAddin.Tests\Balansoft.AIAddin.Tests.csproj -c Debug -p:Platform=x86
+```
 
 # Tests unitarios (sin integración NIM; .runsettings filtra TestCategory=Integration)
 dotnet vstest tests\Balansoft.AIAddin.Tests\bin\x86\Debug\net48\Balansoft.AIAddin.Tests.dll /Settings:.runsettings /Platform:x86
@@ -60,6 +63,26 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1 -Configuration Release
 - `docs/design/` — ADR (`ADR-NNN-<SLUG>.md`)
 - `.opencode/skills/` — skills de OpenCode (bls-*)
 - `Balansoft.AIAddin.slnx` — solución real; **no se compila** directamente
+
+## Gestión de sesiones (historial de chat)
+
+- `BlsChatHistory` implementa `IBlsChatHistory` con:
+  - `ListSessionsAsync(projectKey, ct)` — lista metadatos de sesiones por proyecto.
+  - `LoadSessionAsync(projectKey, sessionId, ct)` — carga una sesión específica.
+  - `CreateSessionAsync(projectKey, title, ct)` — crea una nueva sesión.
+  - `DeleteSessionAsync(projectKey, sessionId, ct)` — elimina una sesión específica (o todo el historial si `sessionId` es null).
+  - `ClearAsync(projectKey, ct)` — elimina todo el historial de un proyecto.
+- La Terminal WinForms (`BlsNimTerminal`) expone un botón **Eliminar** junto al selector de sesiones, con confirmación de borrado.
+- El historial persiste en `%APPDATA%\Balansoft\AIAddin\history\{projectKey}\` con catálogo `sessions.json`.
+
+## Internacionalización (i18n)
+
+- `BlsStrings` (`Helpers/BlsStrings.cs`) provee textos localizados por clave sin dependencias externas.
+- Idioma por defecto: español (`es`). Inglés (`en`), portugués (`pt`) y francés (`fr`) disponibles.
+- Uso: `BlsStrings.Get("AppTitle")` o `BlsStrings.Get("MsgSessionLoaded", nombre)` con formato.
+- Cambiar idioma: `BlsStrings.CurrentLanguage = "en"` (valida que el idioma esté soportado).
+- Fallback: si una clave no existe en el idioma actual, se devuelve la versión en español; si no existe en ningún lado, se devuelve la propia clave.
+- Los textos de la Terminal (`BlsNimTerminal`) ya usan `BlsStrings` para título, botones y mensajes principales, incluyendo un ComboBox de selección de idioma.
 
 ## Ejecutar un test o categoría enfocada
 
