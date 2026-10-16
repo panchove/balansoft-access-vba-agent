@@ -8,15 +8,32 @@ using System.Text.Json.Serialization;
 namespace Balansoft.AIAddin.Helpers;
 
 /// <summary>
-/// Documento de historial de chat para un proyecto.
+/// Documento de historial de chat para un proyecto y sesión.
 /// </summary>
 public sealed class HistoryDocument
 {
     public int Version { get; set; } = 1;
     public string ProjectKey { get; set; } = "";
+    public string SessionId { get; set; } = "";
+    public string Title { get; set; } = "Nueva sesión";
     public bool Ephemeral { get; set; }
-    public DateTime UpdatedUtc { get; set; }
+    public DateTime CreatedUtc { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedUtc { get; set; } = DateTime.UtcNow;
     public List<HistoryMessage> Messages { get; set; } = new();
+}
+
+/// <summary>
+/// Metadatos resumidos de una sesión de chat para el catálogo del proyecto.
+/// </summary>
+public sealed class SessionMetadata
+{
+    public string Id { get; set; } = "";
+    public string Title { get; set; } = "Nueva sesión";
+    public DateTime CreatedAtUtc { get; set; } = DateTime.UtcNow;
+    public DateTime UpdatedAtUtc { get; set; } = DateTime.UtcNow;
+    public int MessageCount { get; set; }
+
+    public override string ToString() => $"{UpdatedAtUtc.ToLocalTime():yyyy-MM-dd HH:mm} - {Title}";
 }
 
 /// <summary>

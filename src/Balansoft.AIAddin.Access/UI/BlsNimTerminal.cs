@@ -99,14 +99,18 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     // Controles UI
     private SplitContainer _mainSplit = null!;
     private SplitContainer _topSplit = null!;
+    private ComboBox _cmbSessions = null!;
+    private Button _btnNuevaSesion = null!;
     private ListView _conversation = null!;
     private RichTextBox _txtDetalle = null!;
     private Button _btnCopiarDetalle = null!;
     private Button _btnLimpiarDetalle = null!;
+    private FlowLayoutPanel _commandBar = null!;
     private TextBox _input = null!;
     private Button _btnEnviar = null!;
     private Button _btnDetener = null!;
     private Label _lblStatus = null!;
+    private bool _loadingSessions;
 
     // Singleton débil para una sola terminal
     private static WeakReference<BlsNimTerminal>? _instanceRef;
@@ -258,7 +262,45 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             }
         };
 
-        _topSplit.Panel1.Controls.Add(_conversation);
+        // Panel contenedor izquierdo: Barra de sesiones + lista de conversación
+        var leftPanel = new Panel
+        {
+            Dock = DockStyle.Fill
+        };
+
+        var sessionBar = new Panel
+        {
+            Dock = DockStyle.Top,
+            Height = 32,
+            Padding = new Padding(0, 0, 0, 4)
+        };
+
+        _btnNuevaSesion = new Button
+        {
+            Text = "+ Nueva",
+            Dock = DockStyle.Right,
+            Width = 75,
+            Height = 26,
+            Font = new Font("Segoe UI", 8.5F)
+        };
+        _btnNuevaSesion.Click += OnNuevaSesionClick;
+
+        _cmbSessions = new ComboBox
+        {
+            Dock = DockStyle.Fill,
+            DropDownStyle = ComboBoxStyle.DropDownList,
+            Font = new Font("Segoe UI", 9F)
+        };
+        _cmbSessions.SelectedIndexChanged += OnSessionsSelectedIndexChanged;
+
+        sessionBar.Controls.Add(_cmbSessions);
+        sessionBar.Controls.Add(_btnNuevaSesion);
+
+        leftPanel.Controls.Add(_conversation);
+        leftPanel.Controls.Add(sessionBar);
+        _conversation.BringToFront();
+
+        _topSplit.Panel1.Controls.Add(leftPanel);
 
         // Panel derecho: Detalle del mensaje y visor de código
         var rightPanel = new Panel
@@ -373,6 +415,23 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         bottomControls.Controls.Add(_btnEnviar);
         bottomControls.Controls.Add(_btnDetener);
 
+        // Botonera de comandos rápidos (Slash Commands)
+        _commandBar = new FlowLayoutPanel
+        {
+            Dock = DockStyle.Top,
+            Height = 30,
+            Padding = new Padding(0, 0, 0, 4),
+            WrapContents = false,
+            AutoScroll = true
+        };
+
+        AddQuickCommandButton("/explain", "Explicar código activo", () => ExecuteQuickCommand("/explain"));
+        AddQuickCommandButton("/doc", "Documentar funciones", () => ExecuteQuickCommand("/doc"));
+        AddQuickCommandButton("/refactor", "Refactorizar y optimizar", () => ExecuteQuickCommand("/refactor"));
+        AddQuickCommandButton("/test", "Generar tests VBA", () => ExecuteQuickCommand("/test"));
+        AddQuickCommandButton("/context", "Ver contexto VBE", () => ExecuteQuickCommand("/context"));
+        AddQuickCommandButton("/clear", "Limpiar / Nueva sesión", () => ExecuteQuickCommand("/clear"));
+
         _input = new TextBox
         {
             Dock = DockStyle.Fill,
@@ -389,6 +448,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         _btnEnviar.Click += (s, e) => OnSendClick(this, EventArgs.Empty);
 
         bottomPanel.Controls.Add(_input);
+        bottomPanel.Controls.Add(_commandBar);
         bottomPanel.Controls.Add(bottomControls);
         _input.BringToFront();
 
@@ -617,8 +677,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
                 _lblStatus.ForeColor = Color.Orange;
             }
 
-            _currentDoc = await _history.LoadAsync(projectKeyInfo.Key, CancellationToken.None);
-            RenderHistory(_currentDoc);
+            await RefreshSessionsListAsync(selectSessionId: null);
 
             // Verificar API key
             if (!_secureStore.TryGetApiKey(out _))
@@ -631,6 +690,191 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             _logger.Error("BlsNimTerminal", "Error en carga inicial", ex);
             AppendError("Error al inicializar la terminal");
         }
+    }
+
+    private async Task RefreshSessionsListAsync(string? selectSessionId)
+    {
+        var projectKeyInfo = _vbe.GetProjectKey();
+        _loadingSessions = true;
+        try
+        {
+            _cmbSessions.Items.Clear();
+            var sessions = await _history.ListSessionsAsync(projectKeyInfo.Key, CancellationToken.None);
+
+            foreach (var s in sessions)
+            {
+                _cmbSessions.Items.Add(s);
+            }
+
+            if (sessions.Count > 0)
+            {
+                int indexToSelect = 0;
+                if (!string.IsNullOrEmpty(selectSessionId))
+                {
+                    var found = sessions.Select((s, i) => new { s, i }).FirstOrDefault(x => x.s.Id == selectSessionId);
+                    if (found != null) indexToSelect = found.i;
+                }
+                _cmbSessions.SelectedIndex = indexToSelect;
+                var selectedMeta = (SessionMetadata)_cmbSessions.SelectedItem!;
+                _currentDoc = await _history.LoadSessionAsync(projectKeyInfo.Key, selectedMeta.Id, CancellationToken.None);
+            }
+            else
+            {
+                _currentDoc = await _history.CreateSessionAsync(projectKeyInfo.Key, "Sesión inicial", CancellationToken.None);
+                _cmbSessions.Items.Add(new SessionMetadata
+                {
+                    Id = _currentDoc.SessionId,
+                    Title = _currentDoc.Title,
+                    CreatedAtUtc = _currentDoc.CreatedUtc,
+                    UpdatedAtUtc = _currentDoc.UpdatedUtc,
+                    MessageCount = 0
+                });
+                _cmbSessions.SelectedIndex = 0;
+            }
+
+            RenderHistory(_currentDoc);
+        }
+        finally
+        {
+            _loadingSessions = false;
+        }
+    }
+
+    private async void OnSessionsSelectedIndexChanged(object? sender, EventArgs e)
+    {
+        if (_loadingSessions || _cmbSessions.SelectedItem is not SessionMetadata meta) return;
+
+        try
+        {
+            // Guardar cualquier estado de la sesión previa
+            if (_currentDoc != null)
+            {
+                await _history.FlushAsync(CancellationToken.None);
+            }
+
+            var projectKeyInfo = _vbe.GetProjectKey();
+            _currentDoc = await _history.LoadSessionAsync(projectKeyInfo.Key, meta.Id, CancellationToken.None);
+            RenderHistory(_currentDoc);
+            _lblStatus.Text = $"Sesión cargada: {meta.Title}";
+        }
+        catch (Exception ex)
+        {
+            _logger.Error("BlsNimTerminal", "Error cambiando de sesión", ex);
+            AppendError("Error al cambiar de sesión: " + ex.Message);
+        }
+    }
+
+    private async void OnNuevaSesionClick(object? sender, EventArgs e)
+    {
+        if (_currentTurnCts != null)
+        {
+            MessageBox.Show("Hay una consulta en ejecución. Deténla antes de crear una nueva sesión.", "NIM Terminal", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        try
+        {
+            if (_currentDoc != null)
+            {
+                await _history.FlushAsync(CancellationToken.None);
+            }
+
+            var projectKeyInfo = _vbe.GetProjectKey();
+            var newDoc = await _history.CreateSessionAsync(projectKeyInfo.Key, "Nueva sesión", CancellationToken.None);
+            await RefreshSessionsListAsync(newDoc.SessionId);
+            _lblStatus.Text = "Nueva sesión creada";
+            _input.Focus();
+        }
+        catch (Exception ex)
+        {
+            _logger.Error("BlsNimTerminal", "Error creando nueva sesión", ex);
+            AppendError("Error creando nueva sesión: " + ex.Message);
+        }
+    }
+
+    private void AddQuickCommandButton(string command, string tooltip, Action action)
+    {
+        var btn = new Button
+        {
+            Text = command,
+            AutoSize = true,
+            Height = 24,
+            Margin = new Padding(2, 0, 2, 0),
+            Font = new Font("Segoe UI", 8F),
+            Cursor = Cursors.Hand,
+            FlatStyle = FlatStyle.System
+        };
+
+        var tip = new ToolTip();
+        tip.SetToolTip(btn, tooltip);
+        btn.Click += (s, e) => action();
+        _commandBar.Controls.Add(btn);
+    }
+
+    private void ExecuteQuickCommand(string command)
+    {
+        if (_currentTurnCts != null) return;
+
+        switch (command.ToLowerInvariant())
+        {
+            case "/explain":
+                _input.Text = "Por favor, explica en detalle el código del módulo activo o la selección actual, su estructura y posibles áreas de mejora.";
+                OnSendClick(this, EventArgs.Empty);
+                break;
+            case "/doc":
+                _input.Text = "Por favor, revisa el módulo actual y genera comentarios de documentación estándar (descripción, parámetros, valor retornado) para cada función y procedimiento.";
+                OnSendClick(this, EventArgs.Empty);
+                break;
+            case "/refactor":
+                _input.Text = "Por favor, analiza el código actual y propón una refactorización limpia y optimizada, manteniendo la lógica funcional pero mejorando legibilidad y buenas prácticas VBA.";
+                OnSendClick(this, EventArgs.Empty);
+                break;
+            case "/test":
+                _input.Text = "Genera procedimientos de prueba unitaria en VBA para verificar las funciones del módulo activo con aserciones de casos típicos y límites.";
+                OnSendClick(this, EventArgs.Empty);
+                break;
+            case "/context":
+                ShowCurrentContextSummary();
+                break;
+            case "/clear":
+                OnNuevaSesionClick(this, EventArgs.Empty);
+                break;
+            default:
+                _input.Text = command + " ";
+                _input.SelectionStart = _input.Text.Length;
+                _input.Focus();
+                break;
+        }
+    }
+
+    private async void ShowCurrentContextSummary()
+    {
+        try
+        {
+            var ctx = await _vbeContext.GetAsync(CancellationToken.None);
+            var mod = ctx.ActiveModuleName ?? "(sin módulo activo)";
+            var tipo = ctx.ActiveModuleType ?? "(desconocido)";
+            var selLen = ctx.SelectionText?.Length ?? 0;
+
+            var msg = $"[Contexto VBE Actual]\nMódulo: {mod} ({tipo})\nSelección: {selLen} caracteres{(ctx.SelectionTruncated ? " [Truncado]" : "")}";
+            AppendUserMessage("/context");
+            AppendAssistantMessageDirect(msg);
+        }
+        catch (Exception ex)
+        {
+            AppendError("Error obteniendo contexto: " + ex.Message);
+        }
+    }
+
+    private void AppendAssistantMessageDirect(string text)
+    {
+        var item = new ListViewItem("Asistente") { Tag = text };
+        item.SubItems.Add(text);
+        item.ForeColor = Color.DarkBlue;
+        _conversation.Items.Add(item);
+        item.Selected = true;
+        SetDetailContent(text);
+        ScrollToBottom();
     }
 
     private void OnInputPreviewKeyDown(object? sender, PreviewKeyDownEventArgs e)
@@ -678,6 +922,39 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         }
 
         _input.Clear();
+
+        // Si el usuario escribió un comando de barra inclinada directamente:
+        if (prompt.Equals("/context", StringComparison.OrdinalIgnoreCase))
+        {
+            ShowCurrentContextSummary();
+            return;
+        }
+        if (prompt.Equals("/clear", StringComparison.OrdinalIgnoreCase))
+        {
+            OnNuevaSesionClick(this, EventArgs.Empty);
+            return;
+        }
+        if (prompt.Equals("/explain", StringComparison.OrdinalIgnoreCase))
+        {
+            ExecuteQuickCommand("/explain");
+            return;
+        }
+        if (prompt.Equals("/doc", StringComparison.OrdinalIgnoreCase))
+        {
+            ExecuteQuickCommand("/doc");
+            return;
+        }
+        if (prompt.Equals("/refactor", StringComparison.OrdinalIgnoreCase))
+        {
+            ExecuteQuickCommand("/refactor");
+            return;
+        }
+        if (prompt.Equals("/test", StringComparison.OrdinalIgnoreCase))
+        {
+            ExecuteQuickCommand("/test");
+            return;
+        }
+
         _logger.Info("BlsNimTerminal", $"Enviando mensaje de usuario: {prompt.Substring(0, Math.Min(40, prompt.Length))}...");
 
         AppendUserMessage(prompt);

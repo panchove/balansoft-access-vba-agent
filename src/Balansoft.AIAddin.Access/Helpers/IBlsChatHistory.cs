@@ -35,7 +35,22 @@ public interface IBlsChatHistory
     Task FlushAsync(CancellationToken ct);
 
     /// <summary>
-    /// Elimina el historial de un proyecto.
+    /// Lista los metadatos de las sesiones disponibles para un proyecto ordenadas por fecha reciente.
     /// </summary>
-    Task ClearAsync(string projectKey, CancellationToken ct);
+    Task<IReadOnlyList<SessionMetadata>> ListSessionsAsync(string projectKey, CancellationToken ct);
+
+    /// <summary>
+    /// Carga una sesión específica de un proyecto. Si sessionId es null o vacío, carga la más reciente o una nueva.
+    /// </summary>
+    Task<HistoryDocument> LoadSessionAsync(string projectKey, string? sessionId, CancellationToken ct);
+
+    /// <summary>
+    /// Crea una nueva sesión para el proyecto.
+    /// </summary>
+    Task<HistoryDocument> CreateSessionAsync(string projectKey, string? title, CancellationToken ct);
+
+    /// <summary>
+    /// Elimina una sesión específica del proyecto o todo el historial si sessionId es null.
+    /// </summary>
+    Task DeleteSessionAsync(string projectKey, string? sessionId, CancellationToken ct);
 }
