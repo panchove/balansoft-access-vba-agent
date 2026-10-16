@@ -97,6 +97,8 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     private string? _terminalState;
 
     // Controles UI
+    private SplitContainer _mainSplit = null!;
+    private SplitContainer _topSplit = null!;
     private ListView _conversation = null!;
     private RichTextBox _txtDetalle = null!;
     private Button _btnCopiarDetalle = null!;
@@ -208,11 +210,10 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         }
 
         // SplitContainer principal (Horizontal: Arriba paneles de conversación y detalle, Abajo entrada de texto)
-        var mainSplit = new SplitContainer
+        _mainSplit = new SplitContainer
         {
             Dock = DockStyle.Fill,
             Orientation = Orientation.Horizontal,
-            SplitterDistance = 480,
             FixedPanel = FixedPanel.Panel2,
             Panel1MinSize = 250,
             Panel2MinSize = 120,
@@ -221,11 +222,10 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         };
 
         // SplitContainer superior (Vertical: Izquierda lista de conversación, Derecha detalle y visor de código)
-        var topSplit = new SplitContainer
+        _topSplit = new SplitContainer
         {
             Dock = DockStyle.Fill,
             Orientation = Orientation.Vertical,
-            SplitterDistance = 540,
             FixedPanel = FixedPanel.Panel2,
             Panel1MinSize = 260,
             Panel2MinSize = 260,
@@ -262,7 +262,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             }
         };
 
-        topSplit.Panel1.Controls.Add(_conversation);
+        _topSplit.Panel1.Controls.Add(_conversation);
 
         // Panel derecho: Detalle del mensaje y visor de código
         var rightPanel = new Panel
@@ -327,8 +327,8 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         rightPanel.Controls.Add(detailButtonsPanel);
         _txtDetalle.BringToFront();
 
-        topSplit.Panel2.Controls.Add(rightPanel);
-        mainSplit.Panel1.Controls.Add(topSplit);
+        _topSplit.Panel2.Controls.Add(rightPanel);
+        _mainSplit.Panel1.Controls.Add(_topSplit);
 
         // Panel inferior: input + controles
         var bottomPanel = new Panel
@@ -395,8 +395,39 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         bottomPanel.Controls.Add(bottomControls);
         _input.BringToFront();
 
-        mainSplit.Panel2.Controls.Add(bottomPanel);
-        Controls.Add(mainSplit);
+        _mainSplit.Panel2.Controls.Add(bottomPanel);
+        Controls.Add(_mainSplit);
+
+        // Ajuste seguro de SplitterDistance una vez que el formulario ha determinado su tamaño de cliente
+        Shown += (s, e) =>
+        {
+            try
+            {
+                int availableHeight = _mainSplit.Height;
+                if (availableHeight > _mainSplit.Panel1MinSize + _mainSplit.Panel2MinSize)
+                {
+                    int desiredHeight = availableHeight - 160;
+                    if (desiredHeight >= _mainSplit.Panel1MinSize && desiredHeight <= availableHeight - _mainSplit.Panel2MinSize)
+                    {
+                        _mainSplit.SplitterDistance = desiredHeight;
+                    }
+                }
+
+                int availableWidth = _topSplit.Width;
+                if (availableWidth > _topSplit.Panel1MinSize + _topSplit.Panel2MinSize)
+                {
+                    int desiredWidth = Math.Max(_topSplit.Panel1MinSize, (int)(availableWidth * 0.55));
+                    if (desiredWidth <= availableWidth - _topSplit.Panel2MinSize)
+                    {
+                        _topSplit.SplitterDistance = desiredWidth;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                _logger.Warn("BlsNimTerminal", "Aviso en ajuste inicial de divisores: " + ex.Message);
+            }
+        };
 
         // Eventos
         KeyDown += OnFormKeyDown;
