@@ -905,6 +905,10 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             _lblLanguage.Text = BlsStrings.Get("LangLabel");
             _btnNuevaSesion.Text = BlsStrings.Get("BtnNewSession");
             _btnEliminarSesion.Text = BlsStrings.Get("BtnDeleteSession");
+            _btnCopiarDetalle.Text = BlsStrings.Get("BtnCopyDetail");
+            _btnLimpiarDetalle.Text = BlsStrings.Get("BtnClearDetail");
+            _btnDetener.Text = BlsStrings.Get("BtnStop");
+            _btnEnviar.Text = BlsStrings.Get("BtnSend");
             _lblStatus.Text = BlsStrings.Get("StatusReady");
 
             // Refresh session list and detail title
