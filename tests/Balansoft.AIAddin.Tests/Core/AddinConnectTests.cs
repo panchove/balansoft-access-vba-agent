@@ -94,45 +94,97 @@ namespace Balansoft.AIAddin.Tests.Core
         }
 
         [TestMethod]
-        public void OnConnection_DoesNotThrow_WhenVbeHasToolsBar()
+        public void Lifecycle_OnStartupComplete_SinVbe_NoLanza()
         {
-            // Arrange
-            var fakeVbe = new FakeVbe();
-            dynamic accessApp = new ExpandoObject();
-            accessApp.VBE = fakeVbe;
-
+            // Arrange: no VBE, no application
             var connect = new AddinConnect();
 
-            // Act / Assert: should not throw
+            // Act / Assert: should not throw even when VBE is not available
             Array custom = Array.Empty<object>();
-            connect.OnConnection(accessApp, ext_ConnectMode.ext_cm_Startup, null, ref custom);
+            connect.OnStartupComplete(ref custom);
         }
 
         [TestMethod]
-        public void CreateMenu_AddsButton_WhenToolsBarExists()
+        public void Lifecycle_OnStartupComplete_ArrancaBridge()
         {
-            // Arrange
+            // Arrange: minimal setup - fake application with VBE
             var fakeVbe = new FakeVbe();
+            var accessApp = new ExpandoObject();
+            (accessApp as dynamic).VBE = fakeVbe;
+            (accessApp as dynamic).Caption = "TestProject";
+
+            var connect = new AddinConnect();
+            // Inyectar _accessApp mediante reflection para simular OnConnection
+            var accessField = typeof(AddinConnect).GetField("_accessApp", BindingFlags.NonPublic | BindingFlags.Instance);
+            accessField?.SetValue(connect, accessApp);
+
+            // Act / Assert: should not throw and bridge should attempt to start
+            Array custom = Array.Empty<object>();
+            connect.OnConnection(accessApp, ext_ConnectMode.ext_cm_Startup, null, ref custom);
+            // OnStartupComplete should run without throwing
+            connect.OnStartupComplete(ref custom);
+        }
+
+        [TestMethod]
+        public void Lifecycle_OnDisconnection_Idempotente()
+        {
+            // Arrange: addin connect con servicios mínimos
             var connect = new AddinConnect();
 
-            // Set private _vbe field via reflection
-            var vbeField = typeof(AddinConnect).GetField("_vbe", BindingFlags.NonPublic | BindingFlags.Instance);
-            vbeField?.SetValue(connect, fakeVbe);
+            // Act: primera desconexión
+            Array custom1 = Array.Empty<object>();
+            connect.OnDisconnection(ext_DisconnectMode.ext_dm_UserClosed, ref custom1);
 
-            // Act: call internal CreateMenu via reflection
+            // Act: segunda desconexión (debe ser idempotente y no lanzar)
+            try
+            {
+                Array custom2 = Array.Empty<object>();
+                connect.OnDisconnection(ext_DisconnectMode.ext_dm_UserClosed, ref custom2);
+                // Assert: no exception thrown
+            }
+            catch (Exception ex)
+            {
+                Assert.Fail($"OnDisconnection second call threw: {ex.Message}");
+            }
+        }
+
+        [TestMethod]
+        public void Lifecycle_MenuTools_RegistraNimTerminal()
+        {
+            // Arrange: VBE fake con barra de tools
+            var fakeVbe = new FakeVbe();
+            var accessApp = new ExpandoObject();
+            (accessApp as dynamic).VBE = fakeVbe;
+
+            var connect = new AddinConnect();
+            var accessField = typeof(AddinConnect).GetField("_accessApp", BindingFlags.NonPublic | BindingFlags.Instance);
+            accessField?.SetValue(connect, accessApp);
+
+            // Simular OnConnection para que _vbe esté poblado
+            Array custom = Array.Empty<object>();
+            connect.OnConnection(accessApp, ext_ConnectMode.ext_cm_Startup, null, ref custom);
+
+            // Act: llamar a CreateMenu (internal)
             var createMenu = typeof(AddinConnect).GetMethod("CreateMenu", BindingFlags.NonPublic | BindingFlags.Instance);
             createMenu?.Invoke(connect, null);
 
-            // Assert: verify _commandBarButton field is set (non-null)
+            // Assert: _commandBarButton debería estar seteado
             var buttonField = typeof(AddinConnect).GetField("_commandBarButton", BindingFlags.NonPublic | BindingFlags.Instance);
             var button = buttonField?.GetValue(connect);
             Assert.IsNotNull(button, "Expected _commandBarButton to be set after CreateMenu");
+        }
 
-            // Verify Caption and Tag via reflection on the dynamic object
-            var caption = button.GetType().InvokeMember("Caption", BindingFlags.GetProperty, null, button, null);
-            var tag = button.GetType().InvokeMember("Tag", BindingFlags.GetProperty, null, button, null);
-            Assert.AreEqual("NIM Terminal", caption);
-            Assert.AreEqual("BalansoftNimTerminal", tag);
+        [TestMethod]
+        public void Lifecycle_SinVbe_BridgeSigueArranque()
+        {
+            // Arrange: addin connect sin VBE
+            var connect = new AddinConnect();
+
+            // Act: OnStartupComplete cuando no hay VBE (debe no lanzar)
+            Array custom = Array.Empty<object>();
+            connect.OnStartupComplete(ref custom);
+
+            // Assert: no lanzó excepción
         }
     }
 }

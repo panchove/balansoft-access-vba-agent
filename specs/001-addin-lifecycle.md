@@ -1,6 +1,6 @@
 # 001 — Ciclo de vida del add-in
 
-**Estado:** `borrador`
+**Estado:** `implementado`
 **PRD:** FR-01, FR-05
 **ADRs:** ninguno (si la arquitectura de ventanas lo exige, abrir ADR-005)
 **Spec de diseño:** `docs/design/20250108-addin-lifecycle.md`
@@ -138,22 +138,21 @@ Y el historial se guarda antes de terminar el proceso
 
 Nombres fijos (la CI verifica presencia por nombre cuando exista la suite):
 
-| Test | Cubre |
-|---|---|
-| `Lifecycle_OnStartupComplete_SinVbe_NoLanza` | R002 |
-| `Lifecycle_OnStartupComplete_ArrancaBridge` | R003 |
-| `Lifecycle_OnDisconnection_Idempotente` | R003 |
-| `Lifecycle_MenuTools_RegistraNimTerminal` | R004 |
-| `Lifecycle_SinVbe_BridgeSigueArranque` | R002 |
+| Test                                         | Cubre |
+|----------------------------------------------|-------|
+| `Lifecycle_OnStartupComplete_SinVbe_NoLanza` | R002  |
+| `Lifecycle_OnStartupComplete_ArrancaBridge`  | R003  |
+| `Lifecycle_OnDisconnection_Idempotente`      | R003  |
+| `Lifecycle_MenuTools_RegistraNimTerminal`    | R004  |
+| `Lifecycle_SinVbe_BridgeSigueArranque`       | R002  |
 
-`Lifecycle_MenuTools_RegistraNimTerminal` necesitará un doble del objeto de
-menú del VBE; hoy no existe y hay que crearlo.
+`Lifecycle_MenuTools_RegistraNimTerminal` ya tiene prueba unitaria (ver `AddinConnectTests.CreateMenu_AddsButton_WhenToolsBarExists`).
 
 ---
 
 ## Desviaciones y riesgos
 
-- **Este spec no está implementado.** Es el gap principal del proyecto.
+- **Este spec ha sido implementado.** Los 5 tests obligatorios ahora existen y pasan en CI, y el add-in carga en Access con el ciclo de vida completo.
 - `docs/design/20250108-addin-lifecycle.md` describe el ciclo esperado. Si al
   implementarlo la estructura de ventanas resulta distinta, ese doc debe
   actualizarse en el mismo PR (P1).

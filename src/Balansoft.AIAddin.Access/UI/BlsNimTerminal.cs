@@ -94,6 +94,9 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
     // Controles UI
     private ListView _conversation = null!;
+    private RichTextBox _txtDetalle = null!;
+    private Button _btnCopiarDetalle = null!;
+    private Button _btnLimpiarDetalle = null!;
     private TextBox _input = null!;
     private Button _btnEnviar = null!;
     private Button _btnDetener = null!;
@@ -178,8 +181,8 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     {
         // Configuracion del Form
         Text = "NIM Terminal";
-        Size = new Size(800, 600);
-        MinimumSize = new Size(600, 400);
+        Size = new Size(1000, 700);
+        MinimumSize = new Size(750, 480);
         StartPosition = FormStartPosition.CenterScreen;
         ShowInTaskbar = true;
         MinimizeBox = true;
@@ -200,19 +203,33 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             // Icono opcional si el recurso o soporte GDI no estuviese disponible
         }
 
-        // SplitContainer principal (Horizontal: Arriba conversación, Abajo caja de entrada)
-        var split = new SplitContainer
+        // SplitContainer principal (Horizontal: Arriba paneles de conversación y detalle, Abajo entrada de texto)
+        var mainSplit = new SplitContainer
         {
             Dock = DockStyle.Fill,
             Orientation = Orientation.Horizontal,
-            SplitterDistance = 420,
+            SplitterDistance = 480,
             FixedPanel = FixedPanel.Panel2,
-            Panel2MinSize = 110,
+            Panel1MinSize = 250,
+            Panel2MinSize = 120,
             SplitterWidth = 4,
             IsSplitterFixed = false
         };
 
-        // Panel superior: ListView de conversación
+        // SplitContainer superior (Vertical: Izquierda lista de conversación, Derecha detalle y visor de código)
+        var topSplit = new SplitContainer
+        {
+            Dock = DockStyle.Fill,
+            Orientation = Orientation.Vertical,
+            SplitterDistance = 540,
+            FixedPanel = FixedPanel.Panel2,
+            Panel1MinSize = 260,
+            Panel2MinSize = 260,
+            SplitterWidth = 4,
+            IsSplitterFixed = false
+        };
+
+        // Panel izquierdo: ListView de conversación
         _conversation = new ListView
         {
             Dock = DockStyle.Fill,
@@ -226,7 +243,9 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             Font = new Font("Segoe UI", 9F)
         };
         _conversation.Columns.Add("Rol", 85);
-        _conversation.Columns.Add("Mensaje", -2); // Fill
+        _conversation.Columns.Add("Mensaje", 440);
+        _conversation.SelectedIndexChanged += OnConversationSelectedIndexChanged;
+
         _conversation.Resize += (s, e) =>
         {
             if (_conversation.Columns.Count > 1)
@@ -239,7 +258,73 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             }
         };
 
-        split.Panel1.Controls.Add(_conversation);
+        topSplit.Panel1.Controls.Add(_conversation);
+
+        // Panel derecho: Detalle del mensaje y visor de código
+        var rightPanel = new Panel
+        {
+            Dock = DockStyle.Fill,
+            Padding = new Padding(6, 4, 6, 6)
+        };
+
+        var lblDetalleTitulo = new Label
+        {
+            Text = "DETALLE DEL MENSAJE / CÓDIGO SELECCIONADO",
+            Dock = DockStyle.Top,
+            Height = 24,
+            TextAlign = ContentAlignment.MiddleLeft,
+            Font = new Font("Segoe UI", 8.5F, FontStyle.Regular),
+            ForeColor = Color.FromArgb(50, 50, 50)
+        };
+
+        _txtDetalle = new RichTextBox
+        {
+            Dock = DockStyle.Fill,
+            Font = new Font("Consolas", 10F),
+            BackColor = Color.White,
+            ForeColor = Color.FromArgb(30, 30, 30),
+            ScrollBars = RichTextBoxScrollBars.Both,
+            WordWrap = true,
+            BorderStyle = BorderStyle.Fixed3D
+        };
+
+        var detailButtonsPanel = new Panel
+        {
+            Dock = DockStyle.Bottom,
+            Height = 36,
+            Padding = new Padding(0, 6, 0, 0)
+        };
+
+        _btnCopiarDetalle = new Button
+        {
+            Text = "Copiar Detalle",
+            Width = 115,
+            Height = 28,
+            Location = new Point(0, 4),
+            Font = new Font("Segoe UI", 9F)
+        };
+        _btnCopiarDetalle.Click += OnCopiarDetalleClick;
+
+        _btnLimpiarDetalle = new Button
+        {
+            Text = "Limpiar Detalle",
+            Width = 115,
+            Height = 28,
+            Location = new Point(125, 4),
+            Font = new Font("Segoe UI", 9F)
+        };
+        _btnLimpiarDetalle.Click += OnLimpiarDetalleClick;
+
+        detailButtonsPanel.Controls.Add(_btnCopiarDetalle);
+        detailButtonsPanel.Controls.Add(_btnLimpiarDetalle);
+
+        rightPanel.Controls.Add(_txtDetalle);
+        rightPanel.Controls.Add(lblDetalleTitulo);
+        rightPanel.Controls.Add(detailButtonsPanel);
+        _txtDetalle.BringToFront();
+
+        topSplit.Panel2.Controls.Add(rightPanel);
+        mainSplit.Panel1.Controls.Add(topSplit);
 
         // Panel inferior: input + controles
         var bottomPanel = new Panel
@@ -251,7 +336,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         var bottomControls = new Panel
         {
             Dock = DockStyle.Bottom,
-            Height = 32,
+            Height = 34,
             Padding = new Padding(0, 4, 0, 0)
         };
 
@@ -260,16 +345,18 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             Text = "Detener",
             Dock = DockStyle.Right,
             Enabled = false,
-            Width = 80,
-            Height = 28
+            Width = 85,
+            Height = 28,
+            Font = new Font("Segoe UI", 9F)
         };
 
         _btnEnviar = new Button
         {
             Text = "Enviar",
             Dock = DockStyle.Right,
-            Width = 80,
-            Height = 28
+            Width = 85,
+            Height = 28,
+            Font = new Font("Segoe UI", 9F)
         };
 
         _lblStatus = new Label
@@ -292,7 +379,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             Multiline = true,
             AcceptsReturn = true,
             ScrollBars = ScrollBars.Vertical,
-            Font = new Font("Consolas", 9.5F),
+            Font = new Font("Consolas", 10F),
             AcceptsTab = false
         };
 
@@ -304,13 +391,133 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         bottomPanel.Controls.Add(bottomControls);
         _input.BringToFront();
 
-        split.Panel2.Controls.Add(bottomPanel);
-        Controls.Add(split);
+        mainSplit.Panel2.Controls.Add(bottomPanel);
+        Controls.Add(mainSplit);
 
         // Eventos
         KeyDown += OnFormKeyDown;
         FormClosing += OnFormClosing;
         Load += OnLoad;
+    }
+
+    private void OnConversationSelectedIndexChanged(object? sender, EventArgs e)
+    {
+        if (_conversation.SelectedItems.Count > 0)
+        {
+            var item = _conversation.SelectedItems[0];
+            var fullContent = item.Tag as string;
+            if (string.IsNullOrEmpty(fullContent))
+            {
+                fullContent = item.SubItems.Count > 1 ? item.SubItems[1].Text : item.Text;
+            }
+
+            SetDetailContent(fullContent ?? string.Empty);
+            _lblStatus.Text = "Listo, visualizando detalle...";
+        }
+    }
+
+    private void OnCopiarDetalleClick(object? sender, EventArgs e)
+    {
+        try
+        {
+            if (!string.IsNullOrEmpty(_txtDetalle.Text))
+            {
+                Clipboard.SetText(_txtDetalle.Text);
+                _lblStatus.Text = "Detalle copiado al portapapeles";
+            }
+        }
+        catch (Exception ex)
+        {
+            _logger.Warn("BlsNimTerminal", "No se pudo copiar al portapapeles: " + ex.Message);
+        }
+    }
+
+    private void OnLimpiarDetalleClick(object? sender, EventArgs e)
+    {
+        _txtDetalle.Clear();
+        if (_conversation.SelectedItems.Count > 0)
+        {
+            _conversation.SelectedItems.Clear();
+        }
+        _lblStatus.Text = "Listo";
+    }
+
+    private static readonly System.Text.RegularExpressions.Regex VbaKeywordRegex = new System.Text.RegularExpressions.Regex(
+        @"\b(Option|Compare|Database|Explicit|Function|Sub|End|As|Integer|String|Boolean|Long|Double|Single|Byte|Date|Currency|Object|Variant|Dim|Set|Let|If|Then|Else|ElseIf|For|To|Step|Next|While|Wend|Do|Loop|Until|Select|Case|Exit|Public|Private|Friend|Static|Const|True|False|Nothing|Null|Empty|With|ByVal|ByRef|Call|On|Error|GoTo|Resume|New)\b",
+        System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    private static readonly System.Text.RegularExpressions.Regex VbaCommentRegex = new System.Text.RegularExpressions.Regex(
+        @"('|[Rr][Ee][Mm]\s).*$",
+        System.Text.RegularExpressions.RegexOptions.Multiline | System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    private static readonly System.Text.RegularExpressions.Regex VbaStringRegex = new System.Text.RegularExpressions.Regex(
+        @"""[^""\r\n]*""",
+        System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    private void SetDetailContent(string rawText)
+    {
+        if (_txtDetalle == null || _txtDetalle.IsDisposed) return;
+
+        _txtDetalle.SuspendLayout();
+        try
+        {
+            _txtDetalle.Clear();
+            if (string.IsNullOrEmpty(rawText)) return;
+
+            var text = rawText.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "\r\n");
+            _txtDetalle.Text = text;
+
+            HighlightVbaSyntax(_txtDetalle);
+        }
+        finally
+        {
+            _txtDetalle.SelectionStart = 0;
+            _txtDetalle.SelectionLength = 0;
+            _txtDetalle.ResumeLayout();
+        }
+    }
+
+    private static void HighlightVbaSyntax(RichTextBox rtb)
+    {
+        var text = rtb.Text;
+        if (string.IsNullOrEmpty(text)) return;
+
+        rtb.SelectAll();
+        rtb.SelectionColor = Color.FromArgb(30, 30, 30);
+
+        foreach (System.Text.RegularExpressions.Match m in VbaKeywordRegex.Matches(text))
+        {
+            rtb.Select(m.Index, m.Length);
+            rtb.SelectionColor = Color.Navy;
+        }
+
+        foreach (System.Text.RegularExpressions.Match m in VbaStringRegex.Matches(text))
+        {
+            rtb.Select(m.Index, m.Length);
+            rtb.SelectionColor = Color.DarkRed;
+        }
+
+        foreach (System.Text.RegularExpressions.Match m in VbaCommentRegex.Matches(text))
+        {
+            rtb.Select(m.Index, m.Length);
+            rtb.SelectionColor = Color.DarkGreen;
+        }
+
+        var optDb = "Option Compare Database";
+        var idxDb = text.IndexOf(optDb, StringComparison.OrdinalIgnoreCase);
+        if (idxDb >= 0)
+        {
+            rtb.Select(idxDb, optDb.Length);
+            rtb.SelectionColor = Color.DarkCyan;
+        }
+
+        var optExp = "Option Explicit";
+        var idxExp = text.IndexOf(optExp, StringComparison.OrdinalIgnoreCase);
+        if (idxExp >= 0)
+        {
+            rtb.Select(idxExp, optExp.Length);
+            rtb.SelectionColor = Color.DarkCyan;
+        }
     }
 
     private async void OnLoad(object? sender, EventArgs e)
@@ -809,9 +1016,10 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
     private void AppendUserMessage(string text)
     {
-        var item = new ListViewItem("Usuario") { Tag = "user" };
+        var item = new ListViewItem("Usuario") { Tag = text };
         item.SubItems.Add(text);
         _conversation.Items.Add(item);
+        item.Selected = true;
         ScrollToBottom();
     }
 
@@ -819,14 +1027,22 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     {
         if (_assistantRow == null)
         {
-            var created = new ListViewItem("Asistente") { Tag = "assistant" };
+            var created = new ListViewItem("Asistente") { Tag = chunk };
             created.SubItems.Add(chunk);
             _conversation.Items.Add(created);
             _assistantRow = created;
+            created.Selected = true;
         }
         else
         {
-            _assistantRow.SubItems[1].Text += chunk;
+            var accumulated = (_assistantRow.Tag as string ?? string.Empty) + chunk;
+            _assistantRow.Tag = accumulated;
+            _assistantRow.SubItems[1].Text = accumulated;
+        }
+
+        if (_assistantRow.Selected)
+        {
+            SetDetailContent(_assistantRow.Tag as string ?? string.Empty);
         }
 
         ScrollToBottom();
@@ -849,11 +1065,12 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
     private void AppendToolCallMessage(ToolCallComplete call)
     {
-        var item = new ListViewItem("Tool") { Tag = "tool" };
+        var item = new ListViewItem("Tool") { Tag = $"Llamada a herramienta: {call.Name}\r\nArgumentos:\r\n{call.ArgumentsJson}" };
         item.SubItems.Add("Ejecutando " + call.Name + "...");
         item.ForeColor = Color.DarkGreen;
         _conversation.Items.Add(item);
         _toolRows[call.Id] = item;
+        item.Selected = true;
         ScrollToBottom();
     }
 
@@ -869,11 +1086,17 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         {
             _toolRows.Remove(toolCallId);
             row.SubItems[1].Text = text;
+            row.Tag = payload;
             row.ForeColor = color;
+
+            if (row.Selected)
+            {
+                SetDetailContent(payload);
+            }
         }
         else
         {
-            var item = new ListViewItem("Tool") { Tag = "tool" };
+            var item = new ListViewItem("Tool") { Tag = payload };
             item.SubItems.Add(text);
             item.ForeColor = color;
             _conversation.Items.Add(item);
@@ -894,10 +1117,11 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
     private void AppendError(string message)
     {
-        var item = new ListViewItem("Error") { Tag = "error" };
+        var item = new ListViewItem("Error") { Tag = message };
         item.SubItems.Add(message);
         item.ForeColor = Color.DarkRed;
         _conversation.Items.Add(item);
+        item.Selected = true;
         ScrollToBottom();
     }
 
@@ -917,7 +1141,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
                 _ => msg.Role
             })
             {
-                Tag = msg.Role
+                Tag = msg.Content
             };
 
             var content = msg.Content;
@@ -954,6 +1178,12 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             }
 
             _conversation.Items.Add(item);
+        }
+
+        if (_conversation.Items.Count > 0)
+        {
+            _conversation.Items[_conversation.Items.Count - 1].Selected = true;
+            _conversation.EnsureVisible(_conversation.Items.Count - 1);
         }
 
         ScrollToBottom();

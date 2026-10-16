@@ -42,10 +42,15 @@ documentada al final.
 
 ### R001 — Layout
 
-- `SplitContainer` vertical. Izquierda: `ListView` (Detalles, Rol + Mensaje).
-  Derecha: `TextBox` multilínea arriba, barra de estado y botón Detener abajo.
+- Estructura con doble `SplitContainer`:
+  - `mainSplit` horizontal:
+    - Panel superior: `topSplit` vertical.
+      - Izquierda: `ListView` de conversación (columnas "Rol" y "Mensaje" con selección de fila completa).
+      - Derecha: panel de detalle con etiqueta "DETALLE DEL MENSAJE / CÓDIGO SELECCIONADO", visor `RichTextBox` con resaltado de sintaxis VBA y botones "Copiar Detalle" y "Limpiar Detalle".
+    - Panel inferior: `TextBox` multilínea para prompt de entrada, barra de estado a la izquierda y botones "Enviar" y "Detener" a la derecha.
 - Columna "Rol": `Usuario`, `Asistente`, `Tool`, `Error`.
 - Enter envía, Shift+Enter inserta salto de línea. Escape cancela.
+- Al seleccionar una fila en la conversación, su contenido completo o código fuente se visualiza automáticamente en el panel de detalle con coloreado de sintaxis VBA.
 
 ### R002 — Loop de herramientas
 
@@ -149,18 +154,18 @@ Entonces el sistema prompt refleja el módulo nuevo
 
 **Ninguno.** La lógica de UI y de orquestación no tiene cobertura.
 
-| Test | Cubre |
-|---|---|
-| `Terminal_Abrir_CargaHistorial` | R001 |
-| `Terminal_Enviar_AñadeMensajeUsuario` | R001 |
-| `Terminal_ToolLoop_ReenviaResultadosAlModelo` | R002 |
-| `Terminal_ToolLoop_NoSuperaOchoIteraciones` | R002 |
-| `Terminal_ToolFalla_ContinuaElTurno` | R003 |
-| `Terminal_DetenerClick_CancelaTurno` | R004 |
-| `Terminal_Escape_CancelaTurno` | R004 |
-| `Terminal_DetenerSinTurno_EsNoOp` | R004 |
-| `Terminal_SinApiKey_PideClave` | R005 |
-| `Terminal_Cerrar_FlushHistorial` | R004 |
+| Test                                          | Cubre |
+|-----------------------------------------------|-------|
+| `Terminal_Abrir_CargaHistorial`               | R001  |
+| `Terminal_Enviar_AñadeMensajeUsuario`         | R001  |
+| `Terminal_ToolLoop_ReenviaResultadosAlModelo` | R002  |
+| `Terminal_ToolLoop_NoSuperaOchoIteraciones`   | R002  |
+| `Terminal_ToolFalla_ContinuaElTurno`          | R003  |
+| `Terminal_DetenerClick_CancelaTurno`          | R004  |
+| `Terminal_Escape_CancelaTurno`                | R004  |
+| `Terminal_DetenerSinTurno_EsNoOp`             | R004  |
+| `Terminal_SinApiKey_PideClave`                | R005  |
+| `Terminal_Cerrar_FlushHistorial`              | R004  |
 
 Escribirlos exige extraer la lógica de orquestación de la clase `Form`. El
 camino mínimo: extraer `RunToolLoopAsync` a una clase sin dependencias de

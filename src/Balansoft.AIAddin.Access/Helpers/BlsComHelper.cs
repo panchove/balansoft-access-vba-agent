@@ -4,6 +4,7 @@
 using System;
 using System.Reflection;
 using Balansoft.AIAddin.AccessIntegration;
+using Balansoft.AIAddin.Helpers;
 using Balansoft.AIAddin.VbeIntegration;
 
 namespace Balansoft.AIAddin.Access.Helpers
@@ -12,8 +13,14 @@ namespace Balansoft.AIAddin.Access.Helpers
     {
         public static dynamic GetVbe(dynamic accessApp)
         {
-            // Access.Application has a VBE property returning the VBE object
-            return accessApp.VBE;
+            if (accessApp == null)
+                throw new BlsComException("GetVbe", BlsComCategory.UnexpectedType, "accessApp es null", null);
+
+            dynamic vbe = accessApp.VBE;
+            if (vbe == null)
+                throw new BlsComException("GetVbe", BlsComCategory.UnexpectedType, "VBE es null en accessApp", null);
+
+            return vbe;
         }
 
         public static dynamic GetCodeModule(dynamic vbe, string moduleName)

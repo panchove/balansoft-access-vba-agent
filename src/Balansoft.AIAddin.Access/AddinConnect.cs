@@ -151,6 +151,17 @@ namespace Balansoft.AIAddin.Access
         public void OnStartupComplete(ref Array custom)
         {
             EnsureInitialized();
+            EnsureServices();
+            // Arrancamos el bridge server si las dependencias están listas;
+            // si VBE es null, Start() será un no-op con log de aviso.
+            try
+            {
+                _bridgeServer?.Start();
+            }
+            catch (Exception ex)
+            {
+                _logger?.Warn("AddinConnect", "Bridge server no disponible al inicio (VBE null?)", ex);
+            }
         }
 
         public void OnBeginShutdown(ref Array custom)
