@@ -34,6 +34,8 @@
 [CmdletBinding()]
 param(
     [string]$Configuration = "Release",
+    [ValidateSet("x86", "x64")]
+    [string]$Architecture = "x86",
     [string]$OutputDir = ""
 )
 
@@ -43,7 +45,7 @@ $root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
 
 # Se compila el proyecto de tests porque arrastra la referencia al de src y
 # cubre ambos en una sola pasada. La DLL acaba en bin\x86\<Config>\net48\:
-# `Platform=x86` es lo que añade el segmento x86 a la ruta de salida, y por eso
+# `-p:PlatformTarget=<Arch>` es lo que añade el segmento de arquitectura a la
 # se compila el .csproj en lugar de la solución. `dotnet build` y no `msbuild`:
 # el MSBuild del SDK es el único que resuelve Microsoft.NET.Sdk.
 $testProj = Join-Path $root "tests\Balansoft.AIAddin.Tests\Balansoft.AIAddin.Tests.csproj"
@@ -62,13 +64,14 @@ if ([string]::IsNullOrEmpty($OutputDir)) {
 
 Write-Host ""
 Write-Host "=== Pack ===" -ForegroundColor Cyan
-Write-Host "Raíz:    $root"
-Write-Host "Config:  $Configuration"
-Write-Host "Output:  $OutputDir"
+Write-Host "Raíz:        $root"
+Write-Host "Config:      $Configuration"
+Write-Host "Architecture: $Architecture"
+Write-Host "Output:      $OutputDir"
 Write-Host ""
 
 # 1. Build Release x86
-Write-Host "[1/5] Compilando $Configuration x86..." -ForegroundColor DarkGray
+Write-Host "[1/5] Compilando $Configuration $Architecture..." -ForegroundColor DarkGray
 $dotnet = Get-Command dotnet -ErrorAction SilentlyContinue
 if (-not $dotnet) {
     Write-Host "ERROR: dotnet no encontrado en PATH." -ForegroundColor Red
@@ -76,7 +79,7 @@ if (-not $dotnet) {
     exit 2
 }
 
-& dotnet build $testProj -t:Restore,Build -c $Configuration -p:Platform=x86 -v:minimal --nologo
+& dotnet build $testProj -t:Restore,Build -c $Configuration -p:Platform=$Architecture -p:PlatformTarget=$Architecture -v:minimal --nologo
 if ($LASTEXITCODE -ne 0) {
     Write-Host "ERROR: build falló (exit $LASTEXITCODE)." -ForegroundColor Red
     exit 3
@@ -91,7 +94,7 @@ if (Test-Path $OutputDir) {
 }
 New-Item -ItemType Directory -Path $OutputDir -Force | Out-Null
 
-$binDir = Join-Path $root "src\Balansoft.AIAddin.Access\bin\x86\$Configuration\net48"
+$binDir = Join-Path $root "src\Balansoft.AIAddin.Access\bin\$Architecture\$Configuration\net48"
 $dll = Join-Path $binDir "Balansoft.AIAddin.Access.dll"
 if (-not (Test-Path $dll)) {
     Write-Host "ERROR: DLL no encontrada tras el build: $dll" -ForegroundColor Red
@@ -116,7 +119,7 @@ if (Test-Path $readme) {
 Write-Host ""
 Write-Host "[3/5] Generando version.txt..." -ForegroundColor DarkGray
 # NBGV inyecta la versión en el assembly; la leemos de la DLL construida.
-$dll = Join-Path $root "src\Balansoft.AIAddin.Access\bin\x86\$Configuration\net48\Balansoft.AIAddin.Access.dll"
+$dll = Join-Path $root "src\Balansoft.AIAddin.Access\bin\$Architecture\$Configuration\net48\Balansoft.AIAddin.Access.dll"
 $version = "0.0.0"
 if (Test-Path $dll) {
     $asm = [System.Reflection.AssemblyName]::GetAssemblyName($dll)
@@ -143,7 +146,7 @@ Write-Host "  + version.txt ($version / $commit)" -ForegroundColor Green
 # 4. ZIP
 Write-Host ""
 Write-Host "[4/5] Comprimiendo..." -ForegroundColor DarkGray
-$zipName = "Balansoft.AIAddin.Access-$version-x86.zip"
+$zipName = "Balansoft.AIAddin.Access-$version-$Architecture.zip"
 $zipPath = Join-Path $root $zipName
 if (Test-Path $zipPath) { Remove-Item $zipPath -Force }
 

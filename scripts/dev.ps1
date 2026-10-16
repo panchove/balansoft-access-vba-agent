@@ -41,8 +41,16 @@
     Compila Debug x86.
 
 .EXAMPLE
+    PS> .\dev.ps1 build -Architecture x64
+    Compila Debug x64.
+
+.EXAMPLE
     PS> .\dev.ps1 release
     Compila Release x86.
+
+.EXAMPLE
+    PS> .\dev.ps1 release -Architecture x64
+    Compila Release x64.
 
 .EXAMPLE
     PS> .\dev.ps1 test
@@ -74,6 +82,9 @@ param(
     [ValidateSet("Debug", "Release")]
     [string]$Configuration = "",
 
+    [ValidateSet("x86", "x64")]
+    [string]$Architecture = "x86",
+
     [string]$Filter = "",
 
     [switch]$NoBuild
@@ -86,12 +97,12 @@ $ErrorActionPreference = "Stop"
 # ─────────────────────────────────────────────────────────────
 
 $root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-$zipPattern = "Balansoft.AIAddin.Access-*-x86.zip"
+$zipPattern = "Balansoft.AIAddin.Access-*-$Architecture.zip"
 
 # Se compilan los .csproj, no la solución: `msbuild Balansoft.AIAddin.slnx
-# /p:Platform=x86` no propaga Platform a los proyectos SDK-style y escribe en
+# `/p:PlatformTarget=<arch>` no propaga Platform a los proyectos SDK-style y escribe en
 # bin\<Config>\ en vez de bin\x86\<Config>\. Compilando los csproj la ruta es
-# siempre bin\x86\<Config>\net48\, que es la que usan Pack.ps1 y
+# siempre bin\<Arch>\<Config>\net48\, que es la que usan Pack.ps1 y
 # RegisterAddin.ps1.
 $srcProj  = Join-Path $root "src\Balansoft.AIAddin.Access\Balansoft.AIAddin.Access.csproj"
 $testProj = Join-Path $root "tests\Balansoft.AIAddin.Tests\Balansoft.AIAddin.Tests.csproj"
@@ -119,16 +130,16 @@ function Assert-Projects {
     }
 }
 
-function Invoke-Build([string]$config) {
+function Invoke-Build([string]$config, [string]$arch) {
     Assert-Projects
     # `dotnet build` y no `msbuild`: el MSBuild del .NET SDK es el único que
     # resuelve Microsoft.NET.Sdk en un equipo con VS/BuildTools sin el workload
-    # de .NET. La arquitectura la fija Directory.Build.props.
+    # de .NET. La arquitectura se pasa con -p:PlatformTarget.
     $dotnet = Get-Dotnet
     Write-Host ""
-    Write-Host ">>> Build $config x86" -ForegroundColor Cyan
+    Write-Host ">>> Build $config $arch" -ForegroundColor Cyan
     # Compila el proyecto de tests: arrastra la referencia al de src.
-    & $dotnet build $testProj -t:Restore,Build -c $config -p:Platform=x86 -v:minimal --nologo
+    & $dotnet build $testProj -t:Restore,Build -c $config -p:Platform=$arch -p:PlatformTarget=$arch -v:minimal --nologo
     if ($LASTEXITCODE -ne 0) {
         Write-Host "Build falló (exit $LASTEXITCODE)" -ForegroundColor Red
         exit $LASTEXITCODE
@@ -136,31 +147,31 @@ function Invoke-Build([string]$config) {
     Write-Host "Build OK" -ForegroundColor Green
 }
 
-function Invoke-Test([string]$config, [string]$filter, [switch]$noBuild, [switch]$includeIntegration) {
+function Invoke-Test([string]$config, [string]$arch, [string]$filter, [switch]$noBuild, [switch]$includeIntegration) {
     Assert-Projects
     $dotnet = Get-Dotnet
 
     if (-not $noBuild) {
-        Invoke-Build $config
+        Invoke-Build $config $arch
     }
 
-    $dll = Join-Path $root "tests\Balansoft.AIAddin.Tests\bin\x86\$config\net48\Balansoft.AIAddin.Tests.dll"
+    $dll = Join-Path $root "tests\Balansoft.AIAddin.Tests\bin\$arch\$config\net48\Balansoft.AIAddin.Tests.dll"
     if (-not (Test-Path $dll)) {
         Write-Host "ERROR: DLL de tests no encontrada: $dll" -ForegroundColor Red
         exit 1
     }
 
     Write-Host ""
-    Write-Host ">>> Tests ($config)" -ForegroundColor Cyan
+    Write-Host ">>> Tests ($config $arch)" -ForegroundColor Cyan
 
     # `dotnet vstest` y no `dotnet test`: el SDK mete al medio su propio host de
     # test para net48 y eso no es lo verificado. El switch es /Settings:.
     if ($includeIntegration) {
         # Sin /Settings: ni filtro entran también los tests de NIM.
-        $args = @("vstest", $dll, "/Platform:x86")
+        $args = @("vstest", $dll, "/Platform:$arch")
     }
     else {
-        $args = @("vstest", $dll, "/Settings:$(Join-Path $root '.runsettings')", "/Platform:x86")
+        $args = @("vstest", $dll, "/Settings:$(Join-Path $root '.runsettings')", "/Platform:$arch")
     }
 
     if (-not [string]::IsNullOrEmpty($filter)) {
@@ -217,10 +228,13 @@ function Invoke-Script([string]$scriptName, [string[]]$scriptArgs = @()) {
         Write-Host "ERROR: script no encontrado: $path" -ForegroundColor Red
         exit 1
     }
-    $psExe = if ($scriptName -match 'RegisterAddin\.ps1') {
+    # Elegir el ejecutable de PowerShell según la arquitectura objetivo.
+    # SysNative redirige al PowerShell nativo del proceso (x64 en SO x64);
+    # SysWOW64 fuerza el de 32-bit.
+    $psExe = if ($Architecture -eq "x86") {
         Join-Path $env:WINDIR "SysWOW64\WindowsPowerShell\v1.0\powershell.exe"
     } else {
-        "powershell"
+        Join-Path $env:WINDIR "SysNative\WindowsPowerShell\v1.0\powershell.exe"
     }
     if (-not (Test-Path $psExe)) { $psExe = "powershell" }
 
@@ -262,8 +276,8 @@ function Show-Status {
     # Build
     Write-Host ""
     Write-Host "Build:" -ForegroundColor White
-    $dllDebug   = Join-Path $root "src\Balansoft.AIAddin.Access\bin\x86\Debug\net48\Balansoft.AIAddin.Access.dll"
-    $dllRelease = Join-Path $root "src\Balansoft.AIAddin.Access\bin\x86\Release\net48\Balansoft.AIAddin.Access.dll"
+    $dllDebug   = Join-Path $root "src\Balansoft.AIAddin.Access\bin\$Architecture\Debug\net48\Balansoft.AIAddin.Access.dll"
+    $dllRelease = Join-Path $root "src\Balansoft.AIAddin.Access\bin\$Architecture\Release\net48\Balansoft.AIAddin.Access.dll"
     if (Test-Path $dllDebug) {
         $t = (Get-Item $dllDebug).LastWriteTime
         Write-Host "  Debug:   $t" -ForegroundColor Green
@@ -346,8 +360,8 @@ function Show-Help {
     Write-Host "  .\dev.ps1 <comando> [opciones]"
     Write-Host ""
     Write-Host "Comandos:" -ForegroundColor White
-    Write-Host "  build        Compila Debug x86"
-    Write-Host "  release      Compila Release x86"
+    Write-Host "  build        Compila Debug <arch>"
+    Write-Host "  release      Compila Release <arch>"
     Write-Host "  test         Ejecuta tests sin integración NIM"
     Write-Host "  testall      Ejecuta TODOS los tests (incluye integración)"
     Write-Host "  pack         Empaqueta la release (llama a Pack.ps1)"
@@ -361,15 +375,18 @@ function Show-Help {
     Write-Host ""
     Write-Host "Opciones:" -ForegroundColor White
     Write-Host "  -Configuration <Debug|Release>   Fuerza la configuración"
+    Write-Host "  -Architecture <x86|x64>          Arquitectura objetivo (default: x86)"
     Write-Host "  -Filter <expr>                   Filtro para los tests"
     Write-Host "  -NoBuild                         test/testall sin recompilar"
     Write-Host ""
     Write-Host "Ejemplos:" -ForegroundColor White
     Write-Host "  .\dev.ps1 build"
+    Write-Host "  .\dev.ps1 build -Architecture x64"
     Write-Host "  .\dev.ps1 release"
+    Write-Host "  .\dev.ps1 release -Architecture x64"
     Write-Host "  .\dev.ps1 test -Filter `"FullyQualifiedName~Bridge`""
-    Write-Host "  .\dev.ps1 all"
-    Write-Host "  .\dev.ps1 reg"
+    Write-Host "  .\dev.ps1 all -Architecture x64"
+    Write-Host "  .\dev.ps1 reg -Architecture x86"
     Write-Host ""
 }
 
@@ -385,12 +402,12 @@ switch ($Command) {
 
     "build" {
         $cfg = if ($Configuration) { $Configuration } else { "Debug" }
-        Invoke-Build $cfg
+        Invoke-Build $cfg $Architecture
     }
 
     "release" {
         $cfg = if ($Configuration) { $Configuration } else { "Release" }
-        Invoke-Build $cfg
+        Invoke-Build $cfg $Architecture
     }
 
     "restore" {
@@ -399,7 +416,7 @@ switch ($Command) {
 
     "test" {
         $cfg = if ($Configuration) { $Configuration } else { "Debug" }
-        Invoke-Test -config $cfg -filter $Filter -noBuild:$NoBuild
+        Invoke-Test -config $cfg -arch $Architecture -filter $Filter -noBuild:$NoBuild
     }
 
     "testall" {
@@ -407,7 +424,7 @@ switch ($Command) {
         if (-not $env:NIM_API_KEY) {
             Write-Host "AVISO: NIM_API_KEY no definido. Los tests de integración fallarán." -ForegroundColor Yellow
         }
-        Invoke-Test -config $cfg -filter $Filter -noBuild:$NoBuild -includeIntegration
+        Invoke-Test -config $cfg -arch $Architecture -filter $Filter -noBuild:$NoBuild -includeIntegration
     }
 
     "clean" {
@@ -416,24 +433,24 @@ switch ($Command) {
 
     "reg" {
         $cfg = if ($Configuration) { $Configuration } else { "Release" }
-        Invoke-Script "RegisterAddin.ps1" @("-Configuration", $cfg)
+        Invoke-Script "RegisterAddin.ps1" @("-Configuration", $cfg, "-Architecture", $Architecture)
     }
 
     "unreg" {
         $cfg = if ($Configuration) { $Configuration } else { "Release" }
-        Invoke-Script "UnregisterAddin.ps1" @("-Configuration", $cfg)
+        Invoke-Script "UnregisterAddin.ps1" @("-Configuration", $cfg, "-Architecture", $Architecture)
     }
 
     "pack" {
         $cfg = if ($Configuration) { $Configuration } else { "Release" }
-        Invoke-Script "Pack.ps1" @("-Configuration", $cfg)
+        Invoke-Script "Pack.ps1" @("-Configuration", $cfg, "-Architecture", $Architecture)
     }
 
     "all" {
         $cfg = if ($Configuration) { $Configuration } else { "Release" }
-        Invoke-Build $cfg
-        Invoke-Test -config $cfg -filter "" -noBuild
-        Invoke-Script "Pack.ps1" @("-Configuration", $cfg)
+        Invoke-Build $cfg $Architecture
+        Invoke-Test -config $cfg -arch $Architecture -filter "" -noBuild
+        Invoke-Script "Pack.ps1" @("-Configuration", $cfg, "-Architecture", $Architecture)
     }
 
     "status" {

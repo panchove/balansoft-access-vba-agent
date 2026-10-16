@@ -7,9 +7,6 @@
     <TargetFramework>net48</TargetFramework>
     <LangVersion>10</LangVersion>
     <Nullable>annotations</Nullable>
-    <Platforms>x86</Platforms>
-    <PlatformTarget>x86</PlatformTarget>
-    <Prefer32Bit>true</Prefer32Bit>
     <UseWindowsForms>true</UseWindowsForms>
     <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
     <ComVisible>true</ComVisible>

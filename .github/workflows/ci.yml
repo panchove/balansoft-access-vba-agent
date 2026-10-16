@@ -19,8 +19,12 @@ env:
 
 jobs:
   build-and-test:
-    name: Build + Test (x86)
+    name: Build + Test (${{ matrix.architecture }})
     runs-on: windows-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        architecture: [x86, x64]
 
     steps:
       # ─────────────────────────────────────────────
@@ -62,37 +66,40 @@ jobs:
       # Se compilan los .csproj, NO la solución. Motivo:
       # `msbuild Balansoft.AIAddin.slnx /p:Platform=x86` no propaga Platform a
       # los proyectos SDK-style y escribe en bin\<Config>\ en vez de
-      # bin\x86\<Config>\. Compilando los csproj, la ruta es siempre
-      # bin\x86\<Config>\net48\ y coincide con la que usan Pack.ps1 y
+      # bin\<Arch>\<Config>\. Compilando los csproj, la ruta es siempre
+      # bin\<Arch>\<Config>\net48\ y coincide con la que usan Pack.ps1 y
       # RegisterAddin.ps1.
       # ─────────────────────────────────────────────
-      - name: Build (Debug x86)
+      - name: Build (Debug ${{ matrix.architecture }})
         run: >
           dotnet build src\Balansoft.AIAddin.Access\Balansoft.AIAddin.Access.csproj
           -t:Restore,Build
           -c Debug
-          -p:Platform=x86
+          -p:Platform=${{ matrix.architecture }}
+          -p:PlatformTarget=${{ matrix.architecture }}
           -v:minimal
           --nologo
 
-      - name: Build tests (Debug x86)
+      - name: Build tests (Debug ${{ matrix.architecture }})
         run: >
           dotnet build tests\Balansoft.AIAddin.Tests\Balansoft.AIAddin.Tests.csproj
           -t:Restore,Build
           -c Debug
-          -p:Platform=x86
+          -p:Platform=${{ matrix.architecture }}
+          -p:PlatformTarget=${{ matrix.architecture }}
           -v:minimal
           --nologo
 
       # ─────────────────────────────────────────────
       # 5. Build Release x86
       # ─────────────────────────────────────────────
-      - name: Build (Release x86)
+      - name: Build (Release ${{ matrix.architecture }})
         run: >
           dotnet build tests\Balansoft.AIAddin.Tests\Balansoft.AIAddin.Tests.csproj
           -t:Restore,Build
           -c Release
-          -p:Platform=x86
+          -p:Platform=${{ matrix.architecture }}
+          -p:PlatformTarget=${{ matrix.architecture }}
           -v:minimal
           --nologo
 
@@ -110,10 +117,10 @@ jobs:
       - name: Test (sin integración NIM)
         run: >
           dotnet vstest
-          tests\Balansoft.AIAddin.Tests\bin\x86\Debug\net48\Balansoft.AIAddin.Tests.dll
+          tests\Balansoft.AIAddin.Tests\bin\${{ matrix.architecture }}\Debug\net48\Balansoft.AIAddin.Tests.dll
           /Settings:.runsettings
-          /Platform:x86
-          '/Logger:trx;LogFileName=test-results.trx'
+          /Platform:${{ matrix.architecture }}
+          '/Logger:trx;LogFileName=test-results-${{ matrix.architecture }}.trx'
 
       # ─────────────────────────────────────────────
       # 7. Publicar resultados de test
@@ -378,13 +385,13 @@ jobs:
       - name: Pack (solo en main)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         shell: pwsh
-        run: .\scripts\Pack.ps1
+        run: .\scripts\Pack.ps1 -Configuration Release -Architecture ${{ matrix.architecture }}
 
       - name: Subir ZIP como artefacto (solo en main)
         if: github.event_name == 'push' && github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v4
         with:
-          name: Balansoft.AIAddin.Access-x86
-          path: Balansoft.AIAddin.Access-*-x86.zip
+          name: Balansoft.AIAddin.Access-${{ matrix.architecture }}
+          path: Balansoft.AIAddin.Access-*-${{ matrix.architecture }}.zip
           if-no-files-found: warn
           retention-days: 30

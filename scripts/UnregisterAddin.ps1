@@ -4,10 +4,11 @@
     Desregistra el add-in COM Balansoft.AIAddin.Access de HKCU.
 
 .DESCRIPTION
-    1. Verifica que se ejecuta en PowerShell x86.
-    2. Localiza la DLL del add-in (parámetro o ruta por defecto).
-    3. Ejecuta 'regasm /unregister <dll>' (silencioso, tolerante).
-    4. Elimina la clave Access Add-in de HKCU (idempotente).
+    1. Verifica la arquitectura de PowerShell coincida con -Architecture.
+    2. Localiza regasm de la arquitectura indicada.
+    3. Localiza la DLL del add-in (parámetro o ruta por defecto).
+    4. Ejecuta 'regasm /unregister <dll>' (silencioso, tolerante).
+    5. Elimina la clave Access Add-in de HKCU (idempotente).
 
     No toca HKLM. No requiere admin. Tolerante a DLL y clave ausentes.
     No borra los datos del usuario (%APPDATA%\Balansoft\AIAddin\).
@@ -15,25 +16,35 @@
 .PARAMETER Configuration
     Configuración del build: Debug o Release. Default: Release.
 
+.PARAMETER Architecture
+    Arquitectura objetivo: x86 o x64. Debe coincidir con Access instalada.
+    Default: x86.
+
 .PARAMETER DllPath
     Ruta explícita a Balansoft.AIAddin.Access.dll.
 
 .EXAMPLE
     PS> .\UnregisterAddin.ps1
-    Desregistra la DLL Release por defecto.
+    Desregistra la DLL Release x86 por defecto.
 
 .EXAMPLE
-    PS> .\UnregisterAddin.ps1 -Configuration Debug
-    Desregistra la DLL Debug.
+    PS> .\UnregisterAddin.ps1 -Configuration Debug -Architecture x86
+    Desregistra la DLL Debug x86.
+
+.EXAMPLE
+    PS> .\UnregisterAddin.ps1 -Architecture x64
+    Desregistra la DLL Release x64.
 
 .NOTES
     Autor:    Big Pickle (arquitecto)
-    Versión:  0.1.0
-    Requiere: PowerShell x86, .NET Framework 4.8.
+    Versión:  0.2.0
+    Requiere: PowerShell 5.1, .NET Framework 4.8.
 #>
 [CmdletBinding()]
 param(
     [string]$Configuration = "Release",
+    [ValidateSet("x86", "x64")]
+    [string]$Architecture = "x86",
     [string]$DllPath = ""
 )
 
@@ -44,24 +55,28 @@ $AddinKeyPath = "HKCU:\Software\Microsoft\Office\Access\Addins\Balansoft.AIAddin
 Write-Host ""
 Write-Host "=== UnregisterAddin ===" -ForegroundColor Cyan
 
-# 1. Verificar x86
-if ([Environment]::Is64BitProcess) {
-    Write-Host "ERROR: este script debe ejecutarse en PowerShell x86 (32-bit)." -ForegroundColor Red
-    Write-Host "Abre 'Windows PowerShell (x86)' desde el menú Inicio." -ForegroundColor Yellow
+# 1. Verificar arquitectura de PowerShell
+$is64Bit = [Environment]::Is64BitProcess
+$expected64 = ($Architecture -eq "x64")
+if ($is64Bit -ne $expected64) {
+    $archName = if ($expected64) { "x64" } else { "x86 (32-bit)" }
+    Write-Host "ERROR: este script debe ejecutarse en PowerShell $archName para -Architecture $Architecture." -ForegroundColor Red
+    Write-Host "Proceso actual: $([Environment]::Is64BitProcess ? 'x64' : 'x86')" -ForegroundColor Yellow
     exit 1
 }
-Write-Host "  + PowerShell x86 verificado" -ForegroundColor Green
+Write-Host "  + PowerShell $Architecture verificado" -ForegroundColor Green
 
 # 2. Localizar la DLL
 if ([string]::IsNullOrEmpty($DllPath)) {
     $root = (Resolve-Path (Join-Path $PSScriptRoot "..")).Path
-    $DllPath = Join-Path $root "src\Balansoft.AIAddin.Access\bin\x86\$Configuration\net48\Balansoft.AIAddin.Access.dll"
+    $DllPath = Join-Path $root "src\Balansoft.AIAddin.Access\bin\$Architecture\$Configuration\net48\Balansoft.AIAddin.Access.dll"
 }
 
 # 3. regasm /unregister (silencioso, si la DLL existe)
-$regasm = Join-Path $env:WINDIR "Microsoft.NET\Framework\v4.0.30319\regasm.exe"
+$frameworkDir = if ($Architecture -eq "x64") { "Framework64" } else { "Framework" }
+$regasm = Join-Path $env:WINDIR "Microsoft.NET\$frameworkDir\v4.0.30319\regasm.exe"
 if ((Test-Path $regasm) -and (Test-Path $DllPath)) {
-    Write-Host "Desregistrando COM..." -ForegroundColor DarkGray
+    Write-Host "Desregistrando COM ($Architecture)..." -ForegroundColor DarkGray
     & $regasm /unregister $DllPath 2>&1 | Out-Null
     Write-Host "  + regasm /unregister ejecutado" -ForegroundColor Green
 }
