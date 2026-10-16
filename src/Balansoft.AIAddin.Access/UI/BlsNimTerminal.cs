@@ -191,7 +191,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     private void InitializeComponent()
     {
         // Configuracion del Form
-        Text = "NIM Terminal";
+        Text = BlsStrings.Get("AppTitle");
         Size = new Size(1000, 700);
         MinimumSize = new Size(750, 480);
         StartPosition = FormStartPosition.CenterScreen;
@@ -278,7 +278,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
         _btnNuevaSesion = new Button
         {
-            Text = "+ Nueva",
+            Text = BlsStrings.Get("BtnNewSession"),
             Dock = DockStyle.Right,
             Width = 75,
             Height = 26,
@@ -288,7 +288,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
         _btnEliminarSesion = new Button
         {
-            Text = "Eliminar",
+            Text = BlsStrings.Get("BtnDeleteSession"),
             Dock = DockStyle.Right,
             Width = 70,
             Height = 26,
@@ -785,7 +785,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     {
         if (_currentTurnCts != null)
         {
-            MessageBox.Show("Hay una consulta en ejecución. Deténla antes de crear una nueva sesión.", "NIM Terminal", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(BlsStrings.Get("MsgTurnInProgress", "crear una nueva sesión"), BlsStrings.Get("AppTitle"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
 
@@ -797,15 +797,15 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             }
 
             var projectKeyInfo = _vbe.GetProjectKey();
-            var newDoc = await _history.CreateSessionAsync(projectKeyInfo.Key, "Nueva sesión", CancellationToken.None);
+            var newDoc = await _history.CreateSessionAsync(projectKeyInfo.Key, BlsStrings.Get("MsgSessionCreated"), CancellationToken.None);
             await RefreshSessionsListAsync(newDoc.SessionId);
-            _lblStatus.Text = "Nueva sesión creada";
+            _lblStatus.Text = BlsStrings.Get("MsgSessionCreated");
             _input.Focus();
         }
         catch (Exception ex)
         {
             _logger.Error("BlsNimTerminal", "Error creando nueva sesión", ex);
-            AppendError("Error creando nueva sesión: " + ex.Message);
+            AppendError(BlsStrings.Get("MsgErrorCreatingSession", ex.Message));
         }
     }
 
@@ -813,19 +813,19 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     {
         if (_currentTurnCts != null)
         {
-            MessageBox.Show("Hay una consulta en ejecución. Deténla antes de eliminar la sesión.", "NIM Terminal", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            MessageBox.Show(BlsStrings.Get("MsgTurnInProgress", "eliminar la sesión"), BlsStrings.Get("AppTitle"), MessageBoxButtons.OK, MessageBoxIcon.Information);
             return;
         }
 
         if (_cmbSessions.SelectedItem is not SessionMetadata meta)
         {
-            MessageBox.Show("Selecciona una sesión para eliminar.", "NIM Terminal", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            MessageBox.Show(BlsStrings.Get("MsgSelectSession", "eliminar"), BlsStrings.Get("AppTitle"), MessageBoxButtons.OK, MessageBoxIcon.Warning);
             return;
         }
 
         var confirm = MessageBox.Show(
-            $"¿Eliminar la sesión \"{meta.Title}\"?\nEsta acción no se puede deshacer.",
-            "NIM Terminal - Eliminar sesión",
+            BlsStrings.Get("MsgConfirmDelete", meta.Title),
+            BlsStrings.Get("MsgConfirmDeleteTitle", BlsStrings.Get("AppTitle")),
             MessageBoxButtons.YesNo,
             MessageBoxIcon.Question);
 
@@ -852,13 +852,13 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
                 await RefreshSessionsListAsync(selectSessionId: _currentDoc?.SessionId);
             }
 
-            _lblStatus.Text = $"Sesión eliminada: {meta.Title}";
+            _lblStatus.Text = BlsStrings.Get("MsgSessionDeleted", meta.Title);
             _input.Focus();
         }
         catch (Exception ex)
         {
             _logger.Error("BlsNimTerminal", "Error eliminando sesión", ex);
-            AppendError("Error eliminando sesión: " + ex.Message);
+            AppendError(BlsStrings.Get("MsgErrorDeletingSession", ex.Message));
         }
     }
 

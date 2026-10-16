@@ -76,6 +76,15 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1 -Configuration Release
 - La Terminal WinForms (`BlsNimTerminal`) expone un botón **Eliminar** junto al selector de sesiones, con confirmación de borrado.
 - El historial persiste en `%APPDATA%\Balansoft\AIAddin\history\{projectKey}\` con catálogo `sessions.json`.
 
+## Internacionalización (i18n)
+
+- `BlsStrings` (`Helpers/BlsStrings.cs`) provee textos localizados por clave sin dependencias externas.
+- Idioma por defecto: español (`es`). Inglés (`en`) disponible como segundo idioma.
+- Uso: `BlsStrings.Get("AppTitle")` o `BlsStrings.Get("MsgSessionLoaded", nombre)` con formato.
+- Cambiar idioma: `BlsStrings.CurrentLanguage = "en"` (valida que el idioma esté soportado).
+- Fallback: si una clave no existe en el idioma actual, se devuelve la versión en español; si no existe en ningún lado, se devuelve la propia clave.
+- Los textos de la Terminal (`BlsNimTerminal`) ya usan `BlsStrings` para título, botones y mensajes principales.
+
 ## Ejecutar un test o categoría enfocada
 
 Con `vstest` directamente (no `dotnet test`, que sustituye el host en net48):
