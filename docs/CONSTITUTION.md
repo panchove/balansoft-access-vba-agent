@@ -190,7 +190,7 @@ Para waits con timeout existe el helper `tests/.../Infrastructure/TaskTestExtens
 
 1. El build `Debug x86` o `Release x86` de los `.csproj` no sale limpio con
    `TreatWarningsAsErrors`.
-2. Los tests (sin integración NIM) no están verdes: 99/99.
+2. Los tests (sin integración NIM) no están verdes: 163/163.
 3. Falta cualquiera de los 39 documentos obligatorios.
 4. Aparece `Microsoft.Office.Interop` en `src/`.
 5. Aparece `dynamic` fuera de `Helpers/BlsComHelper.cs`.
@@ -344,7 +344,7 @@ Estos puntos del diagnóstico inicial ya no son deuda; se resuelven con
 
 ### Deuda conocida
 
-- `docs/design/20250103-nim-terminal.md:285-334` describe el `OnToolCall` /
+- `docs/design/ADR-008-NIM-TERMINAL.md:285-334` describe el `OnToolCall` /
   `OnDone` antiguos, que provocaban una carrera entre el loop de herramientas
   y el cierre del turno. El código ya no los sigue.
 - `HistoryMessage` soporta `ToolCalls` y `NimMessageSanitizer` sanea las secuencias

@@ -4,7 +4,7 @@ COM Add-in para Microsoft Access 2010+ (x86) que integra NVIDIA NIM en el VBE.
 Stack: C# 10, .NET Framework 4.8 (net48), WinForms, sin PIAs, enlace tardío vía `dynamic`.
 ProgID: `Balansoft.AIAddin.Access` | CLSID: `{d31bf73e-dbe1-4739-84bc-2c974fcd3171}`.
 
-> Estado: el producto **no carga todavía en Access** (falta el punto de entrada COM, spec 001). El bridge JSON-RPC, el cliente NIM y el almacén DPAPI están implementados con 99 tests verdes.
+> Estado: el producto **no carga todavía en Access** (falta el punto de entrada COM, spec 001). El bridge JSON-RPC, el cliente NIM y el almacén DPAPI están implementados con 163 tests verdes.
 
 ## Reglas duras (CI las verifica y bloquea el merge)
 
@@ -59,7 +59,7 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1 -Configuration Release
 ## Estructura
 
 - `src/Balansoft.AIAddin.Access/` — add-in COM, Core, Helpers, UI (WinForms)
-- `tests/Balansoft.AIAddin.Tests/` — 99 tests MSTest (fakes, sin COM real). `BalansoftTest.accdb` es la base de prueba para verificar en Access real (no se usa en la suite por defecto).
+- `tests/Balansoft.AIAddin.Tests/` — 163 tests MSTest (fakes, sin COM real). `BalansoftTest.accdb` es la base de prueba para verificar en Access real (no se usa en la suite por defecto).
 - `specs/` — contratos SDD (001–012, MAYÚSCULAS `NNN-<SLUG>.md`); `specs/README.md` es el índice con estados y tests por spec.
 - `docs/design/` — ADR (`ADR-NNN-<SLUG>.md`)
 - `.opencode/skills/` — skills de OpenCode (bls-*)
@@ -144,5 +144,5 @@ Requiere ADR (documentar por qué y evaluar compatibilidad net48/x86). No se agr
 1. Spec en `specs/` con criterios de aceptación verificables (primero).
 2. Implementar + tests (x86 y x64, sin PIAs, `dynamic` aislado).
 3. Verificar: build Debug + Release en **x86 y x64** y suite de tests verde en ambas arquitecturas.
-4. PR → CI ejecuta 8 gates: build, tests (99/99), documentos obligatorios, ausencia de PIAs, aislamiento de `dynamic`, ausencia de `Thread.Sleep` en tests, tests de ADR, referencias cruzadas en MDs.
+4. PR → CI ejecuta 8 gates: build, tests (163/163), documentos obligatorios, ausencia de PIAs, aislamiento de `dynamic`, ausencia de `Thread.Sleep` en tests, tests de ADR, referencias cruzadas en MDs.
 5. Merge a `main` → tag `v*` → release automático.

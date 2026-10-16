@@ -23,7 +23,7 @@ Permite chatear con modelos LLM, ejecutar *tool calls* y persistir el historial 
 - **Historial de chat** por proyecto (identidad = SHA‑256 de la ruta normalizada – ADR‑001).
 - **Terminal NIM** WinForms con loop de herramientas, *tool calls* y renderizado de resultados.
 - **Registro COM** per‑user / per‑machine mediante scripts PowerShell x86.
-- **CI/CD** completo: build x86, 99 tests unitarios, 8 gates de calidad, versionado SemVer automático (Nerdbank.GitVersioning) y release automático al pushear tag `v*`.
+- **CI/CD** completo: build x86, 163 tests unitarios, 8 gates de calidad, versionado SemVer automático (Nerdbank.GitVersioning) y release automático al pushear tag `v*`.
 
 ---
 
@@ -47,7 +47,7 @@ cd balansoft-access-vba-agent
 # 2. Compilar (Debug x86)
 dotnet build src\Balansoft.AIAddin.Access\Balansoft.AIAddin.Access.csproj -c Debug -p:Platform=x86
 
-# 3. Ejecutar tests (99/99)
+# 3. Ejecutar tests (163/163)
 dotnet vstest tests\Balansoft.AIAddin.Tests\bin\x86\Debug\net48\Balansoft.AIAddin.Tests.dll `
   /Settings:.runsettings /Platform:x86
 
@@ -75,7 +75,7 @@ Los tests de integración están marcados con `[TestCategory("Integration")]` y 
 src/
   Balansoft.AIAddin.Access/   # Add-in COM, Core, Helpers, UI (WinForms)
 tests/
-  Balansoft.AIAddin.Tests/    # 99 tests unitarios (MSTest)
+  Balansoft.AIAddin.Tests/    # 163 tests unitarios (MSTest)
 docs/
   design/                     # 8 docs de diseño + 4 ADR
   PRD.md

@@ -594,7 +594,7 @@ Cuando Nemotron termine, el PR debe:
 - [ ] Pasar todos los tests de CA-01..CA-08.
 - [ ] No modificar ninguna interfaz del §3.
 - [ ] Referenciar este doc en el commit:
-      `feat: bridge JSON-RPC (refs design/20250101-vbe-bridge.md)`.
+      `feat: bridge JSON-RPC (refs design/ADR-006-VBE-BRIDGE.md)`.
 
 ---
 
@@ -625,7 +625,7 @@ opencode --model nemotron-3-ultra \
 Lee en este orden:
 1. AGENTS.md
 2. .opencode/skills/bls-project-context/SKILL.md
-3. docs/design/20250101-vbe-bridge.md (el diseño)
+3. docs/design/ADR-006-VBE-BRIDGE.md (el diseño)
 4. Los skills citados en §11 del diseño
 5. Los ADRs referenciados en §14 del diseño
 
@@ -643,7 +643,7 @@ opencode --model big-pickle \
 Lee:
 1. AGENTS.md
 2. .opencode/skills/bls-workflow-nemotron/SKILL.md (checklist de rechazo)
-3. docs/design/20250101-vbe-bridge.md (diseño)
+3. docs/design/ADR-006-VBE-BRIDGE.md (diseño)
 4. El diff del PR
 
 Aplica el checklist de rechazo del skill bls-workflow-nemotron. Si todo pasa, aprueba con

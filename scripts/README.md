@@ -539,9 +539,9 @@ Luego re-registra:
 ## Referencias
 
 - `AGENTS.md` — reglas duras.
-- `docs/design/20250106-registration-scripts.md` — diseño de
+- `docs/design/ADR-010-REGISTRATION-SCRIPTS.md` — diseño de
   `RegisterAddin.ps1`, `UnregisterAddin.ps1`, `Pack.ps1`.
-- `docs/design/20250107-logging-version.md` — relación con
+- `docs/design/ADR-011-LOGGING-VERSION.md` — relación con
   `version.txt`.
 - `docs/manual-tests.md` — checklist pre-release.
 - `PRD.md` §7 FR-06 — requisito de scripts de (des)registro.

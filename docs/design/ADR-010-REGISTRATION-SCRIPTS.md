@@ -22,7 +22,7 @@ Big Pickle (arquitecto).
 Nemotron 3 Ultra (implementación) + Big Pickle (revisión).
 
 ## Depende de
-- `docs/design/20250107-logging-version.md` (BlsVersion usado en logs
+- `docs/design/ADR-011-LOGGING-VERSION.md` (BlsVersion usado en logs
   y en `version.txt`; ver nota en §10.2).
 
 ---
@@ -718,7 +718,7 @@ Cuando Nemotron termine, el PR debe:
 - [ ] Pasar tests de CA-01..CA-10 (los automatizables).
 - [ ] No modificar interfaces del §3.
 - [ ] Referenciar este doc en el commit:
-      `feat: registro HKCU + scripts (refs design/20250106-registration-scripts.md)`.
+      `feat: registro HKCU + scripts (refs design/ADR-010-REGISTRATION-SCRIPTS.md)`.
 - [ ] Incluir el checklist manual firmado para CA-03, CA-04, CA-05, CA-06,
       CA-09, CA-10.
 
@@ -732,7 +732,7 @@ Cuando Nemotron termine, el PR debe:
 - `.opencode/skills/bls-logging-errors/SKILL.md`.
 - `.opencode/skills/bls-testing-strategy/SKILL.md`.
 - `.opencode/skills/bls-workflow-nemotron/SKILL.md`.
-- `docs/design/20250107-logging-version.md` (BlsVersion usado en logs y
+- `docs/design/ADR-011-LOGGING-VERSION.md` (BlsVersion usado en logs y
   version.txt).
 ```
 
@@ -749,7 +749,7 @@ opencode --model nemotron-3-ultra \
 Lee en este orden:
 1. AGENTS.md
 2. .opencode/skills/bls-project-context/SKILL.md
-3. docs/design/20250106-registration-scripts.md (el diseño)
+3. docs/design/ADR-010-REGISTRATION-SCRIPTS.md (el diseño)
 4. Los skills citados en §13 del diseño
 
 Implementa la feature 'Registration + Packaging' exactamente como está
@@ -774,7 +774,7 @@ opencode --model big-pickle \
 Lee:
 1. AGENTS.md
 2. .opencode/skills/bls-workflow-nemotron/SKILL.md (checklist de rechazo)
-3. docs/design/20250106-registration-scripts.md (diseño)
+3. docs/design/ADR-010-REGISTRATION-SCRIPTS.md (diseño)
 4. El diff del PR
 
 Aplica el checklist de rechazo del skill bls-workflow-nemotron.
@@ -796,14 +796,14 @@ Si todo pasa, aprueba con 'LGTM'. Si algo falla, indica la regla violada."
 
 | # | Doc                                | Estado            | Depende de |
 |---|------------------------------------|-------------------|------------|
-| 1 | `20250101-vbe-bridge.md`           | ✅ Entregado       | —          |
-| 2 | `20250102-nim-client.md`           | ✅ Entregado       | —          |
-| 3 | `20250103-nim-terminal.md`         | ✅ Entregado       | #1, #2, #4 |
-| 4 | `20250104-secure-store.md`         | ✅ Entregado       | ADR-001    |
+| 1 | `ADR-006-VBE-BRIDGE.md`           | ✅ Entregado       | —          |
+| 2 | `ADR-007-NIM-CLIENT.md`           | ✅ Entregado       | —          |
+| 3 | `ADR-008-NIM-TERMINAL.md`         | ✅ Entregado       | #1, #2, #4 |
+| 4 | `ADR-009-SECURE-STORE.md`         | ✅ Entregado       | ADR-001    |
 | 5 | `20250105-chat-history.md`         | ⚠️ Fusionado en #4 | —          |
-| 6 | `20250106-registration-scripts.md` | ✅ Entregado       | #7         |
-| 7 | `20250107-logging-version.md`      | Pendiente         | —          |
-| 8 | `20250108-addin-lifecycle.md`      | Pendiente         | Todos      |
+| 6 | `ADR-010-REGISTRATION-SCRIPTS.md` | ✅ Entregado       | #7         |
+| 7 | `ADR-011-LOGGING-VERSION.md`      | Pendiente         | —          |
+| 8 | `ADR-012-ADDIN-LIFECYCLE.md`      | Pendiente         | Todos      |
 
 **Ruta crítica hacia el MVP:**
 ```

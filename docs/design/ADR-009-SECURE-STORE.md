@@ -664,7 +664,7 @@ Cuando Nemotron termine, el PR debe:
 - [ ] Pasar todos los tests de CA-01..CA-13.
 - [ ] No modificar interfaces del §3.
 - [ ] Referenciar este doc en el commit:
-      `feat: secure store DPAPI + chat history (refs design/20250104-secure-store.md)`.
+      `feat: secure store DPAPI + chat history (refs design/ADR-009-SECURE-STORE.md)`.
 
 ---
 
@@ -692,7 +692,7 @@ opencode --model nemotron-3-ultra \
 Lee en este orden:
 1. AGENTS.md
 2. .opencode/skills/bls-project-context/SKILL.md
-3. docs/design/20250104-secure-store.md (el diseño)
+3. docs/design/ADR-009-SECURE-STORE.md (el diseño)
 4. Los skills citados en §11 del diseño
 5. ADR-001 y ADR-003
 
@@ -711,7 +711,7 @@ opencode --model big-pickle \
 Lee:
 1. AGENTS.md
 2. .opencode/skills/bls-workflow-nemotron/SKILL.md (checklist de rechazo)
-3. docs/design/20250104-secure-store.md (diseño)
+3. docs/design/ADR-009-SECURE-STORE.md (diseño)
 4. El diff del PR
 
 Aplica el checklist de rechazo del skill bls-workflow-nemotron.
@@ -731,14 +731,14 @@ Si todo pasa, aprueba con 'LGTM'. Si algo falla, indica la regla violada."
 
 | # | Doc                                | Estado            | Depende de |
 |---|------------------------------------|-------------------|------------|
-| 1 | `20250101-vbe-bridge.md`           | ✅ Entregado       | —          |
-| 2 | `20250102-nim-client.md`           | ✅ Entregado       | —          |
-| 3 | `20250103-nim-terminal.md`         | ✅ Entregado       | #1, #2     |
-| 4 | `20250104-secure-store.md`         | ✅ Entregado       | ADR-001    |
+| 1 | `ADR-006-VBE-BRIDGE.md`           | ✅ Entregado       | —          |
+| 2 | `ADR-007-NIM-CLIENT.md`           | ✅ Entregado       | —          |
+| 3 | `ADR-008-NIM-TERMINAL.md`         | ✅ Entregado       | #1, #2     |
+| 4 | `ADR-009-SECURE-STORE.md`         | ✅ Entregado       | ADR-001    |
 | 5 | `20250105-chat-history.md`         | ⚠️ Fusionado en #4 | —          |
-| 6 | `20250106-registration-scripts.md` | Pendiente         | —          |
-| 7 | `20250107-logging-version.md`      | Pendiente         | —          |
-| 8 | `20250108-addin-lifecycle.md`      | Pendiente         | Todos      |
+| 6 | `ADR-010-REGISTRATION-SCRIPTS.md` | Pendiente         | —          |
+| 7 | `ADR-011-LOGGING-VERSION.md`      | Pendiente         | —          |
+| 8 | `ADR-012-ADDIN-LIFECYCLE.md`      | Pendiente         | Todos      |
 
 **Nota:** el #5 (`chat-history`) quedó fusionado en #4 porque comparten
 ciclo de vida, rutas y reglas de seguridad. Un solo PR los entrega.
