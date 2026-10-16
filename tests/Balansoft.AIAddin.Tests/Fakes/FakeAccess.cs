@@ -161,4 +161,24 @@ public sealed class FakeAccess : IBlsAccess
         int count = controls?.Count ?? 0;
         return new CreateFormResult(name, true, count, $"Formulario fake '{name}' creado con {count} controles.");
     }
+
+    public TableOpResult CreateTable(string name, IReadOnlyList<CreateColumnSpec> columns)
+    {
+        BlsContract.RequiresNotNullOrWhiteSpace(name, nameof(name));
+        BlsContract.RequiresNotNull(columns, nameof(columns));
+        return new TableOpResult(name, true, columns.Count, $"Tabla fake '{name}' creada con {columns.Count} columnas.");
+    }
+
+    public QueryOpResult CreateQuery(string name, string sql)
+    {
+        BlsContract.RequiresNotNullOrWhiteSpace(name, nameof(name));
+        BlsContract.RequiresNotNullOrWhiteSpace(sql, nameof(sql));
+        return new QueryOpResult(name, true, $"Consulta fake '{name}' creada con éxito.");
+    }
+
+    public SqlExecutionResult ExecuteSql(string sql)
+    {
+        BlsContract.RequiresNotNullOrWhiteSpace(sql, nameof(sql));
+        return new SqlExecutionResult(true, 1, "SQL fake ejecutado con éxito.");
+    }
 }

@@ -1381,6 +1381,9 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         var deleteModuleSchema = JsonDocument.Parse("{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"confirm\":{\"type\":\"boolean\"}}}").RootElement;
         var objectDetailSchema = JsonDocument.Parse("{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"type\":{\"type\":\"string\"},\"include_sql\":{\"type\":\"boolean\"},\"max_fields\":{\"type\":\"integer\"}}}").RootElement;
         var createFormSchema = JsonDocument.Parse("{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"caption\":{\"type\":\"string\"},\"controls\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"type\":{\"type\":\"string\",\"enum\":[\"TextBox\",\"Label\",\"CommandButton\"]},\"name\":{\"type\":\"string\"},\"label\":{\"type\":\"string\"},\"caption\":{\"type\":\"string\"},\"is_password\":{\"type\":\"boolean\"}},\"required\":[\"type\"]}}},\"required\":[\"name\"]}").RootElement;
+        var createTableSchema = JsonDocument.Parse("{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"columns\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"type\":{\"type\":\"string\",\"enum\":[\"AutoNumber\",\"Text\",\"Memo\",\"Integer\",\"Long\",\"Byte\",\"Date\",\"Currency\",\"Boolean\",\"Double\",\"Single\"]},\"size\":{\"type\":\"integer\"},\"primary_key\":{\"type\":\"boolean\"},\"required\":{\"type\":\"boolean\"}},\"required\":[\"name\",\"type\"]}}},\"required\":[\"name\",\"columns\"]}").RootElement;
+        var createQuerySchema = JsonDocument.Parse("{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"sql\":{\"type\":\"string\"}},\"required\":[\"name\",\"sql\"]}").RootElement;
+        var executeSqlSchema = JsonDocument.Parse("{\"type\":\"object\",\"properties\":{\"sql\":{\"type\":\"string\"}},\"required\":[\"sql\"]}").RootElement;
 
         return new List<ToolDefinition>
         {
@@ -1394,7 +1397,10 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             new ToolDefinition("project_summary", "Resumen del proyecto Access", emptySchema),
             new ToolDefinition("list_objects", "Lista objetos por categoria", emptySchema),
             new ToolDefinition("object_detail", "Detalle de un objeto", objectDetailSchema),
-            new ToolDefinition("create_form", "Crea un nuevo formulario Access con controles (TextBox, Label, CommandButton)", createFormSchema)
+            new ToolDefinition("create_form", "Crea un nuevo formulario Access con controles (TextBox, Label, CommandButton)", createFormSchema),
+            new ToolDefinition("create_table", "Crea una tabla en la base de datos Access con sus columnas y clave primaria", createTableSchema),
+            new ToolDefinition("create_query", "Crea o reemplaza una consulta o vista guardada (QueryDef)", createQuerySchema),
+            new ToolDefinition("execute_sql", "Ejecuta una sentencia SQL DDL/DML (CREATE TABLE, INSERT, UPDATE, ALTER, etc.)", executeSqlSchema)
         };
     }
 

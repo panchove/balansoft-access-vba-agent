@@ -29,7 +29,10 @@ internal sealed class SystemPromptBuilder : ISystemPromptBuilder
         "- project_summary: resumen del proyecto Access (nombre, projectKey, conteos)\n" +
         "- list_objects: lista objetos por categoria (tablas, queries, formularios, reportes, macros)\n" +
         "- object_detail: detalle de un objeto especifico (campos, SQL, controles)\n" +
-        "- create_form: crea un formulario Access con controles (TextBox, Label, CommandButton) y lo guarda\n\n" +
+        "- create_form: crea un formulario Access con controles (TextBox, Label, CommandButton) y lo guarda\n" +
+        "- create_table: crea una tabla en Access especificando nombre, columnas, tipos y clave primaria\n" +
+        "- create_query: crea o actualiza una consulta SQL o vista guardada (QueryDef)\n" +
+        "- execute_sql: ejecuta cualquier sentencia SQL DDL/DML (CREATE TABLE, INSERT, UPDATE, ALTER, etc.)\n\n" +
         "Proyecto actual:\n" +
         "- Nombre: {ProjectName}\n" +
         "- ProjectKey: {ProjectKey}\n" +

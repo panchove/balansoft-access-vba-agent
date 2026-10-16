@@ -386,5 +386,72 @@ public class JsonRpcDispatcherTests
         Assert.AreEqual(-32602, response.Error.Code);
         Assert.IsTrue(response.Error.Message.Contains("InvalidParamsException"));
     }
+
+    [TestMethod]
+    public async Task Bridge_CreateTable_EjecutaYDevuelveResult()
+    {
+        // Arrange
+        var request = CreateRequest("create_table", 1, new
+        {
+            name = "Usuarios",
+            columns = new object[]
+            {
+                new { name = "Id", type = "AutoNumber", primary_key = true, required = true },
+                new { name = "Nombre", type = "Text", size = 100, primary_key = false, required = true },
+                new { name = "Email", type = "Text", size = 150, primary_key = false, required = false }
+            }
+        });
+
+        // Act
+        var response = await _dispatcher.DispatchAsync(request, CancellationToken.None);
+
+        // Assert
+        Assert.IsNull(response.Error);
+        Assert.IsNotNull(response.Result);
+        var result = (Balansoft.AIAddin.AccessIntegration.TableOpResult)response.Result!;
+        Assert.AreEqual("Usuarios", result.Name);
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual(3, result.ColumnCount);
+    }
+
+    [TestMethod]
+    public async Task Bridge_CreateQuery_EjecutaYDevuelveResult()
+    {
+        // Arrange
+        var request = CreateRequest("create_query", 1, new
+        {
+            name = "qryUsuariosActivos",
+            sql = "SELECT Id, Nombre FROM Usuarios"
+        });
+
+        // Act
+        var response = await _dispatcher.DispatchAsync(request, CancellationToken.None);
+
+        // Assert
+        Assert.IsNull(response.Error);
+        Assert.IsNotNull(response.Result);
+        var result = (Balansoft.AIAddin.AccessIntegration.QueryOpResult)response.Result!;
+        Assert.AreEqual("qryUsuariosActivos", result.Name);
+        Assert.IsTrue(result.Success);
+    }
+
+    [TestMethod]
+    public async Task Bridge_ExecuteSql_EjecutaYDevuelveResult()
+    {
+        // Arrange
+        var request = CreateRequest("execute_sql", 1, new
+        {
+            sql = "CREATE TABLE Clientes (Id AUTOINCREMENT PRIMARY KEY, Nombre VARCHAR(50))"
+        });
+
+        // Act
+        var response = await _dispatcher.DispatchAsync(request, CancellationToken.None);
+
+        // Assert
+        Assert.IsNull(response.Error);
+        Assert.IsNotNull(response.Result);
+        var result = (Balansoft.AIAddin.AccessIntegration.SqlExecutionResult)response.Result!;
+        Assert.IsTrue(result.Success);
+    }
 }
 

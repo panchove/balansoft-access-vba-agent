@@ -704,5 +704,176 @@ namespace Balansoft.AIAddin.Access.Helpers
                 throw new BlsComException("CreateAccessForm", BlsComCategory.Other, $"Fallo al crear formulario '{name}': {ex.Message}", ex);
             }
         }
+
+        /// <summary>
+        /// Crea una nueva tabla en la base de datos Access activa utilizando DDL SQL vía CurrentDb.
+        /// </summary>
+        /// <param name="accessApp">Instancia nativa de Microsoft Access.</param>
+        /// <param name="name">Nombre de la tabla.</param>
+        /// <param name="columns">Definición de las columnas.</param>
+        /// <returns>Resultado de la operación <see cref="TableOpResult"/>.</returns>
+        public static TableOpResult CreateAccessTable(
+            object? accessApp,
+            string name,
+            System.Collections.Generic.IReadOnlyList<CreateColumnSpec> columns)
+        {
+            BlsContract.RequiresNotNullOrWhiteSpace(name, nameof(name));
+            BlsContract.RequiresNotNull(columns, nameof(columns));
+
+            if (accessApp == null)
+            {
+                throw new BlsComException("CreateAccessTable", BlsComCategory.UnexpectedType, "accessApp es null", null);
+            }
+
+            try
+            {
+                dynamic app = accessApp;
+                dynamic db = app.CurrentDb();
+                if (db == null)
+                {
+                    throw new BlsComException("CreateAccessTable", BlsComCategory.UnexpectedType, "CurrentDb() devolvió null", null);
+                }
+
+                // Construcción de la sentencia SQL CREATE TABLE
+                var colDefs = new System.Collections.Generic.List<string>();
+                string? pkCol = null;
+
+                foreach (var col in columns)
+                {
+                    string colName = col.Name.Trim();
+                    string rawType = col.Type.Trim().ToUpperInvariant();
+
+                    string accessType = rawType switch
+                    {
+                        "AUTONUMBER" or "IDENTITY" => "AUTOINCREMENT",
+                        "INT" or "INTEGER" => "INTEGER",
+                        "LONG" => "INTEGER",
+                        "SHORT" or "SMALLINT" => "SMALLINT",
+                        "BYTE" => "BYTE",
+                        "TEXT" or "VARCHAR" or "STRING" => col.Size.HasValue && col.Size.Value > 0 ? $"VARCHAR({col.Size.Value})" : "VARCHAR(255)",
+                        "MEMO" or "NOTE" or "LONGTEXT" => "MEMO",
+                        "DATE" or "DATETIME" => "DATETIME",
+                        "CURRENCY" or "MONEY" => "CURRENCY",
+                        "BOOLEAN" or "YESNO" or "BIT" => "YESNO",
+                        "DOUBLE" or "FLOAT" => "DOUBLE",
+                        "SINGLE" => "SINGLE",
+                        "DECIMAL" or "NUMERIC" => "DECIMAL",
+                        _ => rawType
+                    };
+
+                    string colSql = $"[{colName}] {accessType}";
+                    if (col.Required && !rawType.Contains("AUTO"))
+                    {
+                        colSql += " NOT NULL";
+                    }
+
+                    if (col.PrimaryKey)
+                    {
+                        pkCol = colName;
+                    }
+
+                    colDefs.Add(colSql);
+                }
+
+                if (!string.IsNullOrEmpty(pkCol))
+                {
+                    colDefs.Add($"CONSTRAINT [PK_{name}] PRIMARY KEY ([{pkCol}])");
+                }
+
+                string ddl = $"CREATE TABLE [{name}] ({string.Join(", ", colDefs)})";
+                db.Execute(ddl, 128); // dbFailOnError = 128
+
+                return new TableOpResult(name, true, columns.Count, $"Tabla '{name}' creada con éxito con {columns.Count} columnas.");
+            }
+            catch (Exception ex)
+            {
+                throw new BlsComException("CreateAccessTable", BlsComCategory.Other, $"Error al crear tabla '{name}': {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Crea o reemplaza una consulta o vista guardada (QueryDef) en Access.
+        /// </summary>
+        /// <param name="accessApp">Instancia nativa de Microsoft Access.</param>
+        /// <param name="name">Nombre de la consulta.</param>
+        /// <param name="sql">Sentencia SQL de la consulta.</param>
+        /// <returns>Resultado de la operación <see cref="QueryOpResult"/>.</returns>
+        public static QueryOpResult CreateAccessQuery(
+            object? accessApp,
+            string name,
+            string sql)
+        {
+            BlsContract.RequiresNotNullOrWhiteSpace(name, nameof(name));
+            BlsContract.RequiresNotNullOrWhiteSpace(sql, nameof(sql));
+
+            if (accessApp == null)
+            {
+                throw new BlsComException("CreateAccessQuery", BlsComCategory.UnexpectedType, "accessApp es null", null);
+            }
+
+            try
+            {
+                dynamic app = accessApp;
+                dynamic db = app.CurrentDb();
+                if (db == null)
+                {
+                    throw new BlsComException("CreateAccessQuery", BlsComCategory.UnexpectedType, "CurrentDb() devolvió null", null);
+                }
+
+                // Si ya existe la consulta con ese nombre, eliminarla antes para recrearla
+                try
+                {
+                    db.QueryDefs.Delete(name);
+                }
+                catch
+                {
+                    // No existía previamente
+                }
+
+                db.CreateQueryDef(name, sql);
+                return new QueryOpResult(name, true, $"Consulta '{name}' creada o actualizada con éxito.");
+            }
+            catch (Exception ex)
+            {
+                throw new BlsComException("CreateAccessQuery", BlsComCategory.Other, $"Error al crear consulta '{name}': {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Ejecuta una instrucción SQL de acción o definición (DDL/DML) sobre CurrentDb.
+        /// </summary>
+        /// <param name="accessApp">Instancia nativa de Microsoft Access.</param>
+        /// <param name="sql">Sentencia SQL a ejecutar.</param>
+        /// <returns>Resultado de la ejecución <see cref="SqlExecutionResult"/>.</returns>
+        public static SqlExecutionResult ExecuteAccessSql(
+            object? accessApp,
+            string sql)
+        {
+            BlsContract.RequiresNotNullOrWhiteSpace(sql, nameof(sql));
+
+            if (accessApp == null)
+            {
+                throw new BlsComException("ExecuteAccessSql", BlsComCategory.UnexpectedType, "accessApp es null", null);
+            }
+
+            try
+            {
+                dynamic app = accessApp;
+                dynamic db = app.CurrentDb();
+                if (db == null)
+                {
+                    throw new BlsComException("ExecuteAccessSql", BlsComCategory.UnexpectedType, "CurrentDb() devolvió null", null);
+                }
+
+                db.Execute(sql, 128); // dbFailOnError = 128
+                int affected = (int)db.RecordsAffected;
+
+                return new SqlExecutionResult(true, affected, $"Sentencia SQL ejecutada correctamente. Registros afectados: {affected}.");
+            }
+            catch (Exception ex)
+            {
+                throw new BlsComException("ExecuteAccessSql", BlsComCategory.Other, $"Error al ejecutar SQL: {ex.Message}", ex);
+            }
+        }
     }
 }

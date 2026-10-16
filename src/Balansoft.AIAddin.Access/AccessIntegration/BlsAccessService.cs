@@ -42,5 +42,26 @@ namespace Balansoft.AIAddin.AccessIntegration
             BlsContract.RequiresNotNullOrWhiteSpace(name, nameof(name));
             return BlsComHelper.CreateAccessForm(_accessApp, name, caption, controls);
         }
+
+        public TableOpResult CreateTable(string name, IReadOnlyList<CreateColumnSpec> columns)
+        {
+            BlsContract.RequiresNotNullOrWhiteSpace(name, nameof(name));
+            BlsContract.RequiresNotNull(columns, nameof(columns));
+            BlsContract.Requires(columns.Count > 0, "Debe especificar al menos una columna para la tabla.");
+            return BlsComHelper.CreateAccessTable(_accessApp, name, columns);
+        }
+
+        public QueryOpResult CreateQuery(string name, string sql)
+        {
+            BlsContract.RequiresNotNullOrWhiteSpace(name, nameof(name));
+            BlsContract.RequiresNotNullOrWhiteSpace(sql, nameof(sql));
+            return BlsComHelper.CreateAccessQuery(_accessApp, name, sql);
+        }
+
+        public SqlExecutionResult ExecuteSql(string sql)
+        {
+            BlsContract.RequiresNotNullOrWhiteSpace(sql, nameof(sql));
+            return BlsComHelper.ExecuteAccessSql(_accessApp, sql);
+        }
     }
 }

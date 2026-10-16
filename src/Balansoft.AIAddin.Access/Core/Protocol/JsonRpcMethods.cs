@@ -25,8 +25,11 @@ public static class JsonRpcMethods
     public const string ListObjects      = "list_objects";
     public const string ObjectDetail     = "object_detail";
 
-    // Access authoring (1)
+    // Access authoring (4)
     public const string CreateForm       = "create_form";
+    public const string CreateTable      = "create_table";
+    public const string CreateQuery      = "create_query";
+    public const string ExecuteSql       = "execute_sql";
 
     /// <summary>
     /// Conjunto inmutable con los métodos para validación de whitelist.
@@ -36,6 +39,6 @@ public static class JsonRpcMethods
         {
             ListModules, ReadModule, WriteModule, CreateModule, DeleteModule,
             GetSelection, GetActiveModule, ProjectSummary, ListObjects, ObjectDetail,
-            CreateForm
+            CreateForm, CreateTable, CreateQuery, ExecuteSql
         };
 }

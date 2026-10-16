@@ -88,6 +88,14 @@ public sealed class JsonRpcDispatcher
                     GetStringParam(request, "name"),
                     GetOptionalStringParam(request, "caption"),
                     GetControlsParam(request, "controls"))),
+                JsonRpcMethods.CreateTable       => await HandleAccessAsync(request, ct, () => _access.CreateTable(
+                    GetStringParam(request, "name"),
+                    GetColumnsParam(request, "columns"))),
+                JsonRpcMethods.CreateQuery       => await HandleAccessAsync(request, ct, () => _access.CreateQuery(
+                    GetStringParam(request, "name"),
+                    GetStringParam(request, "sql"))),
+                JsonRpcMethods.ExecuteSql        => await HandleAccessAsync(request, ct, () => _access.ExecuteSql(
+                    GetStringParam(request, "sql"))),
                 _ => JsonRpcResponse.CreateError(request.Id, new JsonRpcError(
                     JsonRpcErrorCodes.MethodNotFound,
                     $"Método no implementado: {request.Method}",
@@ -279,6 +287,45 @@ public sealed class JsonRpcDispatcher
                 list.Add(new CreateFormControl(type, ctrlName, label, caption, isPassword));
             }
         }
+        return list;
+    }
+
+    private IReadOnlyList<CreateColumnSpec> GetColumnsParam(JsonRpcRequest request, string name)
+    {
+        if (!request.Params.HasValue || request.Params.Value.ValueKind == JsonValueKind.Null)
+            throw new BlsInvalidParamsException($"Parámetro requerido: {name}");
+
+        var elem = request.Params.Value;
+        if (elem.ValueKind != JsonValueKind.Object)
+            throw new BlsInvalidParamsException("params debe ser un objeto");
+
+        if (!elem.TryGetProperty(name, out var prop) || prop.ValueKind != JsonValueKind.Array)
+            throw new BlsInvalidParamsException($"Parámetro '{name}' debe ser un array de columnas");
+
+        var list = new List<CreateColumnSpec>();
+        foreach (var item in prop.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Object) continue;
+
+            string colName = item.TryGetProperty("name", out var pName) && pName.ValueKind == JsonValueKind.String ? pName.GetString() ?? "" : "";
+            string colType = item.TryGetProperty("type", out var pType) && pType.ValueKind == JsonValueKind.String ? pType.GetString() ?? "" : "";
+            int? size = item.TryGetProperty("size", out var pSize) && pSize.ValueKind == JsonValueKind.Number ? pSize.GetInt32() : null;
+            bool pk = item.TryGetProperty("primary_key", out var pPk) && (pPk.ValueKind == JsonValueKind.True || pPk.ValueKind == JsonValueKind.False) && pPk.GetBoolean();
+            bool req = item.TryGetProperty("required", out var pReq) && (pReq.ValueKind == JsonValueKind.True || pReq.ValueKind == JsonValueKind.False) && pReq.GetBoolean();
+
+            if (string.IsNullOrWhiteSpace(colName) || string.IsNullOrWhiteSpace(colType))
+            {
+                throw new BlsInvalidParamsException("Cada columna debe especificar 'name' y 'type'");
+            }
+
+            list.Add(new CreateColumnSpec(colName, colType, size, pk, req));
+        }
+
+        if (list.Count == 0)
+        {
+            throw new BlsInvalidParamsException($"'{name}' no puede estar vacío");
+        }
+
         return list;
     }
 

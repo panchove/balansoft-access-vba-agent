@@ -98,6 +98,41 @@ public sealed record CreateFormResult(
     string? Message = null);
 
 /// <summary>
+/// Especificación de columna para creación de tablas en Access.
+/// </summary>
+public sealed record CreateColumnSpec(
+    string Name,
+    string Type,
+    int? Size = null,
+    bool PrimaryKey = false,
+    bool Required = false);
+
+/// <summary>
+/// Resultado de crear una tabla Access.
+/// </summary>
+public sealed record TableOpResult(
+    string Name,
+    bool Success,
+    int ColumnCount,
+    string? Message = null);
+
+/// <summary>
+/// Resultado de crear una consulta/vista Access.
+/// </summary>
+public sealed record QueryOpResult(
+    string Name,
+    bool Success,
+    string? Message = null);
+
+/// <summary>
+/// Resultado de ejecutar una instrucción DDL/DML SQL en Access.
+/// </summary>
+public sealed record SqlExecutionResult(
+    bool Success,
+    int RecordsAffected,
+    string? Message = null);
+
+/// <summary>
 /// Contrato de operaciones sobre objetos Access.
 /// Implementado por BlsAccessService.
 /// </summary>
@@ -114,4 +149,13 @@ public interface IBlsAccess
 
     /// <summary>Crea un nuevo formulario Access con sus controles y lo guarda.</summary>
     CreateFormResult CreateForm(string name, string? caption, IReadOnlyList<CreateFormControl>? controls);
+
+    /// <summary>Crea una nueva tabla en Access con las columnas especificadas.</summary>
+    TableOpResult CreateTable(string name, IReadOnlyList<CreateColumnSpec> columns);
+
+    /// <summary>Crea o reemplaza una consulta o vista SQL (QueryDef) en Access.</summary>
+    QueryOpResult CreateQuery(string name, string sql);
+
+    /// <summary>Ejecuta una sentencia SQL DDL/DML (CREATE TABLE, INSERT, UPDATE, ALTER, etc.) en CurrentDb.</summary>
+    SqlExecutionResult ExecuteSql(string sql);
 }
