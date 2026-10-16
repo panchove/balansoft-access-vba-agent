@@ -297,7 +297,7 @@ Todos preservan `Message` original cuando viene de COM.
 ## Referencias
 
 - `AGENTS.md` reglas 1, 2, 3.
-- `docs/design/ADR-001-project-identity.md`.
+- `docs/design/ADR-001-PROJECT-IDENTITY.md`.
 - PRD §7 FR-03, FR-05.
 - `.opencode/skills/bls-com-late-binding/SKILL.md` (envoltura COM, `dynamic` aislado).
 - `.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md` (handlers que llaman a este servicio).
@@ -309,15 +309,15 @@ Todos preservan `Message` original cuando viene de COM.
 
 Las siguientes skills están directamente relacionadas y deben consultarse según el área de trabajo:
 
-- [.opencode/skills/bls-project-context/SKILL.md](file:///c:/desarrollos/balansoft-access-vba-agent/.opencode/skills/bls-project-context/SKILL.md) — Skill 00: Contexto y visión del proyecto
-- [.opencode/skills/bls-com-late-binding/SKILL.md](file:///c:/desarrollos/balansoft-access-vba-agent/.opencode/skills/bls-com-late-binding/SKILL.md) — Skill 01: COM late-binding sin PIAs
-- [.opencode/skills/bls-vbe-automation/SKILL.md](file:///c:/desarrollos/balansoft-access-vba-agent/.opencode/skills/bls-vbe-automation/SKILL.md) — Skill 02: Automatización VBE
-- [.opencode/skills/bls-nim-client-streaming/SKILL.md](file:///c:/desarrollos/balansoft-access-vba-agent/.opencode/skills/bls-nim-client-streaming/SKILL.md) — Skill 03: Cliente NIM streaming
-- [.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md](file:///c:/desarrollos/balansoft-access-vba-agent/.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md) — Skill 04: Bridge JSON-RPC sobre Named Pipe
-- [.opencode/skills/bls-secure-store-dpapi/SKILL.md](file:///c:/desarrollos/balansoft-access-vba-agent/.opencode/skills/bls-secure-store-dpapi/SKILL.md) — Skill 05: DPAPI y almacenamiento seguro
-- [.opencode/skills/bls-winforms-threading/SKILL.md](file:///c:/desarrollos/balansoft-access-vba-agent/.opencode/skills/bls-winforms-threading/SKILL.md) — Skill 06: WinForms y threading
-- [.opencode/skills/bls-registration-scripts/SKILL.md](file:///c:/desarrollos/balansoft-access-vba-agent/.opencode/skills/bls-registration-scripts/SKILL.md) — Skill 07: Registro HKCU + scripts
-- [.opencode/skills/bls-logging-errors/SKILL.md](file:///c:/desarrollos/balansoft-access-vba-agent/.opencode/skills/bls-logging-errors/SKILL.md) — Skill 08: Logging y propagación de errores
-- [.opencode/skills/bls-testing-strategy/SKILL.md](file:///c:/desarrollos/balansoft-access-vba-agent/.opencode/skills/bls-testing-strategy/SKILL.md) — Skill 09: Estrategia de tests
-- [.opencode/skills/bls-workflow-nemotron/SKILL.md](file:///c:/desarrollos/balansoft-access-vba-agent/.opencode/skills/bls-workflow-nemotron/SKILL.md) — Skill 10: Workflow Nemotron 3 Ultra
-- [.opencode/agents/bls-iso.md](file:///c:/desarrollos/balansoft-access-vba-agent/.opencode/agents/bls-iso.md) — Agente de cumplimiento y gobernanza ISO/IEC (42001, 27001, 25010, 29148, 12207)
+- [.opencode/skills/bls-project-context/SKILL.md](.opencode/skills/bls-project-context/SKILL.md) — Skill 00: Contexto y visión del proyecto
+- [.opencode/skills/bls-com-late-binding/SKILL.md](.opencode/skills/bls-com-late-binding/SKILL.md) — Skill 01: COM late-binding sin PIAs
+- [.opencode/skills/bls-vbe-automation/SKILL.md](.opencode/skills/bls-vbe-automation/SKILL.md) — Skill 02: Automatización VBE
+- [.opencode/skills/bls-nim-client-streaming/SKILL.md](.opencode/skills/bls-nim-client-streaming/SKILL.md) — Skill 03: Cliente NIM streaming
+- [.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md](.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md) — Skill 04: Bridge JSON-RPC sobre Named Pipe
+- [.opencode/skills/bls-secure-store-dpapi/SKILL.md](.opencode/skills/bls-secure-store-dpapi/SKILL.md) — Skill 05: DPAPI y almacenamiento seguro
+- [.opencode/skills/bls-winforms-threading/SKILL.md](.opencode/skills/bls-winforms-threading/SKILL.md) — Skill 06: WinForms y threading
+- [.opencode/skills/bls-registration-scripts/SKILL.md](.opencode/skills/bls-registration-scripts/SKILL.md) — Skill 07: Registro HKCU + scripts
+- [.opencode/skills/bls-logging-errors/SKILL.md](.opencode/skills/bls-logging-errors/SKILL.md) — Skill 08: Logging y propagación de errores
+- [.opencode/skills/bls-testing-strategy/SKILL.md](.opencode/skills/bls-testing-strategy/SKILL.md) — Skill 09: Estrategia de tests
+- [.opencode/skills/bls-workflow-nemotron/SKILL.md](.opencode/skills/bls-workflow-nemotron/SKILL.md) — Skill 10: Workflow Nemotron 3 Ultra
+- [.opencode/agents/bls-iso.md](.opencode/agents/bls-iso.md) — Agente de cumplimiento y gobernanza ISO/IEC (42001, 27001, 25010, 29148, 12207)

@@ -32,7 +32,7 @@ permissions:
 
 ## Ámbito
 
-- Proyectos: `src/Balansoft.AIAddin.Access` (add-in) y `tests/Balansoft.AIAddin.Tests` (99 tests unitarios MSTest).
+- Proyectos: `src/Balansoft.AIAddin.Access` (add-in) y `tests/Balansoft.AIAddin.Tests` (165 tests unitarios MSTest).
 - No se admiten tests de integración contra NIM real sin `NIM_API_KEY`; están excluidos de CI por filtro `TestCategory!=Integration`.
 - Todas las ejecuciones deben dirigirse a arquitectura **x86** (`Platform=x86`).
 

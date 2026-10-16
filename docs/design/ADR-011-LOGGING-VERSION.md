@@ -22,7 +22,7 @@ Big Pickle (arquitecto).
 Nemotron 3 Ultra (implementación) + Big Pickle (revisión).
 
 ## Depende de
-- `docs/design/20250106-registration-scripts.md` (version.txt en el ZIP).
+- `docs/design/ADR-010-REGISTRATION-SCRIPTS.md` (version.txt en el ZIP).
 
 ---
 
@@ -638,7 +638,7 @@ En este orden:
 2. `.opencode/skills/bls-project-context/SKILL.md`.
 3. `.opencode/skills/bls-logging-errors/SKILL.md` (este dominio).
 4. `.opencode/skills/bls-testing-strategy/SKILL.md` (temp dirs, fakes).
-5. `docs/design/20250106-registration-scripts.md` (version.txt en el
+5. `docs/design/ADR-010-REGISTRATION-SCRIPTS.md` (version.txt en el
    ZIP).
 
 Opcional:
@@ -679,7 +679,7 @@ Cuando Nemotron termine, el PR debe:
 - [ ] Pasar todos los tests de CA-01..CA-13.
 - [ ] No modificar interfaces del §3.
 - [ ] Referenciar este doc en el commit:
-      `feat: logger + version (refs design/20250107-logging-version.md)`.
+      `feat: logger + version (refs design/ADR-011-LOGGING-VERSION.md)`.
 
 ---
 
@@ -689,9 +689,9 @@ Cuando Nemotron termine, el PR debe:
 - `PRD.md` §7 FR-07, §11 criterio 8.
 - `.opencode/skills/bls-logging-errors/SKILL.md`.
 - `.opencode/skills/bls-testing-strategy/SKILL.md`.
-- `docs/design/20250104-secure-store.md` (`BlsPaths`).
-- `docs/design/20250106-registration-scripts.md` (`version.txt` en el ZIP).
-- `docs/design/20250108-addin-lifecycle.md` (integración en `OnConnection`).
+- `docs/design/ADR-009-SECURE-STORE.md` (`BlsPaths`).
+- `docs/design/ADR-010-REGISTRATION-SCRIPTS.md` (`version.txt` en el ZIP).
+- `docs/design/ADR-012-ADDIN-LIFECYCLE.md` (integración en `OnConnection`).
 ```
 
 ---
@@ -707,7 +707,7 @@ opencode --model nemotron-3-ultra \
 Lee en este orden:
 1. AGENTS.md
 2. .opencode/skills/bls-project-context/SKILL.md
-3. docs/design/20250107-logging-version.md (el diseño)
+3. docs/design/ADR-011-LOGGING-VERSION.md (el diseño)
 4. Los skills citados en §13 del diseño
 
 Implementa la feature 'Logging + Version' exactamente como está
@@ -731,7 +731,7 @@ opencode --model big-pickle \
 Lee:
 1. AGENTS.md
 2. .opencode/skills/bls-workflow-nemotron/SKILL.md (checklist de rechazo)
-3. docs/design/20250107-logging-version.md (diseño)
+3. docs/design/ADR-011-LOGGING-VERSION.md (diseño)
 4. El diff del PR
 
 Aplica el checklist de rechazo del skill bls-workflow-nemotron.
@@ -752,14 +752,14 @@ Si todo pasa, aprueba con 'LGTM'. Si algo falla, indica la regla violada."
 
 | # | Doc                                | Estado            | Depende de    |
 |---|------------------------------------|-------------------|---------------|
-| 1 | `20250101-vbe-bridge.md`           | ✅ Entregado       | —             |
-| 2 | `20250102-nim-client.md`           | ✅ Entregado       | —             |
-| 3 | `20250103-nim-terminal.md`         | ✅ Entregado       | #1, #2, #4    |
-| 4 | `20250104-secure-store.md`         | ✅ Entregado       | ADR-001       |
+| 1 | `ADR-006-VBE-BRIDGE.md`           | ✅ Entregado       | —             |
+| 2 | `ADR-007-NIM-CLIENT.md`           | ✅ Entregado       | —             |
+| 3 | `ADR-008-NIM-TERMINAL.md`         | ✅ Entregado       | #1, #2, #4    |
+| 4 | `ADR-009-SECURE-STORE.md`         | ✅ Entregado       | ADR-001       |
 | 5 | `20250105-chat-history.md`         | ⚠️ Fusionado en #4 | —             |
-| 6 | `20250106-registration-scripts.md` | ✅ Entregado       | #7            |
-| 7 | `20250107-logging-version.md`      | ✅ Entregado       | #4 (BlsPaths) |
-| 8 | `20250108-addin-lifecycle.md`      | Pendiente         | Todos         |
+| 6 | `ADR-010-REGISTRATION-SCRIPTS.md` | ✅ Entregado       | #7            |
+| 7 | `ADR-011-LOGGING-VERSION.md`      | ✅ Entregado       | #4 (BlsPaths) |
+| 8 | `ADR-012-ADDIN-LIFECYCLE.md`      | Pendiente         | Todos         |
 
 **Ruta crítica hacia el MVP:**
 ```
@@ -779,4 +779,4 @@ Si todo pasa, aprueba con 'LGTM'. Si algo falla, indica la regla violada."
 - Frente D: #6 reg + #7 log
 
 Todos los frentes pueden avanzar en paralelo. Solo queda **#8
-(`20250108-addin-lifecycle.md`)**, que integra todo y cierra el MVP.
+(`ADR-012-ADDIN-LIFECYCLE.md`)**, que integra todo y cierra el MVP.

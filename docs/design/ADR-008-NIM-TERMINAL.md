@@ -22,10 +22,10 @@ Big Pickle (arquitecto).
 Nemotron 3 Ultra (implementación) + Big Pickle (revisión).
 
 ## Depende de
-- `docs/design/20250101-vbe-bridge.md` (bridge JSON-RPC).
-- `docs/design/20250102-nim-client.md` (cliente NIM).
-- `docs/design/ADR-001-project-identity.md` (identidad de proyecto).
-- `docs/design/ADR-003-abort-model.md` (abort).
+- `docs/design/ADR-006-VBE-BRIDGE.md` (bridge JSON-RPC).
+- `docs/design/ADR-007-NIM-CLIENT.md` (cliente NIM).
+- `docs/design/ADR-001-PROJECT-IDENTITY.md` (identidad de proyecto).
+- `docs/design/ADR-003-ABORT-MODEL.md` (abort).
 
 ---
 
@@ -679,10 +679,10 @@ En este orden:
 7. `.opencode/skills/bls-winforms-threading/SKILL.md` (marshaling, ciclo de vida).
 8. `.opencode/skills/bls-logging-errors/SKILL.md` (errores tipados, system prompt).
 9. `.opencode/skills/bls-testing-strategy/SKILL.md` (fakes).
-10. `docs/design/ADR-001-project-identity.md`.
-11. `docs/design/ADR-003-abort-model.md`.
-12. `docs/design/20250101-vbe-bridge.md` (interfaz `IBlsBridgeServer`).
-13. `docs/design/20250102-nim-client.md` (interfaz `IBlsNimClient`).
+10. `docs/design/ADR-001-PROJECT-IDENTITY.md`.
+11. `docs/design/ADR-003-ABORT-MODEL.md`.
+12. `docs/design/ADR-006-VBE-BRIDGE.md` (interfaz `IBlsBridgeServer`).
+13. `docs/design/ADR-007-NIM-CLIENT.md` (interfaz `IBlsNimClient`).
 
 ---
 
@@ -719,17 +719,17 @@ Cuando Nemotron termine, el PR debe:
 - [ ] Pasar todos los tests de CA-01..CA-10.
 - [ ] No modificar interfaces del §3 ni de #1 ni de #2.
 - [ ] Referenciar este doc en el commit:
-      `feat: terminal NIM WinForms (refs design/20250103-nim-terminal.md)`.
+      `feat: terminal NIM WinForms (refs design/ADR-008-NIM-TERMINAL.md)`.
 
 ---
 
 ## 15. Referencias
 
 - `AGENTS.md` reglas 3, 4, 5, 10.
-- `docs/design/ADR-001-project-identity.md`.
-- `docs/design/ADR-003-abort-model.md`.
-- `docs/design/20250101-vbe-bridge.md`.
-- `docs/design/20250102-nim-client.md`.
+- `docs/design/ADR-001-PROJECT-IDENTITY.md`.
+- `docs/design/ADR-003-ABORT-MODEL.md`.
+- `docs/design/ADR-006-VBE-BRIDGE.md`.
+- `docs/design/ADR-007-NIM-CLIENT.md`.
 - `PRD.md` §3.4, §7 FR-02, FR-03, FR-05, §11.
 - `.opencode/skills/bls-vbe-automation/SKILL.md`.
 - `.opencode/skills/bls-nim-client-streaming/SKILL.md`.
@@ -753,7 +753,7 @@ opencode --model nemotron-3-ultra \
 Lee en este orden:
 1. AGENTS.md
 2. .opencode/skills/bls-project-context/SKILL.md
-3. docs/design/20250103-nim-terminal.md (el diseño)
+3. docs/design/ADR-008-NIM-TERMINAL.md (el diseño)
 4. Los skills citados en §12 del diseño
 5. Los ADRs y diseños referenciados en §15
 
@@ -772,7 +772,7 @@ opencode --model big-pickle \
 Lee:
 1. AGENTS.md
 2. .opencode/skills/bls-workflow-nemotron/SKILL.md (checklist de rechazo)
-3. docs/design/20250103-nim-terminal.md (diseño)
+3. docs/design/ADR-008-NIM-TERMINAL.md (diseño)
 4. El diff del PR
 
 Aplica el checklist de rechazo del skill bls-workflow-nemotron.
@@ -792,14 +792,14 @@ Si todo pasa, aprueba con 'LGTM'. Si algo falla, indica la regla violada."
 
 | # | Doc                                | Estado      | Depende de |
 |---|------------------------------------|-------------|------------|
-| 1 | `20250101-vbe-bridge.md`           | ✅ Entregado | —          |
-| 2 | `20250102-nim-client.md`           | ✅ Entregado | —          |
-| 3 | `20250103-nim-terminal.md`         | ✅ Entregado | #1, #2     |
-| 4 | `20250104-secure-store.md`         | Pendiente   | —          |
+| 1 | `ADR-006-VBE-BRIDGE.md`           | ✅ Entregado | —          |
+| 2 | `ADR-007-NIM-CLIENT.md`           | ✅ Entregado | —          |
+| 3 | `ADR-008-NIM-TERMINAL.md`         | ✅ Entregado | #1, #2     |
+| 4 | `ADR-009-SECURE-STORE.md`         | Pendiente   | —          |
 | 5 | `20250105-chat-history.md`         | Pendiente   | ADR-001    |
-| 6 | `20250106-registration-scripts.md` | Pendiente   | —          |
-| 7 | `20250107-logging-version.md`      | Pendiente   | —          |
-| 8 | `20250108-addin-lifecycle.md`      | Pendiente   | Todos      |
+| 6 | `ADR-010-REGISTRATION-SCRIPTS.md` | Pendiente   | —          |
+| 7 | `ADR-011-LOGGING-VERSION.md`      | Pendiente   | —          |
+| 8 | `ADR-012-ADDIN-LIFECYCLE.md`      | Pendiente   | Todos      |
 
 **Ruta crítica hacia el MVP:**
 ```

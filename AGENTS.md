@@ -4,11 +4,11 @@ COM Add-in para Microsoft Access 2010+ (x86) que integra NVIDIA NIM en el VBE.
 Stack: C# 10, .NET Framework 4.8 (net48), WinForms, sin PIAs, enlace tardío vía `dynamic`.
 ProgID: `Balansoft.AIAddin.Access` | CLSID: `{d31bf73e-dbe1-4739-84bc-2c974fcd3171}`.
 
-> Estado: el producto **no carga todavía en Access** (falta el punto de entrada COM, spec 001). El bridge JSON-RPC, el cliente NIM y el almacén DPAPI están implementados con 99 tests verdes.
+> Estado: el producto **no carga todavía en Access** (falta el punto de entrada COM, spec 001). El bridge JSON-RPC, el cliente NIM y el almacén DPAPI están implementados con 165 tests verdes.
 
 ## Reglas duras (CI las verifica y bloquea el merge)
 
-1. **x86 obligatorio:** `PlatformTarget=x86`, `Prefer32Bit=true`. Access x86 no carga ensamblados x64.
+1. **CPU-agnóstico (x86 y x64):** pasar `-p:PlatformTarget=x86|x64` al build. La arquitectura del add-in debe coincidir con la de Access instalada. No forzar `PlatformTarget` ni `Prefer32Bit` en los archivos de proyecto.
 2. **Sin PIAs de Office:** nunca `Microsoft.Office.Interop.*`.
 3. **Sin ROT:** nunca `Marshal.GetActiveObject` ni Running Object Table.
 4. **`dynamic` solo en `Helpers/BlsComHelper.cs`** (CI lo comprueba en `src/`).
@@ -21,23 +21,23 @@ ProgID: `Balansoft.AIAddin.Access` | CLSID: `{d31bf73e-dbe1-4739-84bc-2c974fcd31
 
 ## Comandos canónicos
 
-## Comandos canónicos
-
-Compilar los `.csproj` directamente, **no** la solución `.slnx` (no propaga `Platform` a proyectos SDK-style; la salida debe ir a `bin\x86\<Config>\net48\`):
+Compilar los `.csproj` directamente, **no** la solución `.slnx` (no propaga `Platform` a proyectos SDK-style). Pasar tanto `-p:Platform=x86|x64` (carpeta de salida) como `-p:PlatformTarget=x86|x64` (encabezado PE) según la arquitectura de Access instalada:
 
 ```powershell
 # Build Debug x86
-dotnet build src\Balansoft.AIAddin.Access\Balansoft.AIAddin.Access.csproj -c Debug -p:Platform=x86 -v:minimal --nologo
+dotnet build src\Balansoft.AIAddin.Access\Balansoft.AIAddin.Access.csproj -c Debug -p:Platform=x86 -p:PlatformTarget=x86 -v:minimal --nologo
+
+# Build Debug x64
+dotnet build src\Balansoft.AIAddin.Access\Balansoft.AIAddin.Access.csproj -c Debug -p:Platform=x64 -p:PlatformTarget=x64 -v:minimal --nologo
 
 # Build tests
-dotnet build tests\Balansoft.AIAddin.Tests\Balansoft.AIAddin.Tests.csproj -c Debug -p:Platform=x86
-```
+dotnet build tests\Balansoft.AIAddin.Tests\Balansoft.AIAddin.Tests.csproj -c Debug -p:Platform=x86 -p:PlatformTarget=x86
 
 # Tests unitarios (sin integración NIM; .runsettings filtra TestCategory=Integration)
 dotnet vstest tests\Balansoft.AIAddin.Tests\bin\x86\Debug\net48\Balansoft.AIAddin.Tests.dll /Settings:.runsettings /Platform:x86
 ```
 
-Registro / desregistro / empaquetado requieren **PowerShell x86** (menú "Windows PowerShell (x86)"):
+Registro / desregistro / empaquetado requieren **PowerShell** (x86 o x64 según la arquitectura de Access instalada). El script detecta la arquitectura y usa la carpeta de salida correspondiente:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File scripts\RegisterAddin.ps1
@@ -48,6 +48,7 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1 -Configuration Release
 ## Entorno y gotchas
 
 - **.NET SDK 9.0.x** requerido.
+- **Access:** 2010 o superior. La arquitectura del add-in (x86/x64) debe coincidir con la de Access instalada. Access 32-bit no carga ensamblados x64 y viceversa.
 - **net48 limita APIs:** no `Task.WaitAsync`, no raw strings (C# 11), no `System.Net.Http.Json`, no E/S de archivos async. Para waits con timeout usar `tests/.../TaskTestExtensions.cs`.
 - **Named pipe:** framing `[uint32 LE longitud][UTF-8 JSON]`, máx 1 MB. Las clases `NamedPipe*` anteponen `\\.\pipe\` solas — pasar el nombre completo lo duplica. Usar el nombre pelado (`BlsPipeFraming.DefaultPipeName`).
 - **Scaffold.ps1 está roto** (4 errores de parser, líneas 762-775). **No usar.**
@@ -58,7 +59,7 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1 -Configuration Release
 ## Estructura
 
 - `src/Balansoft.AIAddin.Access/` — add-in COM, Core, Helpers, UI (WinForms)
-- `tests/Balansoft.AIAddin.Tests/` — 99 tests MSTest (fakes, sin COM real). `BalansoftTest.accdb` es la base de prueba para verificar en Access real (no se usa en la suite por defecto).
+- `tests/Balansoft.AIAddin.Tests/` — 165 tests MSTest (fakes, sin COM real). `BalansoftTest.accdb` es la base de prueba para verificar en Access real (no se usa en la suite por defecto).
 - `specs/` — contratos SDD (001–012, MAYÚSCULAS `NNN-<SLUG>.md`); `specs/README.md` es el índice con estados y tests por spec.
 - `docs/design/` — ADR (`ADR-NNN-<SLUG>.md`)
 - `.opencode/skills/` — skills de OpenCode (bls-*)
@@ -135,13 +136,13 @@ Requiere ADR (documentar por qué y evaluar compatibilidad net48/x86). No se agr
 ## Versionado y releases
 
 - Versión automática con **Nerdbank.GitVersioning** (`version.json`, SemVer 2).
-- Push de tag `vX.Y.Z` en `main` → `release.yml` → build Release x86 → `Pack.ps1` → GitHub Release con ZIP + `version.txt`.
+- Push de tag `vX.Y.Z` en `main` → `release.yml` → build Release x86 y x64 → `Pack.ps1` → GitHub Release con ZIP por arquitectura (`-x86.zip` y `-x64.zip`) + `version.txt`.
 - Un solo commit por feature a `main`.
 
 ## Flujo de trabajo (SDD)
 
 1. Spec en `specs/` con criterios de aceptación verificables (primero).
-2. Implementar + tests (x86, sin PIAs, `dynamic` aislado).
-3. Verificar: build Debug + Release x86 y suite de tests verde.
-4. PR → CI ejecuta 8 gates: build, tests (99/99), documentos obligatorios, ausencia de PIAs, aislamiento de `dynamic`, ausencia de `Thread.Sleep` en tests, tests de ADR, referencias cruzadas en MDs.
+2. Implementar + tests (x86 y x64, sin PIAs, `dynamic` aislado).
+3. Verificar: build Debug + Release en **x86 y x64** y suite de tests verde en ambas arquitecturas.
+4. PR → CI ejecuta 8 gates: build, tests (165/165), documentos obligatorios, ausencia de PIAs, aislamiento de `dynamic`, ausencia de `Thread.Sleep` en tests, tests de ADR, referencias cruzadas en MDs.
 5. Merge a `main` → tag `v*` → release automático.

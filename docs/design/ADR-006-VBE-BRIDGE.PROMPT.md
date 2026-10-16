@@ -3,7 +3,7 @@ version: 1.0.0
 date: 2025-01-01
 status: approved
 iso_standard: [12207, 29148]
-aligns_to: [20250101-VBE-BRIDGE.md, AGENTS.md]
+aligns_to: [ADR-006-VBE-BRIDGE.md, AGENTS.md]
 tags: [prompt, implementer, instructions, vbe-bridge]
 ---
 
@@ -25,10 +25,10 @@ LECTURA OBLIGATORIA (en este orden)
 5. .opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md
 6. .opencode/skills/bls-logging-errors/SKILL.md
 7. .opencode/skills/bls-testing-strategy/SKILL.md
-8. docs/design/ADR-002-pipe-framing.md
-9. docs/design/ADR-003-abort-model.md
-10. docs/design/ADR-004-object-detail.md
-11. docs/design/20250101-vbe-bridge.md  ← EL DISEÑO
+8. docs/design/ADR-002-PIPE-FRAMING.md
+9. docs/design/ADR-003-ABORT-MODEL.md
+10. docs/design/ADR-004-OBJECT-DETAIL.md
+11. docs/design/ADR-006-VBE-BRIDGE.md  ← EL DISEÑO
 
 REGLAS DURAS (AGENTS.md)
 ========================
@@ -44,7 +44,7 @@ REGLAS DURAS (AGENTS.md)
 
 LO QUE DEBES IMPLEMENTAR
 ========================
-Del doc docs/design/20250101-vbe-bridge.md:
+Del doc docs/design/ADR-006-VBE-BRIDGE.md:
 
 Interfaces (§3):
 - IBlsBridgeServer (Core/): Start(), StopAsync(TimeSpan), IsRunning, Dispose.
@@ -200,7 +200,7 @@ ENTREGABLE
      scripts\dev.ps1 test -Filter "FullyQualifiedName~Bridge"
      scripts\dev.ps1 test -Filter "FullyQualifiedName~Frame"
 4. Commit message:
-     feat: bridge JSON-RPC sobre Named Pipe (refs design/20250101-vbe-bridge.md)
+     feat: bridge JSON-RPC sobre Named Pipe (refs design/ADR-006-VBE-BRIDGE.md)
 
 REGLAS DE INTERACCIÓN
 =====================

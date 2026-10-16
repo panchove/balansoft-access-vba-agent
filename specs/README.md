@@ -64,11 +64,13 @@ Un spec por archivo, nombrado en mayúsculas estrictas `NNN-SLUG.md` (ej. `001-A
 completo pero ninguna aserción que lo valide, así que no pueden declararse
 implementados.
 
-Los tests de la suite se reparten en ocho ficheros:
-`BlsNimClientTests` 28 · `JsonRpcDispatcherTests` 17 · `NimStreamParserTests` 14
-· `BlsVbeBridgeServerTests` 12 · `NimHttpRequestBuilderTests` 11 ·
-`BlsPipeFramingTests` 10 · `JsonRpcDeserializationTests` 7 ·
-`BlsStringsTests` 13.
+Los 165 tests de la suite se reparten en catorce ficheros:
+`BlsNimClientTests` 28 · `JsonRpcDispatcherTests` 27 · `BlsContractTests` 17
+· `BlsStringsTests` 16 · `NimStreamParserTests` 14 · `BlsVbeBridgeServerTests` 12
+· `NimHttpRequestBuilderTests` 11 · `BlsPipeFramingTests` 10
+· `JsonRpcDeserializationTests` 7 · `BlsChatHistoryMultiSessionTests` 6
+· `AddinConnectTests` 5 · `NimMessageSanitizerTests` 5
+· `ProjectKeyAndObjectDetailTests` 5 · `NimTerminalIconTests` 2.
 
 ## Orden de implementación
 
@@ -91,9 +93,9 @@ de 001: ~600 líneas de WinForms sin un solo test.
 
 - **La CI está operativa** y ejecuta todos los gates:
   - Build Debug x86 y Release x86 con `dotnet build` (0 warnings, 0 errors).
-  - Tests 99/99 con `dotnet vstest` + `.runsettings` + `/Platform:x86`.
-  - 39 documentos obligatorios verificados (incluye `docs/PRD.md`,
-    `docs/constitution.md`, `specs/` y los 4 ADRs).
+  - Tests 165/165 con `dotnet vstest` + `.runsettings` + `/Platform:x86`.
+  - 47 documentos obligatorios verificados (incluye `docs/PRD.md`,
+    `docs/CONSTITUTION.md`, `specs/` y los 14 ADRs).
   - Sin PIAs de Office en `src/`.
   - `dynamic` solo en `Helpers/BlsComHelper.cs`.
   - Sin `Thread.Sleep` en `tests/`.

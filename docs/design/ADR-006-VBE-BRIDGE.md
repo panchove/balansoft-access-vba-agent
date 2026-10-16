@@ -552,9 +552,9 @@ En este orden:
 5. `.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md` (este dominio).
 6. `.opencode/skills/bls-logging-errors/SKILL.md` (mapeo de errores).
 7. `.opencode/skills/bls-testing-strategy/SKILL.md` (tests obligatorios).
-8. `docs/design/ADR-002-pipe-framing.md`.
-9. `docs/design/ADR-003-abort-model.md`.
-10. `docs/design/ADR-004-object-detail.md`.
+8. `docs/design/ADR-002-PIPE-FRAMING.md`.
+9. `docs/design/ADR-003-ABORT-MODEL.md`.
+10. `docs/design/ADR-004-OBJECT-DETAIL.md`.
 
 Opcional pero recomendado:
 - `.opencode/skills/bls-winforms-threading/SKILL.md` (cómo funciona el
@@ -594,16 +594,16 @@ Cuando Nemotron termine, el PR debe:
 - [ ] Pasar todos los tests de CA-01..CA-08.
 - [ ] No modificar ninguna interfaz del §3.
 - [ ] Referenciar este doc en el commit:
-      `feat: bridge JSON-RPC (refs design/20250101-vbe-bridge.md)`.
+      `feat: bridge JSON-RPC (refs design/ADR-006-VBE-BRIDGE.md)`.
 
 ---
 
 ## 14. Referencias
 
 - `AGENTS.md` reglas 3, 5, 8, 10.
-- `docs/design/ADR-002-pipe-framing.md`.
-- `docs/design/ADR-003-abort-model.md`.
-- `docs/design/ADR-004-object-detail.md`.
+- `docs/design/ADR-002-PIPE-FRAMING.md`.
+- `docs/design/ADR-003-ABORT-MODEL.md`.
+- `docs/design/ADR-004-OBJECT-DETAIL.md`.
 - `PRD.md` §3.2, §7 FR-04, FR-12, §11.
 - `.opencode/skills/bls-com-late-binding/SKILL.md`.
 - `.opencode/skills/bls-vbe-automation/SKILL.md`.
@@ -625,7 +625,7 @@ opencode --model nemotron-3-ultra \
 Lee en este orden:
 1. AGENTS.md
 2. .opencode/skills/bls-project-context/SKILL.md
-3. docs/design/20250101-vbe-bridge.md (el diseño)
+3. docs/design/ADR-006-VBE-BRIDGE.md (el diseño)
 4. Los skills citados en §11 del diseño
 5. Los ADRs referenciados en §14 del diseño
 
@@ -643,7 +643,7 @@ opencode --model big-pickle \
 Lee:
 1. AGENTS.md
 2. .opencode/skills/bls-workflow-nemotron/SKILL.md (checklist de rechazo)
-3. docs/design/20250101-vbe-bridge.md (diseño)
+3. docs/design/ADR-006-VBE-BRIDGE.md (diseño)
 4. El diff del PR
 
 Aplica el checklist de rechazo del skill bls-workflow-nemotron. Si todo pasa, aprueba con

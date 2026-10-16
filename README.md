@@ -23,7 +23,7 @@ Permite chatear con modelos LLM, ejecutar *tool calls* y persistir el historial 
 - **Historial de chat** por proyecto (identidad = SHA‑256 de la ruta normalizada – ADR‑001).
 - **Terminal NIM** WinForms con loop de herramientas, *tool calls* y renderizado de resultados.
 - **Registro COM** per‑user / per‑machine mediante scripts PowerShell x86.
-- **CI/CD** completo: build x86, 99 tests unitarios, 8 gates de calidad, versionado SemVer automático (Nerdbank.GitVersioning) y release automático al pushear tag `v*`.
+- **CI/CD** completo: build x86/x64, 165 tests unitarios, 8 gates de calidad, versionado SemVer automático (Nerdbank.GitVersioning) y release automático al pushear tag `v*`.
 
 ---
 
@@ -47,7 +47,7 @@ cd balansoft-access-vba-agent
 # 2. Compilar (Debug x86)
 dotnet build src\Balansoft.AIAddin.Access\Balansoft.AIAddin.Access.csproj -c Debug -p:Platform=x86
 
-# 3. Ejecutar tests (99/99)
+# 3. Ejecutar tests (165/165)
 dotnet vstest tests\Balansoft.AIAddin.Tests\bin\x86\Debug\net48\Balansoft.AIAddin.Tests.dll `
   /Settings:.runsettings /Platform:x86
 
@@ -75,12 +75,12 @@ Los tests de integración están marcados con `[TestCategory("Integration")]` y 
 src/
   Balansoft.AIAddin.Access/   # Add-in COM, Core, Helpers, UI (WinForms)
 tests/
-  Balansoft.AIAddin.Tests/    # 99 tests unitarios (MSTest)
+  Balansoft.AIAddin.Tests/    # 165 tests unitarios (MSTest)
 docs/
-  design/                     # 8 docs de diseño + 4 ADR
+  design/                     # 14 ADRs (ADR-001 … ADR-014)
   PRD.md
-  constitution.md
-specs/                        # 9 specs (001–009) con criterios de aceptación
+  CONSTITUTION.md
+specs/                        # 14 specs (001–014) con criterios de aceptación
 scripts/
   RegisterAddin.ps1
   UnregisterAddin.ps1
@@ -132,7 +132,7 @@ scripts/
 ---
 
 ## 🤝 Contribuir
-1. Lee `AGENTS.md` y `docs/constitution.md`.
+1. Lee `AGENTS.md` y `docs/CONSTITUTION.md`.
 2. Abre un *issue* referenciando el *spec* correspondiente (`specs/NNN-*.md`).
 3. El **Coordinator** asigna al **Planner** (descomposición) y al **Implementer** (código).
 4. PR debe pasar **todos los gates de CI** (build, tests, 8 quality gates).

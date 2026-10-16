@@ -62,7 +62,7 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1
 
 **Existen** `.runsettings`, `Directory.Build.props`, y la solución real `Balansoft.AIAddin.slnx`. Los comandos usan los `.csproj` directos (la solución no propaga `Platform` a proyectos SDK-style).
 
-**La CI está operativa** y ejecuta: build Debug/Release x86, tests 99/99, gates de PIAs, `dynamic`, `Thread.Sleep`, documentos, tests ADR y referencias cruzadas. En `push` a `main` ejecuta `Pack.ps1` y sube el ZIP.
+**La CI está operativa** y ejecuta: build Debug/Release x86, tests 165/165, gates de PIAs, `dynamic`, `Thread.Sleep`, documentos, tests ADR y referencias cruzadas. En `push` a `main` ejecuta `Pack.ps1` y sube el ZIP.
 
 ---
 
@@ -89,7 +89,7 @@ tests/Balansoft.AIAddin.Tests/
                    MockVbe, TestUiScheduler
   Infrastructure/  TaskTestExtensions
 docs/design/       ADR-001..004 + 7 docs de diseño (20250101-02-03-04-06-07-08,
-                   no hay 20250105) + 20250101-vbe-bridge.prompt.md
+                   no hay 20250105) + ADR-006-VBE-BRIDGE.prompt.md
 specs/             README.md + 001..009 (contratos SDD por feature)
 docs/              PRD.md, constitution.md
 scripts/           Scaffold, RegisterAddin, UnregisterAddin, Pack, CopyDocs, dev
@@ -144,10 +144,13 @@ pipe del cliente entrante y el segundo recibiría EOF en vez de `busy`).
 
 ## 7. Estado actual
 
-**Suite verde.** Rebuild limpio de ambos proyectos, **99/99 tests**. Reparto:
-`BlsNimClientTests` 28 · `JsonRpcDispatcherTests` 17 · `NimStreamParserTests` 14
-· `BlsVbeBridgeServerTests` 12 · `NimHttpRequestBuilderTests` 11 ·
-`BlsPipeFramingTests` 10 · `JsonRpcDeserializationTests` 7.
+**Suite verde.** Rebuild limpio de ambos proyectos, **165/165 tests**. Reparto:
+`BlsNimClientTests` 28 · `JsonRpcDispatcherTests` 27 · `BlsContractTests` 17
+· `BlsStringsTests` 16 · `NimStreamParserTests` 14 · `BlsVbeBridgeServerTests` 12
+· `NimHttpRequestBuilderTests` 11 · `BlsPipeFramingTests` 10
+· `JsonRpcDeserializationTests` 7 · `BlsChatHistoryMultiSessionTests` 6
+· `AddinConnectTests` 5 · `NimMessageSanitizerTests` 5
+· `ProjectKeyAndObjectDetailTests` 5 · `NimTerminalIconTests` 2.
 
 Implementado: bridge JSON-RPC completo, cliente NIM con streaming SSE y
 retries, secure store DPAPI, historial por proyecto, Terminal con loop de
@@ -159,7 +162,7 @@ punto de entrada COM. El estado por feature está en `specs/README.md`
 
 ### Pendiente
 
-- **Lifecycle del add-in** (`specs/001-addin-lifecycle.md`):
+- **Lifecycle del add-in** (`specs/001-ADDIN-LIFECYCLE.md`):
   `OnConnection`, menú Tools, construcción de dependencias, arranque/parada
   del bridge y shutdown. Nada de esto está cableado todavía.
 - **Implementaciones reales de `IBlsVbe` e `IBlsAccess`.** Solo hay interfaz
@@ -180,7 +183,7 @@ punto de entrada COM. El estado por feature está en `specs/README.md`
   `role="tool"` sin el `assistant` con `tool_calls` que lo precede; NIM
   debería responder 400. Hoy cada turno pide `project_summary` de nuevo, así
   que rara vez se nota. Arreglo limpio: añadir `ToolCalls` a `HistoryMessage`.
-- **Drift de documentación:** `docs/design/20250103-nim-terminal.md:285-334`
+- **Drift de documentación:** `docs/design/ADR-008-NIM-TERMINAL.md:285-334`
   describe el `OnToolCall`/`OnDone` antiguos, que provocaban una carrera
   (el turno se cerraba a mitad del loop y el CTS se liberaba antes de que
   la tool ejecutara). El código ya no los sigue. `specs/004` documenta el
@@ -243,7 +246,7 @@ propiedad ahora coincide con el estilo real del código.
 
 ## 10. Spec-Driven Development
 
-- `docs/constitution.md` (v1.1): principios P1-P12, restricciones, gates,
+- `docs/CONSTITUTION.md` (v1.1): principios P1-P12, restricciones, gates,
   penalidades y diagnóstico verificado del árbol.
 - `specs/README.md`: formato, estados, índice, orden de implementación,
   trazabilidad PRD↔spec y ADR↔spec.
