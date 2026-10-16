@@ -84,6 +84,10 @@ public sealed class JsonRpcDispatcher
                     GetStringParam(request, "type"),
                     GetBoolParam(request, "includeSql", false),
                     GetIntParam(request, "maxFields", 200))),
+                JsonRpcMethods.CreateForm        => await HandleAccessAsync(request, ct, () => _access.CreateForm(
+                    GetStringParam(request, "name"),
+                    GetOptionalStringParam(request, "caption"),
+                    GetControlsParam(request, "controls"))),
                 _ => JsonRpcResponse.CreateError(request.Id, new JsonRpcError(
                     JsonRpcErrorCodes.MethodNotFound,
                     $"Método no implementado: {request.Method}",
@@ -224,6 +228,58 @@ public sealed class JsonRpcDispatcher
             throw new BlsInvalidParamsException($"Parámetro '{name}' no puede ser vacío");
 
         return value!;
+    }
+
+    private string? GetOptionalStringParam(JsonRpcRequest request, string name)
+    {
+        if (!request.Params.HasValue || request.Params.Value.ValueKind == JsonValueKind.Null)
+            return null;
+
+        var elem = request.Params.Value;
+        if (elem.ValueKind != JsonValueKind.Object)
+            return null;
+
+        if (!elem.TryGetProperty(name, out var prop))
+            return null;
+
+        if (prop.ValueKind == JsonValueKind.Null)
+            return null;
+
+        if (prop.ValueKind != JsonValueKind.String)
+            throw new BlsInvalidParamsException($"Parámetro '{name}' debe ser string");
+
+        return prop.GetString();
+    }
+
+    private IReadOnlyList<CreateFormControl>? GetControlsParam(JsonRpcRequest request, string name)
+    {
+        if (!request.Params.HasValue || request.Params.Value.ValueKind == JsonValueKind.Null)
+            return null;
+
+        var elem = request.Params.Value;
+        if (elem.ValueKind != JsonValueKind.Object)
+            return null;
+
+        if (!elem.TryGetProperty(name, out var prop) || prop.ValueKind != JsonValueKind.Array)
+            return null;
+
+        var list = new List<CreateFormControl>();
+        foreach (var item in prop.EnumerateArray())
+        {
+            if (item.ValueKind != JsonValueKind.Object) continue;
+
+            string type = item.TryGetProperty("type", out var pType) && pType.ValueKind == JsonValueKind.String ? pType.GetString() ?? "" : "";
+            string ctrlName = item.TryGetProperty("name", out var pName) && pName.ValueKind == JsonValueKind.String ? pName.GetString() ?? "" : "";
+            string? label = item.TryGetProperty("label", out var pLabel) && pLabel.ValueKind == JsonValueKind.String ? pLabel.GetString() : null;
+            string? caption = item.TryGetProperty("caption", out var pCaption) && pCaption.ValueKind == JsonValueKind.String ? pCaption.GetString() : null;
+            bool isPassword = item.TryGetProperty("is_password", out var pPwd) && (pPwd.ValueKind == JsonValueKind.True || pPwd.ValueKind == JsonValueKind.False) && pPwd.GetBoolean();
+
+            if (!string.IsNullOrWhiteSpace(type))
+            {
+                list.Add(new CreateFormControl(type, ctrlName, label, caption, isPassword));
+            }
+        }
+        return list;
     }
 
     private bool GetBoolParam(JsonRpcRequest request, string name, bool defaultValue = false)

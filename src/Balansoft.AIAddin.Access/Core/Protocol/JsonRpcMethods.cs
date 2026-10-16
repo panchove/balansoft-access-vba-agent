@@ -25,13 +25,17 @@ public static class JsonRpcMethods
     public const string ListObjects      = "list_objects";
     public const string ObjectDetail     = "object_detail";
 
+    // Access authoring (1)
+    public const string CreateForm       = "create_form";
+
     /// <summary>
-    /// Conjunto inmutable con los 10 métodos para validación de whitelist.
+    /// Conjunto inmutable con los métodos para validación de whitelist.
     /// </summary>
     public static readonly IReadOnlyCollection<string> All =
         new HashSet<string>(StringComparer.Ordinal)
         {
             ListModules, ReadModule, WriteModule, CreateModule, DeleteModule,
-            GetSelection, GetActiveModule, ProjectSummary, ListObjects, ObjectDetail
+            GetSelection, GetActiveModule, ProjectSummary, ListObjects, ObjectDetail,
+            CreateForm
         };
 }

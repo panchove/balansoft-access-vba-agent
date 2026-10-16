@@ -340,5 +340,51 @@ public class JsonRpcDispatcherTests
         // Assert: RunAsync fue llamado
         Assert.AreEqual(1, _ui.RunAsyncCount);
     }
+
+    [TestMethod]
+    public async Task Bridge_CreateForm_EjecutaYDevuelveResult()
+    {
+        // Arrange
+        var request = CreateRequest("create_form", 1, new
+        {
+            name = "frmLogin",
+            caption = "Iniciar Sesión",
+            controls = new object[]
+            {
+                new { type = "TextBox", name = "txtUser", label = "Usuario:", caption = "", is_password = false },
+                new { type = "TextBox", name = "txtPassword", label = "Contraseña:", caption = "", is_password = true },
+                new { type = "CommandButton", name = "btnLogin", label = "", caption = "Ingresar", is_password = false }
+            }
+        });
+
+        // Act
+        var response = await _dispatcher.DispatchAsync(request, CancellationToken.None);
+
+        // Assert
+        Assert.IsNull(response.Error);
+        Assert.IsNotNull(response.Result);
+        var result = (Balansoft.AIAddin.AccessIntegration.CreateFormResult)response.Result!;
+        Assert.AreEqual("frmLogin", result.Name);
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual(3, result.ControlCount);
+    }
+
+    [TestMethod]
+    public async Task Bridge_CreateForm_SinNombre_RespondeInvalidParams()
+    {
+        // Arrange: falta name
+        var request = CreateRequest("create_form", 1, new
+        {
+            caption = "Login"
+        });
+
+        // Act
+        var response = await _dispatcher.DispatchAsync(request, CancellationToken.None);
+
+        // Assert
+        Assert.IsNotNull(response.Error);
+        Assert.AreEqual(-32602, response.Error.Code);
+        Assert.IsTrue(response.Error.Message.Contains("InvalidParamsException"));
+    }
 }
 

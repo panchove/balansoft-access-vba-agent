@@ -28,7 +28,8 @@ internal sealed class SystemPromptBuilder : ISystemPromptBuilder
         "- get_active_module: devuelve informacion del modulo activo\n" +
         "- project_summary: resumen del proyecto Access (nombre, projectKey, conteos)\n" +
         "- list_objects: lista objetos por categoria (tablas, queries, formularios, reportes, macros)\n" +
-        "- object_detail: detalle de un objeto especifico (campos, SQL, controles)\n\n" +
+        "- object_detail: detalle de un objeto especifico (campos, SQL, controles)\n" +
+        "- create_form: crea un formulario Access con controles (TextBox, Label, CommandButton) y lo guarda\n\n" +
         "Proyecto actual:\n" +
         "- Nombre: {ProjectName}\n" +
         "- ProjectKey: {ProjectKey}\n" +

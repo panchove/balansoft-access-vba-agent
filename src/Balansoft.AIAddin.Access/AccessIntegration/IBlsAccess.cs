@@ -79,8 +79,27 @@ public sealed record ObjectDetailResult(
     string? MacroType = null);
 
 /// <summary>
-/// Contrato de solo lectura sobre objetos Access.
-/// Implementado por BlsAccessObjectService.
+/// Especificación de un control a crear en un formulario Access.
+/// </summary>
+public sealed record CreateFormControl(
+    string Type,
+    string Name,
+    string? Label = null,
+    string? Caption = null,
+    bool IsPassword = false);
+
+/// <summary>
+/// Resultado de crear un formulario Access.
+/// </summary>
+public sealed record CreateFormResult(
+    string Name,
+    bool Success,
+    int ControlCount,
+    string? Message = null);
+
+/// <summary>
+/// Contrato de operaciones sobre objetos Access.
+/// Implementado por BlsAccessService.
 /// </summary>
 public interface IBlsAccess
 {
@@ -92,4 +111,7 @@ public interface IBlsAccess
 
     /// <summary>Detalle de un objeto específico.</summary>
     ObjectDetailResult ObjectDetail(string name, string type, bool includeSql, int maxFields);
+
+    /// <summary>Crea un nuevo formulario Access con sus controles y lo guarda.</summary>
+    CreateFormResult CreateForm(string name, string? caption, IReadOnlyList<CreateFormControl>? controls);
 }

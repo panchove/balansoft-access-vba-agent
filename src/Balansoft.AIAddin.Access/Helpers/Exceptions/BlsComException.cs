@@ -1,6 +1,7 @@
 // Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
+using System;
 using System.Runtime.InteropServices;
 
 namespace Balansoft.AIAddin.Helpers;
@@ -15,12 +16,20 @@ public sealed class BlsComException : BlsException
     public new int HResult { get; }
     public string Operation { get; }
 
-    public BlsComException(string operation, BlsComCategory category, string message, COMException inner)
+    public BlsComException(string operation, BlsComCategory category, string message, COMException? inner = null)
         : base(message, inner)
     {
         Operation = operation;
         Category = category;
-        HResult = inner.HResult;
+        HResult = inner?.HResult ?? 0;
+    }
+
+    public BlsComException(string operation, BlsComCategory category, string message, Exception? inner)
+        : base(message, inner)
+    {
+        Operation = operation;
+        Category = category;
+        HResult = inner?.HResult ?? 0;
     }
 }
 

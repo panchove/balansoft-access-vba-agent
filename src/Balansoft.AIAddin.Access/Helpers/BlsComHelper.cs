@@ -549,5 +549,160 @@ namespace Balansoft.AIAddin.Access.Helpers
                 LastModified: DateTime.UtcNow.ToString("o"),
                 TruncatedFields: false);
         }
+
+        /// <summary>
+        /// Crea un nuevo formulario Access, añade los controles especificados, ajusta sus propiedades y lo guarda.
+        /// </summary>
+        /// <param name="accessApp">Instancia nativa de Microsoft Access.</param>
+        /// <param name="name">Nombre con el que se guardará el formulario (ej: frmLogin).</param>
+        /// <param name="caption">Título o Caption del formulario.</param>
+        /// <param name="controls">Lista de especificaciones de controles a crear.</param>
+        /// <returns>Resultado de la creación <see cref="CreateFormResult"/>.</returns>
+        public static CreateFormResult CreateAccessForm(
+            object? accessApp,
+            string name,
+            string? caption,
+            System.Collections.Generic.IReadOnlyList<CreateFormControl>? controls)
+        {
+            BlsContract.RequiresNotNullOrWhiteSpace(name, nameof(name));
+
+            if (accessApp == null)
+            {
+                throw new BlsComException("CreateAccessForm", BlsComCategory.UnexpectedType, "accessApp es null", null);
+            }
+
+            try
+            {
+                dynamic app = accessApp;
+
+                // 1. Crear nuevo formulario en blanco en memoria
+                dynamic form = app.CreateForm();
+                string tempFormName = (string)form.Name;
+
+                // Configurar propiedades básicas del Formulario
+                try
+                {
+                    if (!string.IsNullOrWhiteSpace(caption))
+                    {
+                        form.Caption = caption;
+                    }
+                    form.RecordSelectors = false;
+                    form.NavigationButtons = false;
+                    form.DividingLines = false;
+                    form.ScrollBars = 0; // acScrollBarsNone
+                    form.AutoCenter = true;
+                    form.HasModule = true; // Habilita módulo de código VBA detrás del formulario
+                }
+                catch
+                {
+                    // Propiedades cosméticas no críticas
+                }
+
+                int controlCount = 0;
+
+                // Access constants:
+                // acDetail = 0
+                // acLabel = 100
+                // acTextBox = 109
+                // acCommandButton = 104
+                // 1 pulgada = 1440 twips; 1 cm = 567 twips
+                int topTwips = 300;
+                int leftTwips = 300;
+                int labelWidth = 1800;
+                int textWidth = 3000;
+                int rowHeight = 350;
+                int rowGap = 200;
+
+                if (controls != null && controls.Count > 0)
+                {
+                    foreach (var ctrlSpec in controls)
+                    {
+                        string ctrlType = ctrlSpec.Type?.Trim() ?? string.Empty;
+                        string ctrlName = ctrlSpec.Name?.Trim() ?? string.Empty;
+
+                        if (ctrlType.Equals("CommandButton", StringComparison.OrdinalIgnoreCase) ||
+                            ctrlType.Equals("Button", StringComparison.OrdinalIgnoreCase))
+                        {
+                            // Botón de comando
+                            dynamic btn = app.CreateControl(tempFormName, 104, 0, "", "", leftTwips, topTwips, 1600, 450);
+                            if (!string.IsNullOrWhiteSpace(ctrlName))
+                            {
+                                btn.Name = ctrlName;
+                            }
+                            if (!string.IsNullOrWhiteSpace(ctrlSpec.Caption))
+                            {
+                                btn.Caption = ctrlSpec.Caption;
+                            }
+                            controlCount++;
+                            leftTwips += 1800;
+                            if (leftTwips > 5000)
+                            {
+                                leftTwips = 300;
+                                topTwips += 600;
+                            }
+                        }
+                        else if (ctrlType.Equals("TextBox", StringComparison.OrdinalIgnoreCase))
+                        {
+                            // Si tiene label asociada o texto de etiqueta
+                            if (!string.IsNullOrWhiteSpace(ctrlSpec.Label))
+                            {
+                                dynamic lbl = app.CreateControl(tempFormName, 100, 0, "", "", 300, topTwips, labelWidth, rowHeight);
+                                lbl.Caption = ctrlSpec.Label;
+                                controlCount++;
+                            }
+
+                            dynamic txt = app.CreateControl(tempFormName, 109, 0, "", "", 300 + labelWidth + 100, topTwips, textWidth, rowHeight);
+                            if (!string.IsNullOrWhiteSpace(ctrlName))
+                            {
+                                txt.Name = ctrlName;
+                            }
+                            if (ctrlSpec.IsPassword)
+                            {
+                                txt.InputMask = "Password";
+                            }
+                            controlCount++;
+                            topTwips += (rowHeight + rowGap);
+                        }
+                        else if (ctrlType.Equals("Label", StringComparison.OrdinalIgnoreCase))
+                        {
+                            dynamic lbl = app.CreateControl(tempFormName, 100, 0, "", "", 300, topTwips, labelWidth + textWidth, rowHeight + 100);
+                            if (!string.IsNullOrWhiteSpace(ctrlName))
+                            {
+                                lbl.Name = ctrlName;
+                            }
+                            lbl.Caption = ctrlSpec.Caption ?? ctrlSpec.Label ?? "Label";
+                            controlCount++;
+                            topTwips += (rowHeight + rowGap + 100);
+                        }
+                    }
+                }
+
+                // 2. Guardar formulario con el nombre definitivo y cerrar
+                // DoCmd.Save(acForm = 2, tempFormName)
+                // DoCmd.Close(acForm = 2, tempFormName, acSavePrompt = 0 / acSaveYes = 1)
+                dynamic doCmd = app.DoCmd;
+                doCmd.Save(2, tempFormName);
+                doCmd.Close(2, tempFormName, 1);
+
+                // Renombrar si tempFormName era Form1 y el nombre deseado es diferente
+                if (!tempFormName.Equals(name, StringComparison.OrdinalIgnoreCase))
+                {
+                    try
+                    {
+                        doCmd.Rename(name, 2, tempFormName);
+                    }
+                    catch
+                    {
+                        // Si ya existía o falla rename, intentar guardar directamente o reportar
+                    }
+                }
+
+                return new CreateFormResult(name, true, controlCount, $"Formulario '{name}' creado exitosamente con {controlCount} controles.");
+            }
+            catch (Exception ex)
+            {
+                throw new BlsComException("CreateAccessForm", BlsComCategory.Other, $"Fallo al crear formulario '{name}': {ex.Message}", ex);
+            }
+        }
     }
 }

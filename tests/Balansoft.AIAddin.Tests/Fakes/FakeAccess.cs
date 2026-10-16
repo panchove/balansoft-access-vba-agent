@@ -154,4 +154,11 @@ public sealed class FakeAccess : IBlsAccess
             TruncatedFields: false,
             MacroType: "Standalone");
     }
+
+    public CreateFormResult CreateForm(string name, string? caption, IReadOnlyList<CreateFormControl>? controls)
+    {
+        BlsContract.RequiresNotNullOrWhiteSpace(name, nameof(name));
+        int count = controls?.Count ?? 0;
+        return new CreateFormResult(name, true, count, $"Formulario fake '{name}' creado con {count} controles.");
+    }
 }

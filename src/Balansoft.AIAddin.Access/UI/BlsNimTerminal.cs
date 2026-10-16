@@ -1380,6 +1380,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         var createModuleSchema = JsonDocument.Parse("{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"code\":{\"type\":\"string\"},\"type\":{\"type\":\"string\",\"enum\":[\"Standard\",\"Class\",\"Form\"]}}}").RootElement;
         var deleteModuleSchema = JsonDocument.Parse("{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"confirm\":{\"type\":\"boolean\"}}}").RootElement;
         var objectDetailSchema = JsonDocument.Parse("{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"type\":{\"type\":\"string\"},\"include_sql\":{\"type\":\"boolean\"},\"max_fields\":{\"type\":\"integer\"}}}").RootElement;
+        var createFormSchema = JsonDocument.Parse("{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"caption\":{\"type\":\"string\"},\"controls\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"type\":{\"type\":\"string\",\"enum\":[\"TextBox\",\"Label\",\"CommandButton\"]},\"name\":{\"type\":\"string\"},\"label\":{\"type\":\"string\"},\"caption\":{\"type\":\"string\"},\"is_password\":{\"type\":\"boolean\"}},\"required\":[\"type\"]}}},\"required\":[\"name\"]}").RootElement;
 
         return new List<ToolDefinition>
         {
@@ -1392,7 +1393,8 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             new ToolDefinition("get_active_module", "Obtiene informacion del modulo activo", emptySchema),
             new ToolDefinition("project_summary", "Resumen del proyecto Access", emptySchema),
             new ToolDefinition("list_objects", "Lista objetos por categoria", emptySchema),
-            new ToolDefinition("object_detail", "Detalle de un objeto", objectDetailSchema)
+            new ToolDefinition("object_detail", "Detalle de un objeto", objectDetailSchema),
+            new ToolDefinition("create_form", "Crea un nuevo formulario Access con controles (TextBox, Label, CommandButton)", createFormSchema)
         };
     }
 

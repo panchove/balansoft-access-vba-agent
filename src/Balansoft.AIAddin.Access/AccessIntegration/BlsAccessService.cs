@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
+using System.Collections.Generic;
 using Balansoft.AIAddin.Access.Helpers;
 using Balansoft.AIAddin.Helpers;
 using Balansoft.AIAddin.VbeIntegration;
@@ -34,6 +35,12 @@ namespace Balansoft.AIAddin.AccessIntegration
             BlsContract.RequiresNotNullOrWhiteSpace(type, nameof(type));
             BlsContract.Requires(maxFields > 0, "maxFields debe ser un entero positivo.");
             return BlsComHelper.GetObjectDetail(_accessApp, name, type, includeSql, maxFields);
+        }
+
+        public CreateFormResult CreateForm(string name, string? caption, IReadOnlyList<CreateFormControl>? controls)
+        {
+            BlsContract.RequiresNotNullOrWhiteSpace(name, nameof(name));
+            return BlsComHelper.CreateAccessForm(_accessApp, name, caption, controls);
         }
     }
 }
