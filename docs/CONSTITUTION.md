@@ -1,9 +1,9 @@
 ---
-version: 1.1.0
+version: 1.2.0
 date: 2026-10-15
 status: approved
 iso_standard: [12207, 25010, 29148, 42010]
-aligns_to: [AGENTS.md, PRD.md, ADR-001..005]
+aligns_to: [AGENTS.md, PRD.md, ADR-001..012]
 tags: [governance, constitution, sdd, iso-standards, quality-gates]
 ---
 
@@ -14,7 +14,7 @@ tags: [governance, constitution, sdd, iso-standards, quality-gates]
 > de CI en `.github/workflows/ci.yml`.
 > Los contratos por feature están en `specs/`, indexados en `specs/README.md`.
 >
-> **Estado:** v1.1 · Aceptado · 2026-10-15
+> **Estado:** v1.2 · Aceptado · 2026-10-15
 
 ---
 
@@ -40,13 +40,19 @@ humana, y ninguno depende de la buena voluntad del autor.
 
 ## I. Principios
 
-### P1 — El ADRs ganan
+### P1 — Los ADRs ganan y patrón de diseño obligatorio (ISO/IEC 42010)
 
 Los ADR en `docs/design/ADR-*.md` son la fuente de verdad cuando un spec, un
 skill o el código discrepan. Si un cambio de comportamiento invalida un ADR, el
 ADR se actualiza **en el mismo PR** que el cambio.
 
-> today: ADR-001..012 todos Aceptados.
+**Regla de nomenclatura y formato:** Todo documento dentro de `docs/design/` debe
+cumplir obligatoriamente con el patrón `ADR-NNN-<SLUG>.md` (ej. `ADR-001-...md`,
+`ADR-012-...md`) y declarar metadatos normalizados en su frontmatter YAML
+(`version`, `date`, `status`, `iso_standard: [42010, ...]`). No se admiten
+documentos de diseño con fechas u otros prefijos.
+
+> today: ADR-001..012 todos Aceptados y estandarizados.
 
 ### P2 — Contrato primero, implementación después
 
@@ -351,6 +357,7 @@ fecha, motivo y responsable.
 |---------|------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
 | v1.0    | 2026-10-02 | Versión inicial derivada de `AGENTS.md`, ADR-001..004 y `ci.yml`                                                                                                                                                       | Punto de partida del SDD                                                                                               |
 | v1.1    | 2026-10-02 | Índice de `specs/` como parte del documento; P2 y P3 alineados con el código real; el gate de CI marcado como no ejecutado; estado del árbol verificado (`Directory.Build.props` y `TreatWarningsAsErrors` no existen) | Los nueve specs obligaron a contrastar la constitución con el árbol y encontraron afirmaciones que el código desmiente |
+| v1.2    | 2026-10-15 | Homologación obligatoria de `docs/design/` al patrón `ADR-NNN-<SLUG>.md` según ISO/IEC 42010; metadatos YAML unificados | Exigencia de trazabilidad y consistencia formal en toda la documentación de arquitectura y diseño |
 
 Los hallazgos que surjan del propio SDD (este documento y los specs) se resuelven
 corrigiendo el spec o la constitución, no marcándolos como "agendados".

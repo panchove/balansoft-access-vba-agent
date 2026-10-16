@@ -30,6 +30,7 @@
 10. **Abort:** un `CancellationTokenSource` por turno de usuario. Ver ADR‑003.
 11. **Nullable=annotations** (no `disable`).
 12. **DbC:** todo método o servicio público debe validar precondiciones vía `BlsContract` (ADR-005).
+13. **Documentación de diseño (ISO/IEC 42010):** todo documento en `docs/design/` debe seguir estrictamente el patrón `ADR-NNN-<SLUG>.md` con frontmatter YAML estandarizado (`version`, `date`, `status`, `iso_standard: [42010, ...]`).
 
 ---
 ## Comandos canónicos (usar `pwsh`)
@@ -89,7 +90,7 @@
 | `catch (Exception) { }` en llamadas COM         | Traga errores; usar `BlsComHelper` / `BlsComException` |
 | Llamar COM desde hilo NIM sin marshaling        | Crash del host                                         |
 | `Application.VBE` sin comprobar `null`          | Rompe en runtime/ACCDE                                 |
-| Referencias a `Microsoft.Office.Interop.*`      | Bloquea merge (TreatWarningsAsErrors)
+| Referencias a `Microsoft.Office.Interop.*`      | Bloquea merge (TreatWarningsAsErrors)                  |
 
 ---
 ## Testing & QA
