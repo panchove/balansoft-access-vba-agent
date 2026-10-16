@@ -18,7 +18,7 @@ Aprobado — evoluciona el modelo de sesión única continua hacia soporte multi
 2026-10-15
 
 ## Contexto
-El diseño original de persistencia ([ADR-001](file:///c:/desarrollos/balansoft-access-vba-agent/docs/design/ADR-001-PROJECT-IDENTITY.md) y [ADR-006](file:///c:/desarrollos/balansoft-access-vba-agent/docs/design/ADR-006-CHAT-HISTORY.md)) asociaba un único archivo JSON continuo por proyecto (`{ProjectKey}.json`).
+El diseño original de persistencia ([ADR-001](file:///c:/desarrollos/balansoft-access-vba-agent/docs/design/ADR-001-PROJECT-IDENTITY.md) y [spec 006](file:///c:/desarrollos/balansoft-access-vba-agent/specs/006-CHAT-HISTORY.md)) asociaba un único archivo JSON continuo por proyecto (`{ProjectKey}.json`).
 Con el uso continuo, esto presenta dos limitaciones principales:
 1. Imposibilidad de consultar o retomar sesiones de trabajo realizadas días atrás de forma separada o aislada (por ejemplo, para revisar una tarea de cálculo de hace dos días sin mezclarla con refactorizaciones actuales).
 2. Dificultad para invocar intenciones repetitivas sobre el código VBA activo (explicar código, documentar, refactorizar, generar tests, consultar contexto o reiniciar conversación), requiriendo tipeo manual extenso en el prompt.

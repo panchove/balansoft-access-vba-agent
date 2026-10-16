@@ -2,7 +2,7 @@
 
 > Contexto operativo y de mantenimiento para sesiones futuras.
 > Actualizar al cerrar cada bloque de trabajo relevante.
-> Última actualización: 2026-10-02 (SDD completo: constitución + 9 specs).
+> Última actualización: 2026-10-16 (Fix CI workflow, homogenización ADRs/specs y validación de 165 tests verdes).
 
 ---
 
