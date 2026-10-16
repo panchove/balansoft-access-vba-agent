@@ -60,6 +60,15 @@ Se expande el protocolo JSON-RPC, los contratos de `IBlsAccess` y la fachada COM
 - **Firma:** `migrate_commandbar_to_ribbon(commandbar_name: string, target_ribbon_name?: string)`
 - **Transformación Declarativa:** Convierte automáticamente la estructura jerárquica de botones de la barra clásica en un XML estándar CustomUI Fluent UI (`<tab>`, `<group>`, `<button onAction="...">`), limpiando los atajos de teclado clásicos `&` e inyectándolo directamente en la tabla `USysRibbons`.
 
+### 8. Diagnóstico de Proyectos ADP (`inspect_adp`)
+- **Firma:** `inspect_adp()`
+- **Inspección de Conexión:** Evalúa `CurrentProject.ProjectType` (1 = `acADP`), parsea `CurrentProject.BaseConnectionString` para extraer el servidor SQL Server y la base de datos de origen, y totaliza los objetos de interfaz (`AllForms`, `AllReports`, `AllMacros`, `AllModules`).
+
+### 9. Migración de ADP a ACCDB (`migrate_adp_to_accdb`)
+- **Firma:** `migrate_adp_to_accdb(target_accdb_path?: string)`
+- **Contenedor Nativo:** Inicializa un archivo `.accdb` vacío mediante el motor de base de datos de Access.
+- **Transferencia Completa de Objetos:** Itera mediante `DoCmd.TransferDatabase(acExport, "Microsoft Access", targetPath, ...)` para exportar limpiamente todos los formularios, informes, macros y módulos VBA desde el ADP hacia el nuevo contenedor `.accdb`.
+
 ## Consecuencias
-- **Positivas:** El asistente es capaz de construir aplicaciones Access completas (tablas, consultas, formularios UI, ribbons y módulos VBA) en lenguaje natural y modernizar proyectos legados de Access 2003 automáticamente hacia Access 2010+.
+- **Positivas:** Permite recuperar y modernizar proyectos legados de Access Data Project (ADP) descatalogados en versiones de Access posteriores a 2010, convirtiéndolos en contenedores ACCDB modernos listos para vincularse vía ODBC o Azure SQL.
 - **Garantías de Diseño:** Todo el acceso COM cumple con las reglas no negociables de `AGENTS.md`: sin PIAs, enlace tardío dinámico encapsulado exclusivamente en `BlsComHelper.cs`, marshaling obligatorio a UI thread y validación por contratos `BlsContract`.

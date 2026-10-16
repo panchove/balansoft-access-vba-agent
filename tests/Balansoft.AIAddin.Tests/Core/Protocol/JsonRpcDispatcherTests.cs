@@ -513,5 +513,46 @@ public class JsonRpcDispatcherTests
         Assert.AreEqual("rbn_Moderno", result.RibbonName);
         Assert.IsTrue(result.Success);
     }
+
+    [TestMethod]
+    public async Task Bridge_InspectAdp_EjecutaYDevuelveResult()
+    {
+        // Arrange
+        var request = CreateRequest("inspect_adp", 1);
+
+        // Act
+        var response = await _dispatcher.DispatchAsync(request, CancellationToken.None);
+
+        // Assert
+        Assert.IsNull(response.Error);
+        Assert.IsNotNull(response.Result);
+        var result = (Balansoft.AIAddin.AccessIntegration.InspectAdpResult)response.Result!;
+        Assert.IsTrue(result.IsAdp);
+        Assert.AreEqual("SQLSERVER01", result.ServerName);
+        Assert.AreEqual("GestionComercial", result.DatabaseName);
+        Assert.AreEqual(12, result.FormCount);
+    }
+
+    [TestMethod]
+    public async Task Bridge_MigrateAdpToAccdb_EjecutaYDevuelveResult()
+    {
+        // Arrange
+        var request = CreateRequest("migrate_adp_to_accdb", 1, new
+        {
+            target_accdb_path = @"C:\Proyectos\TestMigrated.accdb"
+        });
+
+        // Act
+        var response = await _dispatcher.DispatchAsync(request, CancellationToken.None);
+
+        // Assert
+        Assert.IsNull(response.Error);
+        Assert.IsNotNull(response.Result);
+        var result = (Balansoft.AIAddin.AccessIntegration.MigrateAdpResult)response.Result!;
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual(@"C:\Proyectos\TestMigrated.accdb", result.TargetAccdbPath);
+        Assert.AreEqual(12, result.FormsExported);
+        Assert.AreEqual(8, result.ReportsExported);
+    }
 }
 

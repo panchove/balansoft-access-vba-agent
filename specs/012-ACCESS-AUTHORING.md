@@ -101,6 +101,20 @@ When el dispatcher ejecuta la migración
 Then se genera el Ribbon XML a partir de los controles de la CommandBar y se almacena en USysRibbons
 ```
 
+### Escenario: Inspección de proyecto ADP
+```gherkin
+Given un request JSON-RPC con método "inspect_adp"
+When el dispatcher inspecciona el proyecto activo
+Then detecta el tipo de proyecto, servidor SQL Server, base de datos y conteo de objetos
+```
+
+### Escenario: Migración de proyecto ADP a contenedor ACCDB
+```gherkin
+Given un request JSON-RPC con método "migrate_adp_to_accdb"
+When el dispatcher ejecuta la migración
+Then crea el archivo .accdb y exporta todos los formularios, informes, macros y módulos
+```
+
 ---
 
 ## Tests Obligatorios
@@ -114,3 +128,5 @@ Then se genera el Ribbon XML a partir de los controles de la CommandBar y se alm
 | `Bridge_CreateRibbon_EjecutaYDevuelveResult` | `JsonRpcDispatcherTests.cs` | Superado |
 | `Bridge_ListCommandBars_EjecutaYDevuelveResult` | `JsonRpcDispatcherTests.cs` | Superado |
 | `Bridge_MigrateCommandBarToRibbon_EjecutaYDevuelveResult` | `JsonRpcDispatcherTests.cs` | Superado |
+| `Bridge_InspectAdp_EjecutaYDevuelveResult` | `JsonRpcDispatcherTests.cs` | Superado |
+| `Bridge_MigrateAdpToAccdb_EjecutaYDevuelveResult` | `JsonRpcDispatcherTests.cs` | Superado |

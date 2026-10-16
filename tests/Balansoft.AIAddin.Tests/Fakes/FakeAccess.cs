@@ -208,4 +208,33 @@ public sealed class FakeAccess : IBlsAccess
         string fakeXml = $"<customUI><ribbon><tabs><tab id='tab_{target}' label='{commandBarName}'></tab></tabs></ribbon></customUI>";
         return new MigrateCommandBarResult(commandBarName, target, true, fakeXml, $"CommandBar fake '{commandBarName}' migrada.");
     }
+
+    public InspectAdpResult InspectAdp()
+    {
+        return new InspectAdpResult(
+            IsAdp: true,
+            ProjectName: "LegacyApp.adp",
+            ServerName: "SQLSERVER01",
+            DatabaseName: "GestionComercial",
+            ConnectionString: "Provider=SQLOLEDB;Data Source=SQLSERVER01;Initial Catalog=GestionComercial;",
+            FormCount: 12,
+            ReportCount: 8,
+            MacroCount: 4,
+            ModuleCount: 6,
+            Message: "Proyecto ADP de prueba detectado.");
+    }
+
+    public MigrateAdpResult MigrateAdpToAccdb(string? targetAccdbPath = null)
+    {
+        string target = targetAccdbPath ?? @"C:\Proyectos\LegacyApp.accdb";
+        return new MigrateAdpResult(
+            SourceAdpPath: @"C:\Proyectos\LegacyApp.adp",
+            TargetAccdbPath: target,
+            Success: true,
+            FormsExported: 12,
+            ReportsExported: 8,
+            MacrosExported: 4,
+            ModulesExported: 6,
+            Message: "Migración fake de ADP a ACCDB completada con éxito.");
+    }
 }

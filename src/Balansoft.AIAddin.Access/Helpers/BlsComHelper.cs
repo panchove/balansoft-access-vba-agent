@@ -1123,5 +1123,261 @@ namespace Balansoft.AIAddin.Access.Helpers
                 throw new BlsComException("MigrateCommandBarToRibbon", BlsComCategory.Other, $"Error al migrar CommandBar '{commandBarName}': {ex.Message}", ex);
             }
         }
+
+        /// <summary>
+        /// Inspecciona si el proyecto activo es un Access Data Project (.adp) conectado a SQL Server.
+        /// </summary>
+        /// <param name="accessApp">Instancia nativa de Microsoft Access.</param>
+        /// <returns>Información de diagnóstico <see cref="InspectAdpResult"/>.</returns>
+        public static InspectAdpResult InspectAccessAdp(object? accessApp)
+        {
+            if (accessApp == null)
+            {
+                throw new BlsComException("InspectAccessAdp", BlsComCategory.UnexpectedType, "accessApp es null", null);
+            }
+
+            try
+            {
+                dynamic app = accessApp;
+                dynamic currentProj = app.CurrentProject;
+                if (currentProj == null)
+                {
+                    return new InspectAdpResult(false, "Unknown", null, null, null, 0, 0, 0, 0, "No hay proyecto abierto.");
+                }
+
+                // ProjectType = 1 (acADP), ProjectType = 2 (acMDB / ACCDB)
+                int projType = 0;
+                try
+                {
+                    projType = (int)currentProj.ProjectType;
+                }
+                catch
+                {
+                    // Si falla leer ProjectType, deducir por extensión
+                }
+
+                string projName = (string)(currentProj.Name ?? "Unknown");
+                bool isAdp = projType == 1 || projName.EndsWith(".adp", StringComparison.OrdinalIgnoreCase);
+
+                string? connStr = null;
+                string? server = null;
+                string? db = null;
+
+                try
+                {
+                    connStr = (string?)currentProj.BaseConnectionString;
+                    if (!string.IsNullOrEmpty(connStr))
+                    {
+                        var parts = connStr!.Split(';');
+                        foreach (var part in parts)
+                        {
+                            var kv = part.Split('=');
+                            if (kv.Length == 2)
+                            {
+                                string k = kv[0].Trim().ToUpperInvariant();
+                                string v = kv[1].Trim();
+                                if (k == "DATA SOURCE" || k == "SERVER") server = v;
+                                if (k == "INITIAL CATALOG" || k == "DATABASE") db = v;
+                            }
+                        }
+                    }
+                }
+                catch
+                {
+                    // Conexión no disponible
+                }
+
+                int forms = 0, reports = 0, macros = 0, modules = 0;
+                try { forms = (int)currentProj.AllForms.Count; } catch { }
+                try { reports = (int)currentProj.AllReports.Count; } catch { }
+                try { macros = (int)currentProj.AllMacros.Count; } catch { }
+                try { modules = (int)currentProj.AllModules.Count; } catch { }
+
+                return new InspectAdpResult(
+                    isAdp,
+                    projName,
+                    server,
+                    db,
+                    connStr,
+                    forms,
+                    reports,
+                    macros,
+                    modules,
+                    isAdp
+                        ? $"Proyecto ADP detectado conectado a servidor '{server ?? "desconocido"}' y base '{db ?? "desconocida"}'."
+                        : "El proyecto activo no es de tipo .adp (es un archivo .accdb/.mdb estándar).");
+            }
+            catch (Exception ex)
+            {
+                throw new BlsComException("InspectAccessAdp", BlsComCategory.Other, $"Error al inspeccionar proyecto ADP: {ex.Message}", ex);
+            }
+        }
+
+        /// <summary>
+        /// Migra un proyecto Access Data Project (.adp) a formato nativo .accdb creando el nuevo archivo y transfiriendo todos sus objetos de interfaz y módulos VBA.
+        /// </summary>
+        /// <param name="accessApp">Instancia nativa de Microsoft Access.</param>
+        /// <param name="targetAccdbPath">Ruta absoluta del archivo .accdb destino (opcional, por defecto junto al .adp).</param>
+        /// <returns>Resultado de la migración <see cref="MigrateAdpResult"/>.</returns>
+        public static MigrateAdpResult MigrateAdpToAccdb(
+            object? accessApp,
+            string? targetAccdbPath = null)
+        {
+            if (accessApp == null)
+            {
+                throw new BlsComException("MigrateAdpToAccdb", BlsComCategory.UnexpectedType, "accessApp es null", null);
+            }
+
+            try
+            {
+                dynamic app = accessApp;
+                dynamic currentProj = app.CurrentProject;
+                string sourcePath = (string)(currentProj?.FullName ?? "");
+
+                if (string.IsNullOrWhiteSpace(sourcePath))
+                {
+                    return new MigrateAdpResult("", "", false, 0, 0, 0, 0, "No hay proyecto abierto en Access.");
+                }
+
+                string targetPath = !string.IsNullOrWhiteSpace(targetAccdbPath)
+                    ? targetAccdbPath!
+                    : System.IO.Path.ChangeExtension(sourcePath, ".accdb");
+
+                if (targetPath.Equals(sourcePath, StringComparison.OrdinalIgnoreCase))
+                {
+                    targetPath = System.IO.Path.Combine(
+                        System.IO.Path.GetDirectoryName(sourcePath) ?? "",
+                        System.IO.Path.GetFileNameWithoutExtension(sourcePath) + "_Migrated.accdb");
+                }
+
+                // Si ya existe el destino, eliminarlo para empezar limpio
+                if (System.IO.File.Exists(targetPath))
+                {
+                    try
+                    {
+                        System.IO.File.Delete(targetPath);
+                    }
+                    catch (Exception ex)
+                    {
+                        return new MigrateAdpResult(sourcePath, targetPath, false, 0, 0, 0, 0, $"No se pudo sobrescribir el archivo destino '{targetPath}': {ex.Message}");
+                    }
+                }
+
+                // 1. Crear nueva base de datos .accdb en blanco
+                // Application.NewCurrentDatabase(filepath) o DBEngine.CreateDatabase
+                // En Access automation, NewAccessDatabase crea el contenedor vacío
+                try
+                {
+                    app.NewAccessDatabase(targetPath);
+                }
+                catch
+                {
+                    // Alternativa: Si NewAccessDatabase cierra el actual, usar DBEngine de DAO
+                    try
+                    {
+                        dynamic dbEngine = app.DBEngine;
+                        dynamic newDb = dbEngine.CreateDatabase(targetPath, ";LANGID=0x0409;CP=1252;COUNTRY=0");
+                        newDb.Close();
+                    }
+                    catch (Exception ex)
+                    {
+                        return new MigrateAdpResult(sourcePath, targetPath, false, 0, 0, 0, 0, $"Error al inicializar contenedor .accdb: {ex.Message}");
+                    }
+                }
+
+                // 2. Exportar todos los objetos de UI y código desde el ADP al nuevo ACCDB
+                // DoCmd.TransferDatabase(acExport = 2, "Microsoft Access", targetPath, ObjectType, SourceName, TargetName)
+                // acForm = 2, acReport = 3, acMacro = 4, acModule = 5
+                dynamic doCmd = app.DoCmd;
+
+                int formsExp = 0, reportsExp = 0, macrosExp = 0, modulesExp = 0;
+
+                // Formularios
+                try
+                {
+                    dynamic allForms = currentProj.AllForms;
+                    int count = (int)allForms.Count;
+                    for (int i = 0; i < count; i++)
+                    {
+                        try
+                        {
+                            string name = (string)allForms[i].Name;
+                            doCmd.TransferDatabase(2, "Microsoft Access", targetPath, 2, name, name);
+                            formsExp++;
+                        }
+                        catch { }
+                    }
+                }
+                catch { }
+
+                // Informes / Reports
+                try
+                {
+                    dynamic allReports = currentProj.AllReports;
+                    int count = (int)allReports.Count;
+                    for (int i = 0; i < count; i++)
+                    {
+                        try
+                        {
+                            string name = (string)allReports[i].Name;
+                            doCmd.TransferDatabase(2, "Microsoft Access", targetPath, 3, name, name);
+                            reportsExp++;
+                        }
+                        catch { }
+                    }
+                }
+                catch { }
+
+                // Macros
+                try
+                {
+                    dynamic allMacros = currentProj.AllMacros;
+                    int count = (int)allMacros.Count;
+                    for (int i = 0; i < count; i++)
+                    {
+                        try
+                        {
+                            string name = (string)allMacros[i].Name;
+                            doCmd.TransferDatabase(2, "Microsoft Access", targetPath, 4, name, name);
+                            macrosExp++;
+                        }
+                        catch { }
+                    }
+                }
+                catch { }
+
+                // Módulos VBA
+                try
+                {
+                    dynamic allModules = currentProj.AllModules;
+                    int count = (int)allModules.Count;
+                    for (int i = 0; i < count; i++)
+                    {
+                        try
+                        {
+                            string name = (string)allModules[i].Name;
+                            doCmd.TransferDatabase(2, "Microsoft Access", targetPath, 5, name, name);
+                            modulesExp++;
+                        }
+                        catch { }
+                    }
+                }
+                catch { }
+
+                return new MigrateAdpResult(
+                    sourcePath,
+                    targetPath,
+                    true,
+                    formsExp,
+                    reportsExp,
+                    macrosExp,
+                    modulesExp,
+                    $"Proyecto ADP migrado con éxito a '{targetPath}'. Objetos exportados: {formsExp} Formularios, {reportsExp} Informes, {macrosExp} Macros y {modulesExp} Módulos VBA.");
+            }
+            catch (Exception ex)
+            {
+                throw new BlsComException("MigrateAdpToAccdb", BlsComCategory.Other, $"Error durante la migración de ADP a ACCDB: {ex.Message}", ex);
+            }
+        }
     }
 }

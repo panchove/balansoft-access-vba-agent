@@ -104,6 +104,9 @@ public sealed class JsonRpcDispatcher
                 JsonRpcMethods.MigrateCommandBarToRibbon => await HandleAccessAsync(request, ct, () => _access.MigrateCommandBarToRibbon(
                     GetStringParam(request, "commandbar_name"),
                     GetOptionalStringParam(request, "target_ribbon_name"))),
+                JsonRpcMethods.InspectAdp        => await HandleAccessAsync(request, ct, () => _access.InspectAdp()),
+                JsonRpcMethods.MigrateAdpToAccdb => await HandleAccessAsync(request, ct, () => _access.MigrateAdpToAccdb(
+                    GetOptionalStringParam(request, "target_accdb_path"))),
                 _ => JsonRpcResponse.CreateError(request.Id, new JsonRpcError(
                     JsonRpcErrorCodes.MethodNotFound,
                     $"Método no implementado: {request.Method}",

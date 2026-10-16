@@ -81,5 +81,15 @@ namespace Balansoft.AIAddin.AccessIntegration
             BlsContract.RequiresNotNullOrWhiteSpace(commandBarName, nameof(commandBarName));
             return BlsComHelper.MigrateCommandBarToRibbon(_accessApp, commandBarName, targetRibbonName);
         }
+
+        public InspectAdpResult InspectAdp()
+        {
+            return BlsComHelper.InspectAccessAdp(_accessApp);
+        }
+
+        public MigrateAdpResult MigrateAdpToAccdb(string? targetAccdbPath = null)
+        {
+            return BlsComHelper.MigrateAdpToAccdb(_accessApp, targetAccdbPath);
+        }
     }
 }

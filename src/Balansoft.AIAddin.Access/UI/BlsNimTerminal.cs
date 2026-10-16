@@ -1387,6 +1387,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         var createRibbonSchema = JsonDocument.Parse("{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"ribbon_xml\":{\"type\":\"string\"}},\"required\":[\"name\",\"ribbon_xml\"]}").RootElement;
         var listCommandBarsSchema = JsonDocument.Parse("{\"type\":\"object\",\"properties\":{\"custom_only\":{\"type\":\"boolean\"}}}").RootElement;
         var migrateCommandBarSchema = JsonDocument.Parse("{\"type\":\"object\",\"properties\":{\"commandbar_name\":{\"type\":\"string\"},\"target_ribbon_name\":{\"type\":\"string\"}},\"required\":[\"commandbar_name\"]}").RootElement;
+        var migrateAdpSchema = JsonDocument.Parse("{\"type\":\"object\",\"properties\":{\"target_accdb_path\":{\"type\":\"string\"}}}").RootElement;
 
         return new List<ToolDefinition>
         {
@@ -1406,7 +1407,9 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             new ToolDefinition("execute_sql", "Ejecuta una sentencia SQL DDL/DML (CREATE TABLE, INSERT, UPDATE, ALTER, etc.)", executeSqlSchema),
             new ToolDefinition("create_ribbon", "Crea o actualiza una cinta de opciones (Ribbon XML) en la tabla del sistema USysRibbons", createRibbonSchema),
             new ToolDefinition("list_commandbars", "Lista las barras y menus CommandBars clasicos de Access 2003", listCommandBarsSchema),
-            new ToolDefinition("migrate_commandbar_to_ribbon", "Migra una CommandBar clasica a un Ribbon XML moderno en USysRibbons", migrateCommandBarSchema)
+            new ToolDefinition("migrate_commandbar_to_ribbon", "Migra una CommandBar clasica a un Ribbon XML moderno en USysRibbons", migrateCommandBarSchema),
+            new ToolDefinition("inspect_adp", "Inspecciona si el proyecto es un ADP, sus conexiones a SQL Server y conteo de objetos", emptySchema),
+            new ToolDefinition("migrate_adp_to_accdb", "Migra el proyecto ADP a formato nativo ACCDB exportando formularios, informes, macros y modulos", migrateAdpSchema)
         };
     }
 

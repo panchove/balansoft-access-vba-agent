@@ -35,7 +35,9 @@ internal sealed class SystemPromptBuilder : ISystemPromptBuilder
         "- execute_sql: ejecuta cualquier sentencia SQL DDL/DML (CREATE TABLE, INSERT, UPDATE, ALTER, etc.)\n" +
         "- create_ribbon: crea o actualiza una cinta de opciones (Ribbon XML) en la tabla del sistema USysRibbons de Access\n" +
         "- list_commandbars: lista las barras de herramientas y menus clasicos (CommandBars) de Access 2003\n" +
-        "- migrate_commandbar_to_ribbon: convierte automaticamente un menu clasico CommandBar en un Ribbon XML moderno en USysRibbons\n\n" +
+        "- migrate_commandbar_to_ribbon: convierte automaticamente un menu clasico CommandBar en un Ribbon XML moderno en USysRibbons\n" +
+        "- inspect_adp: inspecciona el estado de un proyecto .adp (Access Data Project) conectado a SQL Server\n" +
+        "- migrate_adp_to_accdb: migra el proyecto .adp a formato nativo .accdb exportando formularios, informes, macros y modulos\n\n" +
         "Proyecto actual:\n" +
         "- Nombre: {ProjectName}\n" +
         "- ProjectKey: {ProjectKey}\n" +

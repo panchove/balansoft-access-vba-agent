@@ -169,6 +169,34 @@ public sealed record MigrateCommandBarResult(
     string? Message = null);
 
 /// <summary>
+/// Información de diagnóstico de un proyecto Access Data Project (.adp) conectado a SQL Server.
+/// </summary>
+public sealed record InspectAdpResult(
+    bool IsAdp,
+    string ProjectName,
+    string? ServerName,
+    string? DatabaseName,
+    string? ConnectionString,
+    int FormCount,
+    int ReportCount,
+    int MacroCount,
+    int ModuleCount,
+    string? Message = null);
+
+/// <summary>
+/// Resultado de la migración de un archivo .adp a formato nativo .accdb.
+/// </summary>
+public sealed record MigrateAdpResult(
+    string SourceAdpPath,
+    string TargetAccdbPath,
+    bool Success,
+    int FormsExported,
+    int ReportsExported,
+    int MacrosExported,
+    int ModulesExported,
+    string? Message = null);
+
+/// <summary>
 /// Contrato de operaciones sobre objetos Access.
 /// Implementado por BlsAccessService.
 /// </summary>
@@ -203,4 +231,10 @@ public interface IBlsAccess
 
     /// <summary>Migra una CommandBar clásica de Access 2003 a un Ribbon XML moderno en USysRibbons.</summary>
     MigrateCommandBarResult MigrateCommandBarToRibbon(string commandBarName, string? targetRibbonName = null);
+
+    /// <summary>Inspecciona las propiedades de conexión a SQL Server y objetos de un proyecto .adp.</summary>
+    InspectAdpResult InspectAdp();
+
+    /// <summary>Migra un proyecto .adp a un contenedor .accdb exportando formularios, informes, macros y módulos.</summary>
+    MigrateAdpResult MigrateAdpToAccdb(string? targetAccdbPath = null);
 }
