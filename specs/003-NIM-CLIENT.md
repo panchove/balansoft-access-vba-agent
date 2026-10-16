@@ -1,8 +1,18 @@
+---
+version: 1.0.0
+date: 2026-10-15
+status: implementado
+iso_standard: [29148, 25010]
+aligns_to: [PRD.md, AGENTS.md, docs/design/ADR-007-NIM-CLIENT.md]
+tags: [spec, nim-client, streaming, sse, tool-calls]
+---
+
 # 003 — Cliente NIM
 
+**Norma de referencia:** ISO/IEC 29148:2018 (Requirements Engineering) / ISO/IEC 25010:2023  
 **Estado:** `implementado`
 **PRD:** FR-09
-**ADRs:** ADR-003 (abort)
+**ADRs:** ADR-003 (abort), ADR-007 (cliente nim)
 **Spec de diseño:** `docs/design/ADR-007-NIM-CLIENT.md`
 **Tests:** 53 verdes — 28 en `BlsNimClientTests`, 14 en `NimStreamParserTests`,
   11 en `NimHttpRequestBuilderTests`

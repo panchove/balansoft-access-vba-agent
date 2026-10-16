@@ -1,4 +1,15 @@
+---
+version: 1.0.0
+date: 2026-10-15
+status: active
+iso_standard: [29148, 25010]
+aligns_to: [PRD.md, AGENTS.md, CONSTITUTION.md]
+tags: [specs, index, requirements-engineering, contracts]
+---
+
 # Specs — Balansoft Access VBA Agent
+
+> **Norma de referencia:** ISO/IEC 29148:2018 (Requirements Engineering) / ISO/IEC 25010:2023 (Calidad de Software)
 
 Cada spec es un contrato verificable de una funcionalidad. Un PR de feature
 debe referenciar el spec que implementa y tener sus criterios de aceptación

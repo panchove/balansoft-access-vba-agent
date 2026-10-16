@@ -1,8 +1,18 @@
+---
+version: 1.0.0
+date: 2026-10-15
+status: aceptado
+iso_standard: [29148, 25010]
+aligns_to: [PRD.md, AGENTS.md, docs/design/ADR-009-SECURE-STORE.md]
+tags: [spec, secure-store, dpapi, security]
+---
+
 # 005 — Secure Store (DPAPI)
 
+**Norma de referencia:** ISO/IEC 29148:2018 (Requirements Engineering) / ISO/IEC 25010:2023 (Seguridad)  
 **Estado:** `aceptado`
 **PRD:** FR-08
-**ADRs:** ninguno
+**ADRs:** ADR-009 (almacén seguro)
 **Spec de diseño:** `docs/design/ADR-009-SECURE-STORE.md`
 **Tests:** 0 propios (solo `FakeSecureStore`)
 

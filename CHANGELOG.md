@@ -1,4 +1,15 @@
+---
+version: 1.0.0
+date: 2026-10-15
+status: active
+iso_standard: [12207]
+aligns_to: [README.md, AGENTS.md]
+tags: [changelog, keep-a-changelog, iso-12207, maintenance]
+---
+
 # Changelog
+
+> **Norma de referencia:** ISO/IEC 12207:2017 (Proceso de Gestión de Modificaciones y Mantenimiento)
 
 All notable changes to this project will be documented in this file.
 

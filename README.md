@@ -1,4 +1,15 @@
+---
+version: 1.0.0
+date: 2026-10-15
+status: active
+iso_standard: [25010, 12207, 29148, 42010, 26514]
+aligns_to: [AGENTS.md, docs/PRD.md, docs/CONSTITUTION.md]
+tags: [readme, access-addin, nvidia-nim, iso-standards]
+---
+
 # Balansoft Access VBA Agent
+
+> **Estándares de Ingeniería y Calidad:** ISO/IEC 25010:2023 (Calidad) · ISO/IEC 12207:2017 (Ciclo de Vida) · ISO/IEC 29148:2018 (Requisitos) · ISO/IEC/IEEE 42010 (Arquitectura) · ISO/IEC 26514:2022 (Documentación)
 
 COM Add-in para **Microsoft Access 2010+ (x86)** que integra **NVIDIA NIM** en el editor de VBA (VBE).
 Permite chatear con modelos LLM, ejecutar *tool calls* y persistir el historial por proyecto, todo desde una ventana *WinForms* acoplada al VBE.

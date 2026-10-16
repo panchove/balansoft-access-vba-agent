@@ -1,8 +1,18 @@
+---
+version: 1.0.0
+date: 2026-10-15
+status: borrador
+iso_standard: [29148, 25010]
+aligns_to: [PRD.md, AGENTS.md, docs/design/ADR-004-OBJECT-DETAIL.md, docs/design/ADR-006-VBE-BRIDGE.md]
+tags: [spec, access, readonly, object-detail]
+---
+
 # 007 — Integración Access de solo lectura
 
+**Norma de referencia:** ISO/IEC 29148:2018 (Requirements Engineering) / ISO/IEC 25010:2023  
 **Estado:** `borrador`
 **PRD:** FR-11
-**ADRs:** ADR-004 (contrato de `object_detail`)
+**ADRs:** ADR-004 (contrato de `object_detail`), ADR-006 (bridge)
 **Spec de diseño:** `docs/design/ADR-006-VBE-BRIDGE.md` (sección Access)
 **Tests:** 3 en `JsonRpcDispatcherTests` (solo contra `FakeAccess`)
 

@@ -1,5 +1,15 @@
+---
+version: 1.0.0
+date: 2026-10-15
+status: implementado
+iso_standard: [29148, 25010]
+aligns_to: [PRD.md, AGENTS.md, CONSTITUTION.md, docs/design/ADR-005-DESIGN-BY-CONTRACT.md]
+tags: [spec, design-by-contract, dbc, code-contracts, reliability]
+---
+
 # 010 — Diseño por Contrato (Design by Contract - DbC)
 
+**Norma de referencia:** ISO/IEC 29148:2018 (Requirements Engineering) / ISO/IEC 25010:2023 (Robustez y Fiabilidad)  
 **Estado:** `implementado`  
 **PRD:** FR-01..FR-12, Calidad y Robustez ISO/IEC 25010  
 **ADRs:** ADR-005  

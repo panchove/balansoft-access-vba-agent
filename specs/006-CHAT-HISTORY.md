@@ -1,8 +1,18 @@
+---
+version: 1.0.0
+date: 2026-10-15
+status: aceptado
+iso_standard: [29148, 25010]
+aligns_to: [PRD.md, AGENTS.md, docs/design/ADR-001-PROJECT-IDENTITY.md, docs/design/ADR-009-SECURE-STORE.md]
+tags: [spec, chat-history, persistence, debounce]
+---
+
 # 006 — Historial de chat
 
+**Norma de referencia:** ISO/IEC 29148:2018 (Requirements Engineering) / ISO/IEC 25010:2023  
 **Estado:** `aceptado`
 **PRD:** FR-10
-**ADRs:** ADR-001 (identidad de proyecto)
+**ADRs:** ADR-001 (identidad de proyecto), ADR-009 (persistencia)
 **Spec de diseño:** (cubierto por `docs/design/ADR-006-VBE-BRIDGE.md` y
 `docs/design/ADR-008-NIM-TERMINAL.md`)
 **Tests:** 0 propios

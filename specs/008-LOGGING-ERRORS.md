@@ -1,8 +1,18 @@
+---
+version: 1.0.0
+date: 2026-10-15
+status: borrador
+iso_standard: [29148, 25010]
+aligns_to: [PRD.md, AGENTS.md, docs/design/ADR-011-LOGGING-VERSION.md]
+tags: [spec, logging, error-handling, diagnostics]
+---
+
 # 008 — Logging y errores
 
+**Norma de referencia:** ISO/IEC 29148:2018 (Requirements Engineering) / ISO/IEC 25010:2023  
 **Estado:** `borrador`
 **PRD:** FR-07, FR-12
-**ADRs:** ninguno
+**ADRs:** ADR-011 (logging y versionado)
 **Spec de diseño:** `docs/design/ADR-011-LOGGING-VERSION.md`
 **Tests:** 2 parciales en `JsonRpcDispatcherTests`
 

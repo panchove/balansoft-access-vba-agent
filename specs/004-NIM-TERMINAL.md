@@ -1,8 +1,18 @@
+---
+version: 1.0.0
+date: 2026-10-15
+status: aceptado
+iso_standard: [29148, 25010]
+aligns_to: [PRD.md, AGENTS.md, docs/design/ADR-008-NIM-TERMINAL.md]
+tags: [spec, nim-terminal, winforms, ui, centering]
+---
+
 # 004 — Terminal NIM
 
+**Norma de referencia:** ISO/IEC 29148:2018 (Requirements Engineering) / ISO/IEC 25010:2023 (Usabilidad)  
 **Estado:** `aceptado`
 **PRD:** FR-02, FR-03
-**ADRs:** ADR-003 (abort)
+**ADRs:** ADR-003 (abort), ADR-008 (terminal)
 **Spec de diseño:** `docs/design/ADR-008-NIM-TERMINAL.md`
 **Tests:** 0 propios (toda la lógica de UI está sin cubrir)
 

@@ -1,8 +1,18 @@
+---
+version: 1.0.0
+date: 2026-10-15
+status: aceptado
+iso_standard: [29148, 25010]
+aligns_to: [PRD.md, AGENTS.md, docs/design/ADR-006-VBE-BRIDGE.md]
+tags: [spec, vbe-bridge, json-rpc, named-pipe]
+---
+
 # 002 — Bridge VBE
 
+**Norma de referencia:** ISO/IEC 29148:2018 (Requirements Engineering) / ISO/IEC 25010:2023  
 **Estado:** `aceptado`
 **PRD:** FR-04, FR-03
-**ADRs:** ADR-001 (identidad de proyecto), ADR-002 (framing)
+**ADRs:** ADR-001 (identidad de proyecto), ADR-002 (framing), ADR-006 (bridge)
 **Spec de diseño:** `docs/design/ADR-006-VBE-BRIDGE.md`
 **Tests:** 46 verdes — 12 en `BlsVbeBridgeServerTests`, 17 en
   `JsonRpcDispatcherTests`, 10 en `BlsPipeFramingTests`, 7 en

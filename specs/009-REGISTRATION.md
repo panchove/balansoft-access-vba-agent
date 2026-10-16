@@ -1,8 +1,18 @@
+---
+version: 1.0.0
+date: 2026-10-15
+status: borrador
+iso_standard: [29148, 12207]
+aligns_to: [PRD.md, AGENTS.md, docs/design/ADR-010-REGISTRATION-SCRIPTS.md]
+tags: [spec, registration, packaging, deployment, powershell]
+---
+
 # 009 — Registro y despliegue
 
+**Norma de referencia:** ISO/IEC 29148:2018 (Requirements Engineering) / ISO/IEC 12207:2017 (Deployment)  
 **Estado:** `borrador`
 **PRD:** FR-06
-**ADRs:** ninguno
+**ADRs:** ADR-010 (registro y empaquetado)
 **Spec de diseño:** `docs/design/ADR-010-REGISTRATION-SCRIPTS.md`
 **Tests:** 0 (scripts de PowerShell)
 

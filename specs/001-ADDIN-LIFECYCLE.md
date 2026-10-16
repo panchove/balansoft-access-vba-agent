@@ -1,8 +1,18 @@
+---
+version: 1.0.0
+date: 2026-10-15
+status: implementado
+iso_standard: [29148, 12207, 25010]
+aligns_to: [PRD.md, AGENTS.md, docs/design/ADR-012-ADDIN-LIFECYCLE.md]
+tags: [spec, lifecycle, com-addin, idtextensibility2]
+---
+
 # 001 — Ciclo de vida del add-in
 
+**Norma de referencia:** ISO/IEC 29148:2018 (Requirements Engineering) / ISO/IEC 12207:2017 (Lifecycle)  
 **Estado:** `implementado`
 **PRD:** FR-01, FR-05
-**ADRs:** ninguno (si la arquitectura de ventanas lo exige, abrir ADR-005)
+**ADRs:** ADR-012 (ciclo de vida)
 **Spec de diseño:** `docs/design/ADR-012-ADDIN-LIFECYCLE.md`
 **Prioridad:** P0 — bloqueante de todo lo demás
 
