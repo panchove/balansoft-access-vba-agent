@@ -24,8 +24,8 @@ JSON-RPC sobre Named Pipe y da una terminal WinForms embebida en el VBE.
 
 - **ProgID:** `Balansoft.AIAddin.Access`
 - **CLSID:** `{d31bf73e-dbe1-4739-84bc-2c974fcd3171}`
-- **Plataforma:** Access 2010–365, **solo x86**
-- **Stack:** C# .NET Framework 4.8, LangVersion 10, `Nullable disable`
+- **Plataforma:** Access 2010–365, **x86 y x64** (según la arquitectura de Access instalada)
+- **Stack:** C# .NET Framework 4.8, LangVersion 10, `Nullable=annotations`
 
 ---
 

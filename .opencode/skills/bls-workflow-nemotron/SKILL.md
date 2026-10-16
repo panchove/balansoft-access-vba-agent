@@ -151,7 +151,7 @@ Lee en este orden:
 Implementa: <feature>.
 
 Restricciones duras (ver AGENTS.md):
-- .NET Framework 4.8, LangVersion 10, Nullable disable, PlatformTarget=x86
+- .NET Framework 4.8, LangVersion 10, Nullable=annotations, CPU-agnóstico (x86\|x64 vía `-p:PlatformTarget`)
 - Sin PIAs de Office, COM late-bound vía dynamic aislado en Helpers/BlsComHelper.cs
 - Marshaling al hilo UI para todo acceso VBE/Access
 - API key solo DPAPI; nunca en log/JSON/registry
@@ -222,7 +222,7 @@ Cualquier ítem marcado ⇒ **rechazo inmediato**, sin discusión:
 - [ ] ¿Cancelación de usuario reportada como `ERROR`? → rechazar.
 
 ### Build / plataforma
-- [ ] ¿`PlatformTarget` distinto de `x86`? → rechazar.
+- [ ] ¿`PlatformTarget` forzado en el `.csproj` o distinto de la arquitectura de Access? → rechazar.
 - [ ] ¿`TreatWarningsAsErrors` desactivado? → rechazar.
 - [ ] ¿Nueva dependencia NuGet sin ADR? → rechazar.
 - [ ] ¿Cambio en `Directory.Build.props` sin ADR? → rechazar.

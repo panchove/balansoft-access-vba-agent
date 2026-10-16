@@ -22,7 +22,7 @@ Permite chatear con modelos LLM, ejecutar *tool calls* y persistir el historial 
 - **Almacén seguro** DPAPI para la API key (nunca en disco ni logs).
 - **Historial de chat** por proyecto (identidad = SHA‑256 de la ruta normalizada – ADR‑001).
 - **Terminal NIM** WinForms con loop de herramientas, *tool calls* y renderizado de resultados.
-- **Registro COM** per‑user / per‑machine mediante scripts PowerShell x86.
+- **Registro COM** per‑user / per‑machine mediante scripts PowerShell (x86 o x64 según la arquitectura de Access instalada).
 - **CI/CD** completo: build x86/x64, 165 tests unitarios, 8 gates de calidad, versionado SemVer automático (Nerdbank.GitVersioning) y release automático al pushear tag `v*`.
 
 ---
@@ -57,7 +57,7 @@ powershell -ExecutionPolicy Bypass -File scripts\RegisterAddin.ps1
 # 5. Abrir Access → VBE → Tools → NIM Terminal
 ```
 
-> **Nota:** `RegisterAddin.ps1` **debe** ejecutarse en una consola *PowerShell (x86)* (menú *Windows PowerShell (x86)*).
+> **Nota:** `RegisterAddin.ps1` **debe** ejecutarse en una consola *PowerShell* de la **misma arquitectura que el Access instalado** (x86 o x64); el script detecta la arquitectura y elige la carpeta de salida correspondiente.
 
 ---
 
@@ -102,8 +102,8 @@ scripts/
 | Build Debug x86 | `dotnet build src\Balansoft.AIAddin.Access\Balansoft.AIAddin.Access.csproj -c Debug -p:Platform=x86` |
 | Build Tests | `dotnet build tests\Balansoft.AIAddin.Tests\Balansoft.AIAddin.Tests.csproj -c Debug -p:Platform=x86` |
 | Tests unitarios | `dotnet vstest tests\Balansoft.AIAddin.Tests\bin\x86\Debug\net48\Balansoft.AIAddin.Tests.dll /Settings:.runsettings /Platform:x86` |
-| Registrar add-in | `powershell -ExecutionPolicy Bypass -File scripts\RegisterAddin.ps1` (x86) |
-| Desregistrar | `powershell -ExecutionPolicy Bypass -File scripts\UnregisterAddin.ps1` (x86) |
+| Registrar add-in | `powershell -ExecutionPolicy Bypass -File scripts\RegisterAddin.ps1` (x86 o x64 según Access) |
+| Desregistrar | `powershell -ExecutionPolicy Bypass -File scripts\UnregisterAddin.ps1` (x86 o x64 según Access) |
 | Empaquetar Release | `powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1 -Configuration Release` |
 
 ---
@@ -111,7 +111,7 @@ scripts/
 ## 📝 Versionado y releases
 - **SemVer automático** con **Nerdbank.GitVersioning** (`version.json`).
 - La versión se calcula a partir de tags `vX.Y.Z` + altura de commit.
-- **Release flow**: push tag `vX.Y.Z` en `main` → workflow `release.yml` → build Release x86 → `Pack.ps1` → GitHub Release con ZIP + `version.txt`.
+- **Release flow**: push tag `vX.Y.Z` en `main` → workflow `release.yml` → build Release x86 y x64 → `Pack.ps1` → GitHub Release con ZIP por arquitectura (`-x86.zip`, `-x64.zip`) + `version.txt`.
 - `CHANGELOG.md` sigue *Keep a Changelog* y se actualiza a mano en cada PR.
 
 ---
@@ -122,7 +122,7 @@ scripts/
 3. Marshaling a UI **explícito** (`IUiScheduler`).
 4. API key **solo DPAPI** (`BlsSecureStore`).
 5. Excepciones propagadas con **categoría + mensaje original**.
-6. `PlatformTarget=x86`, `Prefer32Bit=true`.
+6. **CPU‑agnóstico**: la arquitectura (x86|x64) se pasa con `-p:PlatformTarget`; no forzar `PlatformTarget` ni `Prefer32Bit` en los proyectos.
 7. `TreatWarningsAsErrors=true` (build 0 warnings).
 8. Named‑pipe framing **4 bytes LE + UTF‑8 JSON** (ADR‑002).
 9. Identidad de proyecto **SHA‑256 ruta normalizada** (ADR‑001).

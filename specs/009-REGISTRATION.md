@@ -56,12 +56,16 @@ Ni `regasm` ni la clave de Access tocan `HKLM`. Registro por usuario: un
 instalador sin administrador es un requisito explícito del PRD, y además
 evita que el DLL quede bloqueado para otros usuarios del equipo.
 
-### R002 — x86 obligatorio
+### R002 — Arquitectura coincidente (x86 o x64)
 
-El script **verifica** `[Environment]::Is64BitProcess` y aborta si es 64 bits,
-con el mensaje de abrir "Windows PowerShell (x86)". Registrar un add-in x86
-con `regasm` de 64 bits produce una entrada COM en la vista de registro
-equivocada: Access no lo ve y no hay mensaje de error que lo explique.
+El script acepta `-Architecture x86|x64` (default `x86`) y **verifica** que el
+proceso PowerShell coincida con esa arquitectura: si no, aborta con el mensaje
+de abrir la consola de la arquitectura correcta. Registrar con un `regasm` de
+arquitectura distinta a la del add-in produce una entrada COM en la vista de
+registro equivocada: Access no lo ve y no hay mensaje de error que lo explique.
+
+> **Actualización (2026-10-16):** alineado con el modelo CPU-agnóstico (x86 y
+> x64). La redacción original exigía PowerShell x86 y abortaba ante x64.
 
 ### R003 — Idempotencia
 
@@ -100,9 +104,9 @@ Cuando se ejecuta RegisterAddin.ps1 otra vez
 Entonces termina con éxito sin duplicar claves
 
 Dado PowerShell x64
-Cuando se ejecuta RegisterAddin.ps1
+Cuando se ejecuta RegisterAddin.ps1 -Architecture x86
 Entonces aborta con código 1
-Y explica que hay que usar Windows PowerShell (x86)
+Y explica que hay que usar la consola de la arquitectura indicada
 Y no escribe nada en el registro
 
 Dado un directorio de distribución
@@ -124,7 +128,7 @@ Ninguno. No hay framework de tests para PowerShell en el repositorio.
 | Test | Cubre |
 |---|---|
 | `Register_X86_RegistraClsidEnHKCU` | R001 |
-| `Register_X64_AbortaConCodigo1` | R002 |
+| `Register_ArquitecturaIncorrecta_AbortaConCodigo1` | R002 |
 | `Register_DosVeces_NoDuplicaClaves` | R003 |
 | `Register_VerificaLoadBehaviorAlFinal` | R004 |
 | `Register_NoTocaHKLM` | R001 |
@@ -132,8 +136,9 @@ Ninguno. No hay framework de tests para PowerShell en el repositorio.
 | `Pack_VersionTxtIncluyeVersionYCommit` | R005 |
 | `Scripts_ResuelvenSolucionSlnx` | R006 |
 
-Los tres primeros son de integración y requieren PowerShell x86; los de
-`Pack` pueden correr en x64.
+Los tres primeros son de integración y requieren un PowerShell de la misma
+arquitectura que `-Architecture`; los de
+`Pack` pueden correr en x86 o x64.
 
 ---
 
@@ -145,7 +150,8 @@ Los tres primeros son de integración y requieren PowerShell x86; los de
   `dotnet build -p:Platform=x86`, que produce la ruta correcta
   `bin\x86\<Config>\net48\`.
 - **`Directory.Build.props` creado** (versión 0.1.0, `TreatWarningsAsErrors`,
-  `PlatformTarget=x86`, `Prefer32Bit`, `LangVersion=10`, `Deterministic`).
+  CPU-agnóstico —sin `PlatformTarget`/`Prefer32Bit` forzados—, `LangVersion=10`,
+  `Deterministic`).
   `Pack.ps1` lo lee y `version.txt` sale con `0.1.0` (más commit SHA en CI).
 - **`Pack.ps1` compila el proyecto de tests con `dotnet build -c Release
   -p:Platform=x86`** y copia desde `bin\x86\Release\net48\`. **Verificado**:

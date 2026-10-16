@@ -54,7 +54,7 @@ Garantizar la gobernanza, gestión de riesgos de Inteligencia Artificial, seguri
 
 ### 3. Aseguramiento de Calidad y Mantenibilidad (ISO/IEC 25010)
 - **Aislamiento de late-binding**: Auditar que no exista dispersión de `dynamic` fuera de `Helpers/BlsComHelper.cs`.
-- **Integridad de Plataforma**: Verificar obligatoriedad de `PlatformTarget=x86` y `TreatWarningsAsErrors=true` en todos los proyectos.
+- **Integridad de Plataforma**: Verificar el modelo CPU-agnóstico (x86\|x64 vía `-p:PlatformTarget`, sin forzar en los proyectos) y `TreatWarningsAsErrors=true` en todos los proyectos.
 - **Monitoreo de Deuda y Bugs**: Mantener actualizados y alineados los registros de [docs/BUGS/known-bugs.md](docs/BUGS/known-bugs.md) y [docs/CS/code-issues.md](docs/CS/code-issues.md).
 
 ### 4. Gobernanza Documental y Metadatos (ISO/IEC 29148 & 12207)

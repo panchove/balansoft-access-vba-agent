@@ -13,48 +13,18 @@ namespace Balansoft.AIAddin.Tests.UI;
 [TestClass]
 public sealed class NimTerminalIconTests
 {
-    private static void BuildIcoFromImage(string sourceJpgPath, string targetIcoPath, int[] sizes)
+    private static readonly int[] IconSizes = { 256, 128, 64, 48, 32, 16 };
+
+    // Rango central del badge en la imagen fuente de referencia (920x920).
+    private static readonly Rectangle BadgeCrop = new Rectangle(88, 88, 848, 848);
+
+    // NOTA: la regeneración del icono distribuido
+    // (src/Balansoft.AIAddin.Access/Resources/NimTerminal.ico) es una tarea de
+    // herramienta, no de la suite. El test verifica el algoritmo de generación
+    // de forma hermética: no lee ficheros externos ni escribe en el árbol fuente.
+    private static void BuildIcoFromImage(Image source, string targetIcoPath, int[] sizes)
     {
-        using var src = Image.FromFile(sourceJpgPath);
-
-        // Crop the central badge (104, 100) -> (920, 920) with a small margin
-        var cropRect = new Rectangle(88, 88, 848, 848);
-        using var cropped = new Bitmap(cropRect.Width, cropRect.Height, PixelFormat.Format32bppArgb);
-        using (var g = Graphics.FromImage(cropped))
-        {
-            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-            g.SmoothingMode = SmoothingMode.HighQuality;
-            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-            g.CompositingQuality = CompositingQuality.HighQuality;
-            g.Clear(Color.Transparent);
-            g.DrawImage(src, new Rectangle(0, 0, cropRect.Width, cropRect.Height), cropRect, GraphicsUnit.Pixel);
-        }
-
-        // Soften / make transparent the outer corners (distance from corners < 160 px and near-black)
-        for (int y = 0; y < cropped.Height; y++)
-        {
-            for (int x = 0; x < cropped.Width; x++)
-            {
-                int dx = Math.Min(x, cropped.Width - 1 - x);
-                int dy = Math.Min(y, cropped.Height - 1 - y);
-                if (dx + dy < 160)
-                {
-                    var c = cropped.GetPixel(x, y);
-                    int brightness = Math.Max(c.R, Math.Max(c.G, c.B));
-                    if (brightness < 18)
-                    {
-                        cropped.SetPixel(x, y, Color.FromArgb(0, 0, 0, 0));
-                    }
-                    else if (brightness < 45)
-                    {
-                        int alpha = (int)((brightness - 18) / 27.0 * 255.0);
-                        if (alpha < 0) alpha = 0;
-                        if (alpha > 255) alpha = 255;
-                        cropped.SetPixel(x, y, Color.FromArgb(alpha, c.R, c.G, c.B));
-                    }
-                }
-            }
-        }
+        using var cropped = CropBadge(source);
 
         var pngBuffers = new byte[sizes.Length][];
         for (int i = 0; i < sizes.Length; i++)
@@ -113,38 +83,96 @@ public sealed class NimTerminalIconTests
         }
     }
 
-    private static string FindRepositoryRoot()
+    private static Bitmap CropBadge(Image source)
     {
-        var dir = new DirectoryInfo(AppDomain.CurrentDomain.BaseDirectory);
-        while (dir != null && !File.Exists(Path.Combine(dir.FullName, "Balansoft.AIAddin.slnx")))
+        // Recorta el badge central si la imagen es lo bastante grande; si no,
+        // usa la imagen completa (permite alimentar bitmaps sintéticos).
+        var crop = BadgeCrop.Right <= source.Width && BadgeCrop.Bottom <= source.Height
+            ? BadgeCrop
+            : new Rectangle(0, 0, source.Width, source.Height);
+
+        var cropped = new Bitmap(crop.Width, crop.Height, PixelFormat.Format32bppArgb);
+        using (var g = Graphics.FromImage(cropped))
         {
-            dir = dir.Parent;
+            g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+            g.SmoothingMode = SmoothingMode.HighQuality;
+            g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+            g.CompositingQuality = CompositingQuality.HighQuality;
+            g.Clear(Color.Transparent);
+            g.DrawImage(source, new Rectangle(0, 0, crop.Width, crop.Height), crop, GraphicsUnit.Pixel);
         }
-        return dir?.FullName ?? throw new DirectoryNotFoundException("Repositorio no encontrado.");
+
+        // Vuelve transparentes las esquinas oscuras del badge.
+        for (int y = 0; y < cropped.Height; y++)
+        {
+            for (int x = 0; x < cropped.Width; x++)
+            {
+                int dx = Math.Min(x, cropped.Width - 1 - x);
+                int dy = Math.Min(y, cropped.Height - 1 - y);
+                if (dx + dy < 160)
+                {
+                    var c = cropped.GetPixel(x, y);
+                    int brightness = Math.Max(c.R, Math.Max(c.G, c.B));
+                    if (brightness < 18)
+                    {
+                        cropped.SetPixel(x, y, Color.FromArgb(0, 0, 0, 0));
+                    }
+                    else if (brightness < 45)
+                    {
+                        int alpha = (int)((brightness - 18) / 27.0 * 255.0);
+                        if (alpha < 0) alpha = 0;
+                        if (alpha > 255) alpha = 255;
+                        cropped.SetPixel(x, y, Color.FromArgb(alpha, c.R, c.G, c.B));
+                    }
+                }
+            }
+        }
+
+        return cropped;
     }
 
     [TestMethod]
     public void CanGenerateAndLoadNimTerminalIcon()
     {
-        string sourceJpg = @"C:\Users\fprad\.gemini\antigravity-ide\brain\04c580c5-e2a4-4bc5-80d1-97aae8a267e4\nim_terminal_icon_1792102309079.jpg";
-        if (!File.Exists(sourceJpg))
+        string tempDir = Path.Combine(Path.GetTempPath(), "bls-icon-" + Guid.NewGuid().ToString("N"));
+        Directory.CreateDirectory(tempDir);
+        string icoPath = Path.Combine(tempDir, "NimTerminal.ico");
+
+        try
         {
-            Assert.Inconclusive("Source image not found: " + sourceJpg);
-            return;
-        }
+            // Imagen sintética en memoria: el test no depende de ficheros
+            // externos ni escribe en el árbol de fuentes.
+            using var source = new Bitmap(512, 512, PixelFormat.Format32bppArgb);
+            using (var g = Graphics.FromImage(source))
+            {
+                g.Clear(Color.FromArgb(255, 30, 30, 30));
+                using var brush = new SolidBrush(Color.FromArgb(255, 0, 200, 120));
+                g.FillEllipse(brush, 96, 96, 320, 320);
+            }
 
-        string repoRoot = FindRepositoryRoot();
-        string resourceIco = Path.Combine(repoRoot, "src", "Balansoft.AIAddin.Access", "Resources", "NimTerminal.ico");
-        int[] sizes = new[] { 256, 128, 64, 48, 32, 16 };
+            BuildIcoFromImage(source, icoPath, IconSizes);
 
-        BuildIcoFromImage(sourceJpg, resourceIco, sizes);
-        Assert.IsTrue(File.Exists(resourceIco));
+            Assert.IsTrue(File.Exists(icoPath), "El .ico no se generó.");
 
-        using (var icon = new Icon(resourceIco))
-        {
+            var bytes = File.ReadAllBytes(icoPath);
+            Assert.IsTrue(bytes.Length > 6 + 16 * IconSizes.Length, "El .ico está vacío o truncado.");
+            Assert.AreEqual(0, bytes[0], "ICONDIR.reserved");
+            Assert.AreEqual(0, bytes[1], "ICONDIR.reserved");
+            Assert.AreEqual(1, bytes[2], "ICONDIR.type");
+            Assert.AreEqual(0, bytes[3], "ICONDIR.type");
+            Assert.AreEqual(IconSizes.Length, bytes[4] | (bytes[5] << 8), "Nº de entradas ICONDIR");
+
+            using var icon = new Icon(icoPath);
             Assert.IsNotNull(icon);
             Assert.IsTrue(icon.Width > 0);
             Assert.IsTrue(icon.Height > 0);
+        }
+        finally
+        {
+            if (Directory.Exists(tempDir))
+            {
+                Directory.Delete(tempDir, recursive: true);
+            }
         }
     }
 

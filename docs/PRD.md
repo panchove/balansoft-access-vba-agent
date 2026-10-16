@@ -22,7 +22,7 @@ reviewed_by: [bls-documentador, bls-architect]
 
 ## 1. Propósito
 
-Dar a Access 2010+ (solo x86) capacidades de IA **sin dependencias externas** (sin `opencode`, sin CLI, sin MCP). El add-in expone el VBE y el proyecto Access a un modelo NIM vía API streaming, con terminal integrada en el VBE.
+Dar a Access 2010+ (x86 y x64) capacidades de IA **sin dependencias externas** (sin `opencode`, sin CLI, sin MCP). El add-in expone el VBE y el proyecto Access a un modelo NIM vía API streaming, con terminal integrada en el VBE.
 
 ## 2. Problema
 
@@ -100,10 +100,9 @@ Un COM Add-in que:
 
 ## 8. No funcionales críticos
 
-- **Compatibilidad:** Access 2010–365, **solo x86** (`PlatformTarget=x86`), sin PIAs (enlace tardío `dynamic`)
+- **Compatibilidad:** Access 2010–365, **x86 y x64** (la arquitectura del add-in se pasa con `-p:PlatformTarget` y debe coincidir con la de Access instalada), sin PIAs (enlace tardío `dynamic`)
 - **Rendimiento:** UI no bloqueante; NIM en background thread; marshaling a hilo UI antes de tocar VBE
-- **Calidad:** C# .NET Framework 4.8, LangVersion 10, `Nullable disable` (el código
-  interopera con COM en `dynamic` y el nullable(ref) no aporta aquí),
+- **Calidad:** C# .NET Framework 4.8, LangVersion 10, `Nullable=annotations`,
   `TreatWarningsAsErrors`, analizadores CA activos vía `.editorconfig`
 - **Tests:** Unitarias sin Office (MockVbe, FakeVbeCom, FakeAccessApp); integración manuales con Access real
 

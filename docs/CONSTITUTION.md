@@ -167,7 +167,7 @@ Todo documento Markdown (`.md`) dentro del repositorio debe declarar taxativamen
 |---------------|---------------------------|--------------------------------------------------|
 | Target        | `net48`                   | Access 2010+ sobre .NET Framework                |
 | Lenguaje      | C# 10 (`LangVersion`)     | Sin raw strings ni features de C# 11             |
-| Nullable      | `disable`                 | El código usa `dynamic`; nullable(ref) no aporta |
+| Nullable      | `annotations`             | Anotaciones de nulabilidad sin exigir refactor total |
 | Platform      | x86 y x64                 | P3                                               |
 | Serialización | `System.Text.Json` 8.0.5  | Sin Newtonsoft; más apto para AOT                |
 | HTTP          | `System.Net.Http`         | Sin `System.Net.Http.Json` en net48              |
@@ -188,7 +188,7 @@ Para waits con timeout existe el helper `tests/.../Infrastructure/TaskTestExtens
 
 `.github/workflows/ci.yml` **falla el build** si:
 
-1. El build `Debug x86` o `Release x86` de los `.csproj` no sale limpio con
+1. El build `Debug` o `Release` (x86 o x64) de los `.csproj` no sale limpio con
    `TreatWarningsAsErrors`.
 2. Los tests (sin integración NIM) no están verdes: 165/165.
 3. Falta cualquiera de los 47 documentos obligatorios.
@@ -241,7 +241,7 @@ Puntos que **solo** puede verificar una persona y por eso son bloqueantes:
 2. Revisión del spec            ← bls-architect
 3. ADR si la decisión es estructural y no está cubierta
 4. Implementación + tests       ← bls-implementer
-5. Verificación: build Debug + Release x86 + suite completa
+5. Verificación: build Debug + Release x86 y x64 + suite completa
 6. PR con checklist de rechazo y referencias cruzadas válidas
 7. Revisión y auditoría         ← bls-reviewer + bls-iso
 8. Merge

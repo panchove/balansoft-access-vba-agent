@@ -14,7 +14,7 @@
 | ProgID   | `Balansoft.AIAddin.Access`                                            |
 | CLSID    | `{d31bf73e-dbe1-4739-84bc-2c974fcd3171}`                              |
 | Stack    | C# 10 · .NET Framework 4.8 · WinForms · `System.Text.Json` 8.0.5      |
-| Target   | `net48`, `PlatformTarget=x86`, `Prefer32Bit=true`, `Nullable=annotations` |
+| Target   | `net48`, CPU-agnóstico (`PlatformTarget` x86\|x64 vía `-p:`), `Nullable=annotations` |
 | Solución | `Balansoft.AIAddin.slnx` (formato XML nuevo, 2 proyectos)             |
 | Tamaño   | ~3.700 LOC en `src/`, ~2.370 LOC en `tests/`                          |
 
@@ -32,10 +32,10 @@ revisar los scripts de registro, que usan el ProgID.
 4. API key **solo** en DPAPI (`CurrentUser`). Prohibido en logs, config, JSON, registry.
 5. Errores COM/NIM se propagan como excepción con categoría + mensaje original.
    Prohibido devolver "éxito falso" ante fallo.
-6. `PlatformTarget=x86` obligatorio. No tocar a AnyCPU ni x64.
+6. **CPU-agnóstico:** la arquitectura (x86|x64) se pasa con `-p:PlatformTarget`; no forzar `PlatformTarget` ni `Prefer32Bit` en los proyectos. La arquitectura del add-in debe coincidir con la de Access instalada.
 7. `TreatWarningsAsErrors=true` — los warnings bloquean merge.
    **Aplicado** en `Directory.Build.props`; build limpio 0 warnings en Debug y
-   Release x86.
+   Release x86 y x64.
 8. Framing del Named Pipe: 4 bytes LE (longitud) + UTF-8 JSON. Ver ADR-002.
 9. Identidad de proyecto: SHA256(ruta normalizada). Ver ADR-001.
 10. Abort: un `CancellationTokenSource` por turno de usuario. Ver ADR-003.
@@ -62,7 +62,7 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1
 
 **Existen** `.runsettings`, `Directory.Build.props`, y la solución real `Balansoft.AIAddin.slnx`. Los comandos usan los `.csproj` directos (la solución no propaga `Platform` a proyectos SDK-style).
 
-**La CI está operativa** y ejecuta: build Debug/Release x86, tests 165/165, gates de PIAs, `dynamic`, `Thread.Sleep`, documentos, tests ADR y referencias cruzadas. En `push` a `main` ejecuta `Pack.ps1` y sube el ZIP.
+**La CI está operativa** y ejecuta: build Debug/Release x86 y x64, tests 165/165, gates de PIAs, `dynamic`, `Thread.Sleep`, documentos, tests ADR y referencias cruzadas. En `push` a `main` ejecuta `Pack.ps1` y sube el ZIP.
 
 ---
 

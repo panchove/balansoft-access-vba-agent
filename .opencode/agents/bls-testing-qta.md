@@ -49,7 +49,7 @@ permissions:
 
 1. **Sin clave NIM:** Los tests unitarios no necesitan `NIM_API_KEY` y se ejecutan en CI automáticamente.
 2. **Integración requiere clave:** Los tests marcados con `[TestCategory("Integration")]` necesitan la variable de entorno `NIM_API_KEY`; no se ejecutan en pipelines de CI por defecto.
-3. **Arquitectura x86 obligatoria:** Todo comando `dotnet` debe incluir `-p:Platform=x86`; intentar con AnyCPU o x64 provocará errores de tiempo de ejecución por la dependencia de la máquina Access x86.
+3. **Arquitectura CPU-agnóstica:** Todo comando `dotnet` debe incluir `-p:Platform=x86|x64` y `-p:PlatformTarget=x86|x64`, **coincidiendo con la arquitectura del Access instalado**; un desajuste provoca errores de tiempo de ejecución.
 4. **Skill de testing:** Consulta `bls-testing-strategy` en `.opencode/skills/bls-testing-strategy/SKILL.md` para directrices sobre cómo crear fakes y mocks sin depender de COM real.
 5. **Anti‑patrón `catch {}`:** Nunca atrapar `Exception` sin registrerlo o relanzarlo; los tests deben fallar de forma explícita ante errores COM/NIM.
 6. **Cobertura:** El objetivo es mantener todos los tests pasando; la CI bloquea merge si algún test falla o si hay warnings (por `TreatWarningsAsErrors`).

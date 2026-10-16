@@ -265,9 +265,8 @@ Centraliza versión, target framework, plataforma y settings comunes:
 
     <TargetFramework>net48</TargetFramework>
     <LangVersion>10</LangVersion>
-    <Nullable>disable</Nullable>
-    <PlatformTarget>x86</PlatformTarget>
-    <Prefer32Bit>true</Prefer32Bit>
+    <Nullable>annotations</Nullable>
+    <!-- CPU-agnóstico: PlatformTarget/Prefer32Bit se pasan con -p: y NO se fuerzan aquí -->
 
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     <EnableNETAnalyzers>true</EnableNETAnalyzers>
@@ -363,7 +362,7 @@ excepción en `OnConnection`. Buscar en el log.
 
 ## Referencias
 
-- `AGENTS.md` regla 6 (`PlatformTarget=x86`), 7 (warnings as errors).
+- `AGENTS.md` regla 1 (CPU-agnóstico: x86\|x64), 6 (warnings as errors).
 - PRD §3.1, §7 FR-06, §9 (capa `Registration/`).
 - `.opencode/skills/bls-logging-errors/SKILL.md` (línea de versión+commit en el log).
 - `.opencode/skills/bls-testing-strategy/SKILL.md` (verificación de `LoadBehavior` como

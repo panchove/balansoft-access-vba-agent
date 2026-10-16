@@ -46,7 +46,7 @@ Cubre:
 - PRD §11 criterio 1 (carga sin errores en Access 2010/2016/365 x86).
 
 Y materializa:
-- AGENTS.md regla 6 (`PlatformTarget=x86`).
+- AGENTS.md regla 1 (CPU-agnóstico: x86\|x64).
 - AGENTS.md regla 7 (`TreatWarningsAsErrors`).
 
 ---
@@ -152,7 +152,7 @@ loguear el estado (skill bls-logging-errors).
 
 | Fuente                         | Invariante                             | Cómo se cumple                             |
 |--------------------------------|----------------------------------------|--------------------------------------------|
-| AGENTS.md regla 6              | `PlatformTarget=x86`                   | `Directory.Build.props`                    |
+| AGENTS.md regla 1              | CPU-agnóstico (x86\|x64)               | `-p:PlatformTarget` en build               |
 | AGENTS.md regla 7              | Warnings as errors                     | `Directory.Build.props`                    |
 | PRD FR-06                      | Solo HKCU                              | `BlsAddinRegistrar` escribe en `HKCU`      |
 | PRD FR-06                      | LoadBehavior = 3                       | `EnsureAddinKey` y script                  |
@@ -410,9 +410,8 @@ Write-Host "Paquete: $zipPath" -ForegroundColor Green
     <!-- Plataforma y lenguaje -->
     <TargetFramework>net48</TargetFramework>
     <LangVersion>10</LangVersion>
-    <Nullable>disable</Nullable>
-    <PlatformTarget>x86</PlatformTarget>
-    <Prefer32Bit>true</Prefer32Bit>
+    <Nullable>annotations</Nullable>
+    <!-- CPU-agnóstico: PlatformTarget/Prefer32Bit se pasan con -p: y NO se fuerzan aquí -->
 
     <!-- Calidad -->
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
@@ -579,12 +578,17 @@ registrar de nuevo.
   se usa otra raíz).
 
 ### CA-09 — `Directory.Build.props` correcto
-- [ ] `PlatformTarget == x86`.
 - [ ] `TargetFramework == net48`.
 - [ ] `LangVersion == 10`.
-- [ ] `Nullable == disable`.
+- [ ] `Nullable == annotations` (en los `.csproj`; el `.props` no lo fija).
 - [ ] `TreatWarningsAsErrors == true`.
+- [ ] **CPU-agnóstico:** `PlatformTarget`/`Prefer32Bit` **no** se fuerzan en los
+  proyectos (se pasan con `-p:`) — ver `AGENTS.md` regla 1 y `CONSTITUTION` P3.
 - **Test manual:** inspección del `.props` + build.
+
+> **Actualización (2026-10-16):** criterios alineados con el modelo CPU-agnóstico
+> (x86 y x64). La redacción original exigía `PlatformTarget == x86` y
+> `Nullable == disable`.
 
 ### CA-10 — `AssemblyInfo.cs` mínimo
 - [ ] Solo contiene `ComVisible`, `Guid`, `InternalsVisibleTo`.

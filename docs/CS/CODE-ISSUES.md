@@ -25,7 +25,7 @@ Documentar issues de código, buenas prácticas,anti-patrones y sugerencias de m
 - [x] Usar `LangVersion 10` en `Directory.Build.props`
 - [x] `Nullable=annotations` sin `disable` (a menos que sea necesario por compatibilidad COM)
 - [x] `TreatWarningsAsErrors=true` en todos los proyectos
-- [x] `PlatformTarget=x86` obligatorio, sin excepciones
+- [x] CPU-agnóstico: la arquitectura (x86\|x64) se pasa con `-p:PlatformTarget`; no forzar en los proyectos
 
 ### COM y Late Binding
 - [x] `dynamic` **solo** en `Helpers/BlsComHelper.cs`
@@ -115,7 +115,7 @@ Los errores logged no siempre incluyen la versión actual del add-in ni el commi
 
 ### Antes de commitear:
 - [ ] `dynamic` solo en `Helpers/BlsComHelper.cs`?
-- [ ] `PlatformTarget=x86` en todos los proyectos?
+- [ ] CPU-agnóstico: `PlatformTarget`/`Prefer32Bit` no forzados en los proyectos (`-p:`)?
 - [ ] `TreatWarningsAsErrors` sin warnings?
 - [ ] Sin `Marshal.GetActiveObject` ni `ROT`?
 - [ ] Sin `Thread.Sleep` en tests?

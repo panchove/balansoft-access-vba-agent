@@ -28,7 +28,7 @@ Ejecutar las tareas del plan generado por **bls-planner**, produciendo código q
 1. **Leer la tarea** – identificar archivos a crear/modificar.  
 2. **Crear / editar archivos** siguiendo:  
    - **C# 10**, `LangVersion 10`, `Nullable=annotations`.  
-   - **x86**: `PlatformTarget=x86`, `Prefer32Bit=true`.  
+   - **CPU-agnóstico**: la arquitectura (x86\|x64) se pasa con `-p:PlatformTarget`; no forzar `PlatformTarget`/`Prefer32Bit`.  
    - **Sin PIAs** – usar `dynamic` solo en `Helpers/BlsComHelper.cs`.  
    - **Marshaling UI** – toda llamada a VBE/Access desde hilo no‑UI via `IUiScheduler`.  
    - **DPAPI** – API key solo en `BlsSecureStore`.  

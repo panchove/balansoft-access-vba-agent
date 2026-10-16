@@ -92,7 +92,7 @@ de 001: ~600 líneas de WinForms sin un solo test.
 ## Gaps que bloquean la CI
 
 - **La CI está operativa** y ejecuta todos los gates:
-  - Build Debug x86 y Release x86 con `dotnet build` (0 warnings, 0 errors).
+  - Build Debug x86 y x64 y Release x86 y x64 con `dotnet build` (0 warnings, 0 errors).
   - Tests 165/165 con `dotnet vstest` + `.runsettings` + `/Platform:x86`.
   - 47 documentos obligatorios verificados (incluye `docs/PRD.md`,
     `docs/CONSTITUTION.md`, `specs/` y los 14 ADRs).
@@ -103,7 +103,8 @@ de 001: ~600 líneas de WinForms sin un solo test.
   - Referencias cruzadas en `docs/`, `.opencode/skills/`, `specs/`,
     `AGENTS.md`, `MEMORY.md` — **cero rotas**.
 - **`Directory.Build.props` existe** con versión `0.1.0`,
-  `TreatWarningsAsErrors=true`, `PlatformTarget=x86`, `Prefer32Bit=true`,
+  `TreatWarningsAsErrors=true`, CPU-agnóstico (sin `PlatformTarget`/`Prefer32Bit`
+  forzados; se pasa con `-p:`),
   `LangVersion=10`, `Deterministic=true`.
 - **Scripts arreglados**: `Pack.ps1`, `RegisterAddin.ps1`,
   `UnregisterAddin.ps1`, `dev.ps1` usan `dotnet build` / `dotnet vstest` y

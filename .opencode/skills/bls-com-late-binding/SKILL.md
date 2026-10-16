@@ -18,7 +18,7 @@ description: COM late-binding sin PIAs y aislamiento de dynamic en BlsComHelper
 
 ## Principios
 
-Access 2010+ solo x86 sin PIAs obliga a late binding. Todo acceso a COM
+Access 2010+ sobre x86 y x64 sin PIAs obliga a late binding. Todo acceso a COM
 se hace vía `dynamic`, pero el `dynamic` **no puede estar disperso** por
 el código: se aísla en `Helpers/BlsComHelper.cs` y el resto del código
 trabaja con tipos propios.
@@ -28,8 +28,9 @@ Razones:
 1. **Sin PIAs**: no hay referencias a `Microsoft.Office.Interop.*`.
 2. **Sin registro de tipos**: no podemos usar interfaces `[ComImport]`
    para VBE/Access porque la versión de Office varía (2010, 2016, 365).
-3. **x86 only**: la DLL se compila `PlatformTarget=x86` y se registra con
-   el regasm x86. Cargar en Access x64 **no** es soportado.
+3. **CPU-agnóstico**: la DLL se compila con `-p:PlatformTarget=x86|x64` (según la
+   arquitectura de Access instalada) y se registra con el regasm de esa misma
+   arquitectura.
 4. **Sin admin**: el registro vive en HKCU (`regasm /codebase`).
 
 ---

@@ -41,7 +41,7 @@ Issue → bls-architect valida spec → bls-planner descompone → bls-implement
 ```
 
 ## Restricciones (no negociables)
-- **x86 only** – `PlatformTarget=x86`, `Prefer32Bit=true`.  
+- **CPU-agnóstico** — la arquitectura (x86\|x64) se pasa con `-p:PlatformTarget`; no forzar `PlatformTarget`/`Prefer32Bit`.  
 - **Nullable=annotations** – no `disable`.  
 - **TreatWarningsAsErrors=true**.  
 - **Sin PIAs**, **sin ROT**, **marshaling explícito** a UI.  

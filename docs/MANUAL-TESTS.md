@@ -16,7 +16,7 @@ aligns_to: [AGENTS.md, PRD.md, .opencode/skills/bls-testing-strategy/SKILL.md]
 
 ## Propósito
 
-Documentar el procedimiento y la lista de comprobación de pruebas de integración en entorno real con Microsoft Access (arquitectura x86 obligatoria) antes de publicar un tag de release `vX.Y.Z`. Estas pruebas cubren interacciones con el host COM que no pueden ser automatizadas en CI sin una instalación real de Office Access.
+Documentar el procedimiento y la lista de comprobación de pruebas de integración en entorno real con Microsoft Access (la arquitectura del add-in debe coincidir con la de Access: x86 o x64) antes de publicar un tag de release `vX.Y.Z`. Estas pruebas cubren interacciones con el host COM que no pueden ser automatizadas en CI sin una instalación real de Office Access.
 
 ---
 
