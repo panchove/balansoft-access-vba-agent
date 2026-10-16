@@ -25,12 +25,14 @@ public static class JsonRpcMethods
     public const string ListObjects      = "list_objects";
     public const string ObjectDetail     = "object_detail";
 
-    // Access authoring (5)
-    public const string CreateForm       = "create_form";
-    public const string CreateTable      = "create_table";
-    public const string CreateQuery      = "create_query";
-    public const string ExecuteSql       = "execute_sql";
-    public const string CreateRibbon     = "create_ribbon";
+    // Access authoring (7)
+    public const string CreateForm                    = "create_form";
+    public const string CreateTable                   = "create_table";
+    public const string CreateQuery                   = "create_query";
+    public const string ExecuteSql                    = "execute_sql";
+    public const string CreateRibbon                  = "create_ribbon";
+    public const string ListCommandBars               = "list_commandbars";
+    public const string MigrateCommandBarToRibbon     = "migrate_commandbar_to_ribbon";
 
     /// <summary>
     /// Conjunto inmutable con los métodos para validación de whitelist.
@@ -40,6 +42,7 @@ public static class JsonRpcMethods
         {
             ListModules, ReadModule, WriteModule, CreateModule, DeleteModule,
             GetSelection, GetActiveModule, ProjectSummary, ListObjects, ObjectDetail,
-            CreateForm, CreateTable, CreateQuery, ExecuteSql, CreateRibbon
+            CreateForm, CreateTable, CreateQuery, ExecuteSql, CreateRibbon,
+            ListCommandBars, MigrateCommandBarToRibbon
         };
 }

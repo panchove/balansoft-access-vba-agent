@@ -13,7 +13,7 @@ tags: [spec, access, authoring, forms, tables, queries, ribbons, sql]
 > **Estado:** `implementado`  
 > **PRD:** FR-11 (Extensión de capacidades Access)  
 > **ADRs:** ADR-014 (Creación y autoría de objetos Access)  
-> **Tests:** 4 verdes en `JsonRpcDispatcherTests`
+> **Tests:** 7 verdes en `JsonRpcDispatcherTests`
 
 ---
 
@@ -85,6 +85,22 @@ When el dispatcher ejecuta el registro
 Then se almacena el XML en la tabla USysRibbons
 ```
 
+### Escenario: Listado de menús clásicos CommandBars
+```gherkin
+Given un request JSON-RPC con método "list_commandbars"
+And custom_only = true
+When el dispatcher consulta las CommandBars
+Then devuelve la lista de barras de herramientas y menús personalizados con sus controles
+```
+
+### Escenario: Migración automática de CommandBar a Ribbon XML
+```gherkin
+Given un request JSON-RPC con método "migrate_commandbar_to_ribbon"
+And commandbar_name = "MenuBar2003"
+When el dispatcher ejecuta la migración
+Then se genera el Ribbon XML a partir de los controles de la CommandBar y se almacena en USysRibbons
+```
+
 ---
 
 ## Tests Obligatorios
@@ -96,3 +112,5 @@ Then se almacena el XML en la tabla USysRibbons
 | `Bridge_CreateQuery_EjecutaYDevuelveResult` | `JsonRpcDispatcherTests.cs` | Superado |
 | `Bridge_ExecuteSql_EjecutaYDevuelveResult` | `JsonRpcDispatcherTests.cs` | Superado |
 | `Bridge_CreateRibbon_EjecutaYDevuelveResult` | `JsonRpcDispatcherTests.cs` | Superado |
+| `Bridge_ListCommandBars_EjecutaYDevuelveResult` | `JsonRpcDispatcherTests.cs` | Superado |
+| `Bridge_MigrateCommandBarToRibbon_EjecutaYDevuelveResult` | `JsonRpcDispatcherTests.cs` | Superado |

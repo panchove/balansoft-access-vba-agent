@@ -70,5 +70,16 @@ namespace Balansoft.AIAddin.AccessIntegration
             BlsContract.RequiresNotNullOrWhiteSpace(ribbonXml, nameof(ribbonXml));
             return BlsComHelper.CreateAccessRibbon(_accessApp, name, ribbonXml);
         }
+
+        public IReadOnlyList<CommandBarInfo> ListCommandBars(bool customOnly = true)
+        {
+            return BlsComHelper.ListAccessCommandBars(_accessApp, customOnly);
+        }
+
+        public MigrateCommandBarResult MigrateCommandBarToRibbon(string commandBarName, string? targetRibbonName = null)
+        {
+            BlsContract.RequiresNotNullOrWhiteSpace(commandBarName, nameof(commandBarName));
+            return BlsComHelper.MigrateCommandBarToRibbon(_accessApp, commandBarName, targetRibbonName);
+        }
     }
 }

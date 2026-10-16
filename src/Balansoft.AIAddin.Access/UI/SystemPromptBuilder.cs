@@ -33,7 +33,9 @@ internal sealed class SystemPromptBuilder : ISystemPromptBuilder
         "- create_table: crea una tabla en Access especificando nombre, columnas, tipos y clave primaria\n" +
         "- create_query: crea o actualiza una consulta SQL o vista guardada (QueryDef)\n" +
         "- execute_sql: ejecuta cualquier sentencia SQL DDL/DML (CREATE TABLE, INSERT, UPDATE, ALTER, etc.)\n" +
-        "- create_ribbon: crea o actualiza una cinta de opciones (Ribbon XML) en la tabla del sistema USysRibbons de Access\n\n" +
+        "- create_ribbon: crea o actualiza una cinta de opciones (Ribbon XML) en la tabla del sistema USysRibbons de Access\n" +
+        "- list_commandbars: lista las barras de herramientas y menus clasicos (CommandBars) de Access 2003\n" +
+        "- migrate_commandbar_to_ribbon: convierte automaticamente un menu clasico CommandBar en un Ribbon XML moderno en USysRibbons\n\n" +
         "Proyecto actual:\n" +
         "- Nombre: {ProjectName}\n" +
         "- ProjectKey: {ProjectKey}\n" +

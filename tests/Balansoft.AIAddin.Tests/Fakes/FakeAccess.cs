@@ -188,4 +188,24 @@ public sealed class FakeAccess : IBlsAccess
         BlsContract.RequiresNotNullOrWhiteSpace(ribbonXml, nameof(ribbonXml));
         return new RibbonOpResult(name, true, $"Ribbon fake '{name}' creado con éxito.");
     }
+
+    public IReadOnlyList<CommandBarInfo> ListCommandBars(bool customOnly = true)
+    {
+        return new List<CommandBarInfo>
+        {
+            new("MenuBar2003", 1, false, new List<CommandBarControlInfo>
+            {
+                new("&Clientes", "=AbrirClientes()", null, "Módulo de clientes"),
+                new("&Facturación", "=AbrirFacturas()", null, "Módulo de facturas")
+            })
+        };
+    }
+
+    public MigrateCommandBarResult MigrateCommandBarToRibbon(string commandBarName, string? targetRibbonName = null)
+    {
+        BlsContract.RequiresNotNullOrWhiteSpace(commandBarName, nameof(commandBarName));
+        string target = targetRibbonName ?? "rbn_" + commandBarName;
+        string fakeXml = $"<customUI><ribbon><tabs><tab id='tab_{target}' label='{commandBarName}'></tab></tabs></ribbon></customUI>";
+        return new MigrateCommandBarResult(commandBarName, target, true, fakeXml, $"CommandBar fake '{commandBarName}' migrada.");
+    }
 }

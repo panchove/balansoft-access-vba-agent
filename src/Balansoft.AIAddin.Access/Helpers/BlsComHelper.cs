@@ -948,5 +948,180 @@ namespace Balansoft.AIAddin.Access.Helpers
                 throw new BlsComException("CreateAccessRibbon", BlsComCategory.Other, $"Error al registrar Ribbon '{name}': {ex.Message}", ex);
             }
         }
+
+        /// <summary>
+        /// Lista las barras de herramientas y menús CommandBars clásicos del host Microsoft Access.
+        /// </summary>
+        /// <param name="accessApp">Instancia nativa de Microsoft Access.</param>
+        /// <param name="customOnly">Si es true, sólo lista las creadas por el usuario / no incorporadas.</param>
+        /// <returns>Lista de <see cref="CommandBarInfo"/>.</returns>
+        public static System.Collections.Generic.IReadOnlyList<CommandBarInfo> ListAccessCommandBars(
+            object? accessApp,
+            bool customOnly = true)
+        {
+            if (accessApp == null)
+            {
+                throw new BlsComException("ListAccessCommandBars", BlsComCategory.UnexpectedType, "accessApp es null", null);
+            }
+
+            var result = new System.Collections.Generic.List<CommandBarInfo>();
+
+            try
+            {
+                dynamic app = accessApp;
+                dynamic commandBars = app.CommandBars;
+                if (commandBars == null) return result;
+
+                int count = (int)commandBars.Count;
+                for (int i = 1; i <= count; i++)
+                {
+                    try
+                    {
+                        dynamic bar = commandBars[i];
+                        bool builtIn = (bool)bar.BuiltIn;
+                        if (customOnly && builtIn)
+                        {
+                            continue;
+                        }
+
+                        string name = (string)bar.Name;
+                        int type = (int)bar.Type;
+
+                        var controls = new System.Collections.Generic.List<CommandBarControlInfo>();
+                        try
+                        {
+                            dynamic ctrlColl = bar.Controls;
+                            int ctrlCount = (int)ctrlColl.Count;
+                            for (int j = 1; j <= ctrlCount; j++)
+                            {
+                                try
+                                {
+                                    dynamic ctrl = ctrlColl[j];
+                                    string caption = (string)(ctrl.Caption ?? $"Control{j}");
+                                    string? onAction = (string?)ctrl.OnAction;
+                                    string? tooltip = (string?)ctrl.TooltipText;
+                                    controls.Add(new CommandBarControlInfo(caption, onAction, null, tooltip));
+                                }
+                                catch
+                                {
+                                    // Control no legible individual
+                                }
+                            }
+                        }
+                        catch
+                        {
+                            // Colección de controles no accesible
+                        }
+
+                        result.Add(new CommandBarInfo(name, type, builtIn, controls));
+                    }
+                    catch
+                    {
+                        // Barra individual inaccesible
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                throw new BlsComException("ListAccessCommandBars", BlsComCategory.Other, $"Error al listar CommandBars: {ex.Message}", ex);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Migra una barra o menú clásico (CommandBar) de Access 2003 a un Ribbon XML moderno en USysRibbons.
+        /// </summary>
+        /// <param name="accessApp">Instancia nativa de Microsoft Access.</param>
+        /// <param name="commandBarName">Nombre de la CommandBar existente a migrar.</param>
+        /// <param name="targetRibbonName">Nombre opcional para el nuevo Ribbon (por defecto rbn_{commandBarName}).</param>
+        /// <returns>Resultado de la migración <see cref="MigrateCommandBarResult"/>.</returns>
+        public static MigrateCommandBarResult MigrateCommandBarToRibbon(
+            object? accessApp,
+            string commandBarName,
+            string? targetRibbonName = null)
+        {
+            BlsContract.RequiresNotNullOrWhiteSpace(commandBarName, nameof(commandBarName));
+
+            if (accessApp == null)
+            {
+                throw new BlsComException("MigrateCommandBarToRibbon", BlsComCategory.UnexpectedType, "accessApp es null", null);
+            }
+
+            string ribbonName = !string.IsNullOrWhiteSpace(targetRibbonName)
+                ? targetRibbonName!
+                : "rbn_" + commandBarName.Replace(" ", "_");
+
+            try
+            {
+                dynamic app = accessApp;
+                dynamic commandBars = app.CommandBars;
+                dynamic bar = commandBars[commandBarName];
+
+                if (bar == null)
+                {
+                    return new MigrateCommandBarResult(commandBarName, ribbonName, false, "", $"No se encontró la CommandBar '{commandBarName}'.");
+                }
+
+                // Generar Ribbon XML a partir de los controles de la CommandBar
+                var sb = new System.Text.StringBuilder();
+                sb.AppendLine("<customUI xmlns=\"http://schemas.microsoft.com/office/2009/07/customui\">");
+                sb.AppendLine("  <ribbon startFromScratch=\"false\">");
+                sb.AppendLine("    <tabs>");
+                sb.AppendLine($"      <tab id=\"tab_{ribbonName}\" label=\"{commandBarName}\">");
+                sb.AppendLine($"        <group id=\"grp_{ribbonName}\" label=\"Comandos de {commandBarName}\">");
+
+                dynamic ctrlColl = bar.Controls;
+                int count = (int)ctrlColl.Count;
+                int validButtons = 0;
+
+                for (int i = 1; i <= count; i++)
+                {
+                    try
+                    {
+                        dynamic ctrl = ctrlColl[i];
+                        string rawCaption = (string)(ctrl.Caption ?? $"Comando {i}");
+                        // Limpiar atajos '&' tipo &Archivo -> Archivo
+                        string cleanCaption = rawCaption.Replace("&", "");
+                        string onAction = (string)(ctrl.OnAction ?? "");
+                        string safeId = $"btn_{ribbonName}_{i}";
+
+                        sb.Append($"          <button id=\"{safeId}\" label=\"{cleanCaption}\" size=\"large\" imageMso=\"SourceControlProperties\"");
+                        if (!string.IsNullOrWhiteSpace(onAction))
+                        {
+                            sb.Append($" onAction=\"{onAction}\"");
+                        }
+                        sb.AppendLine(" />");
+                        validButtons++;
+                    }
+                    catch
+                    {
+                        // Control omitido
+                    }
+                }
+
+                sb.AppendLine("        </group>");
+                sb.AppendLine("      </tab>");
+                sb.AppendLine("    </tabs>");
+                sb.AppendLine("  </ribbon>");
+                sb.AppendLine("</customUI>");
+
+                string ribbonXml = sb.ToString();
+
+                // Guardar en USysRibbons
+                CreateAccessRibbon(accessApp, ribbonName, ribbonXml);
+
+                return new MigrateCommandBarResult(
+                    commandBarName,
+                    ribbonName,
+                    true,
+                    ribbonXml,
+                    $"CommandBar '{commandBarName}' migrada exitosamente al Ribbon '{ribbonName}' con {validButtons} botones.");
+            }
+            catch (Exception ex)
+            {
+                throw new BlsComException("MigrateCommandBarToRibbon", BlsComCategory.Other, $"Error al migrar CommandBar '{commandBarName}': {ex.Message}", ex);
+            }
+        }
     }
 }

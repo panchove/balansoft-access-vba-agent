@@ -474,5 +474,44 @@ public class JsonRpcDispatcherTests
         Assert.AreEqual("MiRibbon", result.Name);
         Assert.IsTrue(result.Success);
     }
+
+    [TestMethod]
+    public async Task Bridge_ListCommandBars_EjecutaYDevuelveResult()
+    {
+        // Arrange
+        var request = CreateRequest("list_commandbars", 1, new { custom_only = true });
+
+        // Act
+        var response = await _dispatcher.DispatchAsync(request, CancellationToken.None);
+
+        // Assert
+        Assert.IsNull(response.Error);
+        Assert.IsNotNull(response.Result);
+        var list = (IReadOnlyList<Balansoft.AIAddin.AccessIntegration.CommandBarInfo>)response.Result!;
+        Assert.IsTrue(list.Count > 0);
+        Assert.AreEqual("MenuBar2003", list[0].Name);
+    }
+
+    [TestMethod]
+    public async Task Bridge_MigrateCommandBarToRibbon_EjecutaYDevuelveResult()
+    {
+        // Arrange
+        var request = CreateRequest("migrate_commandbar_to_ribbon", 1, new
+        {
+            commandbar_name = "MenuBar2003",
+            target_ribbon_name = "rbn_Moderno"
+        });
+
+        // Act
+        var response = await _dispatcher.DispatchAsync(request, CancellationToken.None);
+
+        // Assert
+        Assert.IsNull(response.Error);
+        Assert.IsNotNull(response.Result);
+        var result = (Balansoft.AIAddin.AccessIntegration.MigrateCommandBarResult)response.Result!;
+        Assert.AreEqual("MenuBar2003", result.CommandBarName);
+        Assert.AreEqual("rbn_Moderno", result.RibbonName);
+        Assert.IsTrue(result.Success);
+    }
 }
 

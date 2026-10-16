@@ -56,7 +56,7 @@ Un spec por archivo, nombrado en mayúsculas estrictas `NNN-SLUG.md` (ej. `001-A
 | 009 | [REGISTRATION](009-REGISTRATION.md)             | FR-06         | —                | `borrador`     | 0/8                    |
 | 010 | [DESIGN-BY-CONTRACT](010-DESIGN-BY-CONTRACT.md) | Calidad / DbC | ADR-005          | `implementado` | 17 verdes              |
 | 011 | [SESSION-MANAGEMENT](011-SESSION-MANAGEMENT.md) | FR-10         | ADR-013          | `implementado` | 14 verdes              |
-| 012 | [ACCESS-AUTHORING](012-ACCESS-AUTHORING.md)     | FR-11         | ADR-014          | `implementado` | 5 verdes               |
+| 012 | [ACCESS-AUTHORING](012-ACCESS-AUTHORING.md)     | FR-11         | ADR-014          | `implementado` | 7 verdes               |
 
 `implementado` solo si hay tests verdes. Los specs 005 y 006 tienen el código
 completo pero ninguna aserción que lo valide, así que no pueden declararse

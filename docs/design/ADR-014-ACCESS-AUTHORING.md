@@ -52,6 +52,14 @@ Se expande el protocolo JSON-RPC, los contratos de `IBlsAccess` y la fachada COM
 - **Esquema de Sistema:** Crea automáticamente la tabla del sistema `USysRibbons` en la base de datos actual si aún no existe (`ID AUTOINCREMENT PRIMARY KEY, RibbonName VARCHAR(255) NOT NULL, RibbonXML MEMO NOT NULL`).
 - **Persistencia:** Inserta o actualiza el XML de CustomUI en `USysRibbons` escapando comillas para garantizar integridad.
 
+### 6. Inspección de Menús Clásicos CommandBars (`list_commandbars`)
+- **Firma:** `list_commandbars(custom_only: bool = true)`
+- **Inspección COM:** Recorre `Application.CommandBars`, filtrando opcionalmente las barras nativas del sistema (`BuiltIn == false`), extrayendo nombres, tipos y colecciones de controles (`Caption`, `OnAction`, `TooltipText`).
+
+### 7. Migración Automática CommandBar a Ribbon XML (`migrate_commandbar_to_ribbon`)
+- **Firma:** `migrate_commandbar_to_ribbon(commandbar_name: string, target_ribbon_name?: string)`
+- **Transformación Declarativa:** Convierte automáticamente la estructura jerárquica de botones de la barra clásica en un XML estándar CustomUI Fluent UI (`<tab>`, `<group>`, `<button onAction="...">`), limpiando los atajos de teclado clásicos `&` e inyectándolo directamente en la tabla `USysRibbons`.
+
 ## Consecuencias
-- **Positivas:** El asistente es capaz de construir aplicaciones Access completas (tablas, consultas, formularios UI, ribbons y módulos VBA) en lenguaje natural sin requerir plugins externos.
+- **Positivas:** El asistente es capaz de construir aplicaciones Access completas (tablas, consultas, formularios UI, ribbons y módulos VBA) en lenguaje natural y modernizar proyectos legados de Access 2003 automáticamente hacia Access 2010+.
 - **Garantías de Diseño:** Todo el acceso COM cumple con las reglas no negociables de `AGENTS.md`: sin PIAs, enlace tardío dinámico encapsulado exclusivamente en `BlsComHelper.cs`, marshaling obligatorio a UI thread y validación por contratos `BlsContract`.

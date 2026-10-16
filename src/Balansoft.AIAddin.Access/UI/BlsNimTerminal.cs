@@ -1385,6 +1385,8 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         var createQuerySchema = JsonDocument.Parse("{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"sql\":{\"type\":\"string\"}},\"required\":[\"name\",\"sql\"]}").RootElement;
         var executeSqlSchema = JsonDocument.Parse("{\"type\":\"object\",\"properties\":{\"sql\":{\"type\":\"string\"}},\"required\":[\"sql\"]}").RootElement;
         var createRibbonSchema = JsonDocument.Parse("{\"type\":\"object\",\"properties\":{\"name\":{\"type\":\"string\"},\"ribbon_xml\":{\"type\":\"string\"}},\"required\":[\"name\",\"ribbon_xml\"]}").RootElement;
+        var listCommandBarsSchema = JsonDocument.Parse("{\"type\":\"object\",\"properties\":{\"custom_only\":{\"type\":\"boolean\"}}}").RootElement;
+        var migrateCommandBarSchema = JsonDocument.Parse("{\"type\":\"object\",\"properties\":{\"commandbar_name\":{\"type\":\"string\"},\"target_ribbon_name\":{\"type\":\"string\"}},\"required\":[\"commandbar_name\"]}").RootElement;
 
         return new List<ToolDefinition>
         {
@@ -1402,7 +1404,9 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             new ToolDefinition("create_table", "Crea una tabla en la base de datos Access con sus columnas y clave primaria", createTableSchema),
             new ToolDefinition("create_query", "Crea o reemplaza una consulta o vista guardada (QueryDef)", createQuerySchema),
             new ToolDefinition("execute_sql", "Ejecuta una sentencia SQL DDL/DML (CREATE TABLE, INSERT, UPDATE, ALTER, etc.)", executeSqlSchema),
-            new ToolDefinition("create_ribbon", "Crea o actualiza una cinta de opciones (Ribbon XML) en la tabla del sistema USysRibbons", createRibbonSchema)
+            new ToolDefinition("create_ribbon", "Crea o actualiza una cinta de opciones (Ribbon XML) en la tabla del sistema USysRibbons", createRibbonSchema),
+            new ToolDefinition("list_commandbars", "Lista las barras y menus CommandBars clasicos de Access 2003", listCommandBarsSchema),
+            new ToolDefinition("migrate_commandbar_to_ribbon", "Migra una CommandBar clasica a un Ribbon XML moderno en USysRibbons", migrateCommandBarSchema)
         };
     }
 

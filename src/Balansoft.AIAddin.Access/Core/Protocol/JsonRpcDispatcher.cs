@@ -99,6 +99,11 @@ public sealed class JsonRpcDispatcher
                 JsonRpcMethods.CreateRibbon      => await HandleAccessAsync(request, ct, () => _access.CreateRibbon(
                     GetStringParam(request, "name"),
                     GetStringParam(request, "ribbon_xml"))),
+                JsonRpcMethods.ListCommandBars   => await HandleAccessAsync(request, ct, () => _access.ListCommandBars(
+                    GetBoolParam(request, "custom_only", true))),
+                JsonRpcMethods.MigrateCommandBarToRibbon => await HandleAccessAsync(request, ct, () => _access.MigrateCommandBarToRibbon(
+                    GetStringParam(request, "commandbar_name"),
+                    GetOptionalStringParam(request, "target_ribbon_name"))),
                 _ => JsonRpcResponse.CreateError(request.Id, new JsonRpcError(
                     JsonRpcErrorCodes.MethodNotFound,
                     $"Método no implementado: {request.Method}",

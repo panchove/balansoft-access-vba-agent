@@ -141,6 +141,34 @@ public sealed record RibbonOpResult(
     string? Message = null);
 
 /// <summary>
+/// Elemento o botón en una CommandBar clásica de Access.
+/// </summary>
+public sealed record CommandBarControlInfo(
+    string Caption,
+    string? OnAction = null,
+    int? FaceId = null,
+    string? Tooltip = null);
+
+/// <summary>
+/// Información de una CommandBar personalizada clásica de Access 2003.
+/// </summary>
+public sealed record CommandBarInfo(
+    string Name,
+    int Type,
+    bool BuiltIn,
+    IReadOnlyList<CommandBarControlInfo> Controls);
+
+/// <summary>
+/// Resultado de migrar una CommandBar clásica a Ribbon XML.
+/// </summary>
+public sealed record MigrateCommandBarResult(
+    string CommandBarName,
+    string RibbonName,
+    bool Success,
+    string RibbonXml,
+    string? Message = null);
+
+/// <summary>
 /// Contrato de operaciones sobre objetos Access.
 /// Implementado por BlsAccessService.
 /// </summary>
@@ -169,4 +197,10 @@ public interface IBlsAccess
 
     /// <summary>Crea o actualiza una cinta de opciones (Ribbon XML) en la tabla USysRibbons de Access.</summary>
     RibbonOpResult CreateRibbon(string name, string ribbonXml);
+
+    /// <summary>Lista las barras de herramientas y menús CommandBars personalizados del proyecto.</summary>
+    IReadOnlyList<CommandBarInfo> ListCommandBars(bool customOnly = true);
+
+    /// <summary>Migra una CommandBar clásica de Access 2003 a un Ribbon XML moderno en USysRibbons.</summary>
+    MigrateCommandBarResult MigrateCommandBarToRibbon(string commandBarName, string? targetRibbonName = null);
 }
