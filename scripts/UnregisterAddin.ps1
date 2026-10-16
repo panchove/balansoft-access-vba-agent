@@ -61,7 +61,7 @@ $expected64 = ($Architecture -eq "x64")
 if ($is64Bit -ne $expected64) {
     $archName = if ($expected64) { "x64" } else { "x86 (32-bit)" }
     Write-Host "ERROR: este script debe ejecutarse en PowerShell $archName para -Architecture $Architecture." -ForegroundColor Red
-    Write-Host "Proceso actual: $([Environment]::Is64BitProcess ? 'x64' : 'x86')" -ForegroundColor Yellow
+    Write-Host "Proceso actual: $([Environment]::Is64BitProcess)" -ForegroundColor Yellow
     exit 1
 }
 Write-Host "  + PowerShell $Architecture verificado" -ForegroundColor Green

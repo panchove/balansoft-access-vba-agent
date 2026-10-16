@@ -67,7 +67,7 @@ $expected64 = ($Architecture -eq "x64")
 if ($is64Bit -ne $expected64) {
     $archName = if ($expected64) { "x64" } else { "x86 (32-bit)" }
     Write-Host "ERROR: este script debe ejecutarse en PowerShell $archName para -Architecture $Architecture." -ForegroundColor Red
-    Write-Host "Proceso actual: $([Environment]::Is64BitProcess ? 'x64' : 'x86')" -ForegroundColor Yellow
+    Write-Host "Proceso actual: $([Environment]::Is64BitProcess)" -ForegroundColor Yellow
     Write-Host ""
     Write-Host "Ejemplo desde la consola actual:" -ForegroundColor Yellow
     Write-Host "  & `"$env:WINDIR\SysNative\WindowsPowerShell\v1.0\powershell.exe`" -File `"$PSCommandPath`" -Architecture $Architecture" -ForegroundColor Yellow
@@ -85,7 +85,7 @@ if (-not (Test-Path $regasm)) {
     Write-Host "  https://dotnet.microsoft.com/download/dotnet-framework/net48" -ForegroundColor Yellow
     exit 2
 }
-Write-Host "  + regasm $Architecture: $regasm" -ForegroundColor Green
+Write-Host ("  + regasm " + $Architecture + ": " + $regasm) -ForegroundColor Green
 
 # 3. Localizar la DLL
 if ([string]::IsNullOrEmpty($DllPath)) {
