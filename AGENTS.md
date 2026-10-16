@@ -33,6 +33,7 @@
 13. **Documentación de diseño (ISO/IEC 42010):** todo documento en `docs/design/` debe seguir estrictamente el patrón `ADR-NNN-<SLUG>.md` con frontmatter YAML estandarizado (`version`, `date`, `status`, `iso_standard: [42010, ...]`).
 14. **Especificaciones en mayúsculas (ISO/IEC 29148):** todo archivo en `specs/` debe nombrarse estrictamente en MAYÚSCULAS con formato `NNN-<SLUG>.md` (ej. `001-ADDIN-LIFECYCLE.md`, `README.md`). Prohibido minúsculas en nombres de archivo de `specs/`.
 15. **Posicionamiento de Formularios (UI / ISO/IEC 25010 Usabilidad):** todo formulario o diálogo WinForms (`Form`) debe inicializarse obligatoriamente centrado con respecto a la pantalla física (`StartPosition = FormStartPosition.CenterScreen`). Prohibido `CenterParent` o `WindowsDefaultLocation`.
+16. **Normas de referencia ISO/IEC obligatorias en documentación:** todo documento Markdown (`.md`) en el repositorio debe declarar explícitamente sus normas ISO/IEC de referencia tanto en el frontmatter YAML (`iso_standard: [...]`) como en el cuerpo del texto (`> **Norma de referencia:** ISO/IEC ...`).
 
 ---
 ## Comandos canónicos (usar `pwsh`)

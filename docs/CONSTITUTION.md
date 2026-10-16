@@ -147,6 +147,13 @@ Todo formulario o ventana de diálogo WinForms (`Form`) implementado en la soluc
 - Se debe establecer formalmente `StartPosition = FormStartPosition.CenterScreen;` en la inicialización de todo `Form` (tanto la terminal principal `BlsNimTerminal` como diálogos auxiliares como `ApiKeyPromptForm`).
 - Queda estrictamente prohibido el uso de `FormStartPosition.CenterParent` o `FormStartPosition.WindowsDefaultLocation`, ya que en escenarios de monitores múltiples con ventanas MDI/VBE desacopladas o no maximizadas, la ventana del add-in puede quedar fuera de la visual primaria o recortada.
 
+### P15 — Declaración de Normas ISO/IEC Obligatoria en Documentación
+
+Todo documento Markdown (`.md`) dentro del repositorio debe declarar taxativamente los estándares internacionales que regulan su alcance y estructura:
+- **Frontmatter YAML:** Bloque inicial que incluya el array `iso_standard: [25010, 12207, 29148, 42010, ...]`.
+- **Cuerpo del documento:** Línea de cabecera con formato `> **Norma de referencia:** ISO/IEC ...` identificando claramente la norma aplicable (ej. ISO/IEC 29148 para requisitos/specs, ISO/IEC/IEEE 42010 para arquitectura/ADRs, ISO/IEC 12207 para ciclo de vida y calidad, e ISO/IEC 25010 para atributos de calidad y modelo de datos).
+- La documentación técnica y el código fuente deben alinearse mutuamente bajo estos estándares.
+
 ---
 
 ## II. Restricciones técnicas
