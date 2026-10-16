@@ -102,6 +102,9 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     private ComboBox _cmbSessions = null!;
     private Button _btnNuevaSesion = null!;
     private Button _btnEliminarSesion = null!;
+    private Label _lblLanguage = null!;
+    private ComboBox _cmbLanguage = null!;
+    private Label _lblDetalleTitulo = null!;
     private ListView _conversation = null!;
     private RichTextBox _txtDetalle = null!;
     private Button _btnCopiarDetalle = null!;
@@ -309,6 +312,33 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         sessionBar.Controls.Add(_btnEliminarSesion);
         sessionBar.Controls.Add(_btnNuevaSesion);
 
+        _lblLanguage = new Label
+        {
+            Text = BlsStrings.Get("LangLabel"),
+            Dock = DockStyle.Right,
+            Width = 55,
+            Height = 26,
+            Font = new Font("Segoe UI", 8.5F),
+            TextAlign = ContentAlignment.MiddleRight
+        };
+        _cmbLanguage = new ComboBox
+        {
+            Dock = DockStyle.Right,
+            Width = 90,
+            Height = 26,
+            Font = new Font("Segoe UI", 9F),
+            DropDownStyle = ComboBoxStyle.DropDownList
+        };
+        foreach (var lang in BlsStrings.GetSupportedLanguages())
+        {
+            _cmbLanguage.Items.Add(lang);
+        }
+        _cmbLanguage.SelectedItem = BlsStrings.CurrentLanguage;
+        _cmbLanguage.SelectedIndexChanged += OnLanguageChanged;
+
+        sessionBar.Controls.Add(_lblLanguage);
+        sessionBar.Controls.Add(_cmbLanguage);
+
         leftPanel.Controls.Add(_conversation);
         leftPanel.Controls.Add(sessionBar);
         _conversation.BringToFront();
@@ -322,7 +352,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             Padding = new Padding(6, 4, 6, 6)
         };
 
-        var lblDetalleTitulo = new Label
+        _lblDetalleTitulo = new Label
         {
             Text = BlsStrings.Get("DetailTitle"),
             Dock = DockStyle.Top,
@@ -374,7 +404,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         detailButtonsPanel.Controls.Add(_btnLimpiarDetalle);
 
         rightPanel.Controls.Add(_txtDetalle);
-        rightPanel.Controls.Add(lblDetalleTitulo);
+        rightPanel.Controls.Add(_lblDetalleTitulo);
         rightPanel.Controls.Add(detailButtonsPanel);
         _txtDetalle.BringToFront();
 
@@ -859,6 +889,31 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         {
             _logger.Error("BlsNimTerminal", "Error eliminando sesión", ex);
             AppendError(BlsStrings.Get("MsgErrorDeletingSession", ex.Message));
+        }
+    }
+
+    private void OnLanguageChanged(object? sender, EventArgs e)
+    {
+        if (_cmbLanguage.SelectedItem is not string lang) return;
+
+        try
+        {
+            BlsStrings.CurrentLanguage = lang;
+
+            // Refresh all localized UI texts
+            Text = BlsStrings.Get("AppTitle");
+            _lblLanguage.Text = BlsStrings.Get("LangLabel");
+            _btnNuevaSesion.Text = BlsStrings.Get("BtnNewSession");
+            _btnEliminarSesion.Text = BlsStrings.Get("BtnDeleteSession");
+            _lblStatus.Text = BlsStrings.Get("StatusReady");
+
+            // Refresh session list and detail title
+            _lblDetalleTitulo.Text = BlsStrings.Get("DetailTitle");
+            RefreshSessionsListAsync(selectSessionId: _currentDoc?.SessionId).GetAwaiter().GetResult();
+        }
+        catch (Exception ex)
+        {
+            _logger.Error("BlsNimTerminal", "Error cambiando idioma", ex);
         }
     }
 

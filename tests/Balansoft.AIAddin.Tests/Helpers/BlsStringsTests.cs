@@ -4,6 +4,7 @@
 // Architecture Reference: P12 (Español en UI y logs)
 
 using System;
+using System.Linq;
 using Balansoft.AIAddin.Helpers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -61,12 +62,15 @@ public sealed class BlsStringsTests
     {
         Assert.IsTrue(BlsStrings.IsLanguageSupported("es"));
         Assert.IsTrue(BlsStrings.IsLanguageSupported("en"));
+        Assert.IsTrue(BlsStrings.IsLanguageSupported("pt"));
+        Assert.IsTrue(BlsStrings.IsLanguageSupported("fr"));
     }
 
     [TestMethod]
     public void IsLanguageSupported_ReturnsFalseForUnsupported()
     {
-        Assert.IsFalse(BlsStrings.IsLanguageSupported("fr"));
+        Assert.IsFalse(BlsStrings.IsLanguageSupported("de"));
+        Assert.IsFalse(BlsStrings.IsLanguageSupported("it"));
         Assert.IsFalse(BlsStrings.IsLanguageSupported(""));
         Assert.IsFalse(BlsStrings.IsLanguageSupported(null!));
     }
@@ -75,7 +79,7 @@ public sealed class BlsStringsTests
     public void SetLanguage_ThrowsForUnsupported()
     {
         BlsStrings.CurrentLanguage = "es";
-        Assert.ThrowsException<ArgumentException>(() => BlsStrings.CurrentLanguage = "fr");
+        Assert.ThrowsException<ArgumentException>(() => BlsStrings.CurrentLanguage = "de");
     }
 
     [TestMethod]
@@ -83,6 +87,37 @@ public sealed class BlsStringsTests
     {
         BlsStrings.CurrentLanguage = "es";
         Assert.ThrowsException<ArgumentException>(() => BlsStrings.CurrentLanguage = "");
+    }
+
+    [TestMethod]
+    public void Get_Portuguese_ReturnsLocalizedText()
+    {
+        BlsStrings.CurrentLanguage = "pt";
+        Assert.AreEqual("NIM Terminal", BlsStrings.Get("AppTitle"));
+        Assert.AreEqual("+ Nova", BlsStrings.Get("BtnNewSession"));
+        Assert.AreEqual("Excluir", BlsStrings.Get("BtnDeleteSession"));
+        Assert.AreEqual("Pronto", BlsStrings.Get("StatusReady"));
+    }
+
+    [TestMethod]
+    public void Get_French_ReturnsLocalizedText()
+    {
+        BlsStrings.CurrentLanguage = "fr";
+        Assert.AreEqual("NIM Terminal", BlsStrings.Get("AppTitle"));
+        Assert.AreEqual("+ Nouvelle", BlsStrings.Get("BtnNewSession"));
+        Assert.AreEqual("Supprimer", BlsStrings.Get("BtnDeleteSession"));
+        Assert.AreEqual("Prêt", BlsStrings.Get("StatusReady"));
+    }
+
+    [TestMethod]
+    public void GetSupportedLanguages_ReturnsAllFour()
+    {
+        var langs = BlsStrings.GetSupportedLanguages().ToList();
+        Assert.AreEqual(4, langs.Count);
+        Assert.IsTrue(langs.Contains("es"));
+        Assert.IsTrue(langs.Contains("en"));
+        Assert.IsTrue(langs.Contains("pt"));
+        Assert.IsTrue(langs.Contains("fr"));
     }
 
     [TestMethod]
