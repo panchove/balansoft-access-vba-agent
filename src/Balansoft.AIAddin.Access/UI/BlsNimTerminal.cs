@@ -215,8 +215,6 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             Dock = DockStyle.Fill,
             Orientation = Orientation.Horizontal,
             FixedPanel = FixedPanel.Panel2,
-            Panel1MinSize = 250,
-            Panel2MinSize = 120,
             SplitterWidth = 4,
             IsSplitterFixed = false
         };
@@ -227,8 +225,6 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             Dock = DockStyle.Fill,
             Orientation = Orientation.Vertical,
             FixedPanel = FixedPanel.Panel2,
-            Panel1MinSize = 260,
-            Panel2MinSize = 260,
             SplitterWidth = 4,
             IsSplitterFixed = false
         };
@@ -398,14 +394,16 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         _mainSplit.Panel2.Controls.Add(bottomPanel);
         Controls.Add(_mainSplit);
 
-        // Ajuste seguro de SplitterDistance una vez que el formulario ha determinado su tamaño de cliente
+        // Ajuste seguro de paneles y SplitterDistance una vez que el formulario ha determinado su tamaño de cliente
         Shown += (s, e) =>
         {
             try
             {
                 int availableHeight = _mainSplit.Height;
-                if (availableHeight > _mainSplit.Panel1MinSize + _mainSplit.Panel2MinSize)
+                if (availableHeight >= 370)
                 {
+                    _mainSplit.Panel1MinSize = 250;
+                    _mainSplit.Panel2MinSize = 120;
                     int desiredHeight = availableHeight - 160;
                     if (desiredHeight >= _mainSplit.Panel1MinSize && desiredHeight <= availableHeight - _mainSplit.Panel2MinSize)
                     {
@@ -414,8 +412,10 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
                 }
 
                 int availableWidth = _topSplit.Width;
-                if (availableWidth > _topSplit.Panel1MinSize + _topSplit.Panel2MinSize)
+                if (availableWidth >= 520)
                 {
+                    _topSplit.Panel1MinSize = 260;
+                    _topSplit.Panel2MinSize = 260;
                     int desiredWidth = Math.Max(_topSplit.Panel1MinSize, (int)(availableWidth * 0.55));
                     if (desiredWidth <= availableWidth - _topSplit.Panel2MinSize)
                     {
