@@ -101,6 +101,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     private SplitContainer _topSplit = null!;
     private ComboBox _cmbSessions = null!;
     private Button _btnNuevaSesion = null!;
+    private Button _btnEliminarSesion = null!;
     private ListView _conversation = null!;
     private RichTextBox _txtDetalle = null!;
     private Button _btnCopiarDetalle = null!;
@@ -285,6 +286,17 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         };
         _btnNuevaSesion.Click += OnNuevaSesionClick;
 
+        _btnEliminarSesion = new Button
+        {
+            Text = "Eliminar",
+            Dock = DockStyle.Right,
+            Width = 70,
+            Height = 26,
+            Font = new Font("Segoe UI", 8.5F),
+            Enabled = false
+        };
+        _btnEliminarSesion.Click += OnEliminarSesionClick;
+
         _cmbSessions = new ComboBox
         {
             Dock = DockStyle.Fill,
@@ -294,6 +306,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         _cmbSessions.SelectedIndexChanged += OnSessionsSelectedIndexChanged;
 
         sessionBar.Controls.Add(_cmbSessions);
+        sessionBar.Controls.Add(_btnEliminarSesion);
         sessionBar.Controls.Add(_btnNuevaSesion);
 
         leftPanel.Controls.Add(_conversation);
@@ -717,6 +730,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
                 _cmbSessions.SelectedIndex = indexToSelect;
                 var selectedMeta = (SessionMetadata)_cmbSessions.SelectedItem!;
                 _currentDoc = await _history.LoadSessionAsync(projectKeyInfo.Key, selectedMeta.Id, CancellationToken.None);
+                _btnEliminarSesion.Enabled = true;
             }
             else
             {
@@ -730,6 +744,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
                     MessageCount = 0
                 });
                 _cmbSessions.SelectedIndex = 0;
+                _btnEliminarSesion.Enabled = true;
             }
 
             RenderHistory(_currentDoc);
@@ -743,6 +758,8 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     private async void OnSessionsSelectedIndexChanged(object? sender, EventArgs e)
     {
         if (_loadingSessions || _cmbSessions.SelectedItem is not SessionMetadata meta) return;
+
+        _btnEliminarSesion.Enabled = true;
 
         try
         {
@@ -789,6 +806,59 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         {
             _logger.Error("BlsNimTerminal", "Error creando nueva sesión", ex);
             AppendError("Error creando nueva sesión: " + ex.Message);
+        }
+    }
+
+    private async void OnEliminarSesionClick(object? sender, EventArgs e)
+    {
+        if (_currentTurnCts != null)
+        {
+            MessageBox.Show("Hay una consulta en ejecución. Deténla antes de eliminar la sesión.", "NIM Terminal", MessageBoxButtons.OK, MessageBoxIcon.Information);
+            return;
+        }
+
+        if (_cmbSessions.SelectedItem is not SessionMetadata meta)
+        {
+            MessageBox.Show("Selecciona una sesión para eliminar.", "NIM Terminal", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            return;
+        }
+
+        var confirm = MessageBox.Show(
+            $"¿Eliminar la sesión \"{meta.Title}\"?\nEsta acción no se puede deshacer.",
+            "NIM Terminal - Eliminar sesión",
+            MessageBoxButtons.YesNo,
+            MessageBoxIcon.Question);
+
+        if (confirm != DialogResult.Yes)
+            return;
+
+        try
+        {
+            if (_currentDoc != null && _currentDoc.SessionId == meta.Id)
+            {
+                await _history.FlushAsync(CancellationToken.None);
+            }
+
+            var projectKeyInfo = _vbe.GetProjectKey();
+            await _history.DeleteSessionAsync(projectKeyInfo.Key, meta.Id, CancellationToken.None);
+
+            // Si la sesión eliminada era la actual, recargar lista (creará una nueva si queda vacía)
+            if (_currentDoc != null && _currentDoc.SessionId == meta.Id)
+            {
+                await RefreshSessionsListAsync(selectSessionId: null);
+            }
+            else
+            {
+                await RefreshSessionsListAsync(selectSessionId: _currentDoc?.SessionId);
+            }
+
+            _lblStatus.Text = $"Sesión eliminada: {meta.Title}";
+            _input.Focus();
+        }
+        catch (Exception ex)
+        {
+            _logger.Error("BlsNimTerminal", "Error eliminando sesión", ex);
+            AppendError("Error eliminando sesión: " + ex.Message);
         }
     }
 

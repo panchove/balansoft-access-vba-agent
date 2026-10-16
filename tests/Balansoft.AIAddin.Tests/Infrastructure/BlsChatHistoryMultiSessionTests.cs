@@ -104,4 +104,56 @@ public sealed class BlsChatHistoryMultiSessionTests
         Assert.AreEqual(1, doc.Messages.Count);
         Assert.AreEqual("Mensaje antiguo", doc.Messages[0].Content);
     }
+
+    [TestMethod]
+    public async Task DeleteSession_SpecificSession_RemovedFromCatalogAndDisk()
+    {
+        using var history = new BlsChatHistory(_tempDir, _logger);
+        var s1 = await history.CreateSessionAsync("proj_delete", "Sesion 1", CancellationToken.None);
+        s1.Messages.Add(new HistoryMessage { Role = "user", Content = "Hola 1", Ts = DateTime.UtcNow });
+        await history.SaveAsync("proj_delete", s1, CancellationToken.None);
+        await history.FlushAsync(CancellationToken.None);
+
+        var s2 = await history.CreateSessionAsync("proj_delete", "Sesion 2", CancellationToken.None);
+        s2.Messages.Add(new HistoryMessage { Role = "user", Content = "Hola 2", Ts = DateTime.UtcNow });
+        await history.SaveAsync("proj_delete", s2, CancellationToken.None);
+        await history.FlushAsync(CancellationToken.None);
+
+        var sessionsBefore = await history.ListSessionsAsync("proj_delete", CancellationToken.None);
+        Assert.AreEqual(2, sessionsBefore.Count);
+
+        await history.DeleteSessionAsync("proj_delete", s1.SessionId, CancellationToken.None);
+
+        var sessionsAfter = await history.ListSessionsAsync("proj_delete", CancellationToken.None);
+        Assert.AreEqual(1, sessionsAfter.Count);
+        Assert.AreEqual(s2.SessionId, sessionsAfter[0].Id);
+
+        var s1File = Path.Combine(_tempDir, "proj_delete", s1.SessionId + ".json");
+        var s2File = Path.Combine(_tempDir, "proj_delete", s2.SessionId + ".json");
+        Assert.IsFalse(File.Exists(s1File));
+        Assert.IsTrue(File.Exists(s2File));
+    }
+
+    [TestMethod]
+    public async Task DeleteSession_NullSessionId_DeletesAllProjectHistory()
+    {
+        using var history = new BlsChatHistory(_tempDir, _logger);
+        var s1 = await history.CreateSessionAsync("proj_clear", "Sesion 1", CancellationToken.None);
+        s1.Messages.Add(new HistoryMessage { Role = "user", Content = "Hola 1", Ts = DateTime.UtcNow });
+        await history.SaveAsync("proj_clear", s1, CancellationToken.None);
+        await history.FlushAsync(CancellationToken.None);
+
+        var sessionsBefore = await history.ListSessionsAsync("proj_clear", CancellationToken.None);
+        Assert.AreEqual(1, sessionsBefore.Count);
+
+        await history.DeleteSessionAsync("proj_clear", null, CancellationToken.None);
+
+        var sessionsAfter = await history.ListSessionsAsync("proj_clear", CancellationToken.None);
+        Assert.AreEqual(0, sessionsAfter.Count);
+
+        var projectDir = Path.Combine(_tempDir, "proj_clear");
+        var legacyFile = Path.Combine(_tempDir, "proj_clear.json");
+        Assert.IsFalse(Directory.Exists(projectDir));
+        Assert.IsFalse(File.Exists(legacyFile));
+    }
 }

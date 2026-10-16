@@ -65,6 +65,17 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1 -Configuration Release
 - `.opencode/skills/` — skills de OpenCode (bls-*)
 - `Balansoft.AIAddin.slnx` — solución real; **no se compila** directamente
 
+## Gestión de sesiones (historial de chat)
+
+- `BlsChatHistory` implementa `IBlsChatHistory` con:
+  - `ListSessionsAsync(projectKey, ct)` — lista metadatos de sesiones por proyecto.
+  - `LoadSessionAsync(projectKey, sessionId, ct)` — carga una sesión específica.
+  - `CreateSessionAsync(projectKey, title, ct)` — crea una nueva sesión.
+  - `DeleteSessionAsync(projectKey, sessionId, ct)` — elimina una sesión específica (o todo el historial si `sessionId` es null).
+  - `ClearAsync(projectKey, ct)` — elimina todo el historial de un proyecto.
+- La Terminal WinForms (`BlsNimTerminal`) expone un botón **Eliminar** junto al selector de sesiones, con confirmación de borrado.
+- El historial persiste en `%APPDATA%\Balansoft\AIAddin\history\{projectKey}\` con catálogo `sessions.json`.
+
 ## Ejecutar un test o categoría enfocada
 
 Con `vstest` directamente (no `dotnet test`, que sustituye el host en net48):
