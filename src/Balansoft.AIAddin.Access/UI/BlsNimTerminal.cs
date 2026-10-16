@@ -499,8 +499,8 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             _txtDetalle.Clear();
             if (string.IsNullOrEmpty(rawText)) return;
 
-            var text = rawText.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "\r\n");
-            _txtDetalle.Text = text;
+            var formatted = FormatMessageDetail(rawText);
+            _txtDetalle.Text = formatted;
 
             HighlightVbaSyntax(_txtDetalle);
         }
@@ -510,6 +510,56 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             _txtDetalle.SelectionLength = 0;
             _txtDetalle.ResumeLayout();
         }
+    }
+
+    private static string FormatMessageDetail(string input)
+    {
+        if (string.IsNullOrWhiteSpace(input)) return string.Empty;
+
+        var text = input.Trim();
+
+        // 1. Si es un literal JSON de tipo string ("Option Compare..."), deserializar a texto real
+        if (text.Length >= 2 && text.StartsWith("\"") && text.EndsWith("\""))
+        {
+            try
+            {
+                var unescaped = JsonSerializer.Deserialize<string>(text);
+                if (unescaped != null)
+                {
+                    text = unescaped;
+                }
+            }
+            catch
+            {
+                // Conservar original si no fuera JSON válido
+            }
+        }
+        // 2. Si es un objeto o array JSON, formatearlo identado
+        else if ((text.StartsWith("{") && text.EndsWith("}")) || (text.StartsWith("[") && text.EndsWith("]")))
+        {
+            try
+            {
+                using var doc = JsonDocument.Parse(text);
+                if (doc.RootElement.ValueKind == JsonValueKind.String)
+                {
+                    text = doc.RootElement.GetString() ?? text;
+                }
+                else
+                {
+                    text = JsonSerializer.Serialize(doc.RootElement, new JsonSerializerOptions
+                    {
+                        WriteIndented = true
+                    });
+                }
+            }
+            catch
+            {
+                // Conservar texto original si el parseo falla
+            }
+        }
+
+        // 3. Normalizar saltos de línea a CRLF de Windows
+        return text.Replace("\r\n", "\n").Replace("\r", "\n").Replace("\n", "\r\n");
     }
 
     private static void HighlightVbaSyntax(RichTextBox rtb)
