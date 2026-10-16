@@ -1,4 +1,13 @@
-﻿# Feature: Add-in Lifecycle (OnConnection → OnDisconnection)
+---
+version: 1.0.0
+date: 2025-01-08
+status: approved
+iso_standard: [29148, 42010, 12207, 25010]
+aligns_to: [PRD.md, AGENTS.md, ADR-003-ABORT-MODEL.md, specs/001-addin-lifecycle.md]
+tags: [design, architecture, lifecycle, idtextensibility2, com-addin, vbe]
+---
+
+# Feature: Add-in Lifecycle (OnConnection → OnDisconnection)
 
 ## Estado
 Aprobado para implementación.

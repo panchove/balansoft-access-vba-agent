@@ -1,4 +1,13 @@
-﻿Actúa como implementador del proyecto Balansoft Access VBA Agent (NIM Direct).
+---
+version: 1.0.0
+date: 2025-01-01
+status: approved
+iso_standard: [12207, 29148]
+aligns_to: [20250101-VBE-BRIDGE.md, AGENTS.md]
+tags: [prompt, implementer, instructions, vbe-bridge]
+---
+
+Actúa como implementador del proyecto Balansoft Access VBA Agent (NIM Direct).
 
 CONTEXTO
 ========

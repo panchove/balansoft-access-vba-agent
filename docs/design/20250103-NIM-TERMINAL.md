@@ -1,4 +1,13 @@
-﻿# Feature: NIM Terminal (WinForms + integración VBE)
+---
+version: 1.0.0
+date: 2025-01-03
+status: approved
+iso_standard: [29148, 42010, 12207, 25010]
+aligns_to: [PRD.md, AGENTS.md, ADR-001-PROJECT-IDENTITY.md, ADR-003-ABORT-MODEL.md, specs/004-nim-terminal.md]
+tags: [design, architecture, winforms, terminal, ui, vbe-integration]
+---
+
+# Feature: NIM Terminal (WinForms + integración VBE)
 
 ## Estado
 Aprobado para implementación.

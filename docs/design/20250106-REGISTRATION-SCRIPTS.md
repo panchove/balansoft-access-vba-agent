@@ -1,4 +1,13 @@
-﻿# Feature: Registration + Packaging (regasm HKCU + scripts)
+---
+version: 1.0.0
+date: 2025-01-06
+status: approved
+iso_standard: [29148, 42010, 12207]
+aligns_to: [PRD.md, AGENTS.md, specs/009-registration.md]
+tags: [design, architecture, packaging, registration, powershell, regasm]
+---
+
+# Feature: Registration + Packaging (regasm HKCU + scripts)
 
 ## Estado
 Aprobado para implementación.

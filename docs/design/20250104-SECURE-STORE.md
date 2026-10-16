@@ -1,4 +1,13 @@
-﻿# Feature: Secure Store (DPAPI) + Chat History
+---
+version: 1.0.0
+date: 2025-01-04
+status: approved
+iso_standard: [29148, 42010, 12207, 25010]
+aligns_to: [PRD.md, AGENTS.md, ADR-001-PROJECT-IDENTITY.md, specs/005-secure-store.md, specs/006-chat-history.md]
+tags: [design, architecture, dpapi, security, chat-history, persistence]
+---
+
+# Feature: Secure Store (DPAPI) + Chat History
 
 ## Estado
 Aprobado para implementación.

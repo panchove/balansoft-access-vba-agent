@@ -1,4 +1,13 @@
-﻿# Feature: Logging + Version (BlsLogger, BlsVersion)
+---
+version: 1.0.0
+date: 2025-01-07
+status: approved
+iso_standard: [29148, 42010, 12207, 25010]
+aligns_to: [PRD.md, AGENTS.md, specs/008-logging-errors.md]
+tags: [design, architecture, logging, version, diagnostics, nbgv]
+---
+
+# Feature: Logging + Version (BlsLogger, BlsVersion)
 
 ## Estado
 Aprobado para implementación.

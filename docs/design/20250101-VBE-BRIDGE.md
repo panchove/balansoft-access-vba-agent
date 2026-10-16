@@ -1,4 +1,13 @@
-﻿# Feature: VBE Bridge (JSON-RPC 2.0 sobre Named Pipe)
+---
+version: 1.0.0
+date: 2025-01-01
+status: approved
+iso_standard: [29148, 42010, 12207]
+aligns_to: [PRD.md, AGENTS.md, ADR-002-PIPE-FRAMING.md, specs/002-vbe-bridge.md]
+tags: [design, architecture, vbe-bridge, json-rpc, named-pipe]
+---
+
+# Feature: VBE Bridge (JSON-RPC 2.0 sobre Named Pipe)
 
 ## Estado
 Aprobado para implementación.
