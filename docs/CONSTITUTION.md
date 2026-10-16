@@ -141,6 +141,12 @@ Todo servicio, componente y método público debe validar formalmente su contrat
 - **Postcondiciones (`Ensures`):** Garantía del valor de retorno o del estado terminal tras la ejecución mediante `BlsContract.Ensures*`. Si una postcondición falla, la responsabilidad es de la implementación (`BlsPostconditionException`).
 - **Invariantes (`Invariant`):** Condiciones permanentes del estado del componente que se mantienen verdaderas en todo momento público mediante `BlsContract.Invariant`.
 
+### P14 — Centrado de Formularios en Pantalla Física (ISO/IEC 25010 Usabilidad)
+
+Todo formulario o ventana de diálogo WinForms (`Form`) implementado en la solución debe mostrarse obligatoriamente centrado con respecto a la pantalla física del usuario:
+- Se debe establecer formalmente `StartPosition = FormStartPosition.CenterScreen;` en la inicialización de todo `Form` (tanto la terminal principal `BlsNimTerminal` como diálogos auxiliares como `ApiKeyPromptForm`).
+- Queda estrictamente prohibido el uso de `FormStartPosition.CenterParent` o `FormStartPosition.WindowsDefaultLocation`, ya que en escenarios de monitores múltiples con ventanas MDI/VBE desacopladas o no maximizadas, la ventana del add-in puede quedar fuera de la visual primaria o recortada.
+
 ---
 
 ## II. Restricciones técnicas

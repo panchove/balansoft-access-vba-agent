@@ -40,17 +40,18 @@ documentada al final.
 
 ## Requisitos
 
-### R001 — Layout
-
+### R001 — Layout y posicionamiento
+ 
+- Posicionamiento en pantalla: `StartPosition = FormStartPosition.CenterScreen;` obligatorio para garantizar que el formulario abra centrado respecto a la pantalla física del usuario (ISO/IEC 25010 Usabilidad).
 - Estructura con doble `SplitContainer`:
-  - `mainSplit` horizontal:
-    - Panel superior: `topSplit` vertical.
-      - Izquierda: `ListView` de conversación (columnas "Rol" y "Mensaje" con selección de fila completa).
-      - Derecha: panel de detalle con etiqueta "DETALLE DEL MENSAJE / CÓDIGO SELECCIONADO", visor `RichTextBox` con resaltado de sintaxis VBA y botones "Copiar Detalle" y "Limpiar Detalle".
-    - Panel inferior: `TextBox` multilínea para prompt de entrada, barra de estado a la izquierda y botones "Enviar" y "Detener" a la derecha.
-- Columna "Rol": `Usuario`, `Asistente`, `Tool`, `Error`.
-- Enter envía, Shift+Enter inserta salto de línea. Escape cancela.
-- Al seleccionar una fila en la conversación, su contenido completo o código fuente se visualiza automáticamente en el panel de detalle con coloreado de sintaxis VBA.
+   - `mainSplit` horizontal:
+     - Panel superior: `topSplit` vertical.
+       - Izquierda: `ListView` de conversación (columnas "Rol" y "Mensaje" con selección de fila completa).
+       - Derecha: panel de detalle con etiqueta "DETALLE DEL MENSAJE / CÓDIGO SELECCIONADO", visor `RichTextBox` con resaltado de sintaxis VBA y botones "Copiar Detalle" y "Limpiar Detalle".
+     - Panel inferior: `TextBox` multilínea para prompt de entrada, barra de estado a la izquierda y botones "Enviar" y "Detener" a la derecha.
+ - Columna "Rol": `Usuario`, `Asistente`, `Tool`, `Error`.
+ - Enter envía, Shift+Enter inserta salto de línea. Escape cancela.
+ - Al seleccionar una fila en la conversación, su contenido completo o código fuente se visualiza automáticamente en el panel de detalle con coloreado de sintaxis VBA.
 
 ### R002 — Loop de herramientas
 

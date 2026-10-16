@@ -32,6 +32,7 @@
 12. **DbC:** todo método o servicio público debe validar precondiciones vía `BlsContract` (ADR-005).
 13. **Documentación de diseño (ISO/IEC 42010):** todo documento en `docs/design/` debe seguir estrictamente el patrón `ADR-NNN-<SLUG>.md` con frontmatter YAML estandarizado (`version`, `date`, `status`, `iso_standard: [42010, ...]`).
 14. **Especificaciones en mayúsculas (ISO/IEC 29148):** todo archivo en `specs/` debe nombrarse estrictamente en MAYÚSCULAS con formato `NNN-<SLUG>.md` (ej. `001-ADDIN-LIFECYCLE.md`, `README.md`). Prohibido minúsculas en nombres de archivo de `specs/`.
+15. **Posicionamiento de Formularios (UI / ISO/IEC 25010 Usabilidad):** todo formulario o diálogo WinForms (`Form`) debe inicializarse obligatoriamente centrado con respecto a la pantalla física (`StartPosition = FormStartPosition.CenterScreen`). Prohibido `CenterParent` o `WindowsDefaultLocation`.
 
 ---
 ## Comandos canónicos (usar `pwsh`)

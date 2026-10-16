@@ -88,7 +88,7 @@ internal sealed class ApiKeyPromptForm : Form
         MaximizeBox = false;
         MinimizeBox = false;
         ShowInTaskbar = false;
-        StartPosition = FormStartPosition.CenterParent;
+        StartPosition = FormStartPosition.CenterScreen;
         Text = "API Key de NVIDIA NIM";
         ClientSize = new Size(400, 260);
         Controls.AddRange(new Control[]
