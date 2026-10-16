@@ -84,4 +84,52 @@ public sealed class BlsStringsTests
         BlsStrings.CurrentLanguage = "es";
         Assert.ThrowsException<ArgumentException>(() => BlsStrings.CurrentLanguage = "");
     }
+
+    [TestMethod]
+    public void Get_NewColumnKeys_ReturnsLocalized()
+    {
+        BlsStrings.CurrentLanguage = "es";
+        Assert.AreEqual("Rol", BlsStrings.Get("ColumnRole"));
+        Assert.AreEqual("Mensaje", BlsStrings.Get("ColumnMessage"));
+
+        BlsStrings.CurrentLanguage = "en";
+        Assert.AreEqual("Role", BlsStrings.Get("ColumnRole"));
+        Assert.AreEqual("Message", BlsStrings.Get("ColumnMessage"));
+    }
+
+    [TestMethod]
+    public void Get_MultipleFormatArgs_ReturnsFormatted()
+    {
+        BlsStrings.CurrentLanguage = "es";
+        var text = BlsStrings.Get("MsgContextHeader", "Mod1", "Clase", 42, " [Truncado]");
+        Assert.AreEqual("[Contexto VBE Actual]\nMódulo: Mod1 (Clase)\nSelección: 42 caracteres [Truncado]", text);
+
+        BlsStrings.CurrentLanguage = "en";
+        text = BlsStrings.Get("MsgContextHeader", "Mod1", "Class", 42, " [Truncated]");
+        Assert.AreEqual("[Current VBE Context]\nModule: Mod1 (Class)\nSelection: 42 characters [Truncated]", text);
+    }
+
+    [TestMethod]
+    public void Get_PromptKeys_ReturnsLocalized()
+    {
+        BlsStrings.CurrentLanguage = "es";
+        var prompt = BlsStrings.Get("PromptExplain");
+        Assert.IsTrue(prompt.StartsWith("Por favor, explica"));
+
+        BlsStrings.CurrentLanguage = "en";
+        prompt = BlsStrings.Get("PromptExplain");
+        Assert.IsTrue(prompt.StartsWith("Please explain"));
+    }
+
+    [TestMethod]
+    public void Get_TooltipKeys_ReturnsLocalized()
+    {
+        BlsStrings.CurrentLanguage = "es";
+        Assert.AreEqual("Explicar código activo", BlsStrings.Get("TooltipExplain"));
+        Assert.AreEqual("Eliminar", BlsStrings.Get("BtnDeleteSession"));
+
+        BlsStrings.CurrentLanguage = "en";
+        Assert.AreEqual("Explain active code", BlsStrings.Get("TooltipExplain"));
+        Assert.AreEqual("Delete", BlsStrings.Get("BtnDeleteSession"));
+    }
 }

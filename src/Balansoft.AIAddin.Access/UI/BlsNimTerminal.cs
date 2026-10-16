@@ -247,8 +247,8 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             Scrollable = true,
             Font = new Font("Segoe UI", 9F)
         };
-        _conversation.Columns.Add("Rol", 85);
-        _conversation.Columns.Add("Mensaje", 440);
+        _conversation.Columns.Add(BlsStrings.Get("ColumnRole"), 85);
+        _conversation.Columns.Add(BlsStrings.Get("ColumnMessage"), 440);
         _conversation.SelectedIndexChanged += OnConversationSelectedIndexChanged;
 
         _conversation.Resize += (s, e) =>
@@ -324,7 +324,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
         var lblDetalleTitulo = new Label
         {
-            Text = "DETALLE DEL MENSAJE / CÓDIGO SELECCIONADO",
+            Text = BlsStrings.Get("DetailTitle"),
             Dock = DockStyle.Top,
             Height = 24,
             TextAlign = ContentAlignment.MiddleLeft,
@@ -352,7 +352,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
         _btnCopiarDetalle = new Button
         {
-            Text = "Copiar Detalle",
+            Text = BlsStrings.Get("BtnCopyDetail"),
             Width = 115,
             Height = 28,
             Location = new Point(0, 4),
@@ -362,7 +362,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
         _btnLimpiarDetalle = new Button
         {
-            Text = "Limpiar Detalle",
+            Text = BlsStrings.Get("BtnClearDetail"),
             Width = 115,
             Height = 28,
             Location = new Point(125, 4),
@@ -397,7 +397,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
         _btnDetener = new Button
         {
-            Text = "Detener",
+            Text = BlsStrings.Get("BtnStop"),
             Dock = DockStyle.Right,
             Enabled = false,
             Width = 85,
@@ -407,7 +407,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
         _btnEnviar = new Button
         {
-            Text = "Enviar",
+            Text = BlsStrings.Get("BtnSend"),
             Dock = DockStyle.Right,
             Width = 85,
             Height = 28,
@@ -416,7 +416,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
         _lblStatus = new Label
         {
-            Text = "Listo",
+            Text = BlsStrings.Get("StatusReady"),
             Dock = DockStyle.Fill,
             TextAlign = ContentAlignment.MiddleLeft,
             ForeColor = Color.DimGray,
@@ -438,12 +438,12 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             AutoScroll = true
         };
 
-        AddQuickCommandButton("/explain", "Explicar código activo", () => ExecuteQuickCommand("/explain"));
-        AddQuickCommandButton("/doc", "Documentar funciones", () => ExecuteQuickCommand("/doc"));
-        AddQuickCommandButton("/refactor", "Refactorizar y optimizar", () => ExecuteQuickCommand("/refactor"));
-        AddQuickCommandButton("/test", "Generar tests VBA", () => ExecuteQuickCommand("/test"));
-        AddQuickCommandButton("/context", "Ver contexto VBE", () => ExecuteQuickCommand("/context"));
-        AddQuickCommandButton("/clear", "Limpiar / Nueva sesión", () => ExecuteQuickCommand("/clear"));
+        AddQuickCommandButton("/explain", BlsStrings.Get("TooltipExplain"), () => ExecuteQuickCommand("/explain"));
+        AddQuickCommandButton("/doc", BlsStrings.Get("TooltipDoc"), () => ExecuteQuickCommand("/doc"));
+        AddQuickCommandButton("/refactor", BlsStrings.Get("TooltipRefactor"), () => ExecuteQuickCommand("/refactor"));
+        AddQuickCommandButton("/test", BlsStrings.Get("TooltipTest"), () => ExecuteQuickCommand("/test"));
+        AddQuickCommandButton("/context", BlsStrings.Get("TooltipContext"), () => ExecuteQuickCommand("/context"));
+        AddQuickCommandButton("/clear", BlsStrings.Get("TooltipClear"), () => ExecuteQuickCommand("/clear"));
 
         _input = new TextBox
         {
@@ -521,7 +521,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             }
 
             SetDetailContent(fullContent ?? string.Empty);
-            _lblStatus.Text = "Listo, visualizando detalle...";
+            _lblStatus.Text = BlsStrings.Get("StatusViewingDetail");
         }
     }
 
@@ -532,7 +532,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             if (!string.IsNullOrEmpty(_txtDetalle.Text))
             {
                 Clipboard.SetText(_txtDetalle.Text);
-                _lblStatus.Text = "Detalle copiado al portapapeles";
+                _lblStatus.Text = BlsStrings.Get("StatusDetailCopied");
             }
         }
         catch (Exception ex)
@@ -548,7 +548,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         {
             _conversation.SelectedItems.Clear();
         }
-        _lblStatus.Text = "Listo";
+        _lblStatus.Text = BlsStrings.Get("StatusReady");
     }
 
     private static readonly System.Text.RegularExpressions.Regex VbaKeywordRegex = new System.Text.RegularExpressions.Regex(
@@ -684,7 +684,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         try
         {
             var projectKeyInfo = _vbe.GetProjectKey();
-            _lblStatus.Text = projectKeyInfo.Ephemeral ? "Historial no persistente" : "Listo";
+            _lblStatus.Text = projectKeyInfo.Ephemeral ? BlsStrings.Get("MsgHistoryNotPersistent") : BlsStrings.Get("StatusReady");
             if (projectKeyInfo.Ephemeral)
             {
                 _lblStatus.ForeColor = Color.Orange;
@@ -701,7 +701,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         catch (Exception ex)
         {
             _logger.Error("BlsNimTerminal", "Error en carga inicial", ex);
-            AppendError("Error al inicializar la terminal");
+            AppendError(BlsStrings.Get("MsgErrorInitializing"));
         }
     }
 
@@ -734,7 +734,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             }
             else
             {
-                _currentDoc = await _history.CreateSessionAsync(projectKeyInfo.Key, "Sesión inicial", CancellationToken.None);
+                _currentDoc = await _history.CreateSessionAsync(projectKeyInfo.Key, BlsStrings.Get("SessionInitialTitle"), CancellationToken.None);
                 _cmbSessions.Items.Add(new SessionMetadata
                 {
                     Id = _currentDoc.SessionId,
@@ -772,12 +772,12 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             var projectKeyInfo = _vbe.GetProjectKey();
             _currentDoc = await _history.LoadSessionAsync(projectKeyInfo.Key, meta.Id, CancellationToken.None);
             RenderHistory(_currentDoc);
-            _lblStatus.Text = $"Sesión cargada: {meta.Title}";
+            _lblStatus.Text = BlsStrings.Get("MsgSessionLoaded", meta.Title);
         }
         catch (Exception ex)
         {
             _logger.Error("BlsNimTerminal", "Error cambiando de sesión", ex);
-            AppendError("Error al cambiar de sesión: " + ex.Message);
+            AppendError(BlsStrings.Get("MsgErrorChangingSession", ex.Message));
         }
     }
 
@@ -888,19 +888,19 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         switch (command.ToLowerInvariant())
         {
             case "/explain":
-                _input.Text = "Por favor, explica en detalle el código del módulo activo o la selección actual, su estructura y posibles áreas de mejora.";
+                _input.Text = BlsStrings.Get("PromptExplain");
                 OnSendClick(this, EventArgs.Empty);
                 break;
             case "/doc":
-                _input.Text = "Por favor, revisa el módulo actual y genera comentarios de documentación estándar (descripción, parámetros, valor retornado) para cada función y procedimiento.";
+                _input.Text = BlsStrings.Get("PromptDoc");
                 OnSendClick(this, EventArgs.Empty);
                 break;
             case "/refactor":
-                _input.Text = "Por favor, analiza el código actual y propón una refactorización limpia y optimizada, manteniendo la lógica funcional pero mejorando legibilidad y buenas prácticas VBA.";
+                _input.Text = BlsStrings.Get("PromptRefactor");
                 OnSendClick(this, EventArgs.Empty);
                 break;
             case "/test":
-                _input.Text = "Genera procedimientos de prueba unitaria en VBA para verificar las funciones del módulo activo con aserciones de casos típicos y límites.";
+                _input.Text = BlsStrings.Get("PromptTest");
                 OnSendClick(this, EventArgs.Empty);
                 break;
             case "/context":
@@ -922,23 +922,23 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         try
         {
             var ctx = await _vbeContext.GetAsync(CancellationToken.None);
-            var mod = ctx.ActiveModuleName ?? "(sin módulo activo)";
-            var tipo = ctx.ActiveModuleType ?? "(desconocido)";
+            var mod = ctx.ActiveModuleName ?? BlsStrings.Get("MsgNoActiveModule");
+            var tipo = ctx.ActiveModuleType ?? BlsStrings.Get("MsgUnknownModule");
             var selLen = ctx.SelectionText?.Length ?? 0;
 
-            var msg = $"[Contexto VBE Actual]\nMódulo: {mod} ({tipo})\nSelección: {selLen} caracteres{(ctx.SelectionTruncated ? " [Truncado]" : "")}";
+            var msg = BlsStrings.Get("MsgContextHeader", mod, tipo, selLen, ctx.SelectionTruncated ? " [Truncado]" : "");
             AppendUserMessage("/context");
             AppendAssistantMessageDirect(msg);
         }
         catch (Exception ex)
         {
-            AppendError("Error obteniendo contexto: " + ex.Message);
+            AppendError(BlsStrings.Get("MsgContextError", ex.Message));
         }
     }
 
     private void AppendAssistantMessageDirect(string text)
     {
-        var item = new ListViewItem("Asistente") { Tag = text };
+        var item = new ListViewItem(BlsStrings.Get("RoleAssistant")) { Tag = text };
         item.SubItems.Add(text);
         item.ForeColor = Color.DarkBlue;
         _conversation.Items.Add(item);
@@ -1032,7 +1032,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         _currentTurnCts = new CancellationTokenSource();
         _btnDetener.Enabled = true;
         _btnEnviar.Enabled = false;
-        SetState("Pensando...");
+        SetState(BlsStrings.Get("StatusThinking"));
 
         try
         {
@@ -1041,8 +1041,8 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         catch (Exception ex)
         {
             _logger.Error("BlsNimTerminal", "Excepción en OnSendClick", ex);
-            AppendError($"Error: {ex.Message}");
-            SetState("Error");
+            AppendError(BlsStrings.Get("MsgErrorPrefix", ex.Message));
+            SetState(BlsStrings.Get("StatusError"));
         }
     }
 
@@ -1263,7 +1263,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
                 break;
             }
 
-            SetState("Pensando...");
+            SetState(BlsStrings.Get("StatusThinking"));
         }
     }
 
