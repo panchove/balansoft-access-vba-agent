@@ -8,6 +8,11 @@ on:
 permissions:
   contents: write
 
+env:
+  DOTNET_NOLOGO: true
+  DOTNET_CLI_TELEMETRY_OPTOUT: true
+  DOTNET_SKIP_FIRST_TIME_EXPERIENCE: true
+
 jobs:
   build-pack-release:
     name: Build + Pack + Release (${{ matrix.architecture }})
@@ -15,19 +20,28 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        architecture: [x86, x64]
+        architecture: [x86]   # Access 32-bit: sólo x86 tiene sentido en releases
 
     steps:
+      # ─────────────────────────────────────────────
+      # 1. Checkout (fetch-depth: 0 para NBGV y git rev-parse)
+      # ─────────────────────────────────────────────
       - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
+      # ─────────────────────────────────────────────
+      # 2. Setup .NET SDK
+      # ─────────────────────────────────────────────
       - name: Setup .NET SDK
         uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '9.0.x'
 
+      # ─────────────────────────────────────────────
+      # 3. Cache NuGet
+      # ─────────────────────────────────────────────
       - name: Cache NuGet
         uses: actions/cache@v4
         with:
@@ -36,6 +50,24 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-nuget-
 
+      # ─────────────────────────────────────────────
+      # 4. Instalar Nerdbank.GitVersioning (nbgv)
+      #    Exporta GitBuildVersion, GitBuildVersionSimple y
+      #    GitAssemblyInformationalVersion como env-vars del job.
+      #    Necesario para que Pack.ps1 lea la versión correcta del assembly
+      #    y nombre el ZIP con la versión del tag, no con 0.1.0.
+      # ─────────────────────────────────────────────
+      - name: Instalar nbgv y exportar versión
+        run: |
+          dotnet tool install --global nbgv 2>$null || true
+          nbgv cloud --all-vars
+        shell: pwsh
+
+      # ─────────────────────────────────────────────
+      # 5. Build Release x86
+      #    Se compila el proyecto de tests porque arrastra la referencia
+      #    al de src. La ruta de salida es bin\x86\Release\net48\.
+      # ─────────────────────────────────────────────
       - name: Build Release ${{ matrix.architecture }}
         run: >
           dotnet build tests\Balansoft.AIAddin.Tests\Balansoft.AIAddin.Tests.csproj
@@ -46,14 +78,38 @@ jobs:
           -v:minimal
           --nologo
 
+      # ─────────────────────────────────────────────
+      # 6. Pack: genera ZIP + version.txt en la raíz del repo
+      # ─────────────────────────────────────────────
       - name: Pack ${{ matrix.architecture }}
         shell: pwsh
         run: .\scripts\Pack.ps1 -Configuration Release -Architecture ${{ matrix.architecture }}
 
+      # ─────────────────────────────────────────────
+      # 7. Verificar que el ZIP existe antes de publicar
+      # ─────────────────────────────────────────────
+      - name: Verificar artefactos generados
+        shell: pwsh
+        run: |
+          $zips = Get-ChildItem -Path . -Filter "Balansoft.AIAddin.Access-*-${{ matrix.architecture }}.zip" -File
+          if ($zips.Count -eq 0) {
+              Write-Host "::error::Pack.ps1 no generó ningún ZIP para ${{ matrix.architecture }}."
+              exit 1
+          }
+          foreach ($z in $zips) {
+              Write-Host "OK: $($z.Name) ($([math]::Round($z.Length/1KB, 1)) KB)"
+          }
+
+      # ─────────────────────────────────────────────
+      # 8. Crear GitHub Release y subir ZIP + version.txt
+      # ─────────────────────────────────────────────
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
-          files: Balansoft.AIAddin.Access-*-${{ matrix.architecture }}.zip
+          files: |
+            Balansoft.AIAddin.Access-*-${{ matrix.architecture }}.zip
+            dist/version.txt
           generate_release_notes: true
           draft: false
-          prerelease: false
+          prerelease: ${{ contains(github.ref_name, '-') }}  # v1.0.0-rc.1 → prerelease
+          fail_on_unmatched_files: true
