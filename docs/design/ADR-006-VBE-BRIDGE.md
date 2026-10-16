@@ -3,7 +3,7 @@ version: 1.0.0
 date: 2025-01-01
 status: approved
 iso_standard: [29148, 42010, 12207]
-aligns_to: [PRD.md, AGENTS.md, ADR-002-PIPE-FRAMING.md, specs/002-vbe-bridge.md]
+aligns_to: [PRD.md, AGENTS.md, ADR-002-PIPE-FRAMING.md, specs/002-VBE-BRIDGE.md]
 tags: [design, architecture, vbe-bridge, json-rpc, named-pipe]
 ---
 

@@ -3,7 +3,7 @@ version: 1.0.0
 date: 2025-01-07
 status: approved
 iso_standard: [29148, 42010, 12207, 25010]
-aligns_to: [PRD.md, AGENTS.md, specs/008-logging-errors.md]
+aligns_to: [PRD.md, AGENTS.md, specs/008-LOGGING-ERRORS.md]
 tags: [design, architecture, logging, version, diagnostics, nbgv]
 ---
 

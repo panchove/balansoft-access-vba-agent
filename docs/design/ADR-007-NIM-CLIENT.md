@@ -3,7 +3,7 @@ version: 1.0.0
 date: 2025-01-02
 status: approved
 iso_standard: [29148, 42010, 12207]
-aligns_to: [PRD.md, AGENTS.md, ADR-003-ABORT-MODEL.md, specs/003-nim-client.md]
+aligns_to: [PRD.md, AGENTS.md, ADR-003-ABORT-MODEL.md, specs/003-NIM-CLIENT.md]
 tags: [design, architecture, nim-client, streaming, sse, tool-calls]
 ---
 

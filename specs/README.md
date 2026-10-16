@@ -11,7 +11,7 @@ existiendo con estado `aceptado` o `borrador`.
 
 ## Formato
 
-Un spec por archivo, nombrado `NNN-slug.md`, con esta estructura:
+Un spec por archivo, nombrado en mayúsculas estrictas `NNN-SLUG.md` (ej. `001-ADDIN-LIFECYCLE.md`), con esta estructura:
 
 1. **Cabecera** — estado, PRD, ADRs, spec de diseño, número de tests
 2. **Contexto** — qué resuelve y qué falta hoy
@@ -34,16 +34,16 @@ Un spec por archivo, nombrado `NNN-slug.md`, con esta estructura:
 
 | ID  | Spec                                            | PRD           | ADRs             | Estado         | Tests                  |
 |-----|-------------------------------------------------|---------------|------------------|----------------|------------------------|
-| 001 | [addin-lifecycle](001-addin-lifecycle.md)       | FR-01, FR-05  | —                | `borrador`     | 0/5                    |
-| 002 | [vbe-bridge](002-vbe-bridge.md)                 | FR-03, FR-04  | ADR-001, ADR-002 | `aceptado`     | 46 verdes              |
-| 003 | [nim-client](003-nim-client.md)                 | FR-09         | ADR-003          | `implementado` | 53 verdes              |
-| 004 | [nim-terminal](004-nim-terminal.md)             | FR-02, FR-03  | ADR-003          | `aceptado`     | 0/10                   |
-| 005 | [secure-store](005-secure-store.md)             | FR-08         | —                | `aceptado`     | 0/6                    |
-| 006 | [chat-history](006-chat-history.md)             | FR-10         | ADR-001          | `aceptado`     | 0/7                    |
-| 007 | [access-readonly](007-access-readonly.md)       | FR-11         | ADR-004          | `borrador`     | 3 verdes, 6 pendientes |
-| 008 | [logging-errors](008-logging-errors.md)         | FR-07, FR-12  | —                | `borrador`     | 2 verdes, 7 pendientes |
-| 009 | [registration](009-registration.md)             | FR-06         | —                | `borrador`     | 0/8                    |
-| 010 | [design-by-contract](010-design-by-contract.md) | Calidad / DbC | ADR-005          | `implementado` | 17 verdes              |
+| 001 | [ADDIN-LIFECYCLE](001-ADDIN-LIFECYCLE.md)       | FR-01, FR-05  | —                | `implementado` | 5 verdes               |
+| 002 | [VBE-BRIDGE](002-VBE-BRIDGE.md)                 | FR-03, FR-04  | ADR-001, ADR-002 | `aceptado`     | 46 verdes              |
+| 003 | [NIM-CLIENT](003-NIM-CLIENT.md)                 | FR-09         | ADR-003          | `implementado` | 53 verdes              |
+| 004 | [NIM-TERMINAL](004-NIM-TERMINAL.md)             | FR-02, FR-03  | ADR-003          | `aceptado`     | 0/10                   |
+| 005 | [SECURE-STORE](005-SECURE-STORE.md)             | FR-08         | —                | `aceptado`     | 0/6                    |
+| 006 | [CHAT-HISTORY](006-CHAT-HISTORY.md)             | FR-10         | ADR-001          | `aceptado`     | 0/7                    |
+| 007 | [ACCESS-READONLY](007-ACCESS-READONLY.md)       | FR-11         | ADR-004          | `borrador`     | 3 verdes, 6 pendientes |
+| 008 | [LOGGING-ERRORS](008-LOGGING-ERRORS.md)         | FR-07, FR-12  | —                | `borrador`     | 2 verdes, 7 pendientes |
+| 009 | [REGISTRATION](009-REGISTRATION.md)             | FR-06         | —                | `borrador`     | 0/8                    |
+| 010 | [DESIGN-BY-CONTRACT](010-DESIGN-BY-CONTRACT.md) | Calidad / DbC | ADR-005          | `implementado` | 17 verdes              |
 
 `implementado` solo si hay tests verdes. Los specs 005 y 006 tienen el código
 completo pero ninguna aserción que lo valide, así que no pueden declararse

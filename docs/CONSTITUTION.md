@@ -54,11 +54,15 @@ documentos de diseño con fechas u otros prefijos.
 
 > today: ADR-001..012 todos Aceptados y estandarizados.
 
-### P2 — Contrato primero, implementación después
+### P2 — Contrato primero, implementación después (ISO/IEC 29148)
 
 Ninguna feature entra sin spec en `specs/` que declare alcance, criterios de
 aceptación verificables y tests obligatorios. El spec se revisa antes de
 escribir código. El índice y el formato están en `specs/README.md`.
+
+**Regla de nomenclatura obligatoria:** Todo archivo bajo `specs/` debe nombrarse
+estrictamente en MAYÚSCULAS siguiendo el patrón `NNN-<SLUG>.md` (ej.
+`001-ADDIN-LIFECYCLE.md`, `010-DESIGN-BY-CONTRACT.md`, `README.md`).
 
 Un spec describe **el comportamiento real**, no el deseado: cuando el código y
 el doc de diseño discrepan, el spec documenta lo que hace el código y anota la
@@ -357,7 +361,7 @@ fecha, motivo y responsable.
 |---------|------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
 | v1.0    | 2026-10-02 | Versión inicial derivada de `AGENTS.md`, ADR-001..004 y `ci.yml`                                                                                                                                                       | Punto de partida del SDD                                                                                               |
 | v1.1    | 2026-10-02 | Índice de `specs/` como parte del documento; P2 y P3 alineados con el código real; el gate de CI marcado como no ejecutado; estado del árbol verificado (`Directory.Build.props` y `TreatWarningsAsErrors` no existen) | Los nueve specs obligaron a contrastar la constitución con el árbol y encontraron afirmaciones que el código desmiente |
-| v1.2    | 2026-10-15 | Homologación obligatoria de `docs/design/` al patrón `ADR-NNN-<SLUG>.md` según ISO/IEC 42010; metadatos YAML unificados | Exigencia de trazabilidad y consistencia formal en toda la documentación de arquitectura y diseño |
+| v1.2    | 2026-10-15 | Homologación obligatoria de `docs/design/` al patrón `ADR-NNN-<SLUG>.md` (ISO/IEC 42010); archivos de `specs/` en MAYÚSCULAS `NNN-<SLUG>.md` (ISO/IEC 29148); metadatos YAML unificados | Exigencia de trazabilidad y consistencia formal en toda la documentación de arquitectura, diseño y contratos funcionales |
 
 Los hallazgos que surjan del propio SDD (este documento y los specs) se resuelven
 corrigiendo el spec o la constitución, no marcándolos como "agendados".
