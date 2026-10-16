@@ -132,7 +132,7 @@ scripts/
 ---
 
 ## 🤝 Contribuir
-1. Lee `AGENTS.md` y `docs/constitution.md`.
+1. Lee `AGENTS.md` y `docs/CONSTITUTION.md`.
 2. Abre un *issue* referenciando el *spec* correspondiente (`specs/NNN-*.md`).
 3. El **Coordinator** asigna al **Planner** (descomposición) y al **Implementer** (código).
 4. PR debe pasar **todos los gates de CI** (build, tests, 8 quality gates).

@@ -320,8 +320,8 @@ Cada excepción:
 ## Referencias
 
 - `AGENTS.md` reglas 4, 5.
-- `docs/design/ADR-002-pipe-framing.md` (códigos -320xx).
-- `docs/design/ADR-003-abort-model.md` (cancelación ≠ error).
+- `docs/design/ADR-002-PIPE-FRAMING.md` (códigos -320xx).
+- `docs/design/ADR-003-ABORT-MODEL.md` (cancelación ≠ error).
 - PRD §7 FR-07, FR-12.
 - `.opencode/skills/bls-com-late-binding/SKILL.md` (`BlsComException`).
 - `.opencode/skills/bls-vbe-automation/SKILL.md` (`BlsVbeException`).

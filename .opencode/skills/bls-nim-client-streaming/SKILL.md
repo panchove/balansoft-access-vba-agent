@@ -295,7 +295,7 @@ catch (BlsNimException ex)
 ## Referencias
 
 - `AGENTS.md` regla 4 (API key), 5 (errores).
-- `docs/design/ADR-003-abort-model.md`.
+- `docs/design/ADR-003-ABORT-MODEL.md`.
 - PRD §3.3, §7 FR-09.
 - `.opencode/skills/bls-secure-store-dpapi/SKILL.md` (origen de la API key).
 - `.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md` (ejecución de tool calls).

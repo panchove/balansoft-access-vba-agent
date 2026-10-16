@@ -60,7 +60,7 @@ public async Task NIM_StreamSimplePrompt_DevuelveTexto()
 **Meta:** 6 tests, todos con skip si falta la API key.
 
 ### 3. Integración Access (manual, no automatizable)
-Checklist documentada en `docs/manual-tests.md`, ejecutada antes de un
+Checklist documentada en `docs/MANUAL-TESTS.md`, ejecutada antes de un
 release:
 
 - Carga del add-in en Access 2010, 2016 y 365 (x86).

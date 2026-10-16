@@ -297,7 +297,7 @@ Todos preservan `Message` original cuando viene de COM.
 ## Referencias
 
 - `AGENTS.md` reglas 1, 2, 3.
-- `docs/design/ADR-001-project-identity.md`.
+- `docs/design/ADR-001-PROJECT-IDENTITY.md`.
 - PRD §7 FR-03, FR-05.
 - `.opencode/skills/bls-com-late-binding/SKILL.md` (envoltura COM, `dynamic` aislado).
 - `.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md` (handlers que llaman a este servicio).

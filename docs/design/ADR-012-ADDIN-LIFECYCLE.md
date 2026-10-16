@@ -28,7 +28,7 @@ Nemotron 3 Ultra (implementación) + Big Pickle (revisión).
 - `docs/design/ADR-009-SECURE-STORE.md` (`IBlsSecureStore`, `IBlsChatHistory`).
 - `docs/design/ADR-010-REGISTRATION-SCRIPTS.md` (`BlsAddinRegistrar`).
 - `docs/design/ADR-011-LOGGING-VERSION.md` (`BlsLogger`, `BlsVersion`).
-- `docs/design/ADR-003-abort-model.md` (shutdown).
+- `docs/design/ADR-003-ABORT-MODEL.md` (shutdown).
 
 ---
 
@@ -816,7 +816,7 @@ En este orden:
 7. `.opencode/skills/bls-logging-errors/SKILL.md` (log de arranque, handlers
    globales).
 8. `.opencode/skills/bls-testing-strategy/SKILL.md` (fakes, observer).
-9. `docs/design/ADR-003-abort-model.md` (shutdown con turno activo).
+9. `docs/design/ADR-003-ABORT-MODEL.md` (shutdown con turno activo).
 
 Y los 7 docs de diseño previos:
 10. `docs/design/ADR-006-VBE-BRIDGE.md`.
@@ -839,7 +839,7 @@ dotnet test --no-build --settings .runsettings --filter "FullyQualifiedName~Conn
 dotnet test --no-build --settings .runsettings --filter "FullyQualifiedName~Addin"
 dotnet test --no-build --settings .runsettings --filter "FullyQualifiedName~ServiceContainer"
 
-# Verificación manual (checklist en docs/manual-tests.md)
+# Verificación manual (checklist en docs/MANUAL-TESTS.md)
 # 1. Registrar add-in
 # 2. Abrir Access 2016 x86
 # 3. Comprobar log de arranque
@@ -863,7 +863,7 @@ checklist manual firmada.
 - [ ] El alcance del §2 está claro.
 - [ ] Los skills del §13 están listados.
 - [ ] Los 6 docs de diseño previos están mergeados (dependencias).
-- [ ] `docs/manual-tests.md` está escrito (checklist de verificación
+- [ ] `docs/MANUAL-TESTS.md` está escrito (checklist de verificación
       manual en Access real).
 
 Cuando Nemotron termine, el PR debe:
@@ -882,8 +882,8 @@ Cuando Nemotron termine, el PR debe:
 
 - `AGENTS.md` reglas 1, 2, 3, 5.
 - `PRD.md` §3.1, §7 FR-01, FR-05, §11.
-- `docs/design/ADR-002-pipe-framing.md`.
-- `docs/design/ADR-003-abort-model.md`.
+- `docs/design/ADR-002-PIPE-FRAMING.md`.
+- `docs/design/ADR-003-ABORT-MODEL.md`.
 - `docs/design/ADR-006-VBE-BRIDGE.md`.
 - `docs/design/ADR-007-NIM-CLIENT.md`.
 - `docs/design/ADR-008-NIM-TERMINAL.md`.

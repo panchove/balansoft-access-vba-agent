@@ -106,7 +106,7 @@ tags: [change-requests, iso-12207, modification-process, square]
   La arquitectura de COM Add-in dentro de Microsoft Access exige máxima robustez y prevención temprana de fallos. La validación ad-hoc dispersa se sustituye por contratos canónicos estrictos.
 * **Detalle de implementación:**  
   - Creación de `Balansoft.AIAddin.Helpers.BlsContract`.
-  - Creación de `docs/design/ADR-005-DESIGN-BY-CONTRACT.md` y `specs/010-design-by-contract.md`.
+  - Creación de `docs/design/ADR-005-DESIGN-BY-CONTRACT.md` y `specs/010-DESIGN-BY-CONTRACT.md`.
   - Incorporación a `docs/CONSTITUTION.md` (P13) y `AGENTS.md` (Regla 12).
   - Aplicación en todos los servicios y componentes del add-in.
   - Creación de suite `BlsContractTests` (17 pruebas unitarias).

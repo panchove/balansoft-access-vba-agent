@@ -23,7 +23,7 @@ permissions:
 # Sub‑agente Planner (bls-planner) – Balansoft Access VBA Agent
 
 ## Objetivo
-Transformar un spec (p. ej. `specs/002-vbe-bridge.md`) en una **lista de tareas técnicas** ordenadas, con criterios de aceptación claros y dependencias explicitadas.
+Transformar un spec (p. ej. `specs/002-VBE-BRIDGE.md`) en una **lista de tareas técnicas** ordenadas, con criterios de aceptación claros y dependencias explicitadas.
 
 ## Entrada
 - Spec completo (requisitos `R###`, criterios `Given/When/Then`, tests obligatorios).  

@@ -24,8 +24,8 @@ Nemotron 3 Ultra (implementación) + Big Pickle (revisión).
 ## Depende de
 - `docs/design/ADR-006-VBE-BRIDGE.md` (bridge JSON-RPC).
 - `docs/design/ADR-007-NIM-CLIENT.md` (cliente NIM).
-- `docs/design/ADR-001-project-identity.md` (identidad de proyecto).
-- `docs/design/ADR-003-abort-model.md` (abort).
+- `docs/design/ADR-001-PROJECT-IDENTITY.md` (identidad de proyecto).
+- `docs/design/ADR-003-ABORT-MODEL.md` (abort).
 
 ---
 
@@ -679,8 +679,8 @@ En este orden:
 7. `.opencode/skills/bls-winforms-threading/SKILL.md` (marshaling, ciclo de vida).
 8. `.opencode/skills/bls-logging-errors/SKILL.md` (errores tipados, system prompt).
 9. `.opencode/skills/bls-testing-strategy/SKILL.md` (fakes).
-10. `docs/design/ADR-001-project-identity.md`.
-11. `docs/design/ADR-003-abort-model.md`.
+10. `docs/design/ADR-001-PROJECT-IDENTITY.md`.
+11. `docs/design/ADR-003-ABORT-MODEL.md`.
 12. `docs/design/ADR-006-VBE-BRIDGE.md` (interfaz `IBlsBridgeServer`).
 13. `docs/design/ADR-007-NIM-CLIENT.md` (interfaz `IBlsNimClient`).
 
@@ -726,8 +726,8 @@ Cuando Nemotron termine, el PR debe:
 ## 15. Referencias
 
 - `AGENTS.md` reglas 3, 4, 5, 10.
-- `docs/design/ADR-001-project-identity.md`.
-- `docs/design/ADR-003-abort-model.md`.
+- `docs/design/ADR-001-PROJECT-IDENTITY.md`.
+- `docs/design/ADR-003-ABORT-MODEL.md`.
 - `docs/design/ADR-006-VBE-BRIDGE.md`.
 - `docs/design/ADR-007-NIM-CLIENT.md`.
 - `PRD.md` §3.4, §7 FR-02, FR-03, FR-05, §11.

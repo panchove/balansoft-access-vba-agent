@@ -93,7 +93,7 @@ de 001: ~600 líneas de WinForms sin un solo test.
   - Build Debug x86 y Release x86 con `dotnet build` (0 warnings, 0 errors).
   - Tests 163/163 con `dotnet vstest` + `.runsettings` + `/Platform:x86`.
   - 39 documentos obligatorios verificados (incluye `docs/PRD.md`,
-    `docs/constitution.md`, `specs/` y los 4 ADRs).
+    `docs/CONSTITUTION.md`, `specs/` y los 4 ADRs).
   - Sin PIAs de Office en `src/`.
   - `dynamic` solo en `Helpers/BlsComHelper.cs`.
   - Sin `Thread.Sleep` en `tests/`.

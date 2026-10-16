@@ -162,7 +162,7 @@ punto de entrada COM. El estado por feature está en `specs/README.md`
 
 ### Pendiente
 
-- **Lifecycle del add-in** (`specs/001-addin-lifecycle.md`):
+- **Lifecycle del add-in** (`specs/001-ADDIN-LIFECYCLE.md`):
   `OnConnection`, menú Tools, construcción de dependencias, arranque/parada
   del bridge y shutdown. Nada de esto está cableado todavía.
 - **Implementaciones reales de `IBlsVbe` e `IBlsAccess`.** Solo hay interfaz
@@ -246,7 +246,7 @@ propiedad ahora coincide con el estilo real del código.
 
 ## 10. Spec-Driven Development
 
-- `docs/constitution.md` (v1.1): principios P1-P12, restricciones, gates,
+- `docs/CONSTITUTION.md` (v1.1): principios P1-P12, restricciones, gates,
   penalidades y diagnóstico verificado del árbol.
 - `specs/README.md`: formato, estados, índice, orden de implementación,
   trazabilidad PRD↔spec y ADR↔spec.

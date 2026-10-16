@@ -354,7 +354,7 @@ Un único `SetState(string)` centraliza el texto del `_status`:
 ## Referencias
 
 - `AGENTS.md` regla 3 (marshaling).
-- `docs/design/ADR-003-abort-model.md`.
+- `docs/design/ADR-003-ABORT-MODEL.md`.
 - PRD §7 FR-02, FR-05.
 - `.opencode/skills/bls-vbe-automation/SKILL.md` (HWND del VBE).
 - `.opencode/skills/bls-nim-client-streaming/SKILL.md` (`IBlsNimSink`).

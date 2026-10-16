@@ -253,8 +253,8 @@ loguea y se sigue.
 ## Referencias
 
 - `AGENTS.md` regla 4 (API key solo DPAPI).
-- `docs/design/ADR-001-project-identity.md`.
-- `docs/design/ADR-003-abort-model.md` (marca `cancelled`).
+- `docs/design/ADR-001-PROJECT-IDENTITY.md`.
+- `docs/design/ADR-003-ABORT-MODEL.md` (marca `cancelled`).
 - PRD §3.5, §3.6, §7 FR-08, FR-10.
 - `.opencode/skills/bls-vbe-automation/SKILL.md` (origen de `projectKey`).
 - `.opencode/skills/bls-nim-client-streaming/SKILL.md` (consumidor de la API key).

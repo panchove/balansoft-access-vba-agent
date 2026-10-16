@@ -341,10 +341,10 @@ Se revisan cada release:
 
 ```
 AGENTS.md
-docs/design/ADR-001-project-identity.md
-docs/design/ADR-002-pipe-framing.md
-docs/design/ADR-003-abort-model.md
-docs/design/ADR-004-object-detail.md
+docs/design/ADR-001-PROJECT-IDENTITY.md
+docs/design/ADR-002-PIPE-FRAMING.md
+docs/design/ADR-003-ABORT-MODEL.md
+docs/design/ADR-004-OBJECT-DETAIL.md
 .opencode/skills/bls-project-context/SKILL.md
 .opencode/skills/bls-com-late-binding/SKILL.md
 .opencode/skills/bls-vbe-automation/SKILL.md

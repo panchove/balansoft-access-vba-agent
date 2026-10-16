@@ -487,7 +487,7 @@ En este orden:
 4. `.opencode/skills/bls-secure-store-dpapi/SKILL.md` (origen de la API key).
 5. `.opencode/skills/bls-logging-errors/SKILL.md` (excepciones tipadas).
 6. `.opencode/skills/bls-testing-strategy/SKILL.md` (fake HttpMessageHandler).
-7. `docs/design/ADR-003-abort-model.md` (cancelación vs timeout).
+7. `docs/design/ADR-003-ABORT-MODEL.md` (cancelación vs timeout).
 
 Opcional:
 - `.opencode/skills/bls-winforms-threading/SKILL.md` (cómo la terminal consume
@@ -535,7 +535,7 @@ Cuando Nemotron termine, el PR debe:
 ## 14. Referencias
 
 - `AGENTS.md` reglas 4, 5, 10.
-- `docs/design/ADR-003-abort-model.md`.
+- `docs/design/ADR-003-ABORT-MODEL.md`.
 - `PRD.md` §3.3, §7 FR-09, §11.
 - `.opencode/skills/bls-nim-client-streaming/SKILL.md`.
 - `.opencode/skills/bls-secure-store-dpapi/SKILL.md`.

@@ -292,9 +292,9 @@ Pipe thread  →  DispatchAsync  →  _vbeGate  →  _ui.RunAsync  →  UI threa
 ## Referencias
 
 - `AGENTS.md` reglas 1, 2, 3, 5.
-- `docs/design/ADR-002-pipe-framing.md`.
-- `docs/design/ADR-003-abort-model.md`.
-- `docs/design/ADR-004-object-detail.md`.
+- `docs/design/ADR-002-PIPE-FRAMING.md`.
+- `docs/design/ADR-003-ABORT-MODEL.md`.
+- `docs/design/ADR-004-OBJECT-DETAIL.md`.
 - PRD §3.2, §7 FR-04, FR-12.
 - `.opencode/skills/bls-com-late-binding/SKILL.md`.
 - `.opencode/skills/bls-vbe-automation/SKILL.md` (contrato `IBlsVbe`).

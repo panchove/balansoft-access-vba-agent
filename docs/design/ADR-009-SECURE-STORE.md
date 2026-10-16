@@ -22,7 +22,7 @@ Big Pickle (arquitecto).
 Nemotron 3 Ultra (implementación) + Big Pickle (revisión).
 
 ## Depende de
-- `docs/design/ADR-001-project-identity.md` (projectKey para historial).
+- `docs/design/ADR-001-PROJECT-IDENTITY.md` (projectKey para historial).
 
 ---
 
@@ -624,7 +624,7 @@ En este orden:
 3. `.opencode/skills/bls-secure-store-dpapi/SKILL.md` (este dominio).
 4. `.opencode/skills/bls-logging-errors/SKILL.md` (nunca loguear la key).
 5. `.opencode/skills/bls-testing-strategy/SKILL.md` (fakes, temp dirs).
-6. `docs/design/ADR-001-project-identity.md` (projectKey).
+6. `docs/design/ADR-001-PROJECT-IDENTITY.md` (projectKey).
 
 Opcional:
 - `.opencode/skills/bls-nim-client-streaming/SKILL.md` (consumidor de la key).
@@ -671,8 +671,8 @@ Cuando Nemotron termine, el PR debe:
 ## 14. Referencias
 
 - `AGENTS.md` regla 4.
-- `docs/design/ADR-001-project-identity.md`.
-- `docs/design/ADR-003-abort-model.md` (marca `cancelled`).
+- `docs/design/ADR-001-PROJECT-IDENTITY.md`.
+- `docs/design/ADR-003-ABORT-MODEL.md` (marca `cancelled`).
 - `PRD.md` §3.5, §3.6, §7 FR-08, FR-10, §11.
 - `.opencode/skills/bls-secure-store-dpapi/SKILL.md`.
 - `.opencode/skills/bls-logging-errors/SKILL.md`.

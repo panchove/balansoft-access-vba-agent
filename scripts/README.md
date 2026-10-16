@@ -67,7 +67,7 @@ archivos de configuración (`.gitignore`, `.editorconfig`,
 `.runsettings`, `Directory.Build.props`), los dos proyectos
 (`.csproj` + `AssemblyInfo.cs`), la solución (`Balansoft.AIAddin.sln`),
 y los documentos raíz (`README.md`, `CHANGELOG.md`,
-`docs/manual-tests.md`). Ejecuta `dotnet restore` al final.
+`docs/MANUAL-TESTS.md`). Ejecuta `dotnet restore` al final.
 
 **Qué NO hace.** No crea archivos `.cs` de implementación (los produce
 el implementador a partir de `docs/design/`). No toca el registro. No
@@ -543,7 +543,7 @@ Luego re-registra:
   `RegisterAddin.ps1`, `UnregisterAddin.ps1`, `Pack.ps1`.
 - `docs/design/ADR-011-LOGGING-VERSION.md` — relación con
   `version.txt`.
-- `docs/manual-tests.md` — checklist pre-release.
+- `docs/MANUAL-TESTS.md` — checklist pre-release.
 - `PRD.md` §7 FR-06 — requisito de scripts de (des)registro.
 - `.github/workflows/ci.yml` — CI de build + test.
 - `.github/PULL_REQUEST_TEMPLATE.md` — checklist de PR.

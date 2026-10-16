@@ -552,9 +552,9 @@ En este orden:
 5. `.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md` (este dominio).
 6. `.opencode/skills/bls-logging-errors/SKILL.md` (mapeo de errores).
 7. `.opencode/skills/bls-testing-strategy/SKILL.md` (tests obligatorios).
-8. `docs/design/ADR-002-pipe-framing.md`.
-9. `docs/design/ADR-003-abort-model.md`.
-10. `docs/design/ADR-004-object-detail.md`.
+8. `docs/design/ADR-002-PIPE-FRAMING.md`.
+9. `docs/design/ADR-003-ABORT-MODEL.md`.
+10. `docs/design/ADR-004-OBJECT-DETAIL.md`.
 
 Opcional pero recomendado:
 - `.opencode/skills/bls-winforms-threading/SKILL.md` (cómo funciona el
@@ -601,9 +601,9 @@ Cuando Nemotron termine, el PR debe:
 ## 14. Referencias
 
 - `AGENTS.md` reglas 3, 5, 8, 10.
-- `docs/design/ADR-002-pipe-framing.md`.
-- `docs/design/ADR-003-abort-model.md`.
-- `docs/design/ADR-004-object-detail.md`.
+- `docs/design/ADR-002-PIPE-FRAMING.md`.
+- `docs/design/ADR-003-ABORT-MODEL.md`.
+- `docs/design/ADR-004-OBJECT-DETAIL.md`.
 - `PRD.md` §3.2, §7 FR-04, FR-12, §11.
 - `.opencode/skills/bls-com-late-binding/SKILL.md`.
 - `.opencode/skills/bls-vbe-automation/SKILL.md`.

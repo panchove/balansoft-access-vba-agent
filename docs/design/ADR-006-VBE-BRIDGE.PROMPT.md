@@ -25,9 +25,9 @@ LECTURA OBLIGATORIA (en este orden)
 5. .opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md
 6. .opencode/skills/bls-logging-errors/SKILL.md
 7. .opencode/skills/bls-testing-strategy/SKILL.md
-8. docs/design/ADR-002-pipe-framing.md
-9. docs/design/ADR-003-abort-model.md
-10. docs/design/ADR-004-object-detail.md
+8. docs/design/ADR-002-PIPE-FRAMING.md
+9. docs/design/ADR-003-ABORT-MODEL.md
+10. docs/design/ADR-004-OBJECT-DETAIL.md
 11. docs/design/ADR-006-VBE-BRIDGE.md  ← EL DISEÑO
 
 REGLAS DURAS (AGENTS.md)
