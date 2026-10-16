@@ -96,6 +96,9 @@ public sealed class JsonRpcDispatcher
                     GetStringParam(request, "sql"))),
                 JsonRpcMethods.ExecuteSql        => await HandleAccessAsync(request, ct, () => _access.ExecuteSql(
                     GetStringParam(request, "sql"))),
+                JsonRpcMethods.CreateRibbon      => await HandleAccessAsync(request, ct, () => _access.CreateRibbon(
+                    GetStringParam(request, "name"),
+                    GetStringParam(request, "ribbon_xml"))),
                 _ => JsonRpcResponse.CreateError(request.Id, new JsonRpcError(
                     JsonRpcErrorCodes.MethodNotFound,
                     $"Método no implementado: {request.Method}",

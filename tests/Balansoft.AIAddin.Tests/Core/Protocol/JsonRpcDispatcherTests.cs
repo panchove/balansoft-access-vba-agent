@@ -453,5 +453,26 @@ public class JsonRpcDispatcherTests
         var result = (Balansoft.AIAddin.AccessIntegration.SqlExecutionResult)response.Result!;
         Assert.IsTrue(result.Success);
     }
+
+    [TestMethod]
+    public async Task Bridge_CreateRibbon_EjecutaYDevuelveResult()
+    {
+        // Arrange
+        var request = CreateRequest("create_ribbon", 1, new
+        {
+            name = "MiRibbon",
+            ribbon_xml = "<customUI xmlns=\"http://schemas.microsoft.com/office/2009/07/customui\"><ribbon><tabs><tab id=\"tab1\" label=\"Mi Tab\" /></tabs></ribbon></customUI>"
+        });
+
+        // Act
+        var response = await _dispatcher.DispatchAsync(request, CancellationToken.None);
+
+        // Assert
+        Assert.IsNull(response.Error);
+        Assert.IsNotNull(response.Result);
+        var result = (Balansoft.AIAddin.AccessIntegration.RibbonOpResult)response.Result!;
+        Assert.AreEqual("MiRibbon", result.Name);
+        Assert.IsTrue(result.Success);
+    }
 }
 

@@ -875,5 +875,78 @@ namespace Balansoft.AIAddin.Access.Helpers
                 throw new BlsComException("ExecuteAccessSql", BlsComCategory.Other, $"Error al ejecutar SQL: {ex.Message}", ex);
             }
         }
+
+        /// <summary>
+        /// Crea o actualiza una cinta de opciones (Ribbon XML) en la tabla del sistema USysRibbons de Access.
+        /// Crea la tabla USysRibbons si aún no existe en el archivo .accdb/.mdb.
+        /// </summary>
+        /// <param name="accessApp">Instancia nativa de Microsoft Access.</param>
+        /// <param name="name">Nombre único de la cinta de opciones (RibbonName).</param>
+        /// <param name="ribbonXml">Contenido XML de la cinta (customUI).</param>
+        /// <returns>Resultado de la operación <see cref="RibbonOpResult"/>.</returns>
+        public static RibbonOpResult CreateAccessRibbon(
+            object? accessApp,
+            string name,
+            string ribbonXml)
+        {
+            BlsContract.RequiresNotNullOrWhiteSpace(name, nameof(name));
+            BlsContract.RequiresNotNullOrWhiteSpace(ribbonXml, nameof(ribbonXml));
+
+            if (accessApp == null)
+            {
+                throw new BlsComException("CreateAccessRibbon", BlsComCategory.UnexpectedType, "accessApp es null", null);
+            }
+
+            try
+            {
+                dynamic app = accessApp;
+                dynamic db = app.CurrentDb();
+                if (db == null)
+                {
+                    throw new BlsComException("CreateAccessRibbon", BlsComCategory.UnexpectedType, "CurrentDb() devolvió null", null);
+                }
+
+                // 1. Asegurar existencia de la tabla USysRibbons
+                // Esquema estándar oficial de Microsoft Access:
+                // ID (Autonumérico PK), RibbonName (Texto 255), RibbonXML (Memo / LongText)
+                try
+                {
+                    string createTableSql = "CREATE TABLE USysRibbons (" +
+                                           "[ID] AUTOINCREMENT CONSTRAINT [PK_USysRibbons] PRIMARY KEY, " +
+                                           "[RibbonName] VARCHAR(255) NOT NULL, " +
+                                           "[RibbonXML] MEMO NOT NULL)";
+                    db.Execute(createTableSql, 128);
+                }
+                catch
+                {
+                    // Si ya existe la tabla, se ignora el error de creación
+                }
+
+                // 2. Insertar o actualizar registro vía DAO Recordset o SQL
+                // Escapar comillas simples en name y ribbonXml para inserción SQL segura
+                string safeName = name.Replace("'", "''");
+                string safeXml = ribbonXml.Replace("'", "''");
+
+                // Eliminar versión previa con el mismo RibbonName si existiera
+                try
+                {
+                    string deleteSql = $"DELETE FROM USysRibbons WHERE [RibbonName] = '{safeName}'";
+                    db.Execute(deleteSql, 128);
+                }
+                catch
+                {
+                    // Ignorar si no había registros
+                }
+
+                string insertSql = $"INSERT INTO USysRibbons ([RibbonName], [RibbonXML]) VALUES ('{safeName}', '{safeXml}')";
+                db.Execute(insertSql, 128);
+
+                return new RibbonOpResult(name, true, $"Cinta de opciones '{name}' guardada correctamente en USysRibbons. Reinicia Access o asigna la propiedad RibbonName del formulario para verla.");
+            }
+            catch (Exception ex)
+            {
+                throw new BlsComException("CreateAccessRibbon", BlsComCategory.Other, $"Error al registrar Ribbon '{name}': {ex.Message}", ex);
+            }
+        }
     }
 }

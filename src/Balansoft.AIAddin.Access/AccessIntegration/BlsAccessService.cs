@@ -63,5 +63,12 @@ namespace Balansoft.AIAddin.AccessIntegration
             BlsContract.RequiresNotNullOrWhiteSpace(sql, nameof(sql));
             return BlsComHelper.ExecuteAccessSql(_accessApp, sql);
         }
+
+        public RibbonOpResult CreateRibbon(string name, string ribbonXml)
+        {
+            BlsContract.RequiresNotNullOrWhiteSpace(name, nameof(name));
+            BlsContract.RequiresNotNullOrWhiteSpace(ribbonXml, nameof(ribbonXml));
+            return BlsComHelper.CreateAccessRibbon(_accessApp, name, ribbonXml);
+        }
     }
 }

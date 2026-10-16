@@ -133,6 +133,14 @@ public sealed record SqlExecutionResult(
     string? Message = null);
 
 /// <summary>
+/// Resultado de registrar un Ribbon XML en USysRibbons.
+/// </summary>
+public sealed record RibbonOpResult(
+    string Name,
+    bool Success,
+    string? Message = null);
+
+/// <summary>
 /// Contrato de operaciones sobre objetos Access.
 /// Implementado por BlsAccessService.
 /// </summary>
@@ -158,4 +166,7 @@ public interface IBlsAccess
 
     /// <summary>Ejecuta una sentencia SQL DDL/DML (CREATE TABLE, INSERT, UPDATE, ALTER, etc.) en CurrentDb.</summary>
     SqlExecutionResult ExecuteSql(string sql);
+
+    /// <summary>Crea o actualiza una cinta de opciones (Ribbon XML) en la tabla USysRibbons de Access.</summary>
+    RibbonOpResult CreateRibbon(string name, string ribbonXml);
 }

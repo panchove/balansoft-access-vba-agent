@@ -32,7 +32,8 @@ internal sealed class SystemPromptBuilder : ISystemPromptBuilder
         "- create_form: crea un formulario Access con controles (TextBox, Label, CommandButton) y lo guarda\n" +
         "- create_table: crea una tabla en Access especificando nombre, columnas, tipos y clave primaria\n" +
         "- create_query: crea o actualiza una consulta SQL o vista guardada (QueryDef)\n" +
-        "- execute_sql: ejecuta cualquier sentencia SQL DDL/DML (CREATE TABLE, INSERT, UPDATE, ALTER, etc.)\n\n" +
+        "- execute_sql: ejecuta cualquier sentencia SQL DDL/DML (CREATE TABLE, INSERT, UPDATE, ALTER, etc.)\n" +
+        "- create_ribbon: crea o actualiza una cinta de opciones (Ribbon XML) en la tabla del sistema USysRibbons de Access\n\n" +
         "Proyecto actual:\n" +
         "- Nombre: {ProjectName}\n" +
         "- ProjectKey: {ProjectKey}\n" +

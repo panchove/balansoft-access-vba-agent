@@ -181,4 +181,11 @@ public sealed class FakeAccess : IBlsAccess
         BlsContract.RequiresNotNullOrWhiteSpace(sql, nameof(sql));
         return new SqlExecutionResult(true, 1, "SQL fake ejecutado con éxito.");
     }
+
+    public RibbonOpResult CreateRibbon(string name, string ribbonXml)
+    {
+        BlsContract.RequiresNotNullOrWhiteSpace(name, nameof(name));
+        BlsContract.RequiresNotNullOrWhiteSpace(ribbonXml, nameof(ribbonXml));
+        return new RibbonOpResult(name, true, $"Ribbon fake '{name}' creado con éxito.");
+    }
 }
