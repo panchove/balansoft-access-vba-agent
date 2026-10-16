@@ -1,9 +1,19 @@
+---
+version: 1.1.0
+date: 2026-10-15
+status: active
+iso_standard: [12207, 25010]
+aligns_to: [PRD.md, CONSTITUTION.md, ADR-001..005]
+tags: [change-requests, iso-12207, modification-process, square]
+---
+
 # Registro de Solicitudes de Cambio (Change Requests - CRs)
 # Balansoft Access VBA Agent
 
-**Versión:** 1.0.0  
+**Versión:** 1.1.0  
 **Fecha:** 2026-10-15  
 **Estado:** Activo  
+**Norma de referencia:** ISO/IEC 12207:2017 (Proceso de Gestión de Modificaciones) / ISO/IEC 25010:2023  
 
 ---
 

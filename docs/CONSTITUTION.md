@@ -1,3 +1,12 @@
+---
+version: 1.1.0
+date: 2026-10-15
+status: approved
+iso_standard: [12207, 25010, 29148, 42010]
+aligns_to: [AGENTS.md, PRD.md, ADR-001..005]
+tags: [governance, constitution, sdd, iso-standards, quality-gates]
+---
+
 # Constitution — Balansoft Access VBA Agent (NIM Direct)
 
 > Documento rector del Spec-Driven Development (SDD) de este repositorio.
@@ -5,7 +14,7 @@
 > de CI en `.github/workflows/ci.yml`.
 > Los contratos por feature están en `specs/`, indexados en `specs/README.md`.
 >
-> **Estado:** v1.1 · Aceptado · 2026-10-02
+> **Estado:** v1.1 · Aceptado · 2026-10-15
 
 ---
 

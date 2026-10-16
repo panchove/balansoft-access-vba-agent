@@ -1,4 +1,13 @@
-﻿# ADR-003 — Modelo de cancelación (abort)
+---
+version: 1.0.0
+date: 2025-01-01
+status: approved
+iso_standard: [42010]
+aligns_to: [PRD.md, AGENTS.md, CONSTITUTION.md]
+tags: [architecture, adr, cancellation-token, threading, abort-model]
+---
+
+# ADR-003 — Modelo de cancelación (abort)
 
 ## Estado
 Aceptado — resuelve gap del PRD §3.3 y §7 FR-09.

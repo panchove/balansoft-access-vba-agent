@@ -1,3 +1,12 @@
+---
+version: 1.0.0
+date: 2026-10-15
+status: approved
+iso_standard: [42010, 25010]
+aligns_to: [PRD.md, AGENTS.md, CONSTITUTION.md, specs/010-design-by-contract.md]
+tags: [architecture, adr, design-by-contract, dbc, code-contracts, reliability]
+---
+
 # ADR-005: Adopción de Diseño por Contrato (Design by Contract - DbC)
 
 **Estado:** Aceptado  

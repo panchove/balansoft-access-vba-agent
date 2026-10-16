@@ -1,4 +1,13 @@
-﻿# ADR-001 — Identidad estable de proyecto Access
+---
+version: 1.0.0
+date: 2025-01-01
+status: approved
+iso_standard: [42010]
+aligns_to: [PRD.md, AGENTS.md, CONSTITUTION.md]
+tags: [architecture, adr, project-identity, hash-sha256]
+---
+
+# ADR-001 — Identidad estable de proyecto Access
 
 ## Estado
 Aceptado — resuelve gap del PRD §3.6 y §7 FR-10.

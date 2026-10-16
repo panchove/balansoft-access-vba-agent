@@ -1,4 +1,13 @@
-﻿# ADR-004 — Contrato de `object_detail` (Access read-only)
+---
+version: 1.0.0
+date: 2025-01-01
+status: approved
+iso_standard: [42010]
+aligns_to: [PRD.md, AGENTS.md, CONSTITUTION.md]
+tags: [architecture, adr, object-detail, access-schema, readonly]
+---
+
+# ADR-004 — Contrato de `object_detail` (Access read-only)
 
 ## Estado
 Aceptado — resuelve gap del PRD §3.2 y §7 FR-11.

@@ -1,8 +1,18 @@
+---
+version: 1.1.0
+date: 2026-10-15
+status: active
+iso_standard: [12207, 25010]
+aligns_to: [PRD.md, CONSTITUTION.md, MANUAL-TESTS.md]
+tags: [bugs, quality, iso-12207, problem-resolution, square]
+---
+
 # Registro de Bugs Conocidos - Balansoft Access VBA Agent
 
-## Versión: 1.0.0
-## Fecha: 2025-10-15
-## Estado: abierto
+## Versión: 1.1.0
+## Fecha: 2026-10-15
+## Estado: activo
+## Norma de referencia: ISO/IEC 12207:2017 (Proceso de Resolución de Problemas) / ISO/IEC 25010:2023
 
 ## Política de documentación de bugs
 - Todos los bugs deben registrarse en este archivo antes de crear un issue

@@ -1,4 +1,13 @@
-﻿# ADR-002 — Framing del Named Pipe JSON-RPC
+---
+version: 1.0.0
+date: 2025-01-01
+status: approved
+iso_standard: [42010]
+aligns_to: [PRD.md, AGENTS.md, CONSTITUTION.md]
+tags: [architecture, adr, named-pipe, json-rpc, framing]
+---
+
+# ADR-002 — Framing del Named Pipe JSON-RPC
 
 ## Estado
 Aceptado — resuelve gap del PRD §3.2.

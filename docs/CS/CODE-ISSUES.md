@@ -1,8 +1,18 @@
+---
+version: 1.1.0
+date: 2026-10-15
+status: active
+iso_standard: [25010, 12207]
+aligns_to: [PRD.md, CONSTITUTION.md, AGENTS.md]
+tags: [code-quality, square, good-practices, maintainability]
+---
+
 # Registro de Code Issues y Good Practices - Balansoft Access VBA Agent
 
-## Versión: 1.0.0
-## Fecha: 2025-10-15
+## Versión: 1.1.0
+## Fecha: 2026-10-15
 ## Estado: activo
+## Norma de referencia: ISO/IEC 25010:2023 (Modelo de Calidad del Producto de Software) / ISO/IEC 12207:2017
 
 ## Propósito
 Documentar issues de código, buenas prácticas,anti-patrones y sugerencias de mejora para el proyecto Balansoft Access VBA Agent. Este archivo complementa el registro de bugs (BUGS/) enfocándose en calidad de código y maintenibilidad.
