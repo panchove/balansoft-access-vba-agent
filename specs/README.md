@@ -57,15 +57,18 @@ Un spec por archivo, nombrado en mayúsculas estrictas `NNN-SLUG.md` (ej. `001-A
 | 010 | [DESIGN-BY-CONTRACT](010-DESIGN-BY-CONTRACT.md) | Calidad / DbC | ADR-005          | `implementado` | 17 verdes              |
 | 011 | [SESSION-MANAGEMENT](011-SESSION-MANAGEMENT.md) | FR-10         | ADR-013          | `implementado` | 14 verdes              |
 | 012 | [ACCESS-AUTHORING](012-ACCESS-AUTHORING.md)     | FR-11         | ADR-014          | `implementado` | 7 verdes               |
+| 013 | [SESSION-DELETE](013-SESSION-DELETE.md)         | FR-10         | ADR-001, ADR-013 | `implementado` | 3 verdes               |
+| 014 | [I18N-UI](014-I18N-UI.md)                       | FR-13         | ADR-001          | `implementado` | 10 verdes              |
 
 `implementado` solo si hay tests verdes. Los specs 005 y 006 tienen el código
 completo pero ninguna aserción que lo valide, así que no pueden declararse
 implementados.
 
-Los 99 tests de la suite se reparten en siete ficheros:
+Los tests de la suite se reparten en ocho ficheros:
 `BlsNimClientTests` 28 · `JsonRpcDispatcherTests` 17 · `NimStreamParserTests` 14
 · `BlsVbeBridgeServerTests` 12 · `NimHttpRequestBuilderTests` 11 ·
-`BlsPipeFramingTests` 10 · `JsonRpcDeserializationTests` 7.
+`BlsPipeFramingTests` 10 · `JsonRpcDeserializationTests` 7 ·
+`BlsStringsTests` 13.
 
 ## Orden de implementación
 
