@@ -910,6 +910,13 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             // Refresh session list and detail title
             _lblDetalleTitulo.Text = BlsStrings.Get("DetailTitle");
             RefreshSessionsListAsync(selectSessionId: _currentDoc?.SessionId).GetAwaiter().GetResult();
+
+            // Refresh column headers of the conversation grid
+            if (_conversation.Columns.Count >= 2)
+            {
+                _conversation.Columns[0].Text = BlsStrings.Get("ColumnRole");
+                _conversation.Columns[1].Text = BlsStrings.Get("ColumnMessage");
+            }
         }
         catch (Exception ex)
         {
