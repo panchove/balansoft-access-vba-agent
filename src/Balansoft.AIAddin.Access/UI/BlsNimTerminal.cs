@@ -383,6 +383,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             AcceptsTab = false
         };
 
+        _input.PreviewKeyDown += OnInputPreviewKeyDown;
         _input.KeyDown += OnInputKeyDown;
         _btnDetener.Click += OnDetenerClick;
         _btnEnviar.Click += (s, e) => OnSendClick(this, EventArgs.Empty);
@@ -632,6 +633,14 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         }
     }
 
+    private void OnInputPreviewKeyDown(object? sender, PreviewKeyDownEventArgs e)
+    {
+        if (e.KeyCode == Keys.Enter && !e.Shift)
+        {
+            e.IsInputKey = true;
+        }
+    }
+
     private void OnInputKeyDown(object? sender, KeyEventArgs e)
     {
         if (e.KeyCode == Keys.Enter && !e.Shift)
@@ -655,12 +664,21 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
     private async void OnSendClick(object? sender, EventArgs e)
     {
-        if (_currentTurnCts != null) return;
+        if (_currentTurnCts != null)
+        {
+            _logger.Warn("BlsNimTerminal", "Intento de envío ignorado: ya hay un turno activo en curso.");
+            return;
+        }
 
         var prompt = _input.Text.Trim();
-        _input.Clear();
+        if (string.IsNullOrEmpty(prompt))
+        {
+            _logger.Info("BlsNimTerminal", "Intento de envío con texto vacío o en blanco.");
+            return;
+        }
 
-        if (string.IsNullOrEmpty(prompt)) return;
+        _input.Clear();
+        _logger.Info("BlsNimTerminal", $"Enviando mensaje de usuario: {prompt.Substring(0, Math.Min(40, prompt.Length))}...");
 
         AppendUserMessage(prompt);
 
@@ -714,7 +732,9 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     {
         try
         {
+            _logger.Info("BlsNimTerminal", "Iniciando RunTurnAsync: obteniendo contexto VBE...");
             var context = await _vbeContext.GetAsync(ct);
+            _logger.Info("BlsNimTerminal", $"Contexto VBE obtenido: Modulo={context.ActiveModuleName ?? "(ninguno)"}, Seleccion={context.SelectionText.Length} chars");
             var projectKeyInfo = _vbe.GetProjectKey();
 
             var tools = BuildToolDefinitions();
