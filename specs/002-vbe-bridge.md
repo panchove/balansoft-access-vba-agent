@@ -3,7 +3,7 @@
 **Estado:** `aceptado`
 **PRD:** FR-04, FR-03
 **ADRs:** ADR-001 (identidad de proyecto), ADR-002 (framing)
-**Spec de diseño:** `docs/design/20250101-vbe-bridge.md`
+**Spec de diseño:** `docs/design/ADR-006-VBE-BRIDGE.md`
 **Tests:** 46 verdes — 12 en `BlsVbeBridgeServerTests`, 17 en
   `JsonRpcDispatcherTests`, 10 en `BlsPipeFramingTests`, 7 en
   `JsonRpcDeserializationTests`

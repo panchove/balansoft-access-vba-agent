@@ -3,7 +3,7 @@
 **Estado:** `implementado`
 **PRD:** FR-01, FR-05
 **ADRs:** ninguno (si la arquitectura de ventanas lo exige, abrir ADR-005)
-**Spec de diseño:** `docs/design/20250108-addin-lifecycle.md`
+**Spec de diseño:** `docs/design/ADR-012-ADDIN-LIFECYCLE.md`
 **Prioridad:** P0 — bloqueante de todo lo demás
 
 ---
@@ -153,7 +153,7 @@ Nombres fijos (la CI verifica presencia por nombre cuando exista la suite):
 ## Desviaciones y riesgos
 
 - **Este spec ha sido implementado.** Los 5 tests obligatorios ahora existen y pasan en CI, y el add-in carga en Access con el ciclo de vida completo.
-- `docs/design/20250108-addin-lifecycle.md` describe el ciclo esperado. Si al
+- `docs/design/ADR-012-ADDIN-LIFECYCLE.md` describe el ciclo esperado. Si al
   implementarlo la estructura de ventanas resulta distinta, ese doc debe
   actualizarse en el mismo PR (P1).
 - La ventana propietaria del VBE requiere conocer el code window activo. Es

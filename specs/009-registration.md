@@ -3,7 +3,7 @@
 **Estado:** `borrador`
 **PRD:** FR-06
 **ADRs:** ninguno
-**Spec de diseño:** `docs/design/20250106-registration-scripts.md`
+**Spec de diseño:** `docs/design/ADR-010-REGISTRATION-SCRIPTS.md`
 **Tests:** 0 (scripts de PowerShell)
 
 ---

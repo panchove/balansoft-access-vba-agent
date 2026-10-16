@@ -3,7 +3,7 @@
 **Estado:** `borrador`
 **PRD:** FR-07, FR-12
 **ADRs:** ninguno
-**Spec de diseño:** `docs/design/20250107-logging-version.md`
+**Spec de diseño:** `docs/design/ADR-011-LOGGING-VERSION.md`
 **Tests:** 2 parciales en `JsonRpcDispatcherTests`
 
 ---
@@ -180,5 +180,5 @@ implementación real.
 - **`BlsVersion` no existe.** La versión está en la documentación pero no en
   el código, así que R003 no tiene de dónde sacar el dato.
 - **`BlsPaths.LogsDir` definido y sin usar.**
-- **El doc `20250107-logging-version.md` describe un diseño que no existe.**
+- **El doc `ADR-011-LOGGING-VERSION.md` describe un diseño que no existe.**
   Este spec lo recoge; si la implementación difiere, hay que actualizar el doc.

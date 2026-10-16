@@ -3,7 +3,7 @@
 **Estado:** `aceptado`
 **PRD:** FR-02, FR-03
 **ADRs:** ADR-003 (abort)
-**Spec de diseño:** `docs/design/20250103-nim-terminal.md`
+**Spec de diseño:** `docs/design/ADR-008-NIM-TERMINAL.md`
 **Tests:** 0 propios (toda la lógica de UI está sin cubrir)
 
 ---
@@ -176,7 +176,7 @@ un `IBlsNimSink`, y testear eso.
 
 ## Desviaciones y riesgos
 
-- **`docs/design/20250103-nim-terminal.md:285-334` está desactualizado.**
+- **`docs/design/ADR-008-NIM-TERMINAL.md:285-334` está desactualizado.**
   Describe un `OnToolCall` que lanza `ExecuteToolAsync` en background y un
   `OnDone` que finaliza el turno y guarda el historial. Esa pareja produce
   exactamente la carrera descrita en R002: el turno se cierra mientras la tool

@@ -5,7 +5,7 @@ version: 0.1.0
 date: 2025-10-15
 status: approved
 iso_standard: [29148, 25010, 12207]
-aligns_to: [AGENTS.md, ADR-001..004, all skills]
+aligns_to: [AGENTS.md, ADR-001..012, all skills]
 tags: [product, requirements, access-addin, nvidia-nim]
 dependencies: []
 conflicts_with: []

@@ -7,7 +7,7 @@ aligns_to: [PRD.md, AGENTS.md, specs/008-logging-errors.md]
 tags: [design, architecture, logging, version, diagnostics, nbgv]
 ---
 
-# Feature: Logging + Version (BlsLogger, BlsVersion)
+# ADR-011 — Logging + Version (BlsLogger, BlsVersion)
 
 ## Estado
 Aprobado para implementación.

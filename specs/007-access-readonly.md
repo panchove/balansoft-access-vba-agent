@@ -3,7 +3,7 @@
 **Estado:** `borrador`
 **PRD:** FR-11
 **ADRs:** ADR-004 (contrato de `object_detail`)
-**Spec de diseño:** `docs/design/20250101-vbe-bridge.md` (sección Access)
+**Spec de diseño:** `docs/design/ADR-006-VBE-BRIDGE.md` (sección Access)
 **Tests:** 3 en `JsonRpcDispatcherTests` (solo contra `FakeAccess`)
 
 ---

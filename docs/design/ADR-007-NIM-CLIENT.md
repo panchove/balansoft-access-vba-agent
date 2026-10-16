@@ -7,7 +7,7 @@ aligns_to: [PRD.md, AGENTS.md, ADR-003-ABORT-MODEL.md, specs/003-nim-client.md]
 tags: [design, architecture, nim-client, streaming, sse, tool-calls]
 ---
 
-# Feature: NIM Client (HTTP/2 SSE streaming + tool_calls)
+# ADR-007 — NIM Client (HTTP/2 SSE streaming + tool_calls)
 
 ## Estado
 Aprobado para implementación.

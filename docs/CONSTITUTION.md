@@ -46,7 +46,7 @@ Los ADR en `docs/design/ADR-*.md` son la fuente de verdad cuando un spec, un
 skill o el código discrepan. Si un cambio de comportamiento invalida un ADR, el
 ADR se actualiza **en el mismo PR** que el cambio.
 
-> today: ADR-001..004 todos Aceptados.
+> today: ADR-001..012 todos Aceptados.
 
 ### P2 — Contrato primero, implementación después
 

@@ -3,7 +3,7 @@
 **Estado:** `implementado`
 **PRD:** FR-09
 **ADRs:** ADR-003 (abort)
-**Spec de diseño:** `docs/design/20250102-nim-client.md`
+**Spec de diseño:** `docs/design/ADR-007-NIM-CLIENT.md`
 **Tests:** 53 verdes — 28 en `BlsNimClientTests`, 14 en `NimStreamParserTests`,
   11 en `NimHttpRequestBuilderTests`
 

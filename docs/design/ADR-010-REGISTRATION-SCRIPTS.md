@@ -7,7 +7,7 @@ aligns_to: [PRD.md, AGENTS.md, specs/009-registration.md]
 tags: [design, architecture, packaging, registration, powershell, regasm]
 ---
 
-# Feature: Registration + Packaging (regasm HKCU + scripts)
+# ADR-010 — Registration + Packaging (regasm HKCU + scripts)
 
 ## Estado
 Aprobado para implementación.

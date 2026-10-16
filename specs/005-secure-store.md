@@ -3,7 +3,7 @@
 **Estado:** `aceptado`
 **PRD:** FR-08
 **ADRs:** ninguno
-**Spec de diseño:** `docs/design/20250104-secure-store.md`
+**Spec de diseño:** `docs/design/ADR-009-SECURE-STORE.md`
 **Tests:** 0 propios (solo `FakeSecureStore`)
 
 ---

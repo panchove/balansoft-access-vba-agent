@@ -7,7 +7,7 @@ aligns_to: [PRD.md, AGENTS.md, ADR-001-PROJECT-IDENTITY.md, specs/005-secure-sto
 tags: [design, architecture, dpapi, security, chat-history, persistence]
 ---
 
-# Feature: Secure Store (DPAPI) + Chat History
+# ADR-009 — Secure Store (DPAPI) + Chat History
 
 ## Estado
 Aprobado para implementación.

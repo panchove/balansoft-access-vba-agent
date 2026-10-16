@@ -7,7 +7,7 @@ aligns_to: [PRD.md, AGENTS.md, ADR-001-PROJECT-IDENTITY.md, ADR-003-ABORT-MODEL.
 tags: [design, architecture, winforms, terminal, ui, vbe-integration]
 ---
 
-# Feature: NIM Terminal (WinForms + integración VBE)
+# ADR-008 — NIM Terminal (WinForms + integración VBE)
 
 ## Estado
 Aprobado para implementación.

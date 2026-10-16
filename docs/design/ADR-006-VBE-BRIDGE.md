@@ -7,7 +7,7 @@ aligns_to: [PRD.md, AGENTS.md, ADR-002-PIPE-FRAMING.md, specs/002-vbe-bridge.md]
 tags: [design, architecture, vbe-bridge, json-rpc, named-pipe]
 ---
 
-# Feature: VBE Bridge (JSON-RPC 2.0 sobre Named Pipe)
+# ADR-006 — VBE Bridge (JSON-RPC 2.0 sobre Named Pipe)
 
 ## Estado
 Aprobado para implementación.

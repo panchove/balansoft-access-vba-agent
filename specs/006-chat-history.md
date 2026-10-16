@@ -3,8 +3,8 @@
 **Estado:** `aceptado`
 **PRD:** FR-10
 **ADRs:** ADR-001 (identidad de proyecto)
-**Spec de diseño:** (cubierto por `docs/design/20250101-vbe-bridge.md` y
-`docs/design/20250103-nim-terminal.md`)
+**Spec de diseño:** (cubierto por `docs/design/ADR-006-VBE-BRIDGE.md` y
+`docs/design/ADR-008-NIM-TERMINAL.md`)
 **Tests:** 0 propios
 
 ---

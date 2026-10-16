@@ -61,7 +61,7 @@
 - `Directory.Build.props` — x86, LangVersion 10, TreatWarningsAsErrors, NBGV package
 - `version.json` — config Nerdbank.GitVersioning (semVer 2)
 - `.env` — API key local para desarrollo (no se commitea)
-- `docs/design/` — ADRs (001‑005)
+- `docs/design/` — ADRs (001‑012)
 - `.opencode/opencode.json` — configuración y skills index
 - `scripts/` — `RegisterAddin.ps1` / `UnregisterAddin.ps1` deben correr en PowerShell **x86**
 
