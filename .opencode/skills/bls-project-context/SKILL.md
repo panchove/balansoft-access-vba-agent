@@ -86,7 +86,7 @@ skill en el mismo commit.
 1. **Una sola terminal** por proceso. Segundo intento de abrir → foco a la
    existente.
 2. **Un solo cliente del bridge** a la vez. Segundo cliente → `-320bls-jsonrpc-pipe-bridge busy`.
-3. **Modelo fijo:** `nvidia/nemotron-3-ultra-550b-a55b` (override por
+3. **Modelo fijo:** `nvidia/nemotron-3.5-lightning-30b-a3b` (override por
    variable de entorno `NIM_MODEL`).
 4. **API key** solo en DPAPI (`%APPDATA%\Balansoft\AIAddin\apikey.bin`).
    Nunca en claro, nunca en log.

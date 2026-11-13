@@ -17,7 +17,7 @@ internal static class NimHttpRequestBuilder
     /// <summary>
     /// Modelo por defecto si no se pasa parámetro ni hay NIM_MODEL en el entorno.
     /// </summary>
-    public const string DefaultModel = "nvidia/nemotron-3-ultra-550b-a55b";
+    public const string DefaultModel = "nvidia/nemotron-3.5-lightning-30b-a3b";
 
     private const double Temperature = 0.2;
     private const int MaxTokens = 8192;

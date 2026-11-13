@@ -49,6 +49,6 @@ Issue → bls-architect valida spec → bls-planner descompone → bls-implement
 - Named‑pipe framing 4 bytes LE + UTF‑8 JSON.  
 - Proyecto identificado por SHA‑256 ruta normalizada.  
 - Un `CancellationTokenSource` por turno de usuario.  
-- Modelo único: `nvidia/nemotron-3-ultra-550b-a55b`.
+- Modelo único: `nvidia/nemotron-3.5-lightning-30b-a3b`.
 
 ---

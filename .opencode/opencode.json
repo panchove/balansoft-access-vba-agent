@@ -65,7 +65,7 @@
     "bls-testing-qta"
   ],
   "model": {
-    "primary": "nvidia/nemotron-3-ultra-550b-a55b",
+    "primary": "nvidia/nemotron-3.5-lightning-30b-a3b",
     "override_env": "NIM_MODEL",
     "unique": true,
     "big_pickle": false

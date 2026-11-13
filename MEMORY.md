@@ -8,15 +8,15 @@
 
 ## 1. Identidad del proyecto
 
-| Campo    | Valor                                                                 |
-|----------|-----------------------------------------------------------------------|
-| Qué es   | COM Add-in para Access 2010+ (x86) que integra Nvidia NIM en el VBE   |
-| ProgID   | `Balansoft.AIAddin.Access`                                            |
-| CLSID    | `{d31bf73e-dbe1-4739-84bc-2c974fcd3171}`                              |
-| Stack    | C# 10 · .NET Framework 4.8 · WinForms · `System.Text.Json` 8.0.5      |
+| Campo    | Valor                                                                                |
+|----------|--------------------------------------------------------------------------------------|
+| Qué es   | COM Add-in para Access 2010+ (x86) que integra Nvidia NIM en el VBE                  |
+| ProgID   | `Balansoft.AIAddin.Access`                                                           |
+| CLSID    | `{d31bf73e-dbe1-4739-84bc-2c974fcd3171}`                                             |
+| Stack    | C# 10 · .NET Framework 4.8 · WinForms · `System.Text.Json` 8.0.5                     |
 | Target   | `net48`, CPU-agnóstico (`PlatformTarget` x86\|x64 vía `-p:`), `Nullable=annotations` |
-| Solución | `Balansoft.AIAddin.slnx` (formato XML nuevo, 2 proyectos)             |
-| Tamaño   | ~3.700 LOC en `src/`, ~2.370 LOC en `tests/`                          |
+| Solución | `Balansoft.AIAddin.slnx` (formato XML nuevo, 2 proyectos)                            |
+| Tamaño   | ~3.700 LOC en `src/`, ~2.370 LOC en `tests/`                                         |
 
 **Nota de naming:** el repo se llama `balansoft-access-vba-agent`, la solución
 `Balansoft.AIAddin.*`. Son nombres distintos a propósito; no unificar sin
@@ -119,7 +119,7 @@ nombres son `Category` y `Op`, **no** `Kind` ni `Method`).
 ## 6. NIM
 
 - Endpoint: `https://integrate.api.nvidia.com/v1/chat/completions`
-- Modelo por defecto: `nvidia/nemotron-3-ultra-550b-a55b`
+- Modelo por defecto: `nvidia/nemotron-3.5-lightning-30b-a3b`
 - Precedencia de modelo: parámetro > `NIM_MODEL` > default.
 - Retry: 429/5xx con backoff 1s → 2s → 4s (3 intentos). `Retry-After` se
   respeta pero se **corta a 30s**. 4xx es terminal.

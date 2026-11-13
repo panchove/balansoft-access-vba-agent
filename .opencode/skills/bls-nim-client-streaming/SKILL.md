@@ -30,13 +30,13 @@ Content-Type:  application/json
 ```
 
 ### Modelo fijo
-`nvidia/nemotron-3-ultra-550b-a55b` (override por variable de entorno
+`nvidia/nemotron-3.5-lightning-30b-a3b` (override por variable de entorno
 `NIM_MODEL`). **Nunca** se elige desde la UI (fuera de MVP).
 
 ### Body (resumen)
 ```json
 {
-  "model": "nvidia/nemotron-3-ultra-550b-a55b",
+  "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
   "messages": [ /* system + historial + user */ ],
   "tools": [ /* 10 tools del bridge, ver skill bls-jsonrpc-pipe-bridge */ ],
   "tool_choice": "auto",

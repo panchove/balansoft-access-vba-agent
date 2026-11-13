@@ -65,7 +65,7 @@ ni enviar la petición. Nunca se registra la key.
 ### R003 — Modelo
 
 Precedencia: parámetro explícito > variable `NIM_MODEL` > default
-`nvidia/nemotron-3-ultra-550b-a55b`.
+`nvidia/nemotron-3.5-lightning-30b-a3b`.
 
 ### R004 — Reintentos
 
