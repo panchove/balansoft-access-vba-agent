@@ -47,7 +47,6 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1 -Configuration Release
 
 ## Entorno y gotchas
 
-- **.NET SDK 9.0.x** requerido.
 - **Access:** 2010 o superior. La arquitectura del add-in (x86/x64) debe coincidir con la de Access instalada. Access 32-bit no carga ensamblados x64 y viceversa.
 - **net48 limita APIs:** no `Task.WaitAsync`, no raw strings (C# 11), no `System.Net.Http.Json`, no E/S de archivos async. Para waits con timeout usar `tests/.../TaskTestExtensions.cs`.
 - **Named pipe:** framing `[uint32 LE longitud][UTF-8 JSON]`, máx 1 MB. Las clases `NamedPipe*` anteponen `\\.\pipe\` solas — pasar el nombre completo lo duplica. Usar el nombre pelado (`BlsPipeFraming.DefaultPipeName`).
@@ -55,6 +54,7 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1 -Configuration Release
 - **Modelo:** `nvidia/nemotron-3-ultra-550b-a55b` (override por variable de entorno `NIM_MODEL`).
 - **Tests de integración NIM** requieren `NIM_API_KEY` en el entorno (o `.env`); quedan fuera de la CI por defecto.
 - **`.env`** se copia de `.env.example`; nunca se commitea (está en `.gitignore`).
+- **API key en DPAPI:** nunca en logs, excepciones, JSON, registry ni disco (`BlsSecureStore`, `CurrentUser`). Véase AGENTS.md regla 7.
 
 ## Estructura
 
