@@ -2,7 +2,7 @@
 
 > Contexto operativo y de mantenimiento para sesiones futuras.
 > Actualizar al cerrar cada bloque de trabajo relevante.
-> Última actualización: 2026-11-19 (F1 gobernanza IA + F2 fail-safe/HITL + F3 auditoría; 239 tests verdes, 11 gates de CI).
+> Última actualización: 2026-11-19 (F1 gobernanza IA + F2 fail-safe/HITL + F3 auditoría + F4 idempotencia/resiliencia; 257 tests verdes, 12 gates de CI).
 
 ---
 
@@ -62,7 +62,7 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1
 
 **Existen** `.runsettings`, `Directory.Build.props`, y la solución real `Balansoft.AIAddin.slnx`. Los comandos usan los `.csproj` directos (la solución no propaga `Platform` a proyectos SDK-style).
 
-**La CI está operativa** y ejecuta 11 gates: build Debug/Release x86 y x64, tests 239/239, gobernanza IA, fail-safe/HITL, auditoría JSON/hash/correlación (F3), PIAs, `dynamic`, `Thread.Sleep`, documentos, tests ADR y referencias cruzadas. En `push` a `main` ejecuta `Pack.ps1` y sube el ZIP.
+**La CI está operativa** y ejecuta 12 gates: build Debug/Release x86 y x64, tests 257/257, gobernanza IA, fail-safe/HITL, auditoría JSON/hash/correlación (F3), idempotencia y resiliencia (F4), PIAs, `dynamic`, `Thread.Sleep`, documentos, tests ADR y referencias cruzadas. En `push` a `main` ejecuta `Pack.ps1` y sube el ZIP.
 
 ---
 
@@ -144,25 +144,29 @@ pipe del cliente entrante y el segundo recibiría EOF en vez de `busy`).
 
 ## 7. Estado actual
 
-**Suite verde.** Rebuild limpio de ambos proyectos en x86 y x64, **239/239
-tests** (51 nuevos en F3). El reparto completo por fichero está en
+**Suite verde.** Rebuild limpio de ambos proyectos en x86 y x64, **257/257
+tests** (18 nuevos en F4). El reparto completo por fichero está en
 `specs/README.md`.
 
 Implementado: ciclo de vida COM (spec 001), bridge JSON-RPC completo, cliente
 NIM con streaming SSE y reintentos, secure store DPAPI, historial por proyecto,
 Terminal con loop de herramientas, divulgación IA persistente (F1),
-fail-safe/HITL con kill switch (F2) y auditoría JSONL con hash encadenado,
-correlación y métricas SLO (F3). El add-in carga en Access.
+fail-safe/HITL con kill switch (F2), auditoría JSONL con hash encadenado,
+correlación y métricas SLO (F3), e idempotencia del bridge con full jitter y
+circuit breaker en NIM (F4). El add-in carga en Access.
 
 **Lo que no significa "verde":** los riesgos R-03 (PII al proveedor, F5),
-R-06 (idempotencia) y R-09 (jitter/breaker, F4) siguen abiertos; la verificación
+R-07/R-10 (parciales) y R-11 (entropía DPAPI) siguen abiertos; la verificación
 final en Access real con `BalansoftTest.accdb` no está automatizada. Estado por
-feature en `specs/README.md` (015/016/017 `implementado`).
+feature en `specs/README.md` (015/016/017/018 `implementado`).
 
 ### Pendiente
 
-- **F4 — resiliencia:** idempotency keys para reenvío de frames (R-06) y
-  jitter + circuit breaker en el cliente NIM (R-09).
+- **F4 — resiliencia (hecho):** `BlsIdempotencyKey` SHA-256 por turno,
+  `BlsIdempotencyCache` TTL 5 min/256 entradas, replay con
+  `idempotent_replay = true`; `BlsExponentialJitterRetryPolicy` con
+  `Retry-After` prevalente y `BlsCircuitBreaker` Closed/Open/HalfOpen. Cierra
+  R-06 y R-09. Contratos: spec 018 y ADR-017.
 - **F5 — privacidad:** PII scrubber del prompt y consentimiento (R-03),
   verificación criptográfica del prompt en runtime y red teaming de inyección.
 - **Deuda heredada de spec 008:** rotación de logs de 7 días y `BlsVersion`

@@ -20,22 +20,38 @@ namespace Balansoft.AIAddin.Core.Protocol;
 /// </summary>
 public sealed class JsonRpcDispatcher
 {
+    private static readonly BlsToolRiskPolicy RiskPolicy = new BlsToolRiskPolicy();
+
     private readonly IBlsVbe _vbe;
     private readonly IBlsAccess _access;
     private readonly IUiScheduler _ui;
     private readonly IBlsLogger _logger;
+    private readonly IBlsIdempotencyCache _idempotency;
     private readonly SemaphoreSlim _vbeGate = new(1, 1);
 
+    /// <summary>Constructor heredado: mantiene la firma y usa una caché en memoria.</summary>
     public JsonRpcDispatcher(
         IBlsVbe vbe,
         IBlsAccess access,
         IUiScheduler ui,
         IBlsLogger logger)
+        : this(vbe, access, ui, logger, new BlsIdempotencyCache())
+    {
+    }
+
+    /// <summary>Constructor F4: permite inyectar la caché (reloj y TTL) en tests.</summary>
+    public JsonRpcDispatcher(
+        IBlsVbe vbe,
+        IBlsAccess access,
+        IUiScheduler ui,
+        IBlsLogger logger,
+        IBlsIdempotencyCache idempotency)
     {
         _vbe = vbe;
         _access = access;
         _ui = ui;
         _logger = logger;
+        _idempotency = BlsContract.RequiresNotNull(idempotency, nameof(idempotency));
     }
 
     /// <summary>
@@ -68,9 +84,28 @@ public sealed class JsonRpcDispatcher
                 new JsonRpcErrorData("MethodNotFound", request.Method, null, null)));
         }
 
+        // F4 — Solo se deduplican escrituras (Medium/High). Las lecturas se
+        // ejecutan siempre para no devolver un estado obsoleto del VBE.
+        string? idempotencyKey = null;
+        if (!string.IsNullOrWhiteSpace(request.IdempotencyKey)
+            && RiskPolicy.GetRisk(request.Method) != BlsToolRisk.Low
+            && _idempotency.TryGet(request.IdempotencyKey, out var cached)
+            && cached != null)
+        {
+            _logger.Info("JsonRpcDispatcher",
+                $"idempotency hit key={ShortKey(request.IdempotencyKey)} method={request.Method} correlation_id={correlationScope.CorrelationId}");
+            return cached with { Id = request.Id, IdempotentReplay = true };
+        }
+
+        if (!string.IsNullOrWhiteSpace(request.IdempotencyKey))
+        {
+            idempotencyKey = request.IdempotencyKey;
+        }
+
+        JsonRpcResponse response;
         try
         {
-            return request.Method switch
+            response = request.Method switch
             {
                 JsonRpcMethods.ListModules       => await HandleVbeAsync(request, ct, () => _vbe.ListModules()),
                 JsonRpcMethods.ReadModule        => await HandleVbeAsync(request, ct, () => _vbe.ReadModule(GetStringParam(request, "name"))),
@@ -168,6 +203,22 @@ public sealed class JsonRpcDispatcher
                 $"InternalError: {ex.Message}",
                 new JsonRpcErrorData("InternalError", request.Method, null, GetStack())));
         }
+
+        // Los errores y las cancelaciones no se cachean: deben poder
+        // reintentarse. Solo una escritura completada con éxito es reutilizable.
+        if (idempotencyKey != null
+            && response.Error == null
+            && !ct.IsCancellationRequested)
+        {
+            _idempotency.Store(idempotencyKey, response with { IdempotentReplay = false });
+        }
+
+        return response;
+    }
+
+    private static string ShortKey(string key)
+    {
+        return key.Length <= 8 ? key : key.Substring(0, 8);
     }
 
     private async Task<JsonRpcResponse> HandleVbeAsync(

@@ -105,6 +105,22 @@ private static async Task WriteFrameAsync(
 - Nunca se hace *notification* (siempre hay respuesta; no hay métodos
   sin `id` en MVP).
 
+### Idempotencia (F4 / ADR-017)
+- `id` **no** es una clave de idempotencia: cambia en cada reenvío.
+- `BlsBridgeClient` calcula
+  `BlsIdempotencyKey.For(method, params, correlation_id)` =
+  `SHA256(correlation_id|method|params_json)` y lo envía en
+  `idempotency_key` (campo opcional, compatible con frames antiguos).
+- El dispatcher solo deduce escrituras (`Medium`/`High` según
+  `BlsToolRiskPolicy`): si la clave está vigente devuelve la respuesta
+  cacheada con el `id` actual e `idempotent_replay = true`, **sin invocar
+  el handler**.
+- Solo se cachean éxitos. Lecturas (`Low`), errores y cancelaciones se
+  ejecutan siempre.
+- Caché en memoria: TTL 5 min, 256 entradas, evicción FIFO, reloj
+  inyectable (sin `Thread.Sleep` en tests). El log registra solo 8 chars
+  de la clave.
+
 ---
 
 ## Whitelist de métodos (10)
@@ -295,6 +311,8 @@ Pipe thread  →  DispatchAsync  →  _vbeGate  →  _ui.RunAsync  →  UI threa
 - `docs/design/ADR-002-PIPE-FRAMING.md`.
 - `docs/design/ADR-003-ABORT-MODEL.md`.
 - `docs/design/ADR-004-OBJECT-DETAIL.md`.
+- `docs/design/ADR-017-IDEMPOTENCY-RESILIENCE.md`.
+- `specs/018-IDEMPOTENCY-RESILIENCE.md`.
 - PRD §3.2, §7 FR-04, FR-12.
 - `.opencode/skills/bls-com-late-binding/SKILL.md`.
 - `.opencode/skills/bls-vbe-automation/SKILL.md` (contrato `IBlsVbe`).

@@ -166,6 +166,7 @@ jobs:
               "docs/design/ADR-014-ACCESS-AUTHORING.md",
               "docs/design/ADR-015-HUMAN-IN-THE-LOOP.md",
               "docs/design/ADR-016-AUDIT-LOGGING.md",
+              "docs/design/ADR-017-IDEMPOTENCY-RESILIENCE.md",
               "specs/README.md",
               "specs/001-ADDIN-LIFECYCLE.md",
               "specs/002-VBE-BRIDGE.md",
@@ -184,6 +185,7 @@ jobs:
               "specs/015-AI-DISCLOSURE.md",
               "specs/016-HUMAN-IN-THE-LOOP.md",
               "specs/017-AUDIT-LOGGING.md",
+              "specs/018-IDEMPOTENCY-RESILIENCE.md",
               "Directory.Build.props",
               ".runsettings",
               "Balansoft.AIAddin.slnx",
@@ -397,6 +399,85 @@ jobs:
           Write-Host "OK: JSONL, cadena SHA-256, correlacion y saneamiento verificados."
 
       # ─────────────────────────────────────────────
+      # 8e. Idempotencia y resiliencia (F4 / ADR-017)
+      #
+      # Cierra R-06 y R-09: impide que se pierda la clave derivada del turno,
+      # que el dispatcher vuelva a ejecutar una escritura reenviada, que el
+      # backoff pierda jitter o que el breaker deje de bloquear en Open.
+      # ─────────────────────────────────────────────
+      - name: Idempotencia y resiliencia (F4)
+        shell: pwsh
+        run: |
+          $root = $PWD.Path
+          $errors = @()
+
+          $required = @(
+              "src/Balansoft.AIAddin.Access/Core/Protocol/BlsIdempotencyKey.cs",
+              "src/Balansoft.AIAddin.Access/Core/Protocol/IBlsIdempotencyCache.cs",
+              "src/Balansoft.AIAddin.Access/Core/Protocol/BlsIdempotencyCache.cs",
+              "src/Balansoft.AIAddin.Access/Helpers/IBlsNimRetryPolicy.cs",
+              "src/Balansoft.AIAddin.Access/Helpers/BlsNimRetryPolicy.cs",
+              "src/Balansoft.AIAddin.Access/Helpers/IBlsCircuitBreaker.cs",
+              "src/Balansoft.AIAddin.Access/Helpers/BlsCircuitBreaker.cs",
+              "docs/design/ADR-017-IDEMPOTENCY-RESILIENCE.md",
+              "specs/018-IDEMPOTENCY-RESILIENCE.md",
+              "tests/Balansoft.AIAddin.Tests/Core/Protocol/JsonRpcIdempotencyTests.cs",
+              "tests/Balansoft.AIAddin.Tests/UI/Nim/BlsNimResilienceTests.cs"
+          )
+          foreach ($f in $required) {
+              if (-not (Test-Path (Join-Path $root $f))) {
+                  $errors += "Falta artefacto de idempotencia/resiliencia: $f"
+              }
+          }
+
+          $key = Join-Path $root "src/Balansoft.AIAddin.Access/Core/Protocol/BlsIdempotencyKey.cs"
+          if (Test-Path $key) {
+              $k = Get-Content $key -Raw
+              foreach ($token in @('SHA256', 'correlationId', 'method')) {
+                  if (-not $k.Contains($token)) { $errors += "BlsIdempotencyKey.cs no contiene $token" }
+              }
+          }
+
+          $cache = Join-Path $root "src/Balansoft.AIAddin.Access/Core/Protocol/BlsIdempotencyCache.cs"
+          if (Test-Path $cache) {
+              $c = Get-Content $cache -Raw
+              foreach ($token in @('TryGet', 'Store', 'FromMinutes(5)', '256')) {
+                  if (-not $c.Contains($token)) { $errors += "BlsIdempotencyCache.cs no contiene $token" }
+              }
+          }
+
+          $dispatcher = Join-Path $root "src/Balansoft.AIAddin.Access/Core/Protocol/JsonRpcDispatcher.cs"
+          if (Test-Path $dispatcher) {
+              $d = Get-Content $dispatcher -Raw
+              foreach ($token in @('idempotency hit', 'IdempotentReplay = true', 'BlsToolRisk.Low')) {
+                  if (-not $d.Contains($token)) { $errors += "JsonRpcDispatcher.cs no contiene $token" }
+              }
+          }
+
+          $client = Join-Path $root "src/Balansoft.AIAddin.Access/UI/BlsNimClient.cs"
+          if (Test-Path $client) {
+              $n = Get-Content $client -Raw
+              foreach ($token in @('BlsNimCircuitOpenException', 'ResolveRetry', 'isProbe', 'BlsCircuitState.HalfOpen')) {
+                  if (-not $n.Contains($token)) { $errors += "BlsNimClient.cs no contiene $token" }
+              }
+          }
+
+          $breaker = Join-Path $root "src/Balansoft.AIAddin.Access/Helpers/BlsCircuitBreaker.cs"
+          if (Test-Path $breaker) {
+              $b = Get-Content $breaker -Raw
+              foreach ($token in @('Closed', 'Open', 'HalfOpen', 'RecordFailure')) {
+                  if (-not $b.Contains($token)) { $errors += "BlsCircuitBreaker.cs no contiene $token" }
+              }
+          }
+
+          if ($errors.Count -gt 0) {
+              Write-Host "::error::Idempotencia/resiliencia F4 incompleta:"
+              foreach ($e in $errors) { Write-Host "  - $e" }
+              exit 1
+          }
+          Write-Host "OK: idempotencia del bridge y resiliencia de NIM verificadas."
+
+      # ─────────────────────────────────────────────
       # 9. Verificar ausencia de PIAs de Office
       # ─────────────────────────────────────────────
       - name: Verificar ausencia de PIAs de Office
@@ -508,7 +589,11 @@ jobs:
               # ADR-016 (F3, verificados)
               "Logger_CadenaUnEvento_EsVerificable",
               "Verify_TamperMensaje_DetectaCorrupcion",
-              "Dispatcher_ConCorrelacion_LosEscribeEnElLog"
+              "Dispatcher_ConCorrelacion_LosEscribeEnElLog",
+              # ADR-017 (F4, verificados)
+              "Idempotency_FrameDuplicado_NoEjecutaHandlerDosVeces",
+              "Retry_JitterDistribuyeRetrasos",
+              "Breaker_Abierto_NoHaceRequestYEmiteCircuitOpen"
           )
 
           $blocking = @(
@@ -522,7 +607,10 @@ jobs:
               "DeleteModule_WithoutConfirm_Throws",
               "Logger_CadenaUnEvento_EsVerificable",
               "Verify_TamperMensaje_DetectaCorrupcion",
-              "Dispatcher_ConCorrelacion_LosEscribeEnElLog"
+              "Dispatcher_ConCorrelacion_LosEscribeEnElLog",
+              "Idempotency_FrameDuplicado_NoEjecutaHandlerDosVeces",
+              "Retry_JitterDistribuyeRetrasos",
+              "Breaker_Abierto_NoHaceRequestYEmiteCircuitOpen"
           )
 
           $allContent = ($testFiles | Get-Content -Raw) -join "`n"

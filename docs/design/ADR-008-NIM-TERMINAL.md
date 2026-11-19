@@ -217,23 +217,23 @@ internal interface IUserInputDialog
 
 ## 4. Invariantes afectados
 
-| Fuente             | Invariante               | Cómo se cumple                                        |
-|--------------------|--------------------------|-------------------------------------------------------|
-| AGENTS.md regla 3  | Marshaling al hilo UI    | Toda actualización de controles vía `OnUi` (skill bls-winforms-threading) |
-| AGENTS.md regla 4  | API key DPAPI            | Prompt → `BlsSecureStore.SaveApiKey`                  |
-| AGENTS.md regla 5  | Errores reales           | `OnError` muestra mensaje; nunca éxito falso          |
-| AGENTS.md regla 10 | Abort ADR-003            | Botón Detener + Escape → `_currentTurnCts.Cancel()`   |
-| ADR-001            | Historial por projectKey | Carga/guarda con `vbe.GetProjectKey()`                |
-| ADR-003            | Un CTS por turno         | `_currentTurnCts` propiedad del Form                  |
-| ADR-003            | Cancelación ≠ error      | "Cancelado por el usuario", no rojo                   |
-| PRD FR-02          | Streaming en vivo        | `OnTextChunk` → `AppendChunk`                         |
-| PRD FR-02          | Tool calls               | `OnToolCall` → `bridgeClient.InvokeAsync`             |
-| PRD FR-03          | Contexto VBE             | `IVbeContextProvider` + `ISystemPromptBuilder`        |
-| PRD FR-05          | Tools → "NIM Terminal"   | `BlsVbeMenuManager` (skill bls-vbe-automation)                        |
-| PRD FR-05          | Textos en español        | Todos los strings de UI en español                    |
-| skill bls-winforms-threading §1        | Creación en hilo UI      | Menú se dispara desde el VBE (hilo UI)                |
-| skill bls-winforms-threading §2        | Marshaling               | `OnUi` para todos los callbacks del sink              |
-| skill bls-winforms-threading §5        | Cierre limpio            | `OnFormClosing` cancela + flush historial             |
+| Fuente                          | Invariante               | Cómo se cumple                                                            |
+|---------------------------------|--------------------------|---------------------------------------------------------------------------|
+| AGENTS.md regla 3               | Marshaling al hilo UI    | Toda actualización de controles vía `OnUi` (skill bls-winforms-threading) |
+| AGENTS.md regla 4               | API key DPAPI            | Prompt → `BlsSecureStore.SaveApiKey`                                      |
+| AGENTS.md regla 5               | Errores reales           | `OnError` muestra mensaje; nunca éxito falso                              |
+| AGENTS.md regla 10              | Abort ADR-003            | Botón Detener + Escape → `_currentTurnCts.Cancel()`                       |
+| ADR-001                         | Historial por projectKey | Carga/guarda con `vbe.GetProjectKey()`                                    |
+| ADR-003                         | Un CTS por turno         | `_currentTurnCts` propiedad del Form                                      |
+| ADR-003                         | Cancelación ≠ error      | "Cancelado por el usuario", no rojo                                       |
+| PRD FR-02                       | Streaming en vivo        | `OnTextChunk` → `AppendChunk`                                             |
+| PRD FR-02                       | Tool calls               | `OnToolCall` → `bridgeClient.InvokeAsync`                                 |
+| PRD FR-03                       | Contexto VBE             | `IVbeContextProvider` + `ISystemPromptBuilder`                            |
+| PRD FR-05                       | Tools → "NIM Terminal"   | `BlsVbeMenuManager` (skill bls-vbe-automation)                            |
+| PRD FR-05                       | Textos en español        | Todos los strings de UI en español                                        |
+| skill bls-winforms-threading §1 | Creación en hilo UI      | Menú se dispara desde el VBE (hilo UI)                                    |
+| skill bls-winforms-threading §2 | Marshaling               | `OnUi` para todos los callbacks del sink                                  |
+| skill bls-winforms-threading §5 | Cierre limpio            | `OnFormClosing` cancela + flush historial                                 |
 
 ---
 
@@ -790,13 +790,13 @@ Si todo pasa, aprueba con 'LGTM'. Si algo falla, indica la regla violada."
 
 ## Estado del backlog de diseño
 
-| # | Doc                                | Estado      | Depende de |
-|---|------------------------------------|-------------|------------|
+| # | Doc                               | Estado      | Depende de |
+|---|-----------------------------------|-------------|------------|
 | 1 | `ADR-006-VBE-BRIDGE.md`           | ✅ Entregado | —          |
 | 2 | `ADR-007-NIM-CLIENT.md`           | ✅ Entregado | —          |
 | 3 | `ADR-008-NIM-TERMINAL.md`         | ✅ Entregado | #1, #2     |
 | 4 | `ADR-009-SECURE-STORE.md`         | Pendiente   | —          |
-| 5 | `20250105-chat-history.md`         | Pendiente   | ADR-001    |
+| 5 | `20250105-chat-history.md`        | Pendiente   | ADR-001    |
 | 6 | `ADR-010-REGISTRATION-SCRIPTS.md` | Pendiente   | —          |
 | 7 | `ADR-011-LOGGING-VERSION.md`      | Pendiente   | —          |
 | 8 | `ADR-012-ADDIN-LIFECYCLE.md`      | Pendiente   | Todos      |

@@ -14,61 +14,61 @@ tags: [ai-bom, sbom, supply-chain, model-inventory]
 
 ## 1. Modelo
 
-| Campo | Valor |
-|-------|-------|
-| Proveedor | NVIDIA (integrate.api.nvidia.com) |
-| Modelo | `nvidia/nemotron-3.5-lightning-30b-a3b` |
-| Override | Variable de entorno `NIM_MODEL` |
-| Endpoint | `https://integrate.api.nvidia.com/v1/chat/completions` (`NIM_ENDPOINT`) |
-| Protocolo | HTTP/1.1 con streaming SSE |
-| Modalidad | Texto + function calling |
-| Región/datos | Sin configuración de residencia de datos declarada ⚠️ |
-| Uso | Asistente de edición VBA en el VBE de Access/Excel |
+| Campo        | Valor                                                                   |
+|--------------|-------------------------------------------------------------------------|
+| Proveedor    | NVIDIA (integrate.api.nvidia.com)                                       |
+| Modelo       | `nvidia/nemotron-3.5-lightning-30b-a3b`                                 |
+| Override     | Variable de entorno `NIM_MODEL`                                         |
+| Endpoint     | `https://integrate.api.nvidia.com/v1/chat/completions` (`NIM_ENDPOINT`) |
+| Protocolo    | HTTP/1.1 con streaming SSE                                              |
+| Modalidad    | Texto + function calling                                                |
+| Región/datos | Sin configuración de residencia de datos declarada ⚠️                    |
+| Uso          | Asistente de edición VBA en el VBE de Access/Excel                      |
 
 ## 2. Prompt del sistema
 
-| Campo | Valor |
-|-------|-------|
-| Identificador | `PROMPT-v1.0` |
-| Fuente | `src/Balansoft.AIAddin.Access/UI/SystemPromptBuilder.cs` |
-| SHA-256 | `3A8CD21FAF891BB0B5D4B74EDAEFEA361C44726336B0C17935BF90EAB4F73E37` |
-| Commit de referencia | `7cc9b30` |
-| Idioma de respuesta | Español (constante embebida) |
-| Contexto inyectado | Nombre/ProjectKey del proyecto, conteos de objetos y selección VBE (≤32 KB) ⚠️ |
-| Versionado | Sin control de versión en runtime — **brecha F5** |
+| Campo                | Valor                                                                         |
+|----------------------|-------------------------------------------------------------------------------|
+| Identificador        | `PROMPT-v1.0`                                                                 |
+| Fuente               | `src/Balansoft.AIAddin.Access/UI/SystemPromptBuilder.cs`                      |
+| SHA-256              | `3A8CD21FAF891BB0B5D4B74EDAEFEA361C44726336B0C17935BF90EAB4F73E37`            |
+| Commit de referencia | `7cc9b30`                                                                     |
+| Idioma de respuesta  | Español (constante embebida)                                                  |
+| Contexto inyectado   | Nombre/ProjectKey del proyecto, conteos de objetos y selección VBE (≤32 KB) ⚠️ |
+| Versionado           | Sin control de versión en runtime — **brecha F5**                             |
 
 ## 3. Tools expuestas al modelo
 
 Whitelist en `JsonRpcMethods.All`. Operaciones de escritura marcadas con ✍️ y destructivas con 🗑️.
 
-| Grupo | Tools |
-|-------|-------|
-| VBE | `list_modules`, `read_module`, `write_module` ✍️, `create_module` ✍️, `delete_module` 🗑️, `get_selection`, `get_active_module` |
-| Acceso (lectura) | `project_summary`, `list_objects`, `object_detail`, `list_commandbars`, `inspect_adp` |
+| Grupo              | Tools                                                                                                                                                  |
+|--------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------|
+| VBE                | `list_modules`, `read_module`, `write_module` ✍️, `create_module` ✍️, `delete_module` 🗑️, `get_selection`, `get_active_module`                           |
+| Acceso (lectura)   | `project_summary`, `list_objects`, `object_detail`, `list_commandbars`, `inspect_adp`                                                                  |
 | Acceso (escritura) | `create_form` ✍️, `create_table` ✍️, `create_query` ✍️, `execute_sql` 🗑️, `create_ribbon` ✍️, `migrate_commandbar_to_ribbon` 🗑️, `migrate_adp_to_accdb` 🗑️ |
 
 ## 4. Dependencias y runtime
 
-| Componente | Versión | Notas |
-|------------|---------|-------|
-| .NET Framework | 4.8 (`net48`) | CPU-agnóstico vía `-p:PlatformTarget=x86\|x64` |
-| Lenguaje | C# 10 | `Nullable=annotations` |
-| `System.Text.Json` | 8.0.5 | Sin `System.Net.Http.Json` (restricción net48) |
-| WinForms | Nativo | Marshaling explícito por `IUiScheduler` |
-| DPAPI | `DataProtectionScope.CurrentUser` | Entropía fija ⚠️ |
-| Servidores MCP | **Ninguno** | Eliminados en el diseño v1.1.0 |
-| CLI de agentes externos | **Ninguno en runtime** | Uso solo en desarrollo |
+| Componente              | Versión                           | Notas                                          |
+|-------------------------|-----------------------------------|------------------------------------------------|
+| .NET Framework          | 4.8 (`net48`)                     | CPU-agnóstico vía `-p:PlatformTarget=x86\|x64` |
+| Lenguaje                | C# 10                             | `Nullable=annotations`                         |
+| `System.Text.Json`      | 8.0.5                             | Sin `System.Net.Http.Json` (restricción net48) |
+| WinForms                | Nativo                            | Marshaling explícito por `IUiScheduler`        |
+| DPAPI                   | `DataProtectionScope.CurrentUser` | Entropía fija ⚠️                                |
+| Servidores MCP          | **Ninguno**                       | Eliminados en el diseño v1.1.0                 |
+| CLI de agentes externos | **Ninguno en runtime**            | Uso solo en desarrollo                         |
 
 ## 5. Controles de seguridad (F2)
 
-| Control | Implementación | Evidencia |
-|---------|----------------|-----------|
-| Kill switch | `BlsSafetyGate` (`Trip`/`Reset`/`EnsureAllowed`) + botón en `BlsNimTerminal` | `BlsSafetyGateTests` (5) |
-| Política de riesgo | `BlsToolRiskPolicy` (19 tools; desconocida ⇒ `High`) | `BlsToolRiskPolicyTests` (5) |
-| Aprobación humana | `BlsHumanApprovalGate` + MessageBox ("No" por defecto) | `BlsHumanApprovalGateTests` (5) |
-| Huella del payload | `BlsApprovalRequest.PayloadSha256` (SHA-256 UTF-8) | `BlsApprovalRequestTests` (3) |
-| Rechazo sin efectos | `RejectTool` devuelve `HITL_DENIED`/`SAFETY_TRIPPED`, sin bridge | Spec 016 §R006 |
-| DbC destructiva | `BlsComHelper.DeleteModule` lanza `BlsPreconditionException` | `BlsComHelperSafetyTests` (3) |
+| Control             | Implementación                                                               | Evidencia                       |
+|---------------------|------------------------------------------------------------------------------|---------------------------------|
+| Kill switch         | `BlsSafetyGate` (`Trip`/`Reset`/`EnsureAllowed`) + botón en `BlsNimTerminal` | `BlsSafetyGateTests` (5)        |
+| Política de riesgo  | `BlsToolRiskPolicy` (19 tools; desconocida ⇒ `High`)                         | `BlsToolRiskPolicyTests` (5)    |
+| Aprobación humana   | `BlsHumanApprovalGate` + MessageBox ("No" por defecto)                       | `BlsHumanApprovalGateTests` (5) |
+| Huella del payload  | `BlsApprovalRequest.PayloadSha256` (SHA-256 UTF-8)                           | `BlsApprovalRequestTests` (3)   |
+| Rechazo sin efectos | `RejectTool` devuelve `HITL_DENIED`/`SAFETY_TRIPPED`, sin bridge             | Spec 016 §R006                  |
+| DbC destructiva     | `BlsComHelper.DeleteModule` lanza `BlsPreconditionException`                 | `BlsComHelperSafetyTests` (3)   |
 
 ## 6. Secretos
 
@@ -80,15 +80,29 @@ y excepciones (ADR-016).
 
 ## 6.1 Registro de auditoría (F3)
 
-| Componente | Función | Evidencia |
-|------------|---------|-----------|
-| `BlsLogger` | JSONL append-only, `correlation_id`/`trace_id`, orden de claves fijo | `BlsAuditLoggerTests` (11) |
-| `BlsAuditChain` | SHA-256(`prev_hash` + payload), `Verify` con línea exacta | `BlsAuditChainTests` (11) |
-| `BlsCorrelationContext` | `AsyncLocal` por turno + propagación en JSON-RPC | `BlsCorrelationContextTests` (7), `JsonRpcCorrelationTests` (4) |
-| `BlsLogSanitizer` | Redacción de credenciales, sin stack traces | `BlsLogSanitizerTests` (10) |
-| `BlsSloMetrics` | Tasa de escritura/turnos, p95, rechazos | `BlsSloMetricsTests` (8) |
+| Componente              | Función                                                              | Evidencia                                                       |
+|-------------------------|----------------------------------------------------------------------|-----------------------------------------------------------------|
+| `BlsLogger`             | JSONL append-only, `correlation_id`/`trace_id`, orden de claves fijo | `BlsAuditLoggerTests` (11)                                      |
+| `BlsAuditChain`         | SHA-256(`prev_hash` + payload), `Verify` con línea exacta            | `BlsAuditChainTests` (11)                                       |
+| `BlsCorrelationContext` | `AsyncLocal` por turno + propagación en JSON-RPC                     | `BlsCorrelationContextTests` (7), `JsonRpcCorrelationTests` (4) |
+| `BlsLogSanitizer`       | Redacción de credenciales, sin stack traces                          | `BlsLogSanitizerTests` (10)                                     |
+| `BlsSloMetrics`         | Tasa de escritura/turnos, p95, rechazos                              | `BlsSloMetricsTests` (8)                                        |
 
 Sin telemetría remota: las métricas solo se exponen en memoria para diagnóstico y CI.
+
+## 6.2 Idempotencia y resiliencia (F4)
+
+| Componente                        | Función                                                              | Evidencia                                                        |
+|-----------------------------------|----------------------------------------------------------------------|------------------------------------------------------------------|
+| `BlsIdempotencyKey`               | SHA-256(`correlation_id|method|params`) por turno                    | `JsonRpcIdempotencyTests` (2 de derivación)                      |
+| `BlsIdempotencyCache`             | Caché TTL 5 min / 256 entradas, evicción FIFO, reloj inyectable      | `JsonRpcIdempotencyTests` (3 de caducidad/evicción)              |
+| `JsonRpcDispatcher`               | Replay sin handler, solo tools `Medium`/`High`, log de clave truncada| `JsonRpcIdempotencyTests` (4 de dispatcher)                      |
+| `BlsExponentialJitterRetryPolicy` | Full jitter 1–30 s acotado; `Retry-After` prevalece                  | `BlsNimResilienceTests` (3 de retry)                             |
+| `BlsCircuitBreaker`               | Closed/Open/HalfOpen, 5 fallos, 30 s, un sondeo, reloj inyectable    | `BlsNimResilienceTests` (5 de breaker)                           |
+| `BlsNimCircuitOpenException`      | Error tipado sin petición HTTP en Open                               | `BlsNimResilienceTests` (1 cancelación + 1 apertura)             |
+
+Contratos: `specs/018-IDEMPOTENCY-RESILIENCE.md` y
+`docs/design/ADR-017-IDEMPOTENCY-RESILIENCE.md`. Cierra R-06 y R-09.
 
 ## 7. Brechas conocidas
 

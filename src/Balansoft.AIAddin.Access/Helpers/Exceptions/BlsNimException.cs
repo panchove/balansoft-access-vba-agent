@@ -65,6 +65,17 @@ public sealed class BlsNimTimeoutException : BlsNimException
 }
 
 /// <summary>
+/// Circuit breaker abierto: el proveedor se considera indisponible y no se
+/// ha llegado a hacer ninguna petición HTTP. Diferente de una cancelación
+/// de usuario (ADR-003) y de un éxito falso (Pilar 8).
+/// </summary>
+public sealed class BlsNimCircuitOpenException : BlsNimException
+{
+    public BlsNimCircuitOpenException(string message)
+        : base(message) { }
+}
+
+/// <summary>
 /// Error de protocolo SSE/JSON (malformado).
 /// </summary>
 public sealed class BlsNimProtocolException : BlsNimException

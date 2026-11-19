@@ -758,13 +758,13 @@ Si todo pasa, aprueba con 'LGTM'. Si algo falla, indica la regla violada."
 
 ## Estado del backlog de diseño
 
-| # | Doc                                | Estado            | Depende de    |
-|---|------------------------------------|-------------------|---------------|
+| # | Doc                               | Estado            | Depende de    |
+|---|-----------------------------------|-------------------|---------------|
 | 1 | `ADR-006-VBE-BRIDGE.md`           | ✅ Entregado       | —             |
 | 2 | `ADR-007-NIM-CLIENT.md`           | ✅ Entregado       | —             |
 | 3 | `ADR-008-NIM-TERMINAL.md`         | ✅ Entregado       | #1, #2, #4    |
 | 4 | `ADR-009-SECURE-STORE.md`         | ✅ Entregado       | ADR-001       |
-| 5 | `20250105-chat-history.md`         | ⚠️ Fusionado en #4 | —             |
+| 5 | `20250105-chat-history.md`        | ⚠️ Fusionado en #4 | —             |
 | 6 | `ADR-010-REGISTRATION-SCRIPTS.md` | ✅ Entregado       | #7            |
 | 7 | `ADR-011-LOGGING-VERSION.md`      | ✅ Entregado       | #4 (BlsPaths) |
 | 8 | `ADR-012-ADDIN-LIFECYCLE.md`      | Pendiente         | Todos         |

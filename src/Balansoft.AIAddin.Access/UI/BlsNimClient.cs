@@ -1,7 +1,7 @@
 // Copyright © 2026 Balansoft
 // SPDX-License-Identifier: LGPL-3.0-or-later
 // Standard: ISO/IEC 25010:2023 / ISO/IEC 26514:2022
-// Architecture Reference: ADR-003-ABORT-MODEL.md / ADR-007-NIM-CLIENT.md
+// Architecture Reference: ADR-003-ABORT-MODEL.md / ADR-007-NIM-CLIENT.md / ADR-017-IDEMPOTENCY-RESILIENCE.md
 
 using System;
 using System.Collections.Generic;
@@ -18,7 +18,8 @@ namespace Balansoft.AIAddin.UI;
 
 /// <summary>
 /// Cliente HTTP SSE para la API Nvidia NIM con tool calls, cancelación cooperativa según ADR-003 y ADR-007,
-/// retry con backoff exponencial para 429/5xx y timeout por chunk. Cumple con ISO/IEC 25010 (Resiliencia de Red).
+/// retry con exponential backoff + jitter y circuit breaker para 429/5xx, y timeout por chunk.
+/// Cumple con ISO/IEC 25010 (Resiliencia de Red) y el Pilar 22 (IEEE 7009-2024).
 /// </summary>
 public sealed class BlsNimClient : IBlsNimClient
 {
@@ -40,18 +41,34 @@ public sealed class BlsNimClient : IBlsNimClient
     private readonly string _model;
     private readonly string _endpoint;
     private readonly TimeSpan _chunkTimeout;
-    private readonly TimeSpan[] _backoffDelays;
+    private readonly IBlsNimRetryPolicy _retryPolicy;
+    private readonly IBlsCircuitBreaker _breaker;
 
+    /// <summary>Constructor público: política de producción con jitter y breaker reales.</summary>
     public BlsNimClient(
         HttpClient httpClient,
         IBlsSecureStore secureStore,
         IBlsLogger logger,
         string model = null,
         string endpoint = null)
-        : this(httpClient, secureStore, logger, model, endpoint, null, null)
+        : this(
+            httpClient,
+            secureStore,
+            logger,
+            model,
+            endpoint,
+            null,
+            new BlsExponentialJitterRetryPolicy(
+                TimeSpan.FromSeconds(1),
+                TimeSpan.FromSeconds(MaxRetryAfterSeconds)),
+            new BlsCircuitBreaker())
     {
     }
 
+    /// <summary>
+    /// Constructor heredado usado por los tests del comportamiento anterior:
+    /// backoff fijo y breaker inerte, para que los delays sigan siendo exactos.
+    /// </summary>
     internal BlsNimClient(
         HttpClient httpClient,
         IBlsSecureStore secureStore,
@@ -60,16 +77,37 @@ public sealed class BlsNimClient : IBlsNimClient
         string endpoint,
         TimeSpan? chunkTimeout,
         TimeSpan[] backoffDelays)
+        : this(
+            httpClient,
+            secureStore,
+            logger,
+            model,
+            endpoint,
+            chunkTimeout,
+            new BlsFixedRetryPolicy(backoffDelays ?? BackoffDelays),
+            BlsNoOpCircuitBreaker.Instance)
+    {
+    }
+
+    /// <summary>Constructor F4: inyecta política, breaker y reloj para tests deterministas.</summary>
+    internal BlsNimClient(
+        HttpClient httpClient,
+        IBlsSecureStore secureStore,
+        IBlsLogger logger,
+        string model,
+        string endpoint,
+        TimeSpan? chunkTimeout,
+        IBlsNimRetryPolicy retryPolicy,
+        IBlsCircuitBreaker breaker)
     {
         _httpClient = BlsContract.RequiresNotNull(httpClient, nameof(httpClient));
         _secureStore = BlsContract.RequiresNotNull(secureStore, nameof(secureStore));
         _logger = BlsContract.RequiresNotNull(logger, nameof(logger));
+        _retryPolicy = BlsContract.RequiresNotNull(retryPolicy, nameof(retryPolicy));
+        _breaker = BlsContract.RequiresNotNull(breaker, nameof(breaker));
         _model = model;
         _endpoint = string.IsNullOrEmpty(endpoint) ? DefaultEndpoint : endpoint;
         _chunkTimeout = chunkTimeout ?? TimeSpan.FromSeconds(ChunkTimeoutSeconds);
-        _backoffDelays = (backoffDelays != null && backoffDelays.Length > 0)
-            ? backoffDelays
-            : BackoffDelays;
 
         try
         {
@@ -103,7 +141,19 @@ public sealed class BlsNimClient : IBlsNimClient
 
             for (var attempt = 0; attempt < MaxRetries; attempt++)
             {
+                // ADR-003: la cancelación del turno se comprueba antes que
+                // cualquier decisión del breaker y antes de cada espera.
                 ct.ThrowIfCancellationRequested();
+
+                // En HalfOpen solo se permite un sondeo: si falla, se abre
+                // de inmediato (R012) en lugar de consumir los 3 reintentos.
+                var isProbe = _breaker.State == BlsCircuitState.HalfOpen;
+                if (!_breaker.AllowCall())
+                {
+                    sink.OnError(new BlsNimCircuitOpenException(
+                        "Circuit breaker abierto: NIM se considera temporalmente indisponible"));
+                    return;
+                }
 
                 using (var request = CreateRequest(json, apiKey))
                 using (var response = await _httpClient
@@ -113,6 +163,7 @@ public sealed class BlsNimClient : IBlsNimClient
                     if (response.IsSuccessStatusCode)
                     {
                         await ProcessStreamAsync(response, sink, ct).ConfigureAwait(false);
+                        _breaker.RecordSuccess();
                         return;
                     }
 
@@ -120,8 +171,15 @@ public sealed class BlsNimClient : IBlsNimClient
                     var isLastAttempt = attempt == MaxRetries - 1;
                     var retryDelay = ResolveRetry(response, attempt);
 
-                    if (!retryDelay.HasValue || isLastAttempt)
+                    if (!retryDelay.HasValue || isLastAttempt || isProbe)
                     {
+                        // 429/5xx agotados indican indisponibilidad; los 4xx
+                        // distintos de 429 son errores del cliente y no cuentan.
+                        if (retryDelay.HasValue)
+                        {
+                            RecordBreakerFailure();
+                        }
+
                         ReportError(response.StatusCode, body, sink);
                         return;
                     }
@@ -134,15 +192,33 @@ public sealed class BlsNimClient : IBlsNimClient
         {
             sink.OnCancelled();
         }
+        catch (BlsNimTimeoutException ex)
+        {
+            RecordBreakerFailure();
+            sink.OnError(ex);
+        }
         catch (BlsNimException ex)
         {
             sink.OnError(ex);
         }
         catch (Exception ex)
         {
+            RecordBreakerFailure();
             _logger.Error("BlsNimClient", "Excepción no controlada en SendAsync", ex);
             var inner = ex.InnerException != null ? $": {ex.InnerException.Message}" : "";
             sink.OnError(new BlsNimException($"Error de conexión con NIM ({ex.Message}{inner})", null, ex));
+        }
+    }
+
+    private void RecordBreakerFailure()
+    {
+        var wasClosed = _breaker.State == BlsCircuitState.Closed;
+        _breaker.RecordFailure();
+
+        if (wasClosed && _breaker.State == BlsCircuitState.Open)
+        {
+            _logger.Warn("BlsNimClient",
+                $"Circuit breaker abierto tras {MaxRetries} intentos fallidos: se suspenden nuevas llamadas a NIM");
         }
     }
 
@@ -210,7 +286,8 @@ public sealed class BlsNimClient : IBlsNimClient
 
     /// <summary>
     /// Devuelve el delay a esperar antes de reintentar, o null si el status
-    /// no es reintentable. Respeta Retry-After con tope de 30 s (doc §9.8).
+    /// no es reintentable. Retry-After prevalece sobre el jitter y se acota
+    /// a 30 s (doc §9.8); en su ausencia se usa la política inyectada.
     /// </summary>
     private TimeSpan? ResolveRetry(HttpResponseMessage response, int attempt)
     {
@@ -221,7 +298,7 @@ public sealed class BlsNimClient : IBlsNimClient
             var retryAfter = ParseRetryAfter(response);
             if (retryAfter.HasValue) return retryAfter;
 
-            return _backoffDelays[Math.Min(attempt, _backoffDelays.Length - 1)];
+            return _retryPolicy.NextDelay(attempt);
         }
 
         return null;
@@ -296,4 +373,3 @@ public sealed class BlsNimClient : IBlsNimClient
         // HttpClient es inyectado: no lo poseemos.
     }
 }
-

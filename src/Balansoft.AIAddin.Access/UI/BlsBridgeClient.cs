@@ -71,13 +71,21 @@ public sealed class BlsBridgeClient : IBlsBridgeClient
             // atraviesa el hilo del servidor, así que se envía en el request.
             var correlationId = BlsCorrelationContext.CorrelationId;
             var traceId = BlsCorrelationContext.TraceId;
+            var parametersElement = parameters != null
+                ? JsonSerializer.SerializeToElement(parameters)
+                : (JsonElement?)null;
+
+            // F4 — la clave se deriva del turno (correlation_id), el método y
+            // los parámetros. Un frame reenviado dentro del mismo turno llega
+            // con la misma clave y el dispatcher no vuelve a ejecutar la tool.
             var request = new JsonRpcRequest(
                 "2.0",
                 JsonSerializer.SerializeToElement(Interlocked.Increment(ref _requestId)),
                 method,
-                parameters != null ? JsonSerializer.SerializeToElement(parameters) : (JsonElement?)null,
+                parametersElement,
                 string.IsNullOrEmpty(correlationId) ? null : correlationId,
-                string.IsNullOrEmpty(traceId) ? null : traceId);
+                string.IsNullOrEmpty(traceId) ? null : traceId,
+                BlsIdempotencyKey.For(method, parametersElement, correlationId));
 
             var requestBytes = JsonSerializer.SerializeToUtf8Bytes(request);
             var header = BitConverter.GetBytes((uint)requestBytes.Length);

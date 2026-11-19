@@ -109,12 +109,20 @@ Los tool calls llegan **fragmentados** en múltiples chunks. Reglas:
   - **No** lanzar excepción al consumidor.
   - **No** loguear como `ERROR` (es `INFO`).
 
-### 7. Retry
+### 7. Retry y breaker (F4 / ADR-017)
 - Solo para **429** y **5xx**.
-- 3 intentos máximo con backoff exponencial: 1 s, 2 s, 4 s.
-- Respetar `Retry-After` si viene en el header.
-- **No** reintentar si el token del turno está cancelado (ADR-003).
-- **No** reintentar 4xx distintos de 429 (son errores del cliente).
+- 3 intentos máximo con *full jitter*:
+  `delay = random(0, min(30 s, 1 s · 2^attempt))`. Nunca una tabla fija en
+  producción: sincroniza a clientes que fallaron a la vez.
+- `Retry-After` del servidor **prevalece** sobre el jitter y se acota a 30 s.
+- **No** reintentar si el token del turno está cancelado (ADR-003): la
+  cancelación se comprueba antes del breaker y de cada espera.
+- **No** reintentar 4xx distintos de 429 (son errores del cliente y no cuentan
+  como fallo del breaker).
+- Circuit breaker: 5 fallos (429/5xx agotados, timeout o conexión) → `Open`
+  durante 30 s; un único sondeo en `HalfOpen`; éxito cierra y resetea.
+  En `Open`, `SendAsync` **no llama a `HttpClient`** y emite
+  `BlsNimCircuitOpenException`; la cancelación gana sobre el breaker.
 - Tras agotar reintentos → `BlsNimException` con el último body.
 
 ---
@@ -285,8 +293,10 @@ catch (BlsNimException ex)
 - [ ] ¿`[DONE]` cierra el loop?
 - [ ] ¿El `CancellationToken` viene del turno (ADR-003)?
 - [ ] ¿La cancelación NO se reporta como error?
-- [ ] ¿Retry solo en 429/5xx con backoff y tope?
-- [ ] ¿Retry respeta el token cancelado?
+- [ ] ¿Retry solo en 429/5xx con *full jitter* y tope de 30 s?
+- [ ] ¿`Retry-After` prevalece sobre el jitter?
+- [ ] ¿El breaker bloquea en `Open` con `BlsNimCircuitOpenException`?
+- [ ] ¿La cancelación se comprueba antes del breaker (ADR-003)?
 - [ ] ¿El body de error se preserva (truncado a 8 KB)?
 - [ ] ¿Nunca se loguea ni serializa la API key?
 
@@ -296,6 +306,8 @@ catch (BlsNimException ex)
 
 - `AGENTS.md` regla 4 (API key), 5 (errores).
 - `docs/design/ADR-003-ABORT-MODEL.md`.
+- `docs/design/ADR-017-IDEMPOTENCY-RESILIENCE.md`.
+- `specs/018-IDEMPOTENCY-RESILIENCE.md`.
 - PRD §3.3, §7 FR-09.
 - `.opencode/skills/bls-secure-store-dpapi/SKILL.md` (origen de la API key).
 - `.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md` (ejecución de tool calls).

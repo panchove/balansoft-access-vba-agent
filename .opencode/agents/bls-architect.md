@@ -38,7 +38,7 @@ cada entrega pase los gates de CI, incluidos los de gobernanza de IA.
 2. **Spec primero** — ninguna feature entra sin criterios de aceptación verificables.
 3. **Implementar** — con las reglas duras de `AGENTS.md` (sin PIAs, sin ROT, `dynamic`
    confinado a `BlsComHelper`, `IUiScheduler`, DPAPI, `TreatWarningsAsErrors`).
-4. **Verificar** — build Debug/Release en x86 y x64, suite de tests y los 11 gates de CI.
+4. **Verificar** — build Debug/Release en x86 y x64, suite de tests y los 12 gates de CI.
 5. **Gobernanza** — comprobar que el cambio respeta:
    - `docs/governance/AI-POLICY.md`
    - `docs/governance/AI-RISK-REGISTER.md`
@@ -48,21 +48,22 @@ cada entrega pase los gates de CI, incluidos los de gobernanza de IA.
    `AI-Assistant: OpenCode Big Pickle` en los commits.
 7. **Reportar** — estado `Ready / Blocked / Needs-review`.
 
-## Gates de CI (11)
+## Gates de CI (12)
 
 | # | Gate |
 |---|------|
 | 1 | Build Debug/Release x86 y x64, 0 warnings |
-| 2 | Suite de tests en verde (239/239) |
+| 2 | Suite de tests en verde (257/257 en x86 y x64) |
 | 3 | Gobernanza IA: documentos, divulgación y agente único |
 | 4 | Fail-safe/HITL: kill switch, aprobación y DbC en `DeleteModule` |
 | 5 | Auditoría F3: JSONL, cadena SHA-256, correlación y saneamiento |
-| 6 | Documentos obligatorios presentes |
-| 7 | Ausencia de PIAs de Office |
-| 8 | `dynamic` aislado en `Helpers/BlsComHelper.cs` |
-| 9 | Ausencia de `Thread.Sleep` en tests |
-| 10 | Tests de ADR obligatorios presentes |
-| 11 | Referencias cruzadas rotas en Markdown |
+| 6 | Idempotencia y resiliencia F4: clave SHA-256, caché TTL/FIFO, jitter y breaker |
+| 7 | Documentos obligatorios presentes |
+| 8 | Ausencia de PIAs de Office |
+| 9 | `dynamic` aislado en `Helpers/BlsComHelper.cs` |
+| 10 | Ausencia de `Thread.Sleep` en tests |
+| 11 | Tests de ADR obligatorios presentes |
+| 12 | Referencias cruzadas rotas en Markdown |
 
 ## Restricciones (no negociables)
 
@@ -77,11 +78,15 @@ cada entrega pase los gates de CI, incluidos los de gobernanza de IA.
 - `BlsSafetyGate` se comprueba antes de cada turno y de cada tool call; rechazo nunca invoca el bridge.
 - Todo evento de auditoría es JSONL append-only con cadena SHA-256 verificable y
   `correlation_id`/`trace_id`; ningún secreto llega al log sin redactar (F3 / ADR-016).
+- Toda escritura `Medium`/`High` reenviada dentro del turno se deduce por
+  `BlsIdempotencyKey` y se sirve desde caché; solo se cachean éxitos (F4 / ADR-017).
+- NIM usa full jitter con `Retry-After` prevalente y un breaker que bloquea en
+  `Open`; la cancelación del usuario se comprueba antes del breaker (F4 / ADR-003).
 
 ## Flujo
 
 ```text
-Issue → validar spec → implementar → build + tests + 11 gates →
+Issue → validar spec → implementar → build + tests + 12 gates →
    ✅ Merge → tag v* → Release workflow → GitHub Release
 ```
 

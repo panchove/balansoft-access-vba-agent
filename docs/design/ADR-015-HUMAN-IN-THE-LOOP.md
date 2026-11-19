@@ -68,11 +68,11 @@ flowchart TD
 
 ## Alternativas consideradas
 
-| Alternativa | Por qué se descartó |
-|-------------|---------------------|
-| Confiar en `confirm` del modelo | Es el propio atacante/instrumento quien lo controla (ASI01). |
-| Desactivar todas las tools de escritura | Inviabiliza el caso de uso principal (edición de VBA). |
-| Un único botón "Detener" reutilizado | No impide un nuevo turno; no es un estado persistente. |
+| Alternativa                                | Por qué se descartó                                            |
+|--------------------------------------------|----------------------------------------------------------------|
+| Confiar en `confirm` del modelo            | Es el propio atacante/instrumento quien lo controla (ASI01).   |
+| Desactivar todas las tools de escritura    | Inviabiliza el caso de uso principal (edición de VBA).         |
+| Un único botón "Detener" reutilizado       | No impide un nuevo turno; no es un estado persistente.         |
 | Diálogo de aprobación para TODAS las tools | Fatiga de aprobación: el usuario acaba haciendo clic sin leer. |
 
 ## Consecuencias

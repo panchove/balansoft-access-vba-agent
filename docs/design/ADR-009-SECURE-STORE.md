@@ -255,18 +255,18 @@ internal sealed class DpapiDataProtector : IDataProtector
 
 ## 4. Invariantes afectados
 
-| Fuente            | Invariante                      | Cómo se cumple                                      |
-|-------------------|---------------------------------|-----------------------------------------------------|
-| AGENTS.md regla 4 | API key solo DPAPI              | `DpapiDataProtector` con `CurrentUser`              |
-| AGENTS.md regla 4 | Nunca en claro                  | Archivo binario, sin base64/JSON/logs               |
-| ADR-001           | projectKey para historial       | `BlsChatHistory` recibe `projectKey` como parámetro |
-| skill bls-secure-store-dpapi          | Entropía fija                   | `"Balansoft.AIAddin.Access.v1"`                     |
-| skill bls-secure-store-dpapi          | Escritura atómica               | `.tmp` + `File.Replace`                             |
-| skill bls-secure-store-dpapi          | Debounce 500 ms                 | `System.Threading.Timer` interno                    |
-| skill bls-secure-store-dpapi          | Rotación a 1 MB, máx 5          | `RotateIfNeeded()`                                  |
-| skill bls-secure-store-dpapi          | Fallo historial no bloquea chat | `LoadAsync` devuelve vacío en error                 |
-| skill bls-logging-errors          | Nunca loguear API key           | Revisión de cada `logger.*` en la clase             |
-| PRD FR-08         | Prompt si no existe             | El diálogo vive en UI, no en store                  |
+| Fuente                       | Invariante                      | Cómo se cumple                                      |
+|------------------------------|---------------------------------|-----------------------------------------------------|
+| AGENTS.md regla 4            | API key solo DPAPI              | `DpapiDataProtector` con `CurrentUser`              |
+| AGENTS.md regla 4            | Nunca en claro                  | Archivo binario, sin base64/JSON/logs               |
+| ADR-001                      | projectKey para historial       | `BlsChatHistory` recibe `projectKey` como parámetro |
+| skill bls-secure-store-dpapi | Entropía fija                   | `"Balansoft.AIAddin.Access.v1"`                     |
+| skill bls-secure-store-dpapi | Escritura atómica               | `.tmp` + `File.Replace`                             |
+| skill bls-secure-store-dpapi | Debounce 500 ms                 | `System.Threading.Timer` interno                    |
+| skill bls-secure-store-dpapi | Rotación a 1 MB, máx 5          | `RotateIfNeeded()`                                  |
+| skill bls-secure-store-dpapi | Fallo historial no bloquea chat | `LoadAsync` devuelve vacío en error                 |
+| skill bls-logging-errors     | Nunca loguear API key           | Revisión de cada `logger.*` en la clase             |
+| PRD FR-08                    | Prompt si no existe             | El diálogo vive en UI, no en store                  |
 
 ---
 
@@ -729,13 +729,13 @@ Si todo pasa, aprueba con 'LGTM'. Si algo falla, indica la regla violada."
 
 ## Estado del backlog de diseño
 
-| # | Doc                                | Estado            | Depende de |
-|---|------------------------------------|-------------------|------------|
+| # | Doc                               | Estado            | Depende de |
+|---|-----------------------------------|-------------------|------------|
 | 1 | `ADR-006-VBE-BRIDGE.md`           | ✅ Entregado       | —          |
 | 2 | `ADR-007-NIM-CLIENT.md`           | ✅ Entregado       | —          |
 | 3 | `ADR-008-NIM-TERMINAL.md`         | ✅ Entregado       | #1, #2     |
 | 4 | `ADR-009-SECURE-STORE.md`         | ✅ Entregado       | ADR-001    |
-| 5 | `20250105-chat-history.md`         | ⚠️ Fusionado en #4 | —          |
+| 5 | `20250105-chat-history.md`        | ⚠️ Fusionado en #4 | —          |
 | 6 | `ADR-010-REGISTRATION-SCRIPTS.md` | Pendiente         | —          |
 | 7 | `ADR-011-LOGGING-VERSION.md`      | Pendiente         | —          |
 | 8 | `ADR-012-ADDIN-LIFECYCLE.md`      | Pendiente         | Todos      |

@@ -107,13 +107,13 @@ cada rechazo HITL/fail-safe.
 
 ## Alternativas consideradas
 
-| Alternativa | Por qué se descartó |
-|-------------|---------------------|
-| Mantener texto plano y verificar con `grep` | No detecta modificaciones; incumple IETF AAT. |
-| Firmar con clave privada (PKI) | Requiere gestionar claves en el cliente; el hash encadenado basta para detectar manipulación local. |
-| `AsyncLocal` sin propagación por el pipe | Los logs del dispatcher quedarían sin correlación: roto el R-05. |
-| Cambiar la firma de `IBlsLogger` | 15 consumidores + `FakeLogger` se romperían; incompatible con F2. |
-| Redactar solo en el llamador | Ya falló en F2: excepciones de terceros pueden contener credenciales. |
+| Alternativa                                 | Por qué se descartó                                                                                 |
+|---------------------------------------------|-----------------------------------------------------------------------------------------------------|
+| Mantener texto plano y verificar con `grep` | No detecta modificaciones; incumple IETF AAT.                                                       |
+| Firmar con clave privada (PKI)              | Requiere gestionar claves en el cliente; el hash encadenado basta para detectar manipulación local. |
+| `AsyncLocal` sin propagación por el pipe    | Los logs del dispatcher quedarían sin correlación: roto el R-05.                                    |
+| Cambiar la firma de `IBlsLogger`            | 15 consumidores + `FakeLogger` se romperían; incompatible con F2.                                   |
+| Redactar solo en el llamador                | Ya falló en F2: excepciones de terceros pueden contener credenciales.                               |
 
 ## Consecuencias
 
