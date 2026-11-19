@@ -38,6 +38,22 @@ public sealed class BlsStringsTests
     }
 
     [TestMethod]
+    public void AiDisclosure_PresentInAllLanguages()
+    {
+        foreach (var language in new[] { "es", "en", "pt", "fr" })
+        {
+            BlsStrings.CurrentLanguage = language;
+            var text = BlsStrings.Get("AiDisclosure");
+
+            Assert.AreNotEqual("AiDisclosure", text, $"Falta AiDisclosure en {language}");
+            StringAssert.Contains(text, "Balansoft");
+            StringAssert.Contains(text, "NVIDIA NIM");
+        }
+
+        BlsStrings.CurrentLanguage = "es";
+    }
+
+    [TestMethod]
     public void SwitchToEnglish_ReturnsEnglishText()
     {
         BlsStrings.CurrentLanguage = "en";

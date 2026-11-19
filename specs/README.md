@@ -59,14 +59,15 @@ Un spec por archivo, nombrado en mayúsculas estrictas `NNN-SLUG.md` (ej. `001-A
 | 012 | [ACCESS-AUTHORING](012-ACCESS-AUTHORING.md)     | FR-11         | ADR-014          | `implementado` | 7 verdes               |
 | 013 | [SESSION-DELETE](013-SESSION-DELETE.md)         | FR-10         | ADR-001, ADR-013 | `implementado` | 3 verdes               |
 | 014 | [I18N-UI](014-I18N-UI.md)                       | FR-13         | ADR-001          | `implementado` | 10 verdes              |
+| 015 | [AI-DISCLOSURE](015-AI-DISCLOSURE.md)           | GOV-01        | —                | `implementado` | 1 verde                |
 
 `implementado` solo si hay tests verdes. Los specs 005 y 006 tienen el código
 completo pero ninguna aserción que lo valide, así que no pueden declararse
 implementados.
 
-Los 165 tests de la suite se reparten en catorce ficheros:
+Los 166 tests de la suite se reparten en catorce ficheros:
 `BlsNimClientTests` 28 · `JsonRpcDispatcherTests` 27 · `BlsContractTests` 17
-· `BlsStringsTests` 16 · `NimStreamParserTests` 14 · `BlsVbeBridgeServerTests` 12
+· `BlsStringsTests` 17 · `NimStreamParserTests` 14 · `BlsVbeBridgeServerTests` 12
 · `NimHttpRequestBuilderTests` 11 · `BlsPipeFramingTests` 10
 · `JsonRpcDeserializationTests` 7 · `BlsChatHistoryMultiSessionTests` 6
 · `AddinConnectTests` 5 · `NimMessageSanitizerTests` 5
@@ -93,7 +94,7 @@ de 001: ~600 líneas de WinForms sin un solo test.
 
 - **La CI está operativa** y ejecuta todos los gates:
   - Build Debug x86 y x64 y Release x86 y x64 con `dotnet build` (0 warnings, 0 errors).
-  - Tests 165/165 con `dotnet vstest` + `.runsettings` + `/Platform:x86`.
+  - Tests 166/166 con `dotnet vstest` + `.runsettings` + `/Platform:x86`.
   - 47 documentos obligatorios verificados (incluye `docs/PRD.md`,
     `docs/CONSTITUTION.md`, `specs/` y los 14 ADRs).
   - Sin PIAs de Office en `src/`.

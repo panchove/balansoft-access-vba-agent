@@ -22,6 +22,7 @@ namespace Balansoft.AIAddin.Helpers
                 "es", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
                     { "AppTitle", "NIM Terminal" },
+                    { "AiDisclosure", "Asistido por IA (Balansoft · NVIDIA NIM). Las respuestas pueden ser incorrectas: revisa el código antes de aplicarlo." },
                     { "MenuItem", "NIM Terminal" },
                     { "BtnNewSession", "+ Nueva" },
                     { "BtnDeleteSession", "Eliminar" },
@@ -77,6 +78,7 @@ namespace Balansoft.AIAddin.Helpers
                 "en", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
                     { "AppTitle", "NIM Terminal" },
+                    { "AiDisclosure", "AI-assisted (Balansoft · NVIDIA NIM). Responses may be inaccurate: review the code before applying it." },
                     { "MenuItem", "NIM Terminal" },
                     { "BtnNewSession", "+ New" },
                     { "BtnDeleteSession", "Delete" },
@@ -131,6 +133,7 @@ namespace Balansoft.AIAddin.Helpers
                 "pt", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
                     { "AppTitle", "NIM Terminal" },
+                    { "AiDisclosure", "Assistido por IA (Balansoft · NVIDIA NIM). As respostas podem estar incorretas: revise o código antes de aplicá-lo." },
                     { "MenuItem", "NIM Terminal" },
                     { "BtnNewSession", "+ Nova" },
                     { "BtnDeleteSession", "Excluir" },
@@ -184,6 +187,7 @@ namespace Balansoft.AIAddin.Helpers
                 "fr", new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase)
                 {
                     { "AppTitle", "NIM Terminal" },
+                    { "AiDisclosure", "Assisté par l'IA (Balansoft · NVIDIA NIM). Les réponses peuvent être inexactes : vérifiez le code avant de l'appliquer." },
                     { "MenuItem", "NIM Terminal" },
                     { "BtnNewSession", "+ Nouvelle" },
                     { "BtnDeleteSession", "Supprimer" },

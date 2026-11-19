@@ -23,7 +23,7 @@ Permite chatear con modelos LLM, ejecutar *tool calls* y persistir el historial 
 - **Historial de chat** por proyecto (identidad = SHA‑256 de la ruta normalizada – ADR‑001).
 - **Terminal NIM** WinForms con loop de herramientas, *tool calls* y renderizado de resultados.
 - **Registro COM** per‑user / per‑machine mediante scripts PowerShell (x86 o x64 según la arquitectura de Access instalada).
-- **CI/CD** completo: build x86/x64, 165 tests unitarios, 8 gates de calidad, versionado SemVer automático (Nerdbank.GitVersioning) y release automático al pushear tag `v*`.
+- **CI/CD** completo: build x86/x64, 166 tests unitarios, 8 gates de calidad, versionado SemVer automático (Nerdbank.GitVersioning) y release automático al pushear tag `v*`.
 
 ---
 
@@ -47,7 +47,7 @@ cd balansoft-access-vba-agent
 # 2. Compilar (Debug x86)
 dotnet build src\Balansoft.AIAddin.Access\Balansoft.AIAddin.Access.csproj -c Debug -p:Platform=x86
 
-# 3. Ejecutar tests (165/165)
+# 3. Ejecutar tests (166/166)
 dotnet vstest tests\Balansoft.AIAddin.Tests\bin\x86\Debug\net48\Balansoft.AIAddin.Tests.dll `
   /Settings:.runsettings /Platform:x86
 
@@ -70,17 +70,28 @@ Los tests de integración están marcados con `[TestCategory("Integration")]` y 
 
 ---
 
+## 🛡️ Gobernanza de IA
+
+Este repositorio aplica los **25 Pilares** de `AI_GOVERNANCE.md` (ISO/IEC 42001:2023, EU AI Act, OWASP Agentic 2025):
+
+- [Política de IA](docs/governance/AI-POLICY.md) · [Registro de riesgos](docs/governance/AI-RISK-REGISTER.md) · [AI-BOM](docs/governance/AI-BOM.md) · [Modelo de amenazas](docs/governance/OWASP-AGENTIC-THREAT-MODEL.md).
+- **Agente único:** `bls-architect`. La auditoría ISO se ejecuta como gates de CI, no como agentes que revisan.
+- **Divulgación:** la terminal muestra de forma persistente que el contenido es asistido por IA (Art. 50 EU AI Act).
+
+> ⚠️ Los riesgos **R-01** (tool destructiva sin gate humano), **R-02** (falso éxito) y **R-03** (PII al proveedor) siguen abiertos. Las operaciones de escritura/destrucción no están autorizadas en producción hasta completar F2/F5.
+
 ## 📂 Estructura del repositorio
 ```
 src/
   Balansoft.AIAddin.Access/   # Add-in COM, Core, Helpers, UI (WinForms)
 tests/
-  Balansoft.AIAddin.Tests/    # 165 tests unitarios (MSTest)
+  Balansoft.AIAddin.Tests/    # 166 tests unitarios (MSTest)
 docs/
   design/                     # 14 ADRs (ADR-001 … ADR-014)
+  governance/                 # política, riesgos, AI-BOM y threat model (ISO 42001)
   PRD.md
   CONSTITUTION.md
-specs/                        # 14 specs (001–014) con criterios de aceptación
+specs/                        # 15 specs (001–015) con criterios de aceptación
 scripts/
   RegisterAddin.ps1
   UnregisterAddin.ps1

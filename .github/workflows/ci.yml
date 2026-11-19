@@ -209,6 +209,65 @@ jobs:
           Write-Host "OK: los $($expected.Count) documentos están presentes."
 
       # ─────────────────────────────────────────────
+      # 8b. Gobernanza de IA (ISO/IEC 42001 / OWASP Agentic 2025)
+      #
+      # Sustituye la antigua checklist del agente bls-iso (retirado en F1)
+      # por comprobaciones ejecutables. Falla el merge si falta política,
+      # inventario, divulgación o si reaparece la malla de agentes.
+      # ─────────────────────────────────────────────
+      - name: Gobernanza IA - documentos, divulgacion y agente unico
+        shell: pwsh
+        run: |
+          $root = $PWD.Path
+          $errors = @()
+
+          $gov = @(
+              "docs/governance/AI-POLICY.md",
+              "docs/governance/AI-RISK-REGISTER.md",
+              "docs/governance/AI-BOM.md",
+              "docs/governance/OWASP-AGENTIC-THREAT-MODEL.md",
+              "specs/015-AI-DISCLOSURE.md"
+          )
+          foreach ($f in $gov) {
+              if (-not (Test-Path (Join-Path $root $f))) {
+                  $errors += "Falta documento de gobernanza: $f"
+              }
+          }
+
+          $strings = Join-Path $root "src/Balansoft.AIAddin.Access/Helpers/BlsStrings.cs"
+          if (-not (Select-String -Path $strings -Pattern '"AiDisclosure"' -Quiet -ErrorAction SilentlyContinue)) {
+              $errors += "Falta la clave AiDisclosure en BlsStrings.cs"
+          }
+
+          $terminal = Join-Path $root "src/Balansoft.AIAddin.Access/UI/BlsNimTerminal.cs"
+          if (-not (Select-String -Path $terminal -Pattern '_lblAiDisclosure' -Quiet -ErrorAction SilentlyContinue)) {
+              $errors += "Falta el control de divulgacion en BlsNimTerminal.cs"
+          }
+
+          $agentsDir = Join-Path $root ".opencode/agents"
+          $agentFiles = @(Get-ChildItem -Path $agentsDir -Filter "*.md" -File -ErrorAction SilentlyContinue)
+          if ($agentFiles.Count -ne 1 -or $agentFiles[0].Name -ne "bls-architect.md") {
+              $errors += "Modelo de agentes invalido: solo debe existir bls-architect.md"
+          }
+
+          $opencode = Get-Content (Join-Path $root ".opencode/opencode.json") -Raw | ConvertFrom-Json
+          if ($opencode.agents_index.Count -ne 1) {
+              $errors += "agents_index debe contener exactamente un agente"
+          }
+
+          $agentsMd = Get-Content (Join-Path $root "AGENTS.md") -Raw
+          if ($agentsMd -notmatch 'AI-Assistant:\s*OpenCode Big Pickle') {
+              $errors += "Falta el trailer de divulgacion AI-Assistant en AGENTS.md"
+          }
+
+          if ($errors.Count -gt 0) {
+              Write-Host "::error::Gobernanza de IA incompleta:"
+              foreach ($e in $errors) { Write-Host "  - $e" }
+              exit 1
+          }
+          Write-Host "OK: gobernanza IA, divulgacion y agente unico verificados."
+
+      # ─────────────────────────────────────────────
       # 9. Verificar ausencia de PIAs de Office
       # ─────────────────────────────────────────────
       - name: Verificar ausencia de PIAs de Office

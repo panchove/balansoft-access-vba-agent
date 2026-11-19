@@ -114,6 +114,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     private Button _btnEnviar = null!;
     private Button _btnDetener = null!;
     private Label _lblStatus = null!;
+    private Label _lblAiDisclosure = null!;
     private bool _loadingSessions;
 
     // Singleton débil para una sola terminal
@@ -497,6 +498,21 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
         _mainSplit.Panel2.Controls.Add(bottomPanel);
         Controls.Add(_mainSplit);
+
+        // Divulgación persistente de identidad IA (EU AI Act Art. 50 / Pilar 5).
+        // Se agrega después del Fill para que WinForms lo acople arriba sin reducir el área útil.
+        _lblAiDisclosure = new Label
+        {
+            Text = BlsStrings.Get("AiDisclosure"),
+            Dock = DockStyle.Top,
+            Height = 22,
+            TextAlign = ContentAlignment.MiddleLeft,
+            ForeColor = Color.DimGray,
+            BackColor = Color.LightYellow,
+            Padding = new Padding(6, 0, 6, 0),
+            Font = new Font("Segoe UI", 8F)
+        };
+        Controls.Add(_lblAiDisclosure);
 
         // Ajuste seguro de paneles y SplitterDistance una vez que el formulario ha determinado su tamaño de cliente
         Shown += (s, e) =>
@@ -910,6 +926,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             _btnDetener.Text = BlsStrings.Get("BtnStop");
             _btnEnviar.Text = BlsStrings.Get("BtnSend");
             _lblStatus.Text = BlsStrings.Get("StatusReady");
+            _lblAiDisclosure.Text = BlsStrings.Get("AiDisclosure");
 
             // Refresh session list and detail title
             _lblDetalleTitulo.Text = BlsStrings.Get("DetailTitle");

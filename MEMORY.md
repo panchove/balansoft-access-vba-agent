@@ -2,7 +2,7 @@
 
 > Contexto operativo y de mantenimiento para sesiones futuras.
 > Actualizar al cerrar cada bloque de trabajo relevante.
-> Última actualización: 2026-10-16 (Fix CI workflow, homogenización ADRs/specs y validación de 165 tests verdes).
+> Última actualización: 2026-10-16 (Fix CI workflow, homogenización ADRs/specs y validación de 166 tests verdes).
 
 ---
 
@@ -62,7 +62,7 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1
 
 **Existen** `.runsettings`, `Directory.Build.props`, y la solución real `Balansoft.AIAddin.slnx`. Los comandos usan los `.csproj` directos (la solución no propaga `Platform` a proyectos SDK-style).
 
-**La CI está operativa** y ejecuta: build Debug/Release x86 y x64, tests 165/165, gates de PIAs, `dynamic`, `Thread.Sleep`, documentos, tests ADR y referencias cruzadas. En `push` a `main` ejecuta `Pack.ps1` y sube el ZIP.
+**La CI está operativa** y ejecuta: build Debug/Release x86 y x64, tests 166/166, gates de PIAs, `dynamic`, `Thread.Sleep`, documentos, tests ADR y referencias cruzadas. En `push` a `main` ejecuta `Pack.ps1` y sube el ZIP.
 
 ---
 
@@ -144,9 +144,9 @@ pipe del cliente entrante y el segundo recibiría EOF en vez de `busy`).
 
 ## 7. Estado actual
 
-**Suite verde.** Rebuild limpio de ambos proyectos, **165/165 tests**. Reparto:
+**Suite verde.** Rebuild limpio de ambos proyectos, **166/166 tests**. Reparto:
 `BlsNimClientTests` 28 · `JsonRpcDispatcherTests` 27 · `BlsContractTests` 17
-· `BlsStringsTests` 16 · `NimStreamParserTests` 14 · `BlsVbeBridgeServerTests` 12
+· `BlsStringsTests` 17 · `NimStreamParserTests` 14 · `BlsVbeBridgeServerTests` 12
 · `NimHttpRequestBuilderTests` 11 · `BlsPipeFramingTests` 10
 · `JsonRpcDeserializationTests` 7 · `BlsChatHistoryMultiSessionTests` 6
 · `AddinConnectTests` 5 · `NimMessageSanitizerTests` 5
