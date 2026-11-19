@@ -2,7 +2,7 @@
 
 > Contexto operativo y de mantenimiento para sesiones futuras.
 > Actualizar al cerrar cada bloque de trabajo relevante.
-> Última actualización: 2026-11-19 (F1 gobernanza IA + F2 fail-safe/HITL + F3 auditoría + F4 idempotencia/resiliencia; 257 tests verdes, 12 gates de CI).
+> Última actualización: 2026-11-19 (F1 gobernanza IA + F2 fail-safe/HITL + F3 auditoría + F4 idempotencia/resiliencia + F5 privacidad/supply chain; 289 tests verdes, 13 gates de CI, R-01…R-12 cerrados).
 
 ---
 
@@ -62,7 +62,7 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1
 
 **Existen** `.runsettings`, `Directory.Build.props`, y la solución real `Balansoft.AIAddin.slnx`. Los comandos usan los `.csproj` directos (la solución no propaga `Platform` a proyectos SDK-style).
 
-**La CI está operativa** y ejecuta 12 gates: build Debug/Release x86 y x64, tests 257/257, gobernanza IA, fail-safe/HITL, auditoría JSON/hash/correlación (F3), idempotencia y resiliencia (F4), PIAs, `dynamic`, `Thread.Sleep`, documentos, tests ADR y referencias cruzadas. En `push` a `main` ejecuta `Pack.ps1` y sube el ZIP.
+**La CI está operativa** y ejecuta 13 gates: build Debug/Release x86 y x64, tests 289/289, gobernanza IA, fail-safe/HITL, auditoría JSON/hash/correlación (F3), idempotencia y resiliencia (F4), privacidad/supply chain/doc sync (F5), PIAs, `dynamic`, `Thread.Sleep`, documentos, tests ADR y referencias cruzadas (rutas de código + índice de specs). En `push` a `main` ejecuta `Pack.ps1` y sube el ZIP.
 
 ---
 
@@ -144,21 +144,22 @@ pipe del cliente entrante y el segundo recibiría EOF en vez de `busy`).
 
 ## 7. Estado actual
 
-**Suite verde.** Rebuild limpio de ambos proyectos en x86 y x64, **257/257
-tests** (18 nuevos en F4). El reparto completo por fichero está en
+**Suite verde.** Rebuild limpio de ambos proyectos en x86 y x64, **289/289
+tests** (32 nuevos en F5). El reparto completo por fichero está en
 `specs/README.md`.
 
 Implementado: ciclo de vida COM (spec 001), bridge JSON-RPC completo, cliente
 NIM con streaming SSE y reintentos, secure store DPAPI, historial por proyecto,
 Terminal con loop de herramientas, divulgación IA persistente (F1),
 fail-safe/HITL con kill switch (F2), auditoría JSONL con hash encadenado,
-correlación y métricas SLO (F3), e idempotencia del bridge con full jitter y
-circuit breaker en NIM (F4). El add-in carga en Access.
+correlación y métricas SLO (F3), idempotencia del bridge con full jitter y
+circuit breaker en NIM (F4), y saneamiento PII + consentimiento + entropía
+derivada + modelo inventariado (F5). El add-in carga en Access.
 
-**Lo que no significa "verde":** los riesgos R-03 (PII al proveedor, F5),
-R-07/R-10 (parciales) y R-11 (entropía DPAPI) siguen abiertos; la verificación
-final en Access real con `BalansoftTest.accdb` no está automatizada. Estado por
-feature en `specs/README.md` (015/016/017/018 `implementado`).
+**Lo que no significa "verde":** los doce riesgos R-01…R-12 están cerrados, pero
+la verificación final en Access real con `BalansoftTest.accdb` no está
+automatizada, y sigue habiendo deuda heredada (specs 004/005/006/008/009).
+Estado por feature en `specs/README.md` (015/016/017/018/019 `implementado`).
 
 ### Pendiente
 
@@ -167,8 +168,12 @@ feature en `specs/README.md` (015/016/017/018 `implementado`).
   `idempotent_replay = true`; `BlsExponentialJitterRetryPolicy` con
   `Retry-After` prevalente y `BlsCircuitBreaker` Closed/Open/HalfOpen. Cierra
   R-06 y R-09. Contratos: spec 018 y ADR-017.
-- **F5 — privacidad:** PII scrubber del prompt y consentimiento (R-03),
-  verificación criptográfica del prompt en runtime y red teaming de inyección.
+- **F5 — privacidad (hecho):** `BlsPiiScrubber` en la frontera HTTP,
+  `BlsPiiConsentGate` con "No" por defecto, `BlsModelCatalog` como fuente única,
+  entropía DPAPI derivada con migración transparente y gate 8f. Cierra R-03,
+  R-07, R-10 y R-11. Contratos: spec 019 y ADR-018.
+- **Red teaming de inyección de contexto:** pendiente (plan de pruebas
+  adversarias del threat model); no bloquea el cierre de R-*.
 - **Deuda heredada de spec 008:** rotación de logs de 7 días y `BlsVersion`
   (versión + commit en la primera línea del log). ADR-011 queda parcialmente
   superado por ADR-016.

@@ -338,7 +338,9 @@ dotnet test --filter "Category=Integration"
 
 - `AGENTS.md` regla 7 (warnings as errors incluye tests).
 - `docs/design/ADR-001..004` (tests obligatorios listados en cada ADR).
-- PRD §7 FR-11, §8 (tests unitarias sin Office), §11 (79 tests).
+- PRD §7 FR-11, §8 (tests unitarias sin Office), §11 (289 tests tras F5).
+- `specs/019-PRIVACY-SUPPLY-CHAIN-CONFIG.md` (32 tests nuevos: PII,
+  consentimiento, catálogo de modelo y entropía DPAPI; sin `Thread.Sleep`).
 - `.opencode/skills/bls-com-late-binding/SKILL.md` (`BlsComException`).
 - `.opencode/skills/bls-vbe-automation/SKILL.md` (`MockVbe`, `TestUiScheduler`).
 - `.opencode/skills/bls-nim-client-streaming/SKILL.md` (`FakeHttpHandler`).

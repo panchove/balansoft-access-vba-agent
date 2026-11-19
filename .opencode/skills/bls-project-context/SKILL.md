@@ -86,10 +86,12 @@ skill en el mismo commit.
 1. **Una sola terminal** por proceso. Segundo intento de abrir → foco a la
    existente.
 2. **Un solo cliente del bridge** a la vez. Segundo cliente → `-320bls-jsonrpc-pipe-bridge busy`.
-3. **Modelo fijo:** `nvidia/nemotron-3.5-lightning-30b-a3b` (override por
-   variable de entorno `NIM_MODEL`).
-4. **API key** solo en DPAPI (`%APPDATA%\Balansoft\AIAddin\apikey.bin`).
-   Nunca en claro, nunca en log.
+3. **Modelo fijo:** fuente única `Helpers/BlsModelCatalog.cs`
+   (`nvidia/nemotron-3.5-lightning-30b-a3b`), override por `NIM_MODEL`; el
+   AI-BOM verifica el hash del catálogo (F5).
+4. **API key** solo en DPAPI (`%APPDATA%\Balansoft\AIAddin\apikey.bin`) con
+   entropía derivada (`DerivedEntropyDpapiDataProtector`, F5). Nunca en claro,
+   nunca en log.
 5. **Historial** por `projectKey` en
    `%APPDATA%\Balansoft\AIAddin\history\{projectKey}.json`.
 6. **Bridge** arranca en `AttachVbe`, muere en

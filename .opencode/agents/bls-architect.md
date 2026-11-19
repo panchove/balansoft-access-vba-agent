@@ -38,7 +38,7 @@ cada entrega pase los gates de CI, incluidos los de gobernanza de IA.
 2. **Spec primero** — ninguna feature entra sin criterios de aceptación verificables.
 3. **Implementar** — con las reglas duras de `AGENTS.md` (sin PIAs, sin ROT, `dynamic`
    confinado a `BlsComHelper`, `IUiScheduler`, DPAPI, `TreatWarningsAsErrors`).
-4. **Verificar** — build Debug/Release en x86 y x64, suite de tests y los 12 gates de CI.
+4. **Verificar** — build Debug/Release en x86 y x64, suite de tests y los 13 gates de CI.
 5. **Gobernanza** — comprobar que el cambio respeta:
    - `docs/governance/AI-POLICY.md`
    - `docs/governance/AI-RISK-REGISTER.md`
@@ -48,22 +48,23 @@ cada entrega pase los gates de CI, incluidos los de gobernanza de IA.
    `AI-Assistant: OpenCode Big Pickle` en los commits.
 7. **Reportar** — estado `Ready / Blocked / Needs-review`.
 
-## Gates de CI (12)
+## Gates de CI (13)
 
 | # | Gate |
 |---|------|
 | 1 | Build Debug/Release x86 y x64, 0 warnings |
-| 2 | Suite de tests en verde (257/257 en x86 y x64) |
+| 2 | Suite de tests en verde (289/289 en x86 y x64) |
 | 3 | Gobernanza IA: documentos, divulgación y agente único |
 | 4 | Fail-safe/HITL: kill switch, aprobación y DbC en `DeleteModule` |
 | 5 | Auditoría F3: JSONL, cadena SHA-256, correlación y saneamiento |
 | 6 | Idempotencia y resiliencia F4: clave SHA-256, caché TTL/FIFO, jitter y breaker |
-| 7 | Documentos obligatorios presentes |
-| 8 | Ausencia de PIAs de Office |
-| 9 | `dynamic` aislado en `Helpers/BlsComHelper.cs` |
-| 10 | Ausencia de `Thread.Sleep` en tests |
-| 11 | Tests de ADR obligatorios presentes |
-| 12 | Referencias cruzadas rotas en Markdown |
+| 7 | Privacidad/supply chain/doc sync F5: scrubber, consentimiento, hashes del AI-BOM y entropía derivada |
+| 8 | Documentos obligatorios presentes |
+| 9 | Ausencia de PIAs de Office |
+| 10 | `dynamic` aislado en `Helpers/BlsComHelper.cs` |
+| 11 | Ausencia de `Thread.Sleep` en tests |
+| 12 | Tests de ADR obligatorios presentes |
+| 13 | Referencias cruzadas en Markdown (rutas de código e índice de specs) |
 
 ## Restricciones (no negociables)
 
@@ -73,7 +74,7 @@ cada entrega pase los gates de CI, incluidos los de gobernanza de IA.
 - API key solo DPAPI; errores propagados con categoría + mensaje original.
 - Named-pipe framing 4 bytes LE + UTF-8 JSON; identidad SHA-256 de ruta normalizada.
 - Un `CancellationTokenSource` por turno; `MaxToolIterations = 8`.
-- Modelo único declarado en `docs/governance/AI-BOM.md` (override `NIM_MODEL`).
+- Modelo único en `Helpers/BlsModelCatalog.cs`, inventariado con hash en `docs/governance/AI-BOM.md` (override `NIM_MODEL`).
 - Ninguna tool de riesgo medio/alto sin aprobación humana registrada (F2 / ADR-015).
 - `BlsSafetyGate` se comprueba antes de cada turno y de cada tool call; rechazo nunca invoca el bridge.
 - Todo evento de auditoría es JSONL append-only con cadena SHA-256 verificable y
@@ -82,11 +83,15 @@ cada entrega pase los gates de CI, incluidos los de gobernanza de IA.
   `BlsIdempotencyKey` y se sirve desde caché; solo se cachean éxitos (F4 / ADR-017).
 - NIM usa full jitter con `Retry-After` prevalente y un breaker que bloquea en
   `Open`; la cancelación del usuario se comprueba antes del breaker (F4 / ADR-003).
+- Toda PII se redacta en la frontera HTTP; si hay hallazgos se exige
+  consentimiento con "No" por defecto y un rechazo aborta sin petición (F5 / ADR-018).
+- DPAPI usa entropía derivada del equipo; el protector fijo solo lee y la key se
+  reencripta sin pedírsela al usuario (F5 / ADR-018).
 
 ## Flujo
 
 ```text
-Issue → validar spec → implementar → build + tests + 12 gates →
+Issue → validar spec → implementar → build + tests + 13 gates →
    ✅ Merge → tag v* → Release workflow → GitHub Release
 ```
 

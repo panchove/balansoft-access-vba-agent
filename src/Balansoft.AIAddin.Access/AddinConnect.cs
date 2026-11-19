@@ -246,7 +246,11 @@ namespace Balansoft.AIAddin.Access
 
             if (_secureStore == null)
             {
-                _secureStore = new BlsSecureStore(new DpapiDataProtector(), BlsPaths.ApiKeyFile, _logger);
+                _secureStore = new BlsSecureStore(
+                    new DerivedEntropyDpapiDataProtector(),
+                    BlsPaths.ApiKeyFile,
+                    _logger,
+                    new DpapiDataProtector());
             }
 
             if (_chatHistory == null)

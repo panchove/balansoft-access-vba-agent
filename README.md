@@ -79,8 +79,10 @@ Este repositorio aplica los **25 Pilares** de `AI_GOVERNANCE.md` (ISO/IEC 42001:
 - **Divulgación:** la terminal muestra de forma persistente que el contenido es asistido por IA (Art. 50 EU AI Act).
 - **Fail-safe/HITL (F2):** kill switch, aprobación real para tools `Medium`/`High` y rechazo sin invocar el bridge ([ADR-015](docs/design/ADR-015-HUMAN-IN-THE-LOOP.md), [spec 016](specs/016-HUMAN-IN-THE-LOOP.md)).
 - **Auditoría (F3):** log JSONL append-only con cadena SHA-256 verificable, `correlation_id`/`trace_id` de extremo a extremo, saneamiento de secretos y métricas SLO ([ADR-016](docs/design/ADR-016-AUDIT-LOGGING.md), [spec 017](specs/017-AUDIT-LOGGING.md)).
+- **Resiliencia (F4):** idempotencia SHA-256 del bridge, caché TTL/FIFO, full jitter y circuit breaker ([ADR-017](docs/design/ADR-017-IDEMPOTENCY-RESILIENCE.md), [spec 018](specs/018-IDEMPOTENCY-RESILIENCE.md)).
+- **Privacidad (F5):** saneamiento PII en la frontera HTTP, consentimiento UI, catálogo de modelo y entropía DPAPI derivada ([ADR-018](docs/design/ADR-018-PRIVACY-SUPPLY-CHAIN.md), [spec 019](specs/019-PRIVACY-SUPPLY-CHAIN-CONFIG.md)).
 
-> ⚠️ Riesgos cerrados: **R-01/R-02/R-12** (F2) y **R-04/R-05** (F3). Siguen abiertos **R-03** (PII al proveedor, F5), **R-06** (idempotencia) y **R-09** (jitter/breaker), ambos para F4.
+> ✅ Riesgos **R-01…R-12 cerrados**. La suite tiene 289 tests verdes en x86 y x64 y la CI ejecuta 13 gates.
 
 ## 📂 Estructura del repositorio
 ```

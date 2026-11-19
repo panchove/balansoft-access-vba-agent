@@ -19,15 +19,15 @@ tags: [governance, risk-register, iso-42001, iso-23894]
 |------|---------------------------------------------------------------------------------|--------|---|---|-------------|-------------------------------------------------------------|------------------------------------------------------------------------------|---------------------|
 | R-01 | El LLM emite un tool call destructivo sin aprobación humana                     | 4, 2   | M | A | **Crítico** | `confirm` era un bool entregado por el propio modelo        | `BlsHumanApprovalGate` + MessageBox ("No" por defecto) + `payload_sha256`    | 🟢 Cerrado en F2    |
 | R-02 | Falsa confirmación de éxito ante un fallo (p. ej. `DeleteModule` hace `return`) | 3, 16  | M | A | **Crítico** | Ninguno; el system prompt lo prohíbe pero el código lo hace | DbC: `BlsPreconditionException` + JSON `{"error":...}` sin bridge            | 🟢 Cerrado en F2    |
-| R-03 | Fuga de PII/connection strings al endpoint externo                              | 24     | M | A | **Crítico** | Truncamiento a 32 KB (no es saneamiento)                    | PII scrubber + consentimiento (F5)                                           | 🔴 Abierto          |
+| R-03 | Fuga de PII/connection strings al endpoint externo                              | 24     | M | A | **Crítico** | `BlsPiiScrubber` en la frontera HTTP + `BlsPiiConsentGate` (No por defecto) | `specs/019` + gate 8f + `BlsPiiScrubberTests`/`BlsPiiConsentGateTests` | 🟢 Cerrado en F5    |
 | R-04 | Logs no auditables (texto plano, sin hash encadenado)                           | 6, 20  | A | M | **Alto**    | Texto plano sin encadenar                                   | `BlsLogger` JSONL + `BlsAuditChain.Verify` + saneamiento de secretos (F3)    | 🟢 Cerrado en F3    |
 | R-05 | Sin trazabilidad punta a punta de un turno                                      | 20     | A | M | **Alto**    | `JsonRpcErrorData` sin `trace_id`                           | `BlsCorrelationContext` + ids en `JsonRpcRequest` y logs del dispatcher (F3) | 🟢 Cerrado en F3    |
 | R-06 | Reenvío duplicado de un frame ejecuta dos veces una escritura                   | 19     | M | A | **Alto**    | `BlsIdempotencyKey` SHA-256 por turno + caché TTL 5 min / 256 entradas | `specs/018` + gate 8e + `JsonRpcIdempotencyTests` (9)                        | 🟢 Cerrado en F4    |
-| R-07 | Instalación de modelo/prompt no verificado (supply chain)                       | 10     | B | A | **Alto**    | Modelo duplicado en 5 artefactos                            | AI-BOM con hash del prompt                                                   | 🟡 Mitigado parcial |
+| R-07 | Instalación de modelo/prompt no verificado (supply chain)                       | 10     | B | A | **Alto**    | `BlsModelCatalog` como fuente única; prompt compilado        | AI-BOM con hash verificado + gate 8f (literal único y sin carga dinámica) | 🟢 Cerrado en F5    |
 | R-08 | Atribución incorrecta de autoría de IA                                          | 5      | A | B | **Medio**   | Trailer global apunta a Claude Code                         | Trailer `AI-Assistant` en AGENTS.md (F1)                                     | 🟢 Cerrado en F1    |
 | R-09 | Backoff sin jitter ni circuit breaker satura el proveedor                       | 22     | M | M | **Medio**   | Full jitter 1–30 s + breaker 5 fallos / 30 s / HalfOpen      | `specs/018` + gate 8e + `BlsNimResilienceTests` (9)                           | 🟢 Cerrado en F4    |
-| R-10 | Deriva documentación ↔ código                                                   | 17     | A | M | **Alto**    | Historial de drift ya documentado                           | Gate de cross-refs + reindex MCP                                             | 🟡 Mitigado parcial |
-| R-11 | Entropía fija DPAPI debilita la protección de la API key                        | 21, 18 | B | A | **Alto**    | DPAPI CurrentUser con entropía fija                         | Derivar entropía de datos no secretos del equipo                             | 🔴 Abierto          |
+| R-10 | Deriva documentación ↔ código                                                   | 17     | A | M | **Alto**    | Gate de cross-refs + índice de specs + reindex MCP           | Gate 13 ampliado a rutas de código en MDs; verificación en cada fase        | 🟢 Cerrado en F5    |
+| R-11 | Entropía fija DPAPI debilita la protección de la API key                        | 21, 18 | B | A | **Alto**    | `DerivedEntropyDpapiDataProtector` (SHA-256 equipo+usuario+v2) | Migración transparente con fallback legacy solo de lectura (F5)         | 🟢 Cerrado en F5    |
 | R-12 | Bucle infinito de tool calls                                                    | 3      | B | A | **Alto**    | `MaxToolIterations = 8`                                     | `BlsSafetyGate`: kill switch cancela el turno y bloquea nuevos envíos        | 🟢 Cerrado en F2    |
 
 ## 2. Criterios de aceptación del riesgo
@@ -56,5 +56,28 @@ documentan los controles que cerraron ambos riesgos:
   30 s con un único sondeo en HalfOpen. La cancelación de usuario (ADR-003) se
   comprueba antes del breaker.
 
-Evidencia: 18 tests nuevos, 257/257 verdes en x86 y x64, gate 8e de CI.
-Siguen abiertos R-03 (PII, F5), R-07/R-10 (parciales), R-11 (entropía DPAPI).
+Evidencia: 18 tests nuevos, 289/289 verdes en x86 y x64, gate 8e de CI.
+
+## 5. Cierre de F5 (R-03, R-07, R-10 y R-11)
+
+`specs/019-PRIVACY-SUPPLY-CHAIN-CONFIG.md` y
+`docs/design/ADR-018-PRIVACY-SUPPLY-CHAIN.md` documentan los controles:
+
+- **R-03** — `BlsPiiScrubber` redacta una copia de los mensajes en
+  `NimHttpRequestBuilder.BuildJson`, siempre, sin opción de desactivarlo; el
+  `BlsPiiConsentGate` exige aprobación UI con "No" por defecto cuando hay
+  hallazgos. Un rechazo llama a `OnCancelled()` y aborta antes de
+  `RunToolLoopAsync`: cero peticiones HTTP y nunca éxito falso.
+- **R-07** — `BlsModelCatalog.DefaultModel` es el único literal de modelo en
+  `src/`; el AI-BOM registra los SHA-256 del prompt y del catálogo, y el gate 8f
+  los recalcula y prohíbe carga dinámica de prompts/modelos.
+- **R-10** — el gate 13 verifica rutas de código citadas en `specs/` y `docs/`,
+  comprueba que todo `NNN-*.md` esté en `specs/README.md` y se cierra con
+  reindex MCP y verificación de cobertura.
+- **R-11** — la entropía v2 se deriva con SHA-256 de datos no secretos del
+  equipo; `BlsSecureStore` lee con el protector legacy solo cuando falla v2 y
+  reencripta antes de devolver la key. El usuario no vuelve a pegarla; si ambos
+  fallan se propaga `BlsSecureStoreException`.
+
+Evidencia: 32 tests nuevos, 289/289 verdes en x86 y x64, 13 gates de CI.
+**Todos los riesgos R-01 a R-12 están cerrados.**

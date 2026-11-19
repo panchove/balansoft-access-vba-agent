@@ -190,19 +190,25 @@ Para waits con timeout existe el helper `tests/.../Infrastructure/TaskTestExtens
 
 1. El build `Debug` o `Release` (x86 o x64) de los `.csproj` no sale limpio con
    `TreatWarningsAsErrors`.
-2. Los tests (sin integración NIM) no están verdes: 257/257 en x86 y x64.
+2. Los tests (sin integración NIM) no están verdes: 289/289 en x86 y x64.
 3. Faltan la gobernanza IA, la divulgación o el modelo de agente único; falta
    el kill switch, el gate HITL o el DbC en `DeleteModule` (F2); faltan el
-   logger JSONL, la cadena SHA-256 o la correlación (F3); o faltan la clave
-   de idempotencia, la caché, el jitter o el breaker (F4).
-4. Falta cualquiera de los 54 documentos obligatorios.
+   logger JSONL, la cadena SHA-256 o la correlación (F3); faltan la clave
+   de idempotencia, la caché, el jitter o el breaker (F4); o faltan el
+   scrubber PII, el consentimiento, el catálogo de modelo o la entropía
+   derivada (F5).
+4. Falta cualquiera de los 56 documentos obligatorios.
 5. Aparece `Microsoft.Office.Interop` en `src/`.
 6. Aparece `dynamic` fuera de `Helpers/BlsComHelper.cs`.
 7. Aparece `Thread.Sleep` en `tests/`.
 8. Desaparece un test de ADR ya implementado (los de ADR-001 y ADR-004
    pendientes solo avisan).
 9. Hay una referencia cruzada rota en `docs/`, `.opencode/skills/`, `specs/`,
-   `AGENTS.md` o `MEMORY.md`.
+   `AGENTS.md` o `MEMORY.md`, incluidas las rutas de código en backticks y un
+   spec `NNN-*.md` ausente del índice (F5).
+10. El hash del prompt o del catálogo de modelo del AI-BOM no coincide con el
+    código, aparece un segundo literal de modelo en `src/`, se carga un prompt
+    o modelo en runtime, o el rechazo de PII no aborta antes del envío (F5).
 
 En `push` a `main` además ejecuta `scripts/Pack.ps1` y sube el ZIP como
 artefacto.
@@ -211,7 +217,7 @@ artefacto.
 > existe, así que el job moría en el restore y ninguno de los gates llegaba a
 > comprobarse. Ahora compila los `.csproj` (la solución `.slnx` no propaga
 > `Platform` a proyectos SDK-style) con `dotnet build`, y los tests con
-> `dotnet vstest` sobre `.runsettings`. Los doce gates se ejecutan; el comando
+> `dotnet vstest` sobre `.runsettings`. Los trece gates se ejecutan; el comando
 > de test es el mismo que se ha verificado en local.
 
 ### Gate de spec
@@ -244,7 +250,7 @@ Puntos que **solo** puede verificar una persona y por eso son bloqueantes:
 1. Spec (specs/NNN-*.md) con alcance + criterios de aceptación + tests
 2. ADR si la decisión es estructural y no está cubierta
 3. Implementación + tests       ← bls-architect (agente único desde F1)
-4. Verificación: build Debug + Release x86 y x64 + suite completa + 12 gates
+4. Verificación: build Debug + Release x86 y x64 + suite completa + 13 gates
 5. PR con checklist de rechazo y referencias cruzadas válidas
 6. Auditoría ISO                ← gates de CI, no agentes revisores
 7. Merge
@@ -388,6 +394,7 @@ fecha, motivo y responsable.
 | v1.2    | 2026-10-15 | Homologación obligatoria de `docs/design/` al patrón `ADR-NNN-<SLUG>.md` (ISO/IEC 42010); archivos de `specs/` en MAYÚSCULAS `NNN-<SLUG>.md` (ISO/IEC 29148); metadatos YAML unificados                                | Exigencia de trazabilidad y consistencia formal en toda la documentación de arquitectura, diseño y contratos funcionales |
 | v1.3    | 2026-11-19 | Gates 3–5 (gobernanza, HITL y auditoría F3), 239/239 tests, 11 gates de CI, flujo con agente único y estado de specs actualizado                                                                                       | Sincronización F1→F3: la constitución debía reflejar los gates ejecutables y la retirada de los agentes revisores        |
 | v1.4    | 2026-11-19 | Gate 8e (idempotencia y resiliencia F4), 257/257 tests en x86 y x64, 12 gates de CI, spec 018 y ADR-017                                                                                                                | Sincronización F4: cierre de R-06 y R-09 y adecuación de la constitución al nuevo gate ejecutable                        |
+| v1.5    | 2026-11-19 | Gate 8f (privacidad, supply chain y doc sync F5), 289/289 tests en x86 y x64, 13 gates de CI, spec 019 y ADR-018; cross-refs con rutas de código e índice de specs                                                      | Sincronización F5: cierre de R-03, R-07, R-10 y R-11; hash del prompt y catálogo verificables en el AI-BOM               |
 
 Los hallazgos que surjan del propio SDD (este documento y los specs) se resuelven
 corrigiendo el spec o la constitución, no marcándolos como "agendados".

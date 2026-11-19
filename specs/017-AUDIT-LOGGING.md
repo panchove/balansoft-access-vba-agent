@@ -30,7 +30,8 @@ la integridad del registro ni reconstruir un turno completo a partir del log.
   `correlation_id`/`trace_id` por turno, propagación al dispatcher por JSON-RPC,
   saneamiento de secretos, métricas SLO y gate de CI.
 - Excluye: rotación de 7 días y versión/commit en la primera línea (deuda de
-  spec 008), PII scrubber del prompt (F5), idempotencia (F4), telemetría remota.
+  spec 008), PII scrubber del prompt (implementado en F5 / spec 019),
+  idempotencia (F4), telemetría remota.
 
 ## Requisitos
 
@@ -81,4 +82,5 @@ y `Dispatcher_ConCorrelacion_LosEscribeEnElLog`.
 - Sin rotación de 7 días ni versión/commit (spec 008): deuda heredada, no
   introducida por F3.
 - El `trace_id` no se envía a NVIDIA NIM; la traza es local al add-in.
-- R-03 (PII al proveedor) permanece abierto y se trata en F5.
+- R-03 (PII al proveedor) fue cerrado en F5 por `specs/019-PRIVACY-SUPPLY-CHAIN-CONFIG.md`;
+  el `trace_id` sigue siendo local al add-in.

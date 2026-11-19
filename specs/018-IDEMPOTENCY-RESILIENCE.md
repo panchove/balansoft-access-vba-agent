@@ -21,7 +21,7 @@ tags: [spec, idempotency, retry, jitter, circuit-breaker, reliability]
 | PRD | FR-03, FR-04, FR-09 + gobernanza (Pilares 3, 19, 22) |
 | ADRs | ADR-002 (framing), ADR-003 (cancelación), ADR-015 (HITL), ADR-017 |
 | Riesgos | Cierra R-06 (idempotencia) y R-09 (jitter/breaker) |
-| Tests | 18 nuevos (9 de idempotencia + 9 de resiliencia); 257/257 verdes en x86 y x64 |
+| Tests | 18 nuevos (9 de idempotencia + 9 de resiliencia); 289/289 verdes en x86 y x64 tras F5 |
 
 ## Contexto
 
@@ -51,7 +51,7 @@ deben seguir funcionando.
   tipada `BlsNimCircuitOpenException`; tests y gate de CI.
 - **Excluye**: persistencia de la caché entre reinicios (es en memoria por
   proceso); idempotencia de extremo a extremo en el proveedor NIM (solo aplica
-  al bridge local); PII scrubber (F5); rotación de logs y `BlsVersion`
+  al bridge local); PII scrubber (implementado en F5 / spec 019); rotación de logs y `BlsVersion`
   (deuda de spec 008).
 
 ## Requisitos
@@ -160,4 +160,4 @@ Gate de CI: *Idempotencia y resiliencia (F4)*.
   petición, que ya encuentra el circuito abierto.
 - El breaker es por instancia de `BlsNimClient`. La terminal crea una sola
   instancia, así que en la práctica es global al add-in.
-- R-03 (PII al proveedor) permanece abierto y se trata en F5.
+- R-03 (PII al proveedor) fue cerrado en F5 por `specs/019-PRIVACY-SUPPLY-CHAIN-CONFIG.md`.

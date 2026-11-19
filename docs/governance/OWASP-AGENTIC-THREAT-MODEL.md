@@ -38,14 +38,17 @@ tags: [threat-model, owasp-agentic, security, red-team]
 | Logs JSON con hash encadenado y `correlation_id`           | ✅ F3                                      |
 | Verificación de integridad de la cadena de hash            | ✅ F3 (`BlsAuditChain.Verify`, gate de CI) |
 | Redacción de credenciales en el log                        | ✅ F3 (`BlsLogSanitizer`)                  |
-| Red teaming adversario (prompt injection en selección VBE) | ❌ F5                                      |
+| Redacción de PII en la frontera HTTP                       | ✅ F5 (`BlsPiiScrubber`, gate 8f)           |
+| Red teaming adversario (prompt injection en selección VBE) | ⚠️ automatizado parcial; ejecución manual pendiente |
 
 ## 3. Plan de pruebas adversarias (F5)
 
 1. Inyectar en la selección VBE una instrucción que intente cambiar el system prompt → el modelo no debe obedecer.
-2. Enviar una cadena de conexión en el código seleccionado → debe ser redactada antes de `BuildJson`.
-3. Forzar un `tool_call` con `confirm: true` sin aprobación UI → debe ser rechazado.
-4. Reenviar el mismo `id` JSON-RPC dos veces → una sola ejecución.
+2. Enviar una cadena de conexión en el código seleccionado → debe ser redactada antes de `BuildJson`. ✅ Cubierto por `BlsPiiScrubber` (tests `NimPiiScrubbingTests`).
+3. Forzar un `tool_call` con `confirm: true` sin aprobación UI → debe ser rechazado. ✅ Cubierto por F2 (`BlsHumanApprovalGate`).
+4. Reenviar el mismo `id` JSON-RPC dos veces → una sola ejecución. ✅ Cubierto por F4 (`BlsIdempotencyCache`).
+
+Los puntos 2–4 están automatizados y verificados en CI; el punto 1 (inyección de prompt) requiere todavía una sesión de red teaming manual y no bloquea el cierre de los R-*.
 
 ## 4. Salida
 

@@ -87,6 +87,9 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     private readonly BlsToolRiskPolicy _riskPolicy = new();
     private readonly BlsHumanApprovalGate _approvalGate;
 
+    // F5 — privacidad: consentimiento antes de enviar datos a NIM (R-03).
+    private readonly BlsPiiConsentGate _piiConsentGate;
+
     private CancellationTokenSource? _currentTurnCts;
     private HistoryDocument? _currentDoc;
     private bool _isDisposed;
@@ -136,7 +139,8 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         IVbeContextProvider vbeContext,
         ISystemPromptBuilder promptBuilder,
         IUserInputDialog userInputDialog,
-        Func<BlsApprovalRequest, bool>? approvalPrompt = null)
+        Func<BlsApprovalRequest, bool>? approvalPrompt = null,
+        Func<BlsPiiConsentRequest, bool>? piiConsentPrompt = null)
     {
         _nimClient = BlsContract.RequiresNotNull(nimClient, nameof(nimClient));
         _bridgeClient = BlsContract.RequiresNotNull(bridgeClient, nameof(bridgeClient));
@@ -149,6 +153,9 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         _userInputDialog = BlsContract.RequiresNotNull(userInputDialog, nameof(userInputDialog));
         _approvalGate = new BlsHumanApprovalGate(
             approvalPrompt ?? DefaultApprovalPrompt,
+            _logger);
+        _piiConsentGate = new BlsPiiConsentGate(
+            piiConsentPrompt ?? DefaultPiiConsentPrompt,
             _logger);
 
         InitializeComponent();
@@ -1298,6 +1305,18 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
             messages.Add(new ChatMessage("user", prompt));
 
+            // F5 / R-03 — si el payload contiene PII se exige consentimiento
+            // explícito antes del envío. El scrubber se aplica de todas formas
+            // en la frontera HTTP (NimHttpRequestBuilder), sin opción de off.
+            var scrubbed = BlsPiiScrubber.Scrub(messages);
+            if (BlsPiiConsentGate.IsRequired(scrubbed.Findings) &&
+                !_piiConsentGate.Approve(scrubbed.Findings, BuildPiiPreview(scrubbed.Messages)))
+            {
+                OnCancelled();
+                CommitAssistantMessage(cancelled: true);
+                return;
+            }
+
             // Guardar mensaje del usuario en historial
             _currentDoc?.Messages.Add(new HistoryMessage
             {
@@ -1663,6 +1682,44 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
                 MessageBoxDefaultButton.Button2);
             return answer == DialogResult.Yes;
         });
+    }
+
+    /// <summary>
+    /// Prompt de consentimiento PII por defecto: MessageBox modal con "No"
+    /// como botón predeterminado. La vista previa ya está redactada.
+    /// </summary>
+    private bool DefaultPiiConsentPrompt(BlsPiiConsentRequest request)
+    {
+        return OnUiFunc(() =>
+        {
+            var body = BlsStrings.Get(
+                "PiiConsentBody",
+                string.Join(", ", request.Categories),
+                request.RedactedPreview);
+            var answer = MessageBox.Show(
+                this,
+                body,
+                BlsStrings.Get("PiiConsentTitle"),
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2);
+            return answer == DialogResult.Yes;
+        });
+    }
+
+    /// <summary>Vista previa saneada y acotada; nunca incluye los valores originales.</summary>
+    private static string BuildPiiPreview(IReadOnlyList<ChatMessage> scrubbedMessages)
+    {
+        for (var i = scrubbedMessages.Count - 1; i >= 0; i--)
+        {
+            if (scrubbedMessages[i].Role != "user")
+                continue;
+
+            var text = scrubbedMessages[i].Content ?? string.Empty;
+            return text.Length <= 800 ? text : text.Substring(0, 800) + "…";
+        }
+
+        return string.Empty;
     }
 
     /// <summary>

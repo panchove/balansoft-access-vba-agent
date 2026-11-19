@@ -63,13 +63,14 @@ Un spec por archivo, nombrado en mayúsculas estrictas `NNN-SLUG.md` (ej. `001-A
 | 016 | [HUMAN-IN-THE-LOOP](016-HUMAN-IN-THE-LOOP.md)   | SEG-01        | ADR-003, ADR-005, ADR-015 | `implementado` | 22 verdes  |
 | 017 | [AUDIT-LOGGING](017-AUDIT-LOGGING.md)           | FR-07, FR-12  | ADR-011, ADR-015, ADR-016 | `implementado` | 51 verdes  |
 | 018 | [IDEMPOTENCY-RESILIENCE](018-IDEMPOTENCY-RESILIENCE.md) | FR-03, FR-04, FR-09 | ADR-002, ADR-003, ADR-015, ADR-017 | `implementado` | 18 verdes |
+| 019 | [PRIVACY-SUPPLY-CHAIN-CONFIG](019-PRIVACY-SUPPLY-CHAIN-CONFIG.md) | FR-08, GOV-01/04 | ADR-009, ADR-018 | `implementado` | 32 verdes |
 
 `implementado` solo si hay tests verdes. Los specs 005 y 006 tienen el código
 completo pero ninguna aserción que lo valide, así que no pueden declararse
 implementados.
 
-Los 257 tests de la suite se reparten en veinticuatro ficheros (los 239 anteriores
-más 18 de F4):
+Los 289 tests de la suite se reparten en veintinueve ficheros (los 257 anteriores
+más 32 de F5):
 `BlsNimClientTests` 28 · `JsonRpcDispatcherTests` 27 · `BlsSafetyGateTests` 18
 · `BlsContractTests` 17 · `BlsStringsTests` 18 · `NimStreamParserTests` 14
 · `BlsVbeBridgeServerTests` 12 · `NimHttpRequestBuilderTests` 11
@@ -79,7 +80,9 @@ más 18 de F4):
 · `AddinConnectTests` 5 · `NimMessageSanitizerTests` 5
 · `ProjectKeyAndObjectDetailTests` 5 · `JsonRpcCorrelationTests` 4
 · `BlsComHelperSafetyTests` 3 · `NimTerminalIconTests` 2
-· `JsonRpcIdempotencyTests` 9 · `BlsNimResilienceTests` 9.
+· `JsonRpcIdempotencyTests` 9 · `BlsNimResilienceTests` 9
+· `BlsPiiScrubberTests` 8 · `BlsSecureStoreEntropyTests` 8
+· `BlsPiiConsentGateTests` 6 · `BlsModelCatalogTests` 6 · `NimPiiScrubbingTests` 4.
 
 ## Orden de implementación
 
@@ -102,15 +105,17 @@ de 001: ~600 líneas de WinForms sin un solo test.
 
 - **La CI está operativa** y ejecuta todos los gates:
   - Build Debug x86 y x64 y Release x86 y x64 con `dotnet build` (0 warnings, 0 errors).
-  - Tests 257/257 en x86 y x64 con `dotnet vstest` + `.runsettings` + `/Platform`.
-  - 54 documentos obligatorios verificados (incluye `docs/PRD.md`,
-    `docs/CONSTITUTION.md`, `specs/` y los 17 ADRs).
+  - Tests 289/289 en x86 y x64 con `dotnet vstest` + `.runsettings` + `/Platform`.
+  - 56 documentos obligatorios verificados (incluye `docs/PRD.md`,
+    `docs/CONSTITUTION.md`, `specs/` y los 18 ADRs).
   - Sin PIAs de Office en `src/`.
   - `dynamic` solo en `Helpers/BlsComHelper.cs`.
   - Sin `Thread.Sleep` en `tests/`.
   - Tests de ADR implementados presentes (14 blocking + 5 warning).
   - Referencias cruzadas en `docs/`, `.opencode/skills/`, `specs/`,
-    `AGENTS.md`, `MEMORY.md` — **cero rotas**.
+    `AGENTS.md`, `MEMORY.md` — **cero rotas**, incluidas rutas de código en
+    backticks e índice completo de specs (gate 13 ampliado en F5).
+  - Privacidad, supply chain y doc sync (gate 8f, F5).
 - **`Directory.Build.props` existe** con versión `0.1.0`,
   `TreatWarningsAsErrors=true`, CPU-agnóstico (sin `PlatformTarget`/`Prefer32Bit`
   forzados; se pasa con `-p:`),

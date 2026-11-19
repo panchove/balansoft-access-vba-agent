@@ -167,6 +167,7 @@ jobs:
               "docs/design/ADR-015-HUMAN-IN-THE-LOOP.md",
               "docs/design/ADR-016-AUDIT-LOGGING.md",
               "docs/design/ADR-017-IDEMPOTENCY-RESILIENCE.md",
+              "docs/design/ADR-018-PRIVACY-SUPPLY-CHAIN.md",
               "specs/README.md",
               "specs/001-ADDIN-LIFECYCLE.md",
               "specs/002-VBE-BRIDGE.md",
@@ -186,6 +187,7 @@ jobs:
               "specs/016-HUMAN-IN-THE-LOOP.md",
               "specs/017-AUDIT-LOGGING.md",
               "specs/018-IDEMPOTENCY-RESILIENCE.md",
+              "specs/019-PRIVACY-SUPPLY-CHAIN-CONFIG.md",
               "Directory.Build.props",
               ".runsettings",
               "Balansoft.AIAddin.slnx",
@@ -478,6 +480,114 @@ jobs:
           Write-Host "OK: idempotencia del bridge y resiliencia de NIM verificadas."
 
       # ─────────────────────────────────────────────
+      # 8f. Privacidad, supply chain y doc sync (F5 / ADR-018)
+      #
+      # Cierra R-03, R-07, R-10 y R-11: impide que se pierda el scrubber
+      # en la frontera HTTP, que aparezca un segundo literal de modelo,
+      # que el hash del prompt del AI-BOM quede desactualizado o que la
+      # entropía derivada se sustituya por la fija.
+      # ─────────────────────────────────────────────
+      - name: Privacidad, supply chain y doc sync (F5)
+        shell: pwsh
+        run: |
+          $root = $PWD.Path
+          $errors = @()
+
+          $required = @(
+              "src/Balansoft.AIAddin.Access/UI/Nim/BlsPiiScrubber.cs",
+              "src/Balansoft.AIAddin.Access/UI/Nim/BlsPiiConsentGate.cs",
+              "src/Balansoft.AIAddin.Access/Helpers/BlsModelCatalog.cs",
+              "src/Balansoft.AIAddin.Access/Helpers/BlsMachineEntropy.cs",
+              "src/Balansoft.AIAddin.Access/Helpers/DerivedEntropyDpapiDataProtector.cs",
+              "docs/design/ADR-018-PRIVACY-SUPPLY-CHAIN.md",
+              "specs/019-PRIVACY-SUPPLY-CHAIN-CONFIG.md",
+              "tests/Balansoft.AIAddin.Tests/UI/Nim/BlsPiiScrubberTests.cs",
+              "tests/Balansoft.AIAddin.Tests/UI/Nim/BlsPiiConsentGateTests.cs",
+              "tests/Balansoft.AIAddin.Tests/UI/Nim/NimPiiScrubbingTests.cs",
+              "tests/Balansoft.AIAddin.Tests/Helpers/BlsModelCatalogTests.cs",
+              "tests/Balansoft.AIAddin.Tests/Helpers/BlsSecureStoreEntropyTests.cs"
+          )
+          foreach ($f in $required) {
+              if (-not (Test-Path (Join-Path $root $f))) {
+                  $errors += "Falta artefacto de privacidad/supply chain: $f"
+              }
+          }
+
+          # El scrubber se aplica siempre en la frontera HTTP, sin opción off.
+          $builder = Get-Content (Join-Path $root "src/Balansoft.AIAddin.Access/UI/Nim/NimHttpRequestBuilder.cs") -Raw
+          if (-not $builder.Contains('BlsPiiScrubber.Scrub(sanitizedMessages)')) {
+              $errors += "NimHttpRequestBuilder no sanea antes de serializar"
+          }
+
+          $scrubber = Get-Content (Join-Path $root "src/Balansoft.AIAddin.Access/UI/Nim/BlsPiiScrubber.cs") -Raw
+          foreach ($token in @('CONNECTION_STRING', '[EMAIL]', 'USER_PATH', 'BlsPiiFinding')) {
+              if (-not $scrubber.Contains($token)) { $errors += "BlsPiiScrubber.cs no contiene $token" }
+          }
+
+          # Rechazo PII ⇒ OnCancelled + return ANTES del bucle que envía.
+          $terminal = Get-Content (Join-Path $root "src/Balansoft.AIAddin.Access/UI/BlsNimTerminal.cs") -Raw
+          foreach ($token in @('_piiConsentGate', 'BlsPiiScrubber.Scrub(messages)', 'BuildPiiPreview', 'OnCancelled()')) {
+              if (-not $terminal.Contains($token)) { $errors += "BlsNimTerminal.cs no contiene $token" }
+          }
+          $idxScrub = $terminal.IndexOf('BlsPiiScrubber.Scrub(messages)')
+          $idxReject = if ($idxScrub -ge 0) { $terminal.IndexOf('!_piiConsentGate.Approve(', $idxScrub) } else { -1 }
+          $idxReturn = if ($idxReject -ge 0) { $terminal.IndexOf('return;', $idxReject) } else { -1 }
+          $idxLoop = if ($idxScrub -ge 0) { $terminal.IndexOf('RunToolLoopAsync(messages, tools, ct)', $idxScrub) } else { -1 }
+          if ($idxScrub -lt 0 -or $idxReject -lt 0 -or $idxReturn -lt 0 -or $idxLoop -lt 0 -or $idxReturn -ge $idxLoop) {
+              $errors += "El rechazo de PII no aborta antes de RunToolLoopAsync (cero peticiones HTTP)"
+          }
+
+          # Entropía derivada con fallback legacy solo de lectura.
+          $store = Get-Content (Join-Path $root "src/Balansoft.AIAddin.Access/Helpers/BlsSecureStore.cs") -Raw
+          foreach ($token in @('_legacyProtector', 'migrated', 'BlsSecureStoreException')) {
+              if (-not $store.Contains($token)) { $errors += "BlsSecureStore.cs no contiene $token" }
+          }
+          $entropy = Get-Content (Join-Path $root "src/Balansoft.AIAddin.Access/Helpers/BlsMachineEntropy.cs") -Raw
+          foreach ($token in @('SHA256', 'Environment.MachineName', 'Environment.UserName')) {
+              if (-not $entropy.Contains($token)) { $errors += "BlsMachineEntropy.cs no contiene $token" }
+          }
+
+          # Un único literal de modelo en código; el AI-BOM lo inventaría.
+          $modelLiteral = 'nvidia/nemotron-3.5-lightning-30b-a3b'
+          $srcFiles = Get-ChildItem -Path (Join-Path $root "src") -Recurse -Filter "*.cs" -File |
+                      Where-Object { $_.FullName -notmatch '\\(bin|obj)\\' }
+          foreach ($f in $srcFiles) {
+              $hits = Select-String -Path $f.FullName -Pattern $modelLiteral -SimpleMatch -ErrorAction SilentlyContinue
+              foreach ($h in $hits) {
+                  if ($f.Name -ne 'BlsModelCatalog.cs') {
+                      $errors += "Literal de modelo duplicado en $($f.Name):$($h.LineNumber)"
+                  }
+              }
+          }
+
+          $bom = Get-Content (Join-Path $root "docs/governance/AI-BOM.md") -Raw
+          $promptHash = (Get-FileHash -Algorithm SHA256 (Join-Path $root "src/Balansoft.AIAddin.Access/UI/SystemPromptBuilder.cs")).Hash
+          $catalogHash = (Get-FileHash -Algorithm SHA256 (Join-Path $root "src/Balansoft.AIAddin.Access/Helpers/BlsModelCatalog.cs")).Hash
+          if (-not $bom.Contains($promptHash)) { $errors += "AI-BOM: hash del prompt desactualizado ($promptHash)" }
+          if (-not $bom.Contains($catalogHash)) { $errors += "AI-BOM: hash del catálogo desactualizado ($catalogHash)" }
+          if (-not $bom.Contains($modelLiteral)) { $errors += "AI-BOM: falta el modelo exacto" }
+
+          # Sin carga dinámica de prompts/modelos. Assembly.LoadFrom solo se
+          # permite en los dos resolvers de ensamblados locales documentados.
+          $allowedLoadFrom = @('AddinConnect.cs', 'BlsNimTerminal.cs')
+          $forbidden = @('Assembly.LoadFrom', 'Assembly.LoadFile', 'Activator.CreateInstance', 'WebClient.DownloadString', 'WebClient.DownloadFile')
+          foreach ($f in $srcFiles) {
+              $text = Get-Content $f.FullName -Raw
+              foreach ($p in $forbidden) {
+                  if ($text.Contains($p) -and -not ($p -eq 'Assembly.LoadFrom' -and $allowedLoadFrom -contains $f.Name)) {
+                      $errors += "Carga dinámica prohibida '$p' en $($f.Name)"
+                  }
+              }
+          }
+
+          if ($errors.Count -gt 0) {
+              Write-Host "::error::Privacidad/supply chain F5 incompleta:"
+              foreach ($e in $errors) { Write-Host "  - $e" }
+              exit 1
+          }
+          Write-Host "OK: privacidad, supply chain y sincronización F5 verificadas."
+
+      # ─────────────────────────────────────────────
       # 9. Verificar ausencia de PIAs de Office
       # ─────────────────────────────────────────────
       - name: Verificar ausencia de PIAs de Office
@@ -593,7 +703,13 @@ jobs:
               # ADR-017 (F4, verificados)
               "Idempotency_FrameDuplicado_NoEjecutaHandlerDosVeces",
               "Retry_JitterDistribuyeRetrasos",
-              "Breaker_Abierto_NoHaceRequestYEmiteCircuitOpen"
+              "Breaker_Abierto_NoHaceRequestYEmiteCircuitOpen",
+              # ADR-018 (F5, verificados)
+              "Scrub_Email_RedactaYSoloExponeCategoria",
+              "Scrub_ConnectionString_RedactaCredencialesCompletas",
+              "ConHallazgos_Rechazado_DevuelveFalse",
+              "TryGet_CiphertextLegacy_MigraAProtectorV2",
+              "DefaultModel_NimHttpRequestBuilder_EsAliasDelCatalogo"
           )
 
           $blocking = @(
@@ -610,7 +726,12 @@ jobs:
               "Dispatcher_ConCorrelacion_LosEscribeEnElLog",
               "Idempotency_FrameDuplicado_NoEjecutaHandlerDosVeces",
               "Retry_JitterDistribuyeRetrasos",
-              "Breaker_Abierto_NoHaceRequestYEmiteCircuitOpen"
+              "Breaker_Abierto_NoHaceRequestYEmiteCircuitOpen",
+              "Scrub_Email_RedactaYSoloExponeCategoria",
+              "Scrub_ConnectionString_RedactaCredencialesCompletas",
+              "ConHallazgos_Rechazado_DevuelveFalse",
+              "TryGet_CiphertextLegacy_MigraAProtectorV2",
+              "DefaultModel_NimHttpRequestBuilder_EsAliasDelCatalogo"
           )
 
           $allContent = ($testFiles | Get-Content -Raw) -join "`n"
@@ -646,6 +767,9 @@ jobs:
               @{ Regex = 'docs/design/(ADR-\d{3}-[A-Za-z0-9\-]+\.md)';   Dir = 'docs/design' }
               @{ Regex = 'specs/(\d{3}-[A-Za-z0-9\-]+\.md)';             Dir = 'specs' }
               @{ Regex = '\.opencode/skills/(bls-[a-z0-9\-]+/SKILL\.md)'; Dir = '.opencode/skills' }
+              # F5 / R-10: las rutas de código citadas en specs/ y docs/ también
+              # son contratos: si el fichero se mueve, el gate debe fallar.
+              @{ Regex = '`((?:src|tests|docs|specs|\.opencode)/[A-Za-z0-9_./\\-]+\.(?:cs|md|ps1|json|props|slnx|runsettings|example))`'; Dir = '' }
           )
 
           $mdFiles = @()
@@ -661,12 +785,27 @@ jobs:
               foreach ($p in $patterns) {
                   $matches = [regex]::Matches($content, $p.Regex)
                   foreach ($m in $matches) {
-                      $refName = $m.Groups[1].Value
-                      $refPath = Join-Path $root "$($p.Dir)/$refName"
+                      $refName = ($m.Groups[1].Value -replace '\\','/')
+                      # Rutas ilustrativas, no contratos: abreviaturas con
+                      # elipsis, plantillas YYYYMMDD y el placeholder Class1.cs
+                      # del scaffold (documentado como residuo en CONSTITUTION).
+                      if ($refName -match '\.\.\.' -or $refName -match 'YYYYMMDD' -or $refName -like '*Class1.cs') {
+                          continue
+                      }
+                      $refPath = if ($p.Dir) { Join-Path $root "$($p.Dir)/$refName" } else { Join-Path $root $refName }
                       if (-not (Test-Path $refPath)) {
                           $broken += "$($md.Name) -> $refName"
                       }
                   }
+              }
+          }
+
+          # Todo spec NNN-*.md debe aparecer en el índice (R-10).
+          $specIndex = Get-Content (Join-Path $root "specs/README.md") -Raw -Encoding UTF8
+          $specFiles = Get-ChildItem -Path (Join-Path $root "specs") -Filter "[0-9][0-9][0-9]-*.md" -File
+          foreach ($s in $specFiles) {
+              if ($specIndex -notmatch [regex]::Escape($s.Name)) {
+                  $broken += "specs/README.md no indexa $($s.Name)"
               }
           }
 

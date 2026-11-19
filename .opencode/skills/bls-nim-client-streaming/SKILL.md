@@ -30,14 +30,16 @@ Content-Type:  application/json
 ```
 
 ### Modelo fijo
-`nvidia/nemotron-3.5-lightning-30b-a3b` (override por variable de entorno
-`NIM_MODEL`). **Nunca** se elige desde la UI (fuera de MVP).
+La única fuente en código es `Helpers/BlsModelCatalog.cs`
+(`nvidia/nemotron-3.5-lightning-30b-a3b`); `NIMHttpRequestBuilder.DefaultModel`
+es un alias compatible. Override por `NIM_MODEL`, validado por `BlsContract`.
+**Nunca** se elige desde la UI (fuera de MVP) ni se descarga en runtime (F5).
 
 ### Body (resumen)
 ```json
 {
   "model": "nvidia/nemotron-3.5-lightning-30b-a3b",
-  "messages": [ /* system + historial + user */ ],
+  "messages": [ /* system + historial + user, SIEMPRE saneados por BlsPiiScrubber */ ],
   "tools": [ /* 10 tools del bridge, ver skill bls-jsonrpc-pipe-bridge */ ],
   "tool_choice": "auto",
   "stream": true,

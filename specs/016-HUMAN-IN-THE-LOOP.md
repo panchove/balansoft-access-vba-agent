@@ -28,7 +28,7 @@ entregado por el propio modelo y `DeleteModule` podía devolver éxito sin borra
 - Incluye: kill switch, clasificación de riesgo, aprobación UI, rechazo sin bridge, DbC en
   `DeleteModule`, textos localizados y registro de decisiones con hash del payload.
 - Excluye: logger JSON con cadena SHA-256 (F3), idempotencia de reenvíos (F4),
-  redacción de PII (F5).
+  redacción de PII (implementada en F5 / spec 019).
 
 ## Requisitos
 

@@ -28,11 +28,13 @@ serialice en JSON.
 - `DataProtectionScope.CurrentUser` **obligatorio**.
 - **Nunca** `LocalMachine` (permitiría a otro usuario de la máquina
   descifrarla).
-- Entropía adicional fija (defensa en profundidad contra otros procesos
-  del mismo usuario):
+- Entropía adicional **derivada** (F5 / ADR-018), no embebida como literal:
   ```
-  entropy = UTF8("Balansoft.AIAddin.Access.v1")
+  entropy = SHA256("Balansoft.AIAddin.Access.v2|" + MachineName + "|" + UserName)
   ```
+  La entropía fija `UTF8("Balansoft.AIAddin.Access.v1")` se conserva **solo
+  como fallback de lectura**: si falla el descifrado v2, se intenta con v1 y la
+  key se reencripta con v2 antes de devolverla, sin pedírsela al usuario.
 
 ### Persistencia
 - Archivo: `%APPDATA%\Balansoft\AIAddin\apikey.bin`
@@ -86,12 +88,14 @@ public interface IDataProtector
     byte[] Unprotect(byte[] ciphertext);
 }
 
-internal sealed class DpapiDataProtector : IDataProtector { /* ProtectedData */ }
+internal sealed class DerivedEntropyDpapiDataProtector : IDataProtector { /* v2 */ }
+internal sealed class DpapiDataProtector : IDataProtector { /* v1, solo lectura */ }
 ```
 
 `BlsSecureStore` recibe `IDataProtector` + `string filePath` por
-constructor. Tests inyectan un fake que hace XOR con clave fija, y
-verifican que **nunca** se escribe el plaintext al disco.
+constructor y un cuarto parámetro opcional `legacyProtector` para la
+migración transparente (F5). Tests inyectan protectores deterministas con
+versión y verifican que **nunca** se escribe el plaintext al disco.
 
 ### Prohibiciones absolutas
 - **Nunca** loguear la API key (ni completa ni parcial, ni su hash).
@@ -235,7 +239,8 @@ loguea y se sigue.
 ## Checklist antes de commitear cambios en secure store / history
 
 - [ ] ¿`DataProtectionScope.CurrentUser`?
-- [ ] ¿Entropía adicional fija `"Balansoft.AIAddin.Access.v1"`?
+- [ ] ¿Entropía derivada v2 (SHA-256 de equipo + usuario + versión)?
+- [ ] ¿El v1 solo se usa como fallback de lectura y se reencripta al leer?
 - [ ] ¿El archivo es binario (no base64, no JSON)?
 - [ ] ¿`TryGetApiKey` no lanza si no existe?
 - [ ] ¿La key nunca aparece en logs, excepciones ni JSON?
