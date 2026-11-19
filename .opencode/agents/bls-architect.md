@@ -38,7 +38,7 @@ cada entrega pase los gates de CI, incluidos los de gobernanza de IA.
 2. **Spec primero** — ninguna feature entra sin criterios de aceptación verificables.
 3. **Implementar** — con las reglas duras de `AGENTS.md` (sin PIAs, sin ROT, `dynamic`
    confinado a `BlsComHelper`, `IUiScheduler`, DPAPI, `TreatWarningsAsErrors`).
-4. **Verificar** — build Debug/Release en x86 y x64, suite de tests y los 9 gates de CI.
+4. **Verificar** — build Debug/Release en x86 y x64, suite de tests y los 10 gates de CI.
 5. **Gobernanza** — comprobar que el cambio respeta:
    - `docs/governance/AI-POLICY.md`
    - `docs/governance/AI-RISK-REGISTER.md`
@@ -48,19 +48,20 @@ cada entrega pase los gates de CI, incluidos los de gobernanza de IA.
    `AI-Assistant: OpenCode Big Pickle` en los commits.
 7. **Reportar** — estado `Ready / Blocked / Needs-review`.
 
-## Gates de CI (9)
+## Gates de CI (10)
 
 | # | Gate |
 |---|------|
 | 1 | Build Debug/Release x86 y x64, 0 warnings |
 | 2 | Suite de tests en verde |
 | 3 | Gobernanza IA: documentos, divulgación y agente único |
-| 4 | Documentos obligatorios presentes |
-| 5 | Ausencia de PIAs de Office |
-| 6 | `dynamic` aislado en `Helpers/BlsComHelper.cs` |
-| 7 | Ausencia de `Thread.Sleep` en tests |
-| 8 | Tests de ADR obligatorios presentes |
-| 9 | Referencias cruzadas rotas en Markdown |
+| 4 | Fail-safe/HITL: kill switch, aprobación y DbC en `DeleteModule` |
+| 5 | Documentos obligatorios presentes |
+| 6 | Ausencia de PIAs de Office |
+| 7 | `dynamic` aislado en `Helpers/BlsComHelper.cs` |
+| 8 | Ausencia de `Thread.Sleep` en tests |
+| 9 | Tests de ADR obligatorios presentes |
+| 10 | Referencias cruzadas rotas en Markdown |
 
 ## Restricciones (no negociables)
 
@@ -71,12 +72,13 @@ cada entrega pase los gates de CI, incluidos los de gobernanza de IA.
 - Named-pipe framing 4 bytes LE + UTF-8 JSON; identidad SHA-256 de ruta normalizada.
 - Un `CancellationTokenSource` por turno; `MaxToolIterations = 8`.
 - Modelo único declarado en `docs/governance/AI-BOM.md` (override `NIM_MODEL`).
-- Ninguna tool destructiva sin aprobación humana registrada (F2, en curso).
+- Ninguna tool de riesgo medio/alto sin aprobación humana registrada (F2 / ADR-015).
+- `BlsSafetyGate` se comprueba antes de cada turno y de cada tool call; rechazo nunca invoca el bridge.
 
 ## Flujo
 
 ```text
-Issue → validar spec → implementar → build + tests + 9 gates →
+Issue → validar spec → implementar → build + tests + 10 gates →
    ✅ Merge → tag v* → Release workflow → GitHub Release
 ```
 

@@ -82,6 +82,11 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     private readonly ISystemPromptBuilder _promptBuilder;
     private readonly IUserInputDialog _userInputDialog;
 
+    // F2 — fail-safe y supervisión humana (Pilares 3 y 4).
+    private readonly BlsSafetyGate _safetyGate = new();
+    private readonly BlsToolRiskPolicy _riskPolicy = new();
+    private readonly BlsHumanApprovalGate _approvalGate;
+
     private CancellationTokenSource? _currentTurnCts;
     private HistoryDocument? _currentDoc;
     private bool _isDisposed;
@@ -113,6 +118,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     private TextBox _input = null!;
     private Button _btnEnviar = null!;
     private Button _btnDetener = null!;
+    private Button _btnKillSwitch = null!;
     private Label _lblStatus = null!;
     private Label _lblAiDisclosure = null!;
     private bool _loadingSessions;
@@ -129,7 +135,8 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         IBlsLogger logger,
         IVbeContextProvider vbeContext,
         ISystemPromptBuilder promptBuilder,
-        IUserInputDialog userInputDialog)
+        IUserInputDialog userInputDialog,
+        Func<BlsApprovalRequest, bool>? approvalPrompt = null)
     {
         _nimClient = BlsContract.RequiresNotNull(nimClient, nameof(nimClient));
         _bridgeClient = BlsContract.RequiresNotNull(bridgeClient, nameof(bridgeClient));
@@ -140,6 +147,9 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         _vbeContext = BlsContract.RequiresNotNull(vbeContext, nameof(vbeContext));
         _promptBuilder = BlsContract.RequiresNotNull(promptBuilder, nameof(promptBuilder));
         _userInputDialog = BlsContract.RequiresNotNull(userInputDialog, nameof(userInputDialog));
+        _approvalGate = new BlsHumanApprovalGate(
+            approvalPrompt ?? DefaultApprovalPrompt,
+            _logger);
 
         InitializeComponent();
         _logger.Info("BlsNimTerminal", "Terminal creada");
@@ -445,6 +455,18 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             Font = new Font("Segoe UI", 9F)
         };
 
+        // F2 — Kill switch: detiene TODA la actividad IA hasta reactivación explícita.
+        _btnKillSwitch = new Button
+        {
+            Text = BlsStrings.Get("BtnSafety"),
+            Dock = DockStyle.Right,
+            Width = 95,
+            Height = 28,
+            Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+            BackColor = Color.MistyRose
+        };
+        _btnKillSwitch.Click += OnKillSwitchClick;
+
         _lblStatus = new Label
         {
             Text = BlsStrings.Get("StatusReady"),
@@ -458,6 +480,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         bottomControls.Controls.Add(_lblStatus);
         bottomControls.Controls.Add(_btnEnviar);
         bottomControls.Controls.Add(_btnDetener);
+        bottomControls.Controls.Add(_btnKillSwitch);
 
         // Botonera de comandos rápidos (Slash Commands)
         _commandBar = new FlowLayoutPanel
@@ -925,6 +948,8 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             _btnLimpiarDetalle.Text = BlsStrings.Get("BtnClearDetail");
             _btnDetener.Text = BlsStrings.Get("BtnStop");
             _btnEnviar.Text = BlsStrings.Get("BtnSend");
+            _btnKillSwitch.Text = BlsStrings.Get(
+                _safetyGate.IsTripped ? "BtnSafetyReset" : "BtnSafety");
             _lblStatus.Text = BlsStrings.Get("StatusReady");
             _lblAiDisclosure.Text = BlsStrings.Get("AiDisclosure");
 
@@ -1067,6 +1092,19 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             return;
         }
 
+        // F2 — el kill switch se comprueba antes de iniciar cualquier turno.
+        try
+        {
+            _safetyGate.EnsureAllowed();
+        }
+        catch (BlsSafetyTrippedException ex)
+        {
+            _logger.Warn("SAFETY", $"Turno bloqueado por kill switch: {ex.Message}");
+            AppendError(BlsStrings.Get("MsgSafetyTripped", ex.Message));
+            SetState(BlsStrings.Get("StatusError"));
+            return;
+        }
+
         var prompt = _input.Text.Trim();
         if (string.IsNullOrEmpty(prompt))
         {
@@ -1136,6 +1174,34 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             _currentTurnCts.Cancel();
             SetState("Cancelando...");
         }
+    }
+
+    /// <summary>
+    /// F2 — Kill switch. A diferencia de "Detener" (cancela un turno), esto bloquea
+    /// TODAS las acciones de IA hasta una reactivación humana explícita (Pilar 3).
+    /// </summary>
+    private void OnKillSwitchClick(object? sender, EventArgs e)
+    {
+        if (_safetyGate.IsTripped)
+        {
+            _safetyGate.Reset();
+            _logger.Info("SAFETY", "Kill switch desactivado por el usuario.");
+            _btnKillSwitch.Text = BlsStrings.Get("BtnSafety");
+            _btnKillSwitch.BackColor = Color.MistyRose;
+            _btnEnviar.Enabled = _currentTurnCts == null;
+            SetState(BlsStrings.Get("StatusReady"));
+            return;
+        }
+
+        const string reason = "kill switch activado manualmente por el usuario";
+        _safetyGate.Trip(reason);
+        _currentTurnCts?.Cancel();
+        _logger.Warn("SAFETY", "Kill switch ACTIVADO: turno cancelado y nuevas acciones de IA bloqueadas.");
+        _btnKillSwitch.Text = BlsStrings.Get("BtnSafetyReset");
+        _btnKillSwitch.BackColor = Color.LightCoral;
+        _btnEnviar.Enabled = false;
+        SetState(BlsStrings.Get("StatusError"));
+        AppendError(BlsStrings.Get("MsgSafetyTripped", reason));
     }
 
     private void OnFormClosing(object? sender, FormClosingEventArgs e)
@@ -1416,6 +1482,49 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     /// </summary>
     private async Task<string> ExecuteToolAsync(ToolCallComplete call, CancellationToken ct)
     {
+        // F2 · Capa 0 — fail-safe: el kill switch se evalúa ANTES de cualquier efecto.
+        try
+        {
+            _safetyGate.EnsureAllowed();
+        }
+        catch (BlsSafetyTrippedException ex)
+        {
+            _logger.Warn("SAFETY", $"Tool {call.Name} bloqueada por kill switch: {ex.Message}");
+            return RejectTool(call, "SAFETY_TRIPPED", ex.Message, null);
+        }
+
+        // F2 · Capa 1 — política de riesgo + aprobación humana real (Pilar 4).
+        var risk = _riskPolicy.GetRisk(call.Name);
+        if (BlsToolRiskPolicy.RequiresApproval(risk))
+        {
+            var argsJson = string.IsNullOrWhiteSpace(call.ArgumentsJson) ? "{}" : call.ArgumentsJson;
+            var approval = BlsApprovalRequest.Create(call.Name, risk, argsJson);
+            var decision = _approvalGate.Evaluate(approval);
+
+            if (decision == ApprovalDecision.Denied)
+            {
+                _logger.Warn(
+                    "HITL",
+                    $"Tool {call.Name} denegada; bridge NO invocado (payload_sha256={approval.PayloadSha256})");
+                return RejectTool(
+                    call,
+                    "HITL_DENIED",
+                    BlsStrings.Get("MsgToolDenied", call.Name, approval.PayloadSha256),
+                    approval);
+            }
+
+            // El usuario pudo activar el kill switch mientras tomaba la decisión.
+            try
+            {
+                _safetyGate.EnsureAllowed();
+            }
+            catch (BlsSafetyTrippedException ex)
+            {
+                return RejectTool(call, "SAFETY_TRIPPED", ex.Message, approval);
+            }
+        }
+
+        // Capa 2 — ejecución contra el bridge (comportamiento previo a F2).
         try
         {
             JsonElement args;
@@ -1472,6 +1581,81 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
             return errorJson;
         }
+    }
+
+    /// <summary>
+    /// Rechaza una tool call SIN invocar el bridge y devuelve un JSON de error
+    /// estructurado para que el modelo pueda reaccionar (sin falso éxito, Pilar 3).
+    /// </summary>
+    private string RejectTool(
+        ToolCallComplete call,
+        string code,
+        string message,
+        BlsApprovalRequest? approval)
+    {
+        var payload = new Dictionary<string, string>
+        {
+            ["error"] = message,
+            ["code"] = code,
+            ["tool"] = call.Name
+        };
+        if (approval != null)
+        {
+            payload["payload_sha256"] = approval.PayloadSha256;
+        }
+
+        var json = JsonSerializer.Serialize(payload);
+        OnUi(() =>
+        {
+            AppendToolErrorMessage(call.Name, message, call.Id);
+            _currentDoc?.Messages.Add(new HistoryMessage
+            {
+                Role = "tool",
+                Content = json,
+                Ts = DateTime.UtcNow,
+                ToolName = call.Name,
+                ToolCallId = call.Id
+            });
+        });
+        return json;
+    }
+
+    /// <summary>
+    /// Prompt de aprobación por defecto: MessageBox modal con "No" como botón
+    /// predeterminado, para que un Enter accidental nunca autorice una escritura.
+    /// </summary>
+    private bool DefaultApprovalPrompt(BlsApprovalRequest request)
+    {
+        return OnUiFunc(() =>
+        {
+            var body = BlsStrings.Get(
+                "MsgApproveBody",
+                request.ToolName,
+                request.Risk,
+                request.Preview,
+                request.PayloadSha256);
+            var answer = MessageBox.Show(
+                this,
+                body,
+                BlsStrings.Get("MsgApproveTitle"),
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2);
+            return answer == DialogResult.Yes;
+        });
+    }
+
+    /// <summary>
+    /// Marshaling síncrono al hilo UI cuando se necesita un valor de retorno
+    /// (los diálogos modales no funcionan con el <see cref="OnUi"/> asíncrono).
+    /// </summary>
+    private T OnUiFunc<T>(Func<T> func)
+    {
+        if (InvokeRequired && IsHandleCreated && !IsDisposed)
+        {
+            return (T)Invoke(func);
+        }
+        return func();
     }
 
     /// <summary>

@@ -59,12 +59,23 @@ Whitelist en `JsonRpcMethods.All`. Operaciones de escritura marcadas con ✍️ 
 | Servidores MCP | **Ninguno** | Eliminados en el diseño v1.1.0 |
 | CLI de agentes externos | **Ninguno en runtime** | Uso solo en desarrollo |
 
-## 5. Secretos
+## 5. Controles de seguridad (F2)
+
+| Control | Implementación | Evidencia |
+|---------|----------------|-----------|
+| Kill switch | `BlsSafetyGate` (`Trip`/`Reset`/`EnsureAllowed`) + botón en `BlsNimTerminal` | `BlsSafetyGateTests` (5) |
+| Política de riesgo | `BlsToolRiskPolicy` (19 tools; desconocida ⇒ `High`) | `BlsToolRiskPolicyTests` (5) |
+| Aprobación humana | `BlsHumanApprovalGate` + MessageBox ("No" por defecto) | `BlsHumanApprovalGateTests` (5) |
+| Huella del payload | `BlsApprovalRequest.PayloadSha256` (SHA-256 UTF-8) | `BlsApprovalRequestTests` (3) |
+| Rechazo sin efectos | `RejectTool` devuelve `HITL_DENIED`/`SAFETY_TRIPPED`, sin bridge | Spec 016 §R006 |
+| DbC destructiva | `BlsComHelper.DeleteModule` lanza `BlsPreconditionException` | `BlsComHelperSafetyTests` (3) |
+
+## 6. Secretos
 
 La API key se almacena cifrada con DPAPI (`BlsSecureStore`) y nunca se escribe en logs,
 excepciones, JSON, registry ni disco en claro. `NIM_API_KEY` solo se usa en tests de integración.
 
-## 6. Brechas conocidas
+## 7. Brechas conocidas
 
 1. El modelo y el endpoint están duplicados en `AGENTS.md`, `.opencode/opencode.json`, `MEMORY.md`,
    `SystemPromptBuilder.cs` y documentación: requieren una única fuente de verdad (F5).

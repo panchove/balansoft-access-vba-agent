@@ -17,8 +17,8 @@ tags: [governance, risk-register, iso-42001, iso-23894]
 
 | ID | Riesgo | Pilar | P | I | Nivel | Control actual | Control planificado | Estado |
 |----|--------|-------|---|---|-------|----------------|---------------------|--------|
-| R-01 | El LLM emite un tool call destructivo sin aprobación humana | 4, 2 | M | A | **Crítico** | `confirm` es un bool entregado por el propio modelo | MessageBox + registro de aprobación (F2) | 🔴 Abierto |
-| R-02 | Falsa confirmación de éxito ante un fallo (p. ej. `DeleteModule` hace `return`) | 3, 16 | M | A | **Crítico** | Ninguno; el system prompt lo prohíbe pero el código lo hace | Excepción + postcondición (F2) | 🔴 Abierto |
+| R-01 | El LLM emite un tool call destructivo sin aprobación humana | 4, 2 | M | A | **Crítico** | `confirm` era un bool entregado por el propio modelo | `BlsHumanApprovalGate` + MessageBox ("No" por defecto) + `payload_sha256` | 🟢 Cerrado en F2 |
+| R-02 | Falsa confirmación de éxito ante un fallo (p. ej. `DeleteModule` hace `return`) | 3, 16 | M | A | **Crítico** | Ninguno; el system prompt lo prohíbe pero el código lo hace | DbC: `BlsPreconditionException` + JSON `{"error":...}` sin bridge | 🟢 Cerrado en F2 |
 | R-03 | Fuga de PII/connection strings al endpoint externo | 24 | M | A | **Crítico** | Truncamiento a 32 KB (no es saneamiento) | PII scrubber + consentimiento (F5) | 🔴 Abierto |
 | R-04 | Logs no auditables (texto plano, sin hash encadenado) | 6, 20 | A | M | **Alto** | `BlsLogger` escribe texto plano y traga excepciones | Logger JSON + cadena SHA-256 (F3) | 🔴 Abierto |
 | R-05 | Sin trazabilidad punta a punta de un turno | 20 | A | M | **Alto** | `JsonRpcErrorData` sin `trace_id` | `correlation_id` propagado (F3) | 🔴 Abierto |
@@ -28,7 +28,7 @@ tags: [governance, risk-register, iso-42001, iso-23894]
 | R-09 | Backoff sin jitter ni circuit breaker satura el proveedor | 22 | M | M | **Medio** | Backoff fijo 1/2/4 s | Jitter + breaker (F4) | 🔴 Abierto |
 | R-10 | Deriva documentación ↔ código | 17 | A | M | **Alto** | Historial de drift ya documentado | Gate de cross-refs + reindex MCP | 🟡 Mitigado parcial |
 | R-11 | Entropía fija DPAPI debilita la protección de la API key | 21, 18 | B | A | **Alto** | DPAPI CurrentUser con entropía fija | Derivar entropía de datos no secretos del equipo | 🔴 Abierto |
-| R-12 | Bucle infinito de tool calls | 3 | B | A | **Alto** | `MaxToolIterations = 8` | Kill switch externo (F2) | 🟡 Mitigado parcial |
+| R-12 | Bucle infinito de tool calls | 3 | B | A | **Alto** | `MaxToolIterations = 8` | `BlsSafetyGate`: kill switch cancela el turno y bloquea nuevos envíos | 🟢 Cerrado en F2 |
 
 ## 2. Criterios de aceptación del riesgo
 

@@ -190,8 +190,8 @@ Para waits con timeout existe el helper `tests/.../Infrastructure/TaskTestExtens
 
 1. El build `Debug` o `Release` (x86 o x64) de los `.csproj` no sale limpio con
    `TreatWarningsAsErrors`.
-2. Los tests (sin integración NIM) no están verdes: 166/166.
-3. Falta cualquiera de los 47 documentos obligatorios.
+2. Los tests (sin integración NIM) no están verdes: 188/188.
+3. Falta cualquiera de los 50 documentos obligatorios.
 4. Aparece `Microsoft.Office.Interop` en `src/`.
 5. Aparece `dynamic` fuera de `Helpers/BlsComHelper.cs`.
 6. Aparece `Thread.Sleep` en `tests/`.

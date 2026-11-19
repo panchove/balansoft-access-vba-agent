@@ -28,7 +28,7 @@ puntos de control se verifican en CI (gate *Gobernanza IA*) y no dependen de la 
 | P-AI-3 | Las operaciones del modelo pasan por una whitelist de tools con esquema validado. | `JsonRpcMethods.All` + JSON Schema |
 | P-AI-4 | Ningún secreto, PII ni fragmento de código sensible se envía al proveedor sin revisión. | Gate de PII (F5, pendiente) |
 | P-AI-5 | Todo comportamiento del modelo es trazable y auditable. | Logs SHA-256 (F3, pendiente) |
-| P-AI-6 | El sistema degrada con seguridad: parada determinista independiente del modelo. | Kill switch (F2, pendiente) |
+| P-AI-6 | El sistema degrada con seguridad: parada determinista independiente del modelo. | `BlsSafetyGate` + botón de kill switch (F2) |
 | P-AI-7 | La configuración del modelo está versionada e inventariada. | `docs/governance/AI-BOM.md` |
 | P-AI-8 | Un solo agente de desarrollo; la gobernanza se aplica por gates de CI, no por agentes que "revisan". | `agents_index` = 1 |
 
@@ -59,11 +59,13 @@ El agente que produzca este u otros informes debe declarar su naturaleza de IA.
 | Nivel | Operaciones | Gate |
 |-------|-------------|------|
 | Bajo | Lectura, explicación, resumen | Ninguno (registro en log) |
-| Medio | `write_module`, `create_module`, `create_form`, `create_query` | Confirmación UI + log de aprobación |
-| Alto | `delete_module`, `execute_sql`, `create_table`, `migrate_*`, `delete_*` | Confirmación UI con detalle del payload + kill switch accesible |
+| Medio | `write_module`, `create_module`, `create_form`, `create_table`, `create_query`, `create_ribbon` | Confirmación UI + log de aprobación con `payload_sha256` |
+| Alto | `delete_module`, `execute_sql`, `migrate_*` | Confirmación UI con detalle del payload + kill switch accesible y rechequeado |
 
-Pendiente de implementación en F2. Hasta entonces, las operaciones de nivel medio y alto
-**no están autorizadas para uso en producción**.
+Implementado en F2 (`BlsSafetyGate`, `BlsToolRiskPolicy`, `BlsHumanApprovalGate` y botón de
+kill switch en la terminal). El rechazo devuelve un JSON de error y **no invoca el bridge**.
+Las operaciones de nivel bajo no requieren aprobación, pero quedan bloqueadas si el kill
+switch está disparado. Los riesgos R-03 y R-04/R-05 siguen abiertos (F3/F5).
 
 ## 7. Gestión de cambios
 

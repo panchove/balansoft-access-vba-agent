@@ -23,7 +23,7 @@ Permite chatear con modelos LLM, ejecutar *tool calls* y persistir el historial 
 - **Historial de chat** por proyecto (identidad = SHA‑256 de la ruta normalizada – ADR‑001).
 - **Terminal NIM** WinForms con loop de herramientas, *tool calls* y renderizado de resultados.
 - **Registro COM** per‑user / per‑machine mediante scripts PowerShell (x86 o x64 según la arquitectura de Access instalada).
-- **CI/CD** completo: build x86/x64, 166 tests unitarios, 8 gates de calidad, versionado SemVer automático (Nerdbank.GitVersioning) y release automático al pushear tag `v*`.
+- **CI/CD** completo: build x86/x64, 188 tests unitarios, 10 gates de calidad, versionado SemVer automático (Nerdbank.GitVersioning) y release automático al pushear tag `v*`.
 
 ---
 
@@ -47,7 +47,7 @@ cd balansoft-access-vba-agent
 # 2. Compilar (Debug x86)
 dotnet build src\Balansoft.AIAddin.Access\Balansoft.AIAddin.Access.csproj -c Debug -p:Platform=x86
 
-# 3. Ejecutar tests (166/166)
+# 3. Ejecutar tests (188/188)
 dotnet vstest tests\Balansoft.AIAddin.Tests\bin\x86\Debug\net48\Balansoft.AIAddin.Tests.dll `
   /Settings:.runsettings /Platform:x86
 
@@ -77,28 +77,29 @@ Este repositorio aplica los **25 Pilares** de `AI_GOVERNANCE.md` (ISO/IEC 42001:
 - [Política de IA](docs/governance/AI-POLICY.md) · [Registro de riesgos](docs/governance/AI-RISK-REGISTER.md) · [AI-BOM](docs/governance/AI-BOM.md) · [Modelo de amenazas](docs/governance/OWASP-AGENTIC-THREAT-MODEL.md).
 - **Agente único:** `bls-architect`. La auditoría ISO se ejecuta como gates de CI, no como agentes que revisan.
 - **Divulgación:** la terminal muestra de forma persistente que el contenido es asistido por IA (Art. 50 EU AI Act).
+- **Fail-safe/HITL (F2):** kill switch, aprobación real para tools `Medium`/`High` y rechazo sin invocar el bridge ([ADR-015](docs/design/ADR-015-HUMAN-IN-THE-LOOP.md), [spec 016](specs/016-HUMAN-IN-THE-LOOP.md)).
 
-> ⚠️ Los riesgos **R-01** (tool destructiva sin gate humano), **R-02** (falso éxito) y **R-03** (PII al proveedor) siguen abiertos. Las operaciones de escritura/destrucción no están autorizadas en producción hasta completar F2/F5.
+> ⚠️ Los riesgos **R-01**, **R-02** y **R-12** quedaron cerrados en F2. Siguen abiertos **R-03** (PII al proveedor, F5) y **R-04/R-05** (logs JSON con hash encadenado y `correlation_id`, F3).
 
 ## 📂 Estructura del repositorio
 ```
 src/
   Balansoft.AIAddin.Access/   # Add-in COM, Core, Helpers, UI (WinForms)
 tests/
-  Balansoft.AIAddin.Tests/    # 166 tests unitarios (MSTest)
+  Balansoft.AIAddin.Tests/    # 188 tests unitarios (MSTest)
 docs/
-  design/                     # 14 ADRs (ADR-001 … ADR-014)
+  design/                     # 15 ADRs (ADR-001 … ADR-015)
   governance/                 # política, riesgos, AI-BOM y threat model (ISO 42001)
   PRD.md
   CONSTITUTION.md
-specs/                        # 15 specs (001–015) con criterios de aceptación
+specs/                        # 16 specs (001–016) con criterios de aceptación
 scripts/
   RegisterAddin.ps1
   UnregisterAddin.ps1
   Pack.ps1
   dev.ps1
 .github/workflows/
-  ci.yml          # build + test + 8 gates
+  ci.yml          # build + test + 10 gates
   release.yml     # tag v* → GitHub Release + ZIP
 .opencode/
   agents/         # bls-architect, bls-planner, bls-implementer, bls-reviewer, bls-iso

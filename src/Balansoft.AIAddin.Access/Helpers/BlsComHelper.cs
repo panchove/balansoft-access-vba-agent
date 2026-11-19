@@ -472,7 +472,14 @@ namespace Balansoft.AIAddin.Access.Helpers
         public static void DeleteModule(object? vbe, string name, bool confirm)
         {
             BlsContract.RequiresNotNullOrWhiteSpace(name, nameof(name));
-            if (vbe == null || !confirm) return;
+            // F2 / R-02: antes aquí había un `return` silencioso que el bridge
+            // reportaba como éxito. Una precondición incumplida DEBE propagarse.
+            BlsContract.Requires(
+                vbe != null,
+                "Se requiere una instancia VBE para eliminar un módulo.");
+            BlsContract.Requires(
+                confirm,
+                "delete_module requiere confirmación explícita (confirm:true).");
             try
             {
                 dynamic v = vbe;

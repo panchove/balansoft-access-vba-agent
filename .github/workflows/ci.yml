@@ -164,6 +164,7 @@ jobs:
               "docs/design/ADR-012-ADDIN-LIFECYCLE.md",
               "docs/design/ADR-013-SESSION-MANAGEMENT.md",
               "docs/design/ADR-014-ACCESS-AUTHORING.md",
+              "docs/design/ADR-015-HUMAN-IN-THE-LOOP.md",
               "specs/README.md",
               "specs/001-ADDIN-LIFECYCLE.md",
               "specs/002-VBE-BRIDGE.md",
@@ -179,6 +180,8 @@ jobs:
               "specs/012-ACCESS-AUTHORING.md",
               "specs/013-SESSION-DELETE.md",
               "specs/014-I18N-UI.md",
+              "specs/015-AI-DISCLOSURE.md",
+              "specs/016-HUMAN-IN-THE-LOOP.md",
               "Directory.Build.props",
               ".runsettings",
               "Balansoft.AIAddin.slnx",
@@ -266,6 +269,57 @@ jobs:
               exit 1
           }
           Write-Host "OK: gobernanza IA, divulgacion y agente unico verificados."
+
+      # ─────────────────────────────────────────────
+      # 8c. Fail-safe y supervision humana (F2 / ADR-015)
+      #
+      # Impide registrar una regression silenciosa del kill switch, del gate
+      # HITL o del DbC en DeleteModule (riesgos R-01, R-02 y R-12).
+      # ─────────────────────────────────────────────
+      - name: Fail-safe y supervision humana (HITL)
+        shell: pwsh
+        run: |
+          $root = $PWD.Path
+          $errors = @()
+
+          $required = @(
+              "src/Balansoft.AIAddin.Access/Helpers/BlsSafetyGate.cs",
+              "src/Balansoft.AIAddin.Access/Helpers/BlsToolRiskPolicy.cs",
+              "src/Balansoft.AIAddin.Access/Helpers/BlsApprovalRequest.cs",
+              "src/Balansoft.AIAddin.Access/Helpers/BlsHumanApprovalGate.cs",
+              "docs/design/ADR-015-HUMAN-IN-THE-LOOP.md",
+              "specs/016-HUMAN-IN-THE-LOOP.md",
+              "tests/Balansoft.AIAddin.Tests/Helpers/BlsSafetyGateTests.cs",
+              "tests/Balansoft.AIAddin.Tests/Core/BlsComHelperSafetyTests.cs"
+          )
+          foreach ($f in $required) {
+              if (-not (Test-Path (Join-Path $root $f))) {
+                  $errors += "Falta artefacto de fail-safe/HITL: $f"
+              }
+          }
+
+          $terminal = Join-Path $root "src/Balansoft.AIAddin.Access/UI/BlsNimTerminal.cs"
+          if (Test-Path $terminal) {
+              $t = Get-Content $terminal -Raw
+              foreach ($token in @('_safetyGate', '_approvalGate', '_btnKillSwitch', 'MessageBoxDefaultButton.Button2', 'HITL_DENIED', 'SAFETY_TRIPPED')) {
+                  if (-not $t.Contains($token)) { $errors += "BlsNimTerminal.cs no contiene $token" }
+              }
+          }
+
+          $comHelper = Join-Path $root "src/Balansoft.AIAddin.Access/Helpers/BlsComHelper.cs"
+          if (Test-Path $comHelper) {
+              $c = Get-Content $comHelper -Raw
+              if ($c -match 'if\s*\(\s*vbe\s*==\s*null\s*\|\|\s*!confirm\s*\)\s*return') {
+                  $errors += "Regresion R-02: DeleteModule vuelve a hacer return silencioso"
+              }
+          }
+
+          if ($errors.Count -gt 0) {
+              Write-Host "::error::Fail-safe/HITL incompleto:"
+              foreach ($e in $errors) { Write-Host "  - $e" }
+              exit 1
+          }
+          Write-Host "OK: kill switch, HITL y DbC en DeleteModule verificados."
 
       # ─────────────────────────────────────────────
       # 9. Verificar ausencia de PIAs de Office
@@ -371,7 +425,11 @@ jobs:
               "ProjectKey_DescriptionOverride_UsaValorDeclarado",
               # ADR-004 (pendiente: IBlsAccess real)
               "ObjectDetail_Tabla_DevuelveCamposSinSql",
-              "ObjectDetail_SqlExcede8KB_TruncaYMarca"
+              "ObjectDetail_SqlExcede8KB_TruncaYMarca",
+              # ADR-015 (F2, verificados)
+              "Trip_EnsureAllowed_ThrowsWithReason",
+              "HighRisk_Denied_ReturnsDenied",
+              "DeleteModule_WithoutConfirm_Throws"
           )
 
           $blocking = @(
@@ -379,7 +437,10 @@ jobs:
               "Frame_Excede1MB_CierraConError",
               "SendAsync_CanceladoAntesDelPost_NoHaceRequestYEmiteCancelled",
               "SendAsync_CanceladoDuranteBackoff_NoReintenta",
-              "SendAsync_SinDatos_LanzaTimeoutReportadoComoError"
+              "SendAsync_SinDatos_LanzaTimeoutReportadoComoError",
+              "Trip_EnsureAllowed_ThrowsWithReason",
+              "HighRisk_Denied_ReturnsDenied",
+              "DeleteModule_WithoutConfirm_Throws"
           )
 
           $allContent = ($testFiles | Get-Content -Raw) -join "`n"

@@ -4,7 +4,7 @@ COM Add-in para Microsoft Access 2010+ (x86) que integra NVIDIA NIM en el VBE.
 Stack: C# 10, .NET Framework 4.8 (net48), WinForms, sin PIAs, enlace tardío vía `dynamic`.
 ProgID: `Balansoft.AIAddin.Access` | CLSID: `{d31bf73e-dbe1-4739-84bc-2c974fcd3171}`.
 
-> Estado: el producto **no carga todavía en Access** (falta el punto de entrada COM, spec 001). El bridge JSON-RPC, el cliente NIM y el almacén DPAPI están implementados con 166 tests verdes.
+> Estado: el producto **no carga todavía en Access** (falta el punto de entrada COM, spec 001). El bridge JSON-RPC, el cliente NIM y el almacén DPAPI están implementados con 188 tests verdes.
 
 ## Reglas duras (CI las verifica y bloquea el merge)
 
@@ -18,6 +18,7 @@ ProgID: `Balansoft.AIAddin.Access` | CLSID: `{d31bf73e-dbe1-4739-84bc-2c974fcd31
 8. **Errores COM/NIM se propagan** con categoría + mensaje original. Prohibido éxito falso ni `catch (Exception) { }`.
 9. **Nullable=annotations** (no `disable`).
 10. **Todo acceso a VBE/Access desde hilos no-UI** pasa por marshaling explícito al hilo de UI (`IUiScheduler`).
+11. **Supervisión humana obligatoria (F2/ADR-015):** ninguna tool `Medium`/`High` se ejecuta sin aprobación UI registrada; el kill switch (`BlsSafetyGate`) se comprueba antes de cada turno y tool call; un rechazo NUNCA invoca el bridge ni reporta éxito falso.
 
 ## Gobernanza de IA (ISO/IEC 42001 · 25 Pilares)
 
@@ -26,8 +27,9 @@ ProgID: `Balansoft.AIAddin.Access` | CLSID: `{d31bf73e-dbe1-4739-84bc-2c974fcd31
 - **Divulgación:** la terminal muestra `AiDisclosure` de forma persistente (EU AI Act Art. 50).
 - **Agente único:** solo `bls-architect` está activo; la auditoría ISO se ejecuta como gates de CI,
   no como agentes que revisan. `agents_index` debe contener exactamente un agente.
-- **Supervisión humana:** ninguna tool destructiva (`delete_module`, `execute_sql`, `migrate_*`)
-    está autorizada en producción sin aprobación humana registrada (F2, en curso).
+- **Supervisión humana (F2, ADR-015):** `delete_module`, `execute_sql`, `migrate_*` y cualquier
+  tool `Medium`/`High` exigen aprobación UI con `payload_sha256`; el kill switch bloquea
+  nuevas acciones sin intervención del modelo. Quedan abiertos R-03 (PII, F5) y R-04/R-05 (logs, F3).
 - **Trailer de commits con asistencia de IA:** `AI-Assistant: OpenCode Big Pickle`.
   Este trailer **sustituye** el `Co-Authored-By: Claude Code <noreply@anthropic.com>`
   de la configuración global: atribuir la autoría a otro modelo violaría el Pilar 5.
@@ -72,7 +74,7 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1 -Configuration Release
 ## Estructura
 
 - `src/Balansoft.AIAddin.Access/` — add-in COM, Core, Helpers, UI (WinForms)
-- `tests/Balansoft.AIAddin.Tests/` — 166 tests MSTest (fakes, sin COM real). `BalansoftTest.accdb` es la base de prueba para verificar en Access real (no se usa en la suite por defecto).
+- `tests/Balansoft.AIAddin.Tests/` — 188 tests MSTest (fakes, sin COM real). `BalansoftTest.accdb` es la base de prueba para verificar en Access real (no se usa en la suite por defecto).
 - `specs/` — contratos SDD (001–012, MAYÚSCULAS `NNN-<SLUG>.md`); `specs/README.md` es el índice con estados y tests por spec.
 - `docs/design/` — ADR (`ADR-NNN-<SLUG>.md`)
 - `docs/governance/` — política de IA, registro de riesgos, AI-BOM y threat model
@@ -165,5 +167,5 @@ Requiere ADR (documentar por qué y evaluar compatibilidad net48/x86). No se agr
 1. Spec en `specs/` con criterios de aceptación verificables (primero).
 2. Implementar + tests (x86 y x64, sin PIAs, `dynamic` aislado).
 3. Verificar: build Debug + Release en **x86 y x64** y suite de tests verde en ambas arquitecturas.
-4. PR → CI ejecuta 9 gates: build, tests (166/166), gobernanza IA (política, BOM, divulgación y agente único), documentos obligatorios, ausencia de PIAs, aislamiento de `dynamic`, ausencia de `Thread.Sleep` en tests, tests de ADR, referencias cruzadas en MDs.
+4. PR → CI ejecuta 10 gates: build, tests (188/188), gobernanza IA (política, BOM, divulgación y agente único), fail-safe/HITL (kill switch + DbC), documentos obligatorios, ausencia de PIAs, aislamiento de `dynamic`, ausencia de `Thread.Sleep` en tests, tests de ADR, referencias cruzadas en MDs.
 5. Merge a `main` → tag `v*` → release automático.
