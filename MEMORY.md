@@ -2,7 +2,7 @@
 
 > Contexto operativo y de mantenimiento para sesiones futuras.
 > Actualizar al cerrar cada bloque de trabajo relevante.
-> Última actualización: 2026-11-19 (F1 gobernanza IA + F2 fail-safe/HITL; 188 tests verdes, 10 gates de CI).
+> Última actualización: 2026-11-19 (F1 gobernanza IA + F2 fail-safe/HITL + F3 auditoría; 239 tests verdes, 11 gates de CI).
 
 ---
 
@@ -19,7 +19,7 @@
 | Tamaño   | ~3.700 LOC en `src/`, ~2.370 LOC en `tests/`                                         |
 
 **Nota de naming:** el repo se llama `balansoft-access-vba-agent`, la solución
-`Balansoft.AIAddin.*`. Son nombres distintos a propósito; no unificar sin
+`Balansoft.AIAddin.*`. Son nombres distintos a propósito; no uznificar sin
 revisar los scripts de registro, que usan el ProgID.
 
 ---
@@ -62,7 +62,7 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1
 
 **Existen** `.runsettings`, `Directory.Build.props`, y la solución real `Balansoft.AIAddin.slnx`. Los comandos usan los `.csproj` directos (la solución no propaga `Platform` a proyectos SDK-style).
 
-**La CI está operativa** y ejecuta 10 gates: build Debug/Release x86 y x64, tests 188/188, gobernanza IA, fail-safe/HITL, PIAs, `dynamic`, `Thread.Sleep`, documentos, tests ADR y referencias cruzadas. En `push` a `main` ejecuta `Pack.ps1` y sube el ZIP.
+**La CI está operativa** y ejecuta 11 gates: build Debug/Release x86 y x64, tests 239/239, gobernanza IA, fail-safe/HITL, auditoría JSON/hash/correlación (F3), PIAs, `dynamic`, `Thread.Sleep`, documentos, tests ADR y referencias cruzadas. En `push` a `main` ejecuta `Pack.ps1` y sube el ZIP.
 
 ---
 
@@ -144,63 +144,40 @@ pipe del cliente entrante y el segundo recibiría EOF en vez de `busy`).
 
 ## 7. Estado actual
 
-**Suite verde.** Rebuild limpio de ambos proyectos, **188/188 tests**. Reparto:
-`BlsNimClientTests` 28 · `JsonRpcDispatcherTests` 27 · `BlsSafetyGateTests` 18
-· `BlsContractTests` 17 · `BlsStringsTests` 18 · `NimStreamParserTests` 14
-· `BlsVbeBridgeServerTests` 12 · `NimHttpRequestBuilderTests` 11
-· `BlsPipeFramingTests` 10 · `JsonRpcDeserializationTests` 7
-· `BlsChatHistoryMultiSessionTests` 6 · `AddinConnectTests` 5
-· `NimMessageSanitizerTests` 5 · `ProjectKeyAndObjectDetailTests` 5
-· `BlsComHelperSafetyTests` 3 · `NimTerminalIconTests` 2.
+**Suite verde.** Rebuild limpio de ambos proyectos en x86 y x64, **239/239
+tests** (51 nuevos en F3). El reparto completo por fichero está en
+`specs/README.md`.
 
-Implementado: bridge JSON-RPC completo, cliente NIM con streaming SSE y
-retries, secure store DPAPI, historial por proyecto, Terminal con loop de
-herramientas funcional.
+Implementado: ciclo de vida COM (spec 001), bridge JSON-RPC completo, cliente
+NIM con streaming SSE y reintentos, secure store DPAPI, historial por proyecto,
+Terminal con loop de herramientas, divulgación IA persistente (F1),
+fail-safe/HITL con kill switch (F2) y auditoría JSONL con hash encadenado,
+correlación y métricas SLO (F3). El add-in carga en Access.
 
-**Lo que no significa "verde":** el producto no carga en Access. Falta el
-punto de entrada COM. El estado por feature está en `specs/README.md`
-(003 `implementado`; 002/004/005/006 `aceptado`; 001/007/008/009 `borrador`).
+**Lo que no significa "verde":** los riesgos R-03 (PII al proveedor, F5),
+R-06 (idempotencia) y R-09 (jitter/breaker, F4) siguen abiertos; la verificación
+final en Access real con `BalansoftTest.accdb` no está automatizada. Estado por
+feature en `specs/README.md` (015/016/017 `implementado`).
 
 ### Pendiente
 
-- **Lifecycle del add-in** (`specs/001-ADDIN-LIFECYCLE.md`):
-  `OnConnection`, menú Tools, construcción de dependencias, arranque/parada
-  del bridge y shutdown. Nada de esto está cableado todavía.
-- **Implementaciones reales de `IBlsVbe` e `IBlsAccess`.** Solo hay interfaz
-  y dobles de test. Y **`BlsComHelper` no existe**, así que el `dynamic` de
-  P4 no tiene dónde vivir.
-- **`BlsLogger` y `BlsVersion` no existen.** `IBlsLogger` solo tiene
-  `FakeLogger`: ningún log se escribe en producción, así que ningún fallo es
-  diagnosticable. `BlsPaths.LogsDir` está definido y sin usar.
-- **`BlsConstants` no existe.** `.env.example` referencia
-  `BlsConstants.NimReasoningEffort` y `BlsConstants.NimDefaultLanguage`; no
-  hay ninguna clase así en el código. O se implementa o se actualiza el
-  `.env.example`.
-- **Tests ausentes en 004, 005 y 006.** ~600 líneas de WinForms, DPAPI e
-  historial JSON sin una sola aserción. Para la Terminal hay que extraer
-  `RunToolLoopAsync` fuera del `Form` antes de poder testearlo.
+- **F4 — resiliencia:** idempotency keys para reenvío de frames (R-06) y
+  jitter + circuit breaker en el cliente NIM (R-09).
+- **F5 — privacidad:** PII scrubber del prompt y consentimiento (R-03),
+  verificación criptográfica del prompt en runtime y red teaming de inyección.
+- **Deuda heredada de spec 008:** rotación de logs de 7 días y `BlsVersion`
+  (versión + commit en la primera línea del log). ADR-011 queda parcialmente
+  superado por ADR-016.
+- **Calidad:** spec 004 (Terminal, ~600 líneas WinForms sin tests directos),
+  005/006 (código sin aserciones) y 009 (registro incompleto).
 - **Historial con tool calls huérfanos.** `HistoryMessage` no tiene campo
-  `ToolCalls`. Al recargar historial y reconstruir el request se envía un
-  `role="tool"` sin el `assistant` con `tool_calls` que lo precede; NIM
-  debería responder 400. Hoy cada turno pide `project_summary` de nuevo, así
-  que rara vez se nota. Arreglo limpio: añadir `ToolCalls` a `HistoryMessage`.
+  `ToolCalls`; al recargar se envía `role="tool"` sin su `assistant` previo.
+  Arreglo limpio: añadir `ToolCalls` a `HistoryMessage`.
 - **Drift de documentación:** `docs/design/ADR-008-NIM-TERMINAL.md:285-334`
-  describe el `OnToolCall`/`OnDone` antiguos, que provocaban una carrera
-  (el turno se cerraba a mitad del loop y el CTS se liberaba antes de que
-  la tool ejecutara). El código ya no los sigue. `specs/004` documenta el
-  comportamiento real; falta decidir si se actualiza el doc.
-- **`scripts/Scaffold.ps1` no parsea.** 4 errores en líneas 762-775
-  (comillas tipográficas). Verificar con
-  `[System.Management.Automation.Language.Parser]::ParseFile()` antes de usarlo.
-- **Nombres de test desalineados con la CI.** La CI busca 7 tests de ADR que
-  no existen, y dos de los que sí existen tienen otro nombre
-  (`Turno_CanceladoDuranteStream_DetieneYEmitCancelled`,
-  `Turno_TimeoutChunk_LanzaTimeoutNoCancelled`). Además
-  `Frame_Vacio_RespondeInvalidRequest` y
-  `Frame_JsonInvalido_RespondeInvalidRequest` están duplicados en dos clases.
-- **Limpieza:** `src/Balansoft.AIAddin.Access/Class1.cs` es residuo del
-  scaffold. `balansoft-aiaddin-access/` en la raíz es un repositorio git
-  vacío (un único commit del árbol vacío), no una carpeta de trabajo.
+  describe los antiguos `OnToolCall`/`OnDone`, ya no seguidos por el código.
+- **`scripts/Scaffold.ps1` no parsea** (4 errores en 762-775). **No usar.**
+- **Limpieza:** `balansoft-aiaddin-access/` en la raíz es un repositorio git
+  vacío, no una carpeta de trabajo.
 
 ---
 
@@ -221,17 +198,17 @@ propiedad ahora coincide con el estilo real del código.
 
 ## 9. Gotchas operativos
 
-- `RegisterAddin.ps1` / `UnregisterAddin.ps1` deben correr en PowerShell
-  **x86** (menú "Windows PowerShell (x86)").
+- `RegisterAddin.ps1` / `UnregisterAddin.ps1` deben correr en PowerShell de la
+  **misma arquitectura que el Access instalado** (x86 o x64); el script detecta
+  la arquitectura y elige la carpeta de salida.
 - **Rutas arregladas**: `RegisterAddin.ps1`, `UnregisterAddin.ps1`,
   `Pack.ps1` y `dev.ps1` usan `bin\x86\<Config>\net48\` (output de
   `dotnet build -p:Platform=x86`). Verificado: `Pack.ps1` produce ZIP válido.
 - `Directory.Build.props` existe con versión `0.1.0`; `Pack.ps1` la lee y
   `version.txt` sale con `0.1.0` (+ commit SHA en CI).
-- **Ningún script se ha ejecutado en Access real** (punto de entrada COM
-  pendiente, spec 001). Los scripts son sintácticamente correctos, compilan y
-  empaquetan, pero la verificación de `LoadBehavior = 3` requiere que el add-in
-  cargue.
+- **Ningún script se ha ejecutado en Access real** en esta sesión. Los scripts
+  son sintácticamente correctos, compilan y empaquetan; la verificación de
+  `LoadBehavior = 3` requiere una prueba manual en Access.
 - Tests de integración NIM requieren `NIM_API_KEY` en env (o `.env`).
 - `Scaffold.ps1` es idempotente; `-Force` sobrescribe. **Está roto** (4 errores
   de parser, líneas 762-775) y genera comandos obsoletos. No usarlo.

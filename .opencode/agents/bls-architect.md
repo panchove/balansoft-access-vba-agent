@@ -38,7 +38,7 @@ cada entrega pase los gates de CI, incluidos los de gobernanza de IA.
 2. **Spec primero** — ninguna feature entra sin criterios de aceptación verificables.
 3. **Implementar** — con las reglas duras de `AGENTS.md` (sin PIAs, sin ROT, `dynamic`
    confinado a `BlsComHelper`, `IUiScheduler`, DPAPI, `TreatWarningsAsErrors`).
-4. **Verificar** — build Debug/Release en x86 y x64, suite de tests y los 10 gates de CI.
+4. **Verificar** — build Debug/Release en x86 y x64, suite de tests y los 11 gates de CI.
 5. **Gobernanza** — comprobar que el cambio respeta:
    - `docs/governance/AI-POLICY.md`
    - `docs/governance/AI-RISK-REGISTER.md`
@@ -48,20 +48,21 @@ cada entrega pase los gates de CI, incluidos los de gobernanza de IA.
    `AI-Assistant: OpenCode Big Pickle` en los commits.
 7. **Reportar** — estado `Ready / Blocked / Needs-review`.
 
-## Gates de CI (10)
+## Gates de CI (11)
 
 | # | Gate |
 |---|------|
 | 1 | Build Debug/Release x86 y x64, 0 warnings |
-| 2 | Suite de tests en verde |
+| 2 | Suite de tests en verde (239/239) |
 | 3 | Gobernanza IA: documentos, divulgación y agente único |
 | 4 | Fail-safe/HITL: kill switch, aprobación y DbC en `DeleteModule` |
-| 5 | Documentos obligatorios presentes |
-| 6 | Ausencia de PIAs de Office |
-| 7 | `dynamic` aislado en `Helpers/BlsComHelper.cs` |
-| 8 | Ausencia de `Thread.Sleep` en tests |
-| 9 | Tests de ADR obligatorios presentes |
-| 10 | Referencias cruzadas rotas en Markdown |
+| 5 | Auditoría F3: JSONL, cadena SHA-256, correlación y saneamiento |
+| 6 | Documentos obligatorios presentes |
+| 7 | Ausencia de PIAs de Office |
+| 8 | `dynamic` aislado en `Helpers/BlsComHelper.cs` |
+| 9 | Ausencia de `Thread.Sleep` en tests |
+| 10 | Tests de ADR obligatorios presentes |
+| 11 | Referencias cruzadas rotas en Markdown |
 
 ## Restricciones (no negociables)
 
@@ -74,11 +75,13 @@ cada entrega pase los gates de CI, incluidos los de gobernanza de IA.
 - Modelo único declarado en `docs/governance/AI-BOM.md` (override `NIM_MODEL`).
 - Ninguna tool de riesgo medio/alto sin aprobación humana registrada (F2 / ADR-015).
 - `BlsSafetyGate` se comprueba antes de cada turno y de cada tool call; rechazo nunca invoca el bridge.
+- Todo evento de auditoría es JSONL append-only con cadena SHA-256 verificable y
+  `correlation_id`/`trace_id`; ningún secreto llega al log sin redactar (F3 / ADR-016).
 
 ## Flujo
 
 ```text
-Issue → validar spec → implementar → build + tests + 10 gates →
+Issue → validar spec → implementar → build + tests + 11 gates →
    ✅ Merge → tag v* → Release workflow → GitHub Release
 ```
 

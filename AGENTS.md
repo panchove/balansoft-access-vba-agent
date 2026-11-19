@@ -4,7 +4,7 @@ COM Add-in para Microsoft Access 2010+ (x86) que integra NVIDIA NIM en el VBE.
 Stack: C# 10, .NET Framework 4.8 (net48), WinForms, sin PIAs, enlace tardío vía `dynamic`.
 ProgID: `Balansoft.AIAddin.Access` | CLSID: `{d31bf73e-dbe1-4739-84bc-2c974fcd3171}`.
 
-> Estado: el producto **no carga todavía en Access** (falta el punto de entrada COM, spec 001). El bridge JSON-RPC, el cliente NIM y el almacén DPAPI están implementados con 188 tests verdes.
+> Estado: el add-in carga en Access con ciclo de vida COM completo (spec 001). El bridge JSON-RPC, el cliente NIM, el almacén DPAPI, la supervision humana (F2) y la auditoría JSON con hash encadenado (F3) están implementados con 239 tests verdes.
 
 ## Reglas duras (CI las verifica y bloquea el merge)
 
@@ -29,7 +29,9 @@ ProgID: `Balansoft.AIAddin.Access` | CLSID: `{d31bf73e-dbe1-4739-84bc-2c974fcd31
   no como agentes que revisan. `agents_index` debe contener exactamente un agente.
 - **Supervisión humana (F2, ADR-015):** `delete_module`, `execute_sql`, `migrate_*` y cualquier
   tool `Medium`/`High` exigen aprobación UI con `payload_sha256`; el kill switch bloquea
-  nuevas acciones sin intervención del modelo. Quedan abiertos R-03 (PII, F5) y R-04/R-05 (logs, F3).
+  nuevas acciones sin intervención del modelo. F3 cierra R-04/R-05 (logs JSON
+  auditados y trazabilidad). Siguen abiertos R-03 (PII, F5), R-06 (idempotencia)
+  y R-09 (jitter/breaker), estos dos últimos para F4.
 - **Trailer de commits con asistencia de IA:** `AI-Assistant: OpenCode Big Pickle`.
   Este trailer **sustituye** el `Co-Authored-By: Claude Code <noreply@anthropic.com>`
   de la configuración global: atribuir la autoría a otro modelo violaría el Pilar 5.
@@ -74,8 +76,8 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1 -Configuration Release
 ## Estructura
 
 - `src/Balansoft.AIAddin.Access/` — add-in COM, Core, Helpers, UI (WinForms)
-- `tests/Balansoft.AIAddin.Tests/` — 188 tests MSTest (fakes, sin COM real). `BalansoftTest.accdb` es la base de prueba para verificar en Access real (no se usa en la suite por defecto).
-- `specs/` — contratos SDD (001–012, MAYÚSCULAS `NNN-<SLUG>.md`); `specs/README.md` es el índice con estados y tests por spec.
+- `tests/Balansoft.AIAddin.Tests/` — 239 tests MSTest (fakes, sin COM real). `BalansoftTest.accdb` es la base de prueba para verificar en Access real (no se usa en la suite por defecto).
+- `specs/` — contratos SDD (001–017, MAYÚSCULAS `NNN-<SLUG>.md`); `specs/README.md` es el índice con estados y tests por spec.
 - `docs/design/` — ADR (`ADR-NNN-<SLUG>.md`)
 - `docs/governance/` — política de IA, registro de riesgos, AI-BOM y threat model
 - `.opencode/skills/` — skills de OpenCode (bls-*)
@@ -150,7 +152,7 @@ Un solo commit por feature a `main`. El PR usa `.github/PULL_REQUEST_TEMPLATE.md
 
 ## Orden de specs (SDD)
 
-El spec **001 (ADDIN-LIFECYCLE) es bloqueante**: sin el punto de entrada COM el add-in no carga en Access y nada más se puede probar allí. Después van 008 (logging) y 009 (registro), necesarios para diagnosticar y desplegar 001. Los specs 002–007 son el transporte y funcionalidad; 004 (terminal) es el mayor gap de calidad (~600 líneas WinForms sin tests). Índice y estados exactos en `specs/README.md`.
+El spec **001 (ADDIN-LIFECYCLE) ya está implementado**: el add-in carga en Access con `OnConnection`/`OnDisconnection` y 5 tests de ciclo de vida. El orden histórico era 001 → 008 (logging) → 009 (registro) → 002–007 (transporte y funcionalidad). La gobernanza incremental se entregó después: 015 (divulgación, F1), 016 (HITL, F2) y 017 (auditoría, F3). Siguen como deuda 004 (terminal con ~600 líneas WinForms sin tests directos), 005/006 (sin aserciones) y 008/009 (pendientes parciales). Índice y estados exactos en `specs/README.md`.
 
 ## Nueva dependencia NuGet
 
@@ -167,5 +169,5 @@ Requiere ADR (documentar por qué y evaluar compatibilidad net48/x86). No se agr
 1. Spec en `specs/` con criterios de aceptación verificables (primero).
 2. Implementar + tests (x86 y x64, sin PIAs, `dynamic` aislado).
 3. Verificar: build Debug + Release en **x86 y x64** y suite de tests verde en ambas arquitecturas.
-4. PR → CI ejecuta 10 gates: build, tests (188/188), gobernanza IA (política, BOM, divulgación y agente único), fail-safe/HITL (kill switch + DbC), documentos obligatorios, ausencia de PIAs, aislamiento de `dynamic`, ausencia de `Thread.Sleep` en tests, tests de ADR, referencias cruzadas en MDs.
+4. PR → CI ejecuta 11 gates: build, tests (239/239), gobernanza IA (política, BOM, divulgación y agente único), fail-safe/HITL (kill switch + DbC), auditoría (JSONL, cadena SHA-256, correlación y saneamiento, F3), documentos obligatorios, ausencia de PIAs, aislamiento de `dynamic`, ausencia de `Thread.Sleep` en tests, tests de ADR, referencias cruzadas en MDs.
 5. Merge a `main` → tag `v*` → release automático.

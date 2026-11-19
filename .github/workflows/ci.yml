@@ -165,6 +165,7 @@ jobs:
               "docs/design/ADR-013-SESSION-MANAGEMENT.md",
               "docs/design/ADR-014-ACCESS-AUTHORING.md",
               "docs/design/ADR-015-HUMAN-IN-THE-LOOP.md",
+              "docs/design/ADR-016-AUDIT-LOGGING.md",
               "specs/README.md",
               "specs/001-ADDIN-LIFECYCLE.md",
               "specs/002-VBE-BRIDGE.md",
@@ -182,6 +183,7 @@ jobs:
               "specs/014-I18N-UI.md",
               "specs/015-AI-DISCLOSURE.md",
               "specs/016-HUMAN-IN-THE-LOOP.md",
+              "specs/017-AUDIT-LOGGING.md",
               "Directory.Build.props",
               ".runsettings",
               "Balansoft.AIAddin.slnx",
@@ -322,6 +324,79 @@ jobs:
           Write-Host "OK: kill switch, HITL y DbC en DeleteModule verificados."
 
       # ─────────────────────────────────────────────
+      # 8d. Registro de auditoría y trazabilidad (F3 / ADR-016)
+      #
+      # Cierra R-04 y R-05: impide que se reintroduzca un logger de texto
+      # plano, que se pierda la cadena SHA-256 o que los eventos HITL dejen
+      # de arrastrar correlation_id/trace_id.
+      # ─────────────────────────────────────────────
+      - name: Auditoria JSON, hash encadenado y correlacion (F3)
+        shell: pwsh
+        run: |
+          $root = $PWD.Path
+          $errors = @()
+
+          $required = @(
+              "src/Balansoft.AIAddin.Access/Helpers/BlsLogger.cs",
+              "src/Balansoft.AIAddin.Access/Helpers/BlsAuditChain.cs",
+              "src/Balansoft.AIAddin.Access/Helpers/BlsCorrelationContext.cs",
+              "src/Balansoft.AIAddin.Access/Helpers/BlsLogSanitizer.cs",
+              "src/Balansoft.AIAddin.Access/Helpers/BlsSloMetrics.cs",
+              "docs/design/ADR-016-AUDIT-LOGGING.md",
+              "specs/017-AUDIT-LOGGING.md",
+              "tests/Balansoft.AIAddin.Tests/Helpers/BlsAuditLoggerTests.cs",
+              "tests/Balansoft.AIAddin.Tests/Helpers/BlsAuditChainTests.cs",
+              "tests/Balansoft.AIAddin.Tests/Helpers/BlsLogSanitizerTests.cs",
+              "tests/Balansoft.AIAddin.Tests/Helpers/BlsCorrelationContextTests.cs",
+              "tests/Balansoft.AIAddin.Tests/Helpers/BlsSloMetricsTests.cs",
+              "tests/Balansoft.AIAddin.Tests/Core/Protocol/JsonRpcCorrelationTests.cs"
+          )
+          foreach ($f in $required) {
+              if (-not (Test-Path (Join-Path $root $f))) {
+                  $errors += "Falta artefacto de auditoria: $f"
+              }
+          }
+
+          $logger = Join-Path $root "src/Balansoft.AIAddin.Access/Helpers/BlsLogger.cs"
+          if (Test-Path $logger) {
+              $l = Get-Content $logger -Raw
+              foreach ($token in @('IBlsLogger', 'IBlsSloAware', 'BlsAuditChain', 'prev_hash', 'BlsLogSanitizer', 'BlsCorrelationContext')) {
+                  if (-not $l.Contains($token)) { $errors += "BlsLogger.cs no contiene $token" }
+              }
+          }
+
+          $chain = Join-Path $root "src/Balansoft.AIAddin.Access/Helpers/BlsAuditChain.cs"
+          if (Test-Path $chain) {
+              $c = Get-Content $chain -Raw
+              foreach ($token in @('SHA256', 'GenesisHash', 'TryReadLastHash', 'Verify', 'FirstInvalidLine')) {
+                  if (-not $c.Contains($token)) { $errors += "BlsAuditChain.cs no contiene $token" }
+              }
+          }
+
+          $request = Join-Path $root "src/Balansoft.AIAddin.Access/Core/Protocol/JsonRpcRequest.cs"
+          if (Test-Path $request) {
+              $r = Get-Content $request -Raw
+              foreach ($token in @('correlation_id', 'trace_id', 'WhenWritingNull')) {
+                  if (-not $r.Contains($token)) { $errors += "JsonRpcRequest.cs no contiene $token" }
+              }
+          }
+
+          $dispatcher = Join-Path $root "src/Balansoft.AIAddin.Access/Core/Protocol/JsonRpcDispatcher.cs"
+          if (Test-Path $dispatcher) {
+              $d = Get-Content $dispatcher -Raw
+              if (-not $d.Contains('BlsCorrelationContext.Begin(request.CorrelationId, request.TraceId)')) {
+                  $errors += "El dispatcher no restaura la correlacion del request"
+              }
+          }
+
+          if ($errors.Count -gt 0) {
+              Write-Host "::error::Auditoria F3 incompleta:"
+              foreach ($e in $errors) { Write-Host "  - $e" }
+              exit 1
+          }
+          Write-Host "OK: JSONL, cadena SHA-256, correlacion y saneamiento verificados."
+
+      # ─────────────────────────────────────────────
       # 9. Verificar ausencia de PIAs de Office
       # ─────────────────────────────────────────────
       - name: Verificar ausencia de PIAs de Office
@@ -429,7 +504,11 @@ jobs:
               # ADR-015 (F2, verificados)
               "Trip_EnsureAllowed_ThrowsWithReason",
               "HighRisk_Denied_ReturnsDenied",
-              "DeleteModule_WithoutConfirm_Throws"
+              "DeleteModule_WithoutConfirm_Throws",
+              # ADR-016 (F3, verificados)
+              "Logger_CadenaUnEvento_EsVerificable",
+              "Verify_TamperMensaje_DetectaCorrupcion",
+              "Dispatcher_ConCorrelacion_LosEscribeEnElLog"
           )
 
           $blocking = @(
@@ -440,7 +519,10 @@ jobs:
               "SendAsync_SinDatos_LanzaTimeoutReportadoComoError",
               "Trip_EnsureAllowed_ThrowsWithReason",
               "HighRisk_Denied_ReturnsDenied",
-              "DeleteModule_WithoutConfirm_Throws"
+              "DeleteModule_WithoutConfirm_Throws",
+              "Logger_CadenaUnEvento_EsVerificable",
+              "Verify_TamperMensaje_DetectaCorrupcion",
+              "Dispatcher_ConCorrelacion_LosEscribeEnElLog"
           )
 
           $allContent = ($testFiles | Get-Content -Raw) -join "`n"

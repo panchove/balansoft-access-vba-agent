@@ -67,11 +67,17 @@ public sealed class BlsBridgeClient : IBlsBridgeClient
                 await ConnectAsync(ct).ConfigureAwait(false);
             }
 
+            // F3 — la correlación cruza la frontera del pipe: AsyncLocal no
+            // atraviesa el hilo del servidor, así que se envía en el request.
+            var correlationId = BlsCorrelationContext.CorrelationId;
+            var traceId = BlsCorrelationContext.TraceId;
             var request = new JsonRpcRequest(
                 "2.0",
                 JsonSerializer.SerializeToElement(Interlocked.Increment(ref _requestId)),
                 method,
-                parameters != null ? JsonSerializer.SerializeToElement(parameters) : (JsonElement?)null);
+                parameters != null ? JsonSerializer.SerializeToElement(parameters) : (JsonElement?)null,
+                string.IsNullOrEmpty(correlationId) ? null : correlationId,
+                string.IsNullOrEmpty(traceId) ? null : traceId);
 
             var requestBytes = JsonSerializer.SerializeToUtf8Bytes(request);
             var header = BitConverter.GetBytes((uint)requestBytes.Length);

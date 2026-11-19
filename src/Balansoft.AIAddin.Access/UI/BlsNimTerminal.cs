@@ -1155,15 +1155,28 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         _btnEnviar.Enabled = false;
         SetState(BlsStrings.Get("StatusThinking"));
 
+        // F3 — un único ámbito envuelve el turno completo. AsyncLocal propaga
+        // los IDs por await al cliente NIM, al bridge y a los handlers HITL.
+        var turnScope = BlsCorrelationContext.Begin();
+        _logger.Info(
+            "AUDIT",
+            $"Turno iniciado correlation_id={turnScope.CorrelationId} trace_id={turnScope.TraceId}");
+
         try
         {
             await RunTurnAsync(prompt, _currentTurnCts.Token);
+            (_logger as IBlsSloAware)?.Metrics.RecordTurn(true);
         }
         catch (Exception ex)
         {
+            (_logger as IBlsSloAware)?.Metrics.RecordTurn(false);
             _logger.Error("BlsNimTerminal", "Excepción en OnSendClick", ex);
             AppendError(BlsStrings.Get("MsgErrorPrefix", ex.Message));
             SetState(BlsStrings.Get("StatusError"));
+        }
+        finally
+        {
+            turnScope.Dispose();
         }
     }
 
@@ -1593,6 +1606,13 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         string message,
         BlsApprovalRequest? approval)
     {
+        // F3 — la decisión queda auditada con la correlación del turno y se
+        // contabiliza como rechazo seguro en las métricas SLO.
+        _logger.Warn(
+            "AUDIT",
+            $"Tool {call.Name} rechazada ({code}) correlation_id={BlsCorrelationContext.CorrelationId} trace_id={BlsCorrelationContext.TraceId}");
+        (_logger as IBlsSloAware)?.Metrics.RecordToolRejected();
+
         var payload = new Dictionary<string, string>
         {
             ["error"] = message,

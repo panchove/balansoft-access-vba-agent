@@ -14,7 +14,8 @@ tags: [spec, logging, error-handling, diagnostics]
 **PRD:** FR-07, FR-12
 **ADRs:** ADR-011 (logging y versionado)
 **Spec de diseño:** `docs/design/ADR-011-LOGGING-VERSION.md`
-**Tests:** 2 parciales en `JsonRpcDispatcherTests`
+**Tests:** 2 parciales en `JsonRpcDispatcherTests` + 4 tests de auditoría en F3
+(`BlsAuditLoggerTests`, ver spec 017)
 
 ---
 
@@ -51,7 +52,7 @@ funcionó" y no hay forma de averiguar qué pasó.
 **No entra:**
 
 - Telemetría o envío remoto.
-- Logging estructurado en JSON.
+- ~~Logging estructurado en JSON.~~ Implementado en F3: `specs/017-AUDIT-LOGGING.md`.
 
 ---
 

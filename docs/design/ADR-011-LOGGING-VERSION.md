@@ -9,6 +9,13 @@ tags: [design, architecture, logging, version, diagnostics, nbgv]
 
 # ADR-011 — Logging + Version (BlsLogger, BlsVersion)
 
+> **Actualización F3 (2026-11-19):** el formato de línea de texto plano y la
+> decisión de no redactar credenciales en el logger (§11.12) quedan **superados
+> por [ADR-016](ADR-016-AUDIT-LOGGING.md)**. `BlsLogger` escribe JSON Lines con
+> hash encadenado, `correlation_id`/`trace_id` y saneamiento. Se conservan la
+> ruta diaria, el directorio y la regla de no propagar fallos de escritura.
+> La rotación de 7 días y `BlsVersion` siguen siendo deuda pendiente.
+
 ## Estado
 Aprobado para implementación.
 
@@ -66,13 +73,13 @@ Y materializa:
 - Tests sin escribir en `%APPDATA%` real.
 
 ### Excluido (fuera de MVP)
-- Logging estructurado (JSON).
+- ~~Logging estructurado (JSON).~~ → F3 (ADR-016, spec 017).
 - Envío de logs a servidor remoto.
 - Rotación por tamaño dentro del mismo día.
 - Niveles configurables en runtime.
 - Filtros por componente.
 - Compresión de logs antiguos.
-- Firma digital del log.
+- ~~Firma digital del log.~~ → cadena SHA-256 en F3 (ADR-016).
 - Auditoría de usuario (qué usuario hizo qué).
 - Versionado semántico automático.
 
@@ -608,16 +615,17 @@ El campo `IsDebug` **no** se incluye en la primera línea del log. Se
 puede inferir del entorno (build). Mantener la primera línea corta.
 
 ### 11.12 Sin sanitización de la API key en `BlsLogger`
-El logger **no** sabe qué es una API key. Es responsabilidad de cada
-llamador no pasarla. Los tests de integración verifican que ningún
-flujo la pase. La alternativa (regex para detectar patrones de Nvidia)
-es frágil y se descarta.
+**Supersedido por ADR-016 (F3).** Se mantuvo así en el diseño original, pero
+el registro append-only exigido por el Pilar 6 hace del logger la última
+barrera antes del disco: `BlsLogSanitizer` redacta credenciales aquí. Los
+llamadores siguen siendo responsables de no pasarlas, pero ya no es la única
+defensa.
 
 ---
 
 ## 12. Fuera de alcance (recordatorio)
 
-- Logging estructurado (JSON).
+- ~~Logging estructurado (JSON).~~ → implementado en F3 (ADR-016, spec 017).
 - Envío a servidor remoto.
 - Rotación por tamaño dentro del día.
 - Niveles configurables en runtime.

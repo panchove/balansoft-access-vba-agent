@@ -74,6 +74,21 @@ Whitelist en `JsonRpcMethods.All`. Operaciones de escritura marcadas con ✍️ 
 
 La API key se almacena cifrada con DPAPI (`BlsSecureStore`) y nunca se escribe en logs,
 excepciones, JSON, registry ni disco en claro. `NIM_API_KEY` solo se usa en tests de integración.
+F3 añade `BlsLogSanitizer` como última barrera antes del disco: redacta `nvapi-*`,
+`sk-/pk-/rk-*`, `Bearer ...` y pares `*_API_KEY=`/`password=`/`token=` en mensajes
+y excepciones (ADR-016).
+
+## 6.1 Registro de auditoría (F3)
+
+| Componente | Función | Evidencia |
+|------------|---------|-----------|
+| `BlsLogger` | JSONL append-only, `correlation_id`/`trace_id`, orden de claves fijo | `BlsAuditLoggerTests` (11) |
+| `BlsAuditChain` | SHA-256(`prev_hash` + payload), `Verify` con línea exacta | `BlsAuditChainTests` (11) |
+| `BlsCorrelationContext` | `AsyncLocal` por turno + propagación en JSON-RPC | `BlsCorrelationContextTests` (7), `JsonRpcCorrelationTests` (4) |
+| `BlsLogSanitizer` | Redacción de credenciales, sin stack traces | `BlsLogSanitizerTests` (10) |
+| `BlsSloMetrics` | Tasa de escritura/turnos, p95, rechazos | `BlsSloMetricsTests` (8) |
+
+Sin telemetría remota: las métricas solo se exponen en memoria para diagnóstico y CI.
 
 ## 7. Brechas conocidas
 

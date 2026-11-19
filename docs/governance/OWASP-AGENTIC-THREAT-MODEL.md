@@ -35,8 +35,9 @@ tags: [threat-model, owasp-agentic, security, red-team]
 | Gate de CI: divulgación IA y agente único | ✅ F1 |
 | Gate de CI: kill switch, HITL y DbC en `DeleteModule` | ✅ F2 |
 | Rechazo sin invocar bridge + log de `payload_sha256` | ✅ F2 |
-| Logs JSON con hash encadenado | ❌ F3 |
-| Verificación de integridad de la cadena de hash | ❌ F3 |
+| Logs JSON con hash encadenado y `correlation_id` | ✅ F3 |
+| Verificación de integridad de la cadena de hash | ✅ F3 (`BlsAuditChain.Verify`, gate de CI) |
+| Redacción de credenciales en el log | ✅ F3 (`BlsLogSanitizer`) |
 | Red teaming adversario (prompt injection en selección VBE) | ❌ F5 |
 
 ## 3. Plan de pruebas adversarias (F5)

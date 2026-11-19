@@ -14,11 +14,17 @@ namespace Balansoft.AIAddin.Core.Protocol;
 /// <param name="Id">Identificador de la solicitud (number o string). Se replica tal cual en la respuesta.</param>
 /// <param name="Method">Nombre del método a invocar.</param>
 /// <param name="Params">Parámetros opcionales como <see cref="JsonElement"/> para validación estricta.</param>
+/// <param name="CorrelationId">F3: identificador del turno, propagado al log del dispatcher.</param>
+/// <param name="TraceId">F3: identificador de traza, compartido con el cliente.</param>
 public sealed record JsonRpcRequest(
     [property: JsonPropertyName("jsonrpc")] string JsonRpc,
     [property: JsonPropertyName("id")] JsonElement Id,
     [property: JsonPropertyName("method")] string Method,
-    [property: JsonPropertyName("params")] JsonElement? Params)
+    [property: JsonPropertyName("params")] JsonElement? Params,
+    [property: JsonPropertyName("correlation_id")]
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? CorrelationId = null,
+    [property: JsonPropertyName("trace_id")]
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TraceId = null)
 {
     /// <summary>
     /// Obtiene el Id como objeto (long, string, etc.) para uso interno.

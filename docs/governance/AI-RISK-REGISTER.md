@@ -20,8 +20,8 @@ tags: [governance, risk-register, iso-42001, iso-23894]
 | R-01 | El LLM emite un tool call destructivo sin aprobación humana | 4, 2 | M | A | **Crítico** | `confirm` era un bool entregado por el propio modelo | `BlsHumanApprovalGate` + MessageBox ("No" por defecto) + `payload_sha256` | 🟢 Cerrado en F2 |
 | R-02 | Falsa confirmación de éxito ante un fallo (p. ej. `DeleteModule` hace `return`) | 3, 16 | M | A | **Crítico** | Ninguno; el system prompt lo prohíbe pero el código lo hace | DbC: `BlsPreconditionException` + JSON `{"error":...}` sin bridge | 🟢 Cerrado en F2 |
 | R-03 | Fuga de PII/connection strings al endpoint externo | 24 | M | A | **Crítico** | Truncamiento a 32 KB (no es saneamiento) | PII scrubber + consentimiento (F5) | 🔴 Abierto |
-| R-04 | Logs no auditables (texto plano, sin hash encadenado) | 6, 20 | A | M | **Alto** | `BlsLogger` escribe texto plano y traga excepciones | Logger JSON + cadena SHA-256 (F3) | 🔴 Abierto |
-| R-05 | Sin trazabilidad punta a punta de un turno | 20 | A | M | **Alto** | `JsonRpcErrorData` sin `trace_id` | `correlation_id` propagado (F3) | 🔴 Abierto |
+| R-04 | Logs no auditables (texto plano, sin hash encadenado) | 6, 20 | A | M | **Alto** | Texto plano sin encadenar | `BlsLogger` JSONL + `BlsAuditChain.Verify` + saneamiento de secretos (F3) | 🟢 Cerrado en F3 |
+| R-05 | Sin trazabilidad punta a punta de un turno | 20 | A | M | **Alto** | `JsonRpcErrorData` sin `trace_id` | `BlsCorrelationContext` + ids en `JsonRpcRequest` y logs del dispatcher (F3) | 🟢 Cerrado en F3 |
 | R-06 | Reenvío duplicado de un frame ejecuta dos veces una escritura | 19 | M | A | **Alto** | `id` solo correlaciona respuesta | Idempotency key + caché (F4) | 🔴 Abierto |
 | R-07 | Instalación de modelo/prompt no verificado (supply chain) | 10 | B | A | **Alto** | Modelo duplicado en 5 artefactos | AI-BOM con hash del prompt | 🟡 Mitigado parcial |
 | R-08 | Atribución incorrecta de autoría de IA | 5 | A | B | **Medio** | Trailer global apunta a Claude Code | Trailer `AI-Assistant` en AGENTS.md (F1) | 🟢 Cerrado en F1 |

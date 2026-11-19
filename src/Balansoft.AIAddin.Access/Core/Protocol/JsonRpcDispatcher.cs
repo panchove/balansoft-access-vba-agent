@@ -43,6 +43,13 @@ public sealed class JsonRpcDispatcher
     /// </summary>
     public async Task<JsonRpcResponse> DispatchAsync(JsonRpcRequest request, CancellationToken ct)
     {
+        // F3 — restaura la correlación del turno en el hilo del bridge para que
+        // TODOS los eventos (incluidos los errores) lleven los mismos IDs.
+        using var correlationScope = BlsCorrelationContext.Begin(request.CorrelationId, request.TraceId);
+        _logger.Info(
+            "JsonRpcDispatcher",
+            $"dispatch method={request.Method} correlation_id={correlationScope.CorrelationId} trace_id={correlationScope.TraceId}");
+
         // Validación JSON-RPC básica
         if (!string.Equals(request.JsonRpc, "2.0", StringComparison.Ordinal))
         {

@@ -27,7 +27,7 @@ puntos de control se verifican en CI (gate *Gobernanza IA*) y no dependen de la 
 | P-AI-2 | La identidad IA se divulga de forma visible en la terminal. | Clave `AiDisclosure` + `_lblAiDisclosure` |
 | P-AI-3 | Las operaciones del modelo pasan por una whitelist de tools con esquema validado. | `JsonRpcMethods.All` + JSON Schema |
 | P-AI-4 | Ningún secreto, PII ni fragmento de código sensible se envía al proveedor sin revisión. | Gate de PII (F5, pendiente) |
-| P-AI-5 | Todo comportamiento del modelo es trazable y auditable. | Logs SHA-256 (F3, pendiente) |
+| P-AI-5 | Todo comportamiento del modelo es trazable y auditable. | `BlsLogger` JSONL + `BlsAuditChain.Verify` + `correlation_id` (F3) |
 | P-AI-6 | El sistema degrada con seguridad: parada determinista independiente del modelo. | `BlsSafetyGate` + botón de kill switch (F2) |
 | P-AI-7 | La configuración del modelo está versionada e inventariada. | `docs/governance/AI-BOM.md` |
 | P-AI-8 | Un solo agente de desarrollo; la gobernanza se aplica por gates de CI, no por agentes que "revisan". | `agents_index` = 1 |
@@ -65,7 +65,8 @@ El agente que produzca este u otros informes debe declarar su naturaleza de IA.
 Implementado en F2 (`BlsSafetyGate`, `BlsToolRiskPolicy`, `BlsHumanApprovalGate` y botón de
 kill switch en la terminal). El rechazo devuelve un JSON de error y **no invoca el bridge**.
 Las operaciones de nivel bajo no requieren aprobación, pero quedan bloqueadas si el kill
-switch está disparado. Los riesgos R-03 y R-04/R-05 siguen abiertos (F3/F5).
+switch está disparado. F3 cerró R-04/R-05 con registro append-only y
+trazabilidad por turno. Siguen abiertos R-03 (F5), R-06 y R-09 (F4).
 
 ## 7. Gestión de cambios
 
