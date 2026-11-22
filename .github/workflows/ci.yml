@@ -587,7 +587,7 @@ jobs:
           }
 
           # Un único literal de modelo en código; el AI-BOM lo inventaría.
-$modelLiteral = 'nvidia/nemotron-3-super-120b-a12b'
+          $modelLiteral = 'nvidia/nemotron-3-super-120b-a12b'
           $srcFiles = Get-ChildItem -Path (Join-Path $root "src") -Recurse -Filter "*.cs" -File |
                       Where-Object { $_.FullName -notmatch '\\(bin|obj)\\' }
           foreach ($f in $srcFiles) {
