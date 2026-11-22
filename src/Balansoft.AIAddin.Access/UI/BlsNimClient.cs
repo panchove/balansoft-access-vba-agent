@@ -123,7 +123,18 @@ public sealed class BlsNimClient : IBlsNimClient
     public string Endpoint
     {
         get => _endpoint;
-        set => _endpoint = string.IsNullOrWhiteSpace(value) ? DefaultEndpoint : value!.Trim();
+        set => _endpoint = string.IsNullOrWhiteSpace(value) ? DefaultEndpoint : NormalizeEndpoint(value!);
+    }
+    /// <summary>
+    /// Acepta tanto la URL base (https://.../v1/) como la completa
+    /// (https://.../v1/chat/completions) y devuelve siempre la completa.
+    /// </summary>
+    internal static string NormalizeEndpoint(string endpoint)
+    {
+        var value = endpoint.Trim().TrimEnd('/');
+        return value.EndsWith("/chat/completions", StringComparison.OrdinalIgnoreCase)
+            ? value
+            : value + "/chat/completions";
     }
     /// <inheritdoc />
     public string? Model

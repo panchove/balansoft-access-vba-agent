@@ -29,6 +29,16 @@ namespace Balansoft.AIAddin.Tests.Helpers
         }
 
         [TestMethod]
+        public void Endpoint_BaseNIM_SeNormalizaAChatCompletions()
+        {
+            Assert.AreEqual(
+                "https://integrate.api.nvidia.com/v1/chat/completions",
+                BlsNimClient.NormalizeEndpoint("https://integrate.api.nvidia.com/v1/"));
+            Assert.AreEqual(
+                "https://integrate.api.nvidia.com/v1/chat/completions",
+                BlsNimClient.NormalizeEndpoint("https://integrate.api.nvidia.com/v1/chat/completions"));
+        }
+        [TestMethod]
         public void BlsSettings_Load_SinFichero_DevuelveDefaults()
         {
             var path = Path.Combine(Path.GetTempPath(), "bls-settings-" + Guid.NewGuid().ToString("N") + ".json");
