@@ -18,6 +18,11 @@
 .PARAMETER OutputDir
     Directorio temporal de empaquetado. Default: <raíz>\dist.
 
+.PARAMETER PackageVersion
+    Versión explícita para el ZIP y version.txt. Por defecto se toma del tag
+    de git (GITHUB_REF o git describe --exact-match) y solo se usa la versión
+    del ensamblado si HEAD no está etiquetado.
+
 .EXAMPLE
     PS> .\Pack.ps1
     Empaqueta la release.
@@ -36,7 +41,8 @@ param(
     [string]$Configuration = "Release",
     [ValidateSet("x86", "x64")]
     [string]$Architecture = "x86",
-    [string]$OutputDir = ""
+    [string]$OutputDir = "",
+    [string]$PackageVersion = ""
 )
 
 $ErrorActionPreference = "Stop"
@@ -118,13 +124,32 @@ if (Test-Path $readme) {
 # 3. version.txt
 Write-Host ""
 Write-Host "[3/5] Generando version.txt..." -ForegroundColor DarkGray
-# NBGV inyecta la versión en el assembly; la leemos de la DLL construida.
-$dll = Join-Path $root "src\Balansoft.AIAddin.Access\bin\$Architecture\$Configuration\net48\Balansoft.AIAddin.Access.dll"
-$version = "0.0.0"
-if (Test-Path $dll) {
+# La version del paquete debe ser la del TAG, no la del ensamblado: NBGV calcula
+# la version del assembly desde version.json (0.3 -> 0.3.0) aunque el tag sea
+# v0.3.1. Prioridad: -Version > GITHUB_REF > git describe > ensamblado.
+$version = ""
+if (-not [string]::IsNullOrWhiteSpace($PackageVersion)) {
+    $version = $PackageVersion.TrimStart('v')
+}
+elseif ($env:GITHUB_REF -match '^refs/tags/v(.+)$') {
+    $version = $Matches[1]
+}
+elseif (Get-Command git -ErrorAction SilentlyContinue) {
+    Push-Location $root
+    try {
+        $tagResult = & git describe --tags --exact-match HEAD 2>$null
+        if ($LASTEXITCODE -eq 0 -and $tagResult -match '^v(.+)$') {
+            $version = $Matches[1]
+        }
+    }
+    catch { }
+    finally { Pop-Location }
+}
+if ([string]::IsNullOrWhiteSpace($version) -and (Test-Path $dll)) {
     $asm = [System.Reflection.AssemblyName]::GetAssemblyName($dll)
     $version = $asm.Version.ToString(3)  # major.minor.patch
 }
+if ([string]::IsNullOrWhiteSpace($version)) { $version = "0.0.0" }
 
 $commit = "unknown"
 $git = Get-Command git -ErrorAction SilentlyContinue
