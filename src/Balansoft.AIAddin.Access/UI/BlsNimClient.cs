@@ -106,7 +106,8 @@ public sealed class BlsNimClient : IBlsNimClient
         _retryPolicy = BlsContract.RequiresNotNull(retryPolicy, nameof(retryPolicy));
         _breaker = BlsContract.RequiresNotNull(breaker, nameof(breaker));
         _model = model;
-        _endpoint = string.IsNullOrEmpty(endpoint) ? DefaultEndpoint : endpoint;
+        _endpoint = NormalizeEndpoint(string.IsNullOrEmpty(endpoint) ? (BlsSettings.Current.Endpoint ?? DefaultEndpoint) : endpoint);
+        _logger.Info("BlsNimClient", $"Endpoint NIM: {_endpoint}; modelo: {(_model ?? BlsModelCatalog.DefaultModel)}");
         _chunkTimeout = chunkTimeout ?? TimeSpan.FromSeconds(ChunkTimeoutSeconds);
 
         try

@@ -65,7 +65,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `Nerdbank.GitVersioning` fijado a 3.6.146 (antes version flotante 3.6.*).
 - SHA-256 del system prompt actualizado en el AI-BOM.
-- 5 tests nuevos; suite 327/327 en x86 y x64.
+- 5 tests nuevos; suite 328/328 en x86 y x64.
 
 ### Removed (Fase 3, auditoria 2026-11-22)
 - Siete skills redundantes u obsoletos: `bls-workflow-nemotron` (describia

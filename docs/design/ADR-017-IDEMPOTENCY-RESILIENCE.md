@@ -198,7 +198,7 @@ cancelación del usuario.
 ## Evidencia
 
 - Tests: `JsonRpcIdempotencyTests` (9) y `BlsNimResilienceTests` (9) — 18
-  nuevos, **327/327 verdes** en x86 y x64 tras F5.
+  nuevos, **328/328 verdes** en x86 y x64 tras F5.
 - Gate de CI: *Idempotencia y resiliencia (F4)*.
 - Spec: `specs/018-IDEMPOTENCY-RESILIENCE.md`.
 
@@ -206,4 +206,4 @@ cancelación del usuario.
 
 - `JsonRpcDispatcher` deriva la clave de idempotencia con `BlsIdempotencyKey.For(method, params, correlation_id)` y **ignora** la clave que envia el cliente. Un reenvio con claves falsificadas distintas se sirve desde cache y no ejecuta dos veces el handler (Cierre de R-06 reforzado).
 - `AddinConnect` fija `HttpClient.Timeout = 10 min` para el transporte SSE y `BlsNimTerminal` aplica un timeout logico global de turno de 5 min con `CancelAfter(TurnTimeout)`. Sustituye al timeout por chunk que se reiniciaba con multiples tool_calls (BalanceSoft-003).
-- Evidencia: `IdempotencyBoundaryTests`, tests de idempotencia actualizados, 327/327 verdes en x86 y x64.
+- Evidencia: `IdempotencyBoundaryTests`, tests de idempotencia actualizados, 328/328 verdes en x86 y x64.
