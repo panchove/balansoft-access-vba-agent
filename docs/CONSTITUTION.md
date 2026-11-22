@@ -190,7 +190,7 @@ Para waits con timeout existe el helper `tests/.../Infrastructure/TaskTestExtens
 
 1. El build `Debug` o `Release` (x86 o x64) de los `.csproj` no sale limpio con
    `TreatWarningsAsErrors`.
-2. Los tests (sin integración NIM) no están verdes: 310/310 en x86 y x64.
+2. Los tests (sin integración NIM) no están verdes: 320/320 en x86 y x64.
 3. Faltan la gobernanza IA, la divulgación o el modelo de agente único; falta
    el kill switch, el gate HITL o el DbC en `DeleteModule` (F2); faltan el
    logger JSONL, la cadena SHA-256 o la correlación (F3); faltan la clave
@@ -394,7 +394,7 @@ fecha, motivo y responsable.
 | v1.2    | 2026-10-15 | Homologación obligatoria de `docs/design/` al patrón `ADR-NNN-<SLUG>.md` (ISO/IEC 42010); archivos de `specs/` en MAYÚSCULAS `NNN-<SLUG>.md` (ISO/IEC 29148); metadatos YAML unificados                                | Exigencia de trazabilidad y consistencia formal en toda la documentación de arquitectura, diseño y contratos funcionales |
 | v1.3    | 2026-11-19 | Gates 3–5 (gobernanza, HITL y auditoría F3), 239/239 tests, 11 gates de CI, flujo con agente único y estado de specs actualizado                                                                                       | Sincronización F1→F3: la constitución debía reflejar los gates ejecutables y la retirada de los agentes revisores        |
 | v1.4    | 2026-11-19 | Gate 8e (idempotencia y resiliencia F4), 257/257 tests en x86 y x64, 12 gates de CI, spec 018 y ADR-017                                                                                                                | Sincronización F4: cierre de R-06 y R-09 y adecuación de la constitución al nuevo gate ejecutable                        |
-| v1.5    | 2026-11-19 | Gate 8f (privacidad, supply chain y doc sync F5), 310/310 tests en x86 y x64, 13 gates de CI, spec 019 y ADR-018; cross-refs con rutas de código e índice de specs                                                      | Sincronización F5: cierre de R-03, R-07, R-10 y R-11; hash del prompt y catálogo verificables en el AI-BOM               |
+| v1.5    | 2026-11-19 | Gate 8f (privacidad, supply chain y doc sync F5), 320/320 tests en x86 y x64, 13 gates de CI, spec 019 y ADR-018; cross-refs con rutas de código e índice de specs                                                      | Sincronización F5: cierre de R-03, R-07, R-10 y R-11; hash del prompt y catálogo verificables en el AI-BOM               |
 
 Los hallazgos que surjan del propio SDD (este documento y los specs) se resuelven
 corrigiendo el spec o la constitución, no marcándolos como "agendados".

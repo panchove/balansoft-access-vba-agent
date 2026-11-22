@@ -771,7 +771,12 @@ jobs:
               "KillSwitchDisparado_BloqueaAntesDelHandler",
               "LimiteIteracionesPorTurno_SeRefuerzaEnElDispatcher",
               "BuildPipeSecurity_SoloConcedeAlSidDelUsuarioActual",
-              # Fase 4 (prompt, PII, SLO, idempotencia en servidor)
+              # Cierre de bugs historicos y red teaming (2026-11-22)
+              "TryGetVbe_ConVbe_RetornaTrue",
+              "TryGetVbe_VbeNull_RetornaFalse",
+              "OnConnection_SinVbe_NoLanza",
+              "ReadLineAsync_LineaSupera2MB_LanzaInvalidData",
+              "RedTeam_PayloadCierraEtiqueta_EsEscapado",              # Fase 4 (prompt, PII, SLO, idempotencia en servidor)
               "SystemPrompt_SeleccionVBE_VaDentroDeEtiquetaNoConfiable",
               "Scrub_NifEspanol_Redacta",
               "Scrub_IbanEspanol_Redacta",
@@ -785,7 +790,12 @@ jobs:
               "Registry_Issue_SiempreDevuelveTokenNoVacio",
               "Contract_EnsuresViolado_LanzaPostconditionException",
               "Contract_InvariantViolado_LanzaInvariantException",              # ADR-016 (F3, verificados)
-              # Fase 4 (prompt, PII, SLO, idempotencia en servidor)
+              # Cierre de bugs historicos y red teaming (2026-11-22)
+              "TryGetVbe_ConVbe_RetornaTrue",
+              "TryGetVbe_VbeNull_RetornaFalse",
+              "OnConnection_SinVbe_NoLanza",
+              "ReadLineAsync_LineaSupera2MB_LanzaInvalidData",
+              "RedTeam_PayloadCierraEtiqueta_EsEscapado",              # Fase 4 (prompt, PII, SLO, idempotencia en servidor)
               "SystemPrompt_SeleccionVBE_VaDentroDeEtiquetaNoConfiable",
               "Scrub_NifEspanol_Redacta",
               "Scrub_IbanEspanol_Redacta",
@@ -798,13 +808,23 @@ jobs:
               "Logger_VerifyChain_ConEventosRecientes_EsValida",
               "Registry_Issue_SiempreDevuelveTokenNoVacio",
               "Contract_EnsuresViolado_LanzaPostconditionException",
-              "Contract_InvariantViolado_LanzaInvariantException",              # Fase 4 (prompt, PII, SLO, idempotencia en servidor)
+              "Contract_InvariantViolado_LanzaInvariantException",              # Cierre de bugs historicos y red teaming (2026-11-22)
+              "TryGetVbe_ConVbe_RetornaTrue",
+              "TryGetVbe_VbeNull_RetornaFalse",
+              "OnConnection_SinVbe_NoLanza",
+              "ReadLineAsync_LineaSupera2MB_LanzaInvalidData",
+              "RedTeam_PayloadCierraEtiqueta_EsEscapado",              # Fase 4 (prompt, PII, SLO, idempotencia en servidor)
               "SystemPrompt_SeleccionVBE_VaDentroDeEtiquetaNoConfiable",
               "Scrub_NifEspanol_Redacta",
               "Scrub_IbanEspanol_Redacta",
               "Logger_EmitSloSnapshot_EscribeEventoJSONYEscrituraEsVerificable",
               "ClaveDelClienteFalsificada_NoEvitaElReplayDelServidor",
-              "Idempotency_SinClaveDelCliente_ServidorLaDerivaYDeduplica",              "Logger_CadenaUnEvento_EsVerificable",
+              "Idempotency_SinClaveDelCliente_ServidorLaDerivaYDeduplica",              # Cierre de bugs historicos y red teaming (2026-11-22)
+              "TryGetVbe_ConVbe_RetornaTrue",
+              "TryGetVbe_VbeNull_RetornaFalse",
+              "OnConnection_SinVbe_NoLanza",
+              "ReadLineAsync_LineaSupera2MB_LanzaInvalidData",
+              "RedTeam_PayloadCierraEtiqueta_EsEscapado",              "Logger_CadenaUnEvento_EsVerificable",
               "Verify_TamperMensaje_DetectaCorrupcion",
               "Dispatcher_ConCorrelacion_LosEscribeEnElLog",
               # ADR-017 (F4, verificados)
@@ -834,7 +854,12 @@ jobs:
               "KillSwitchDisparado_BloqueaAntesDelHandler",
               "LimiteIteracionesPorTurno_SeRefuerzaEnElDispatcher",
               "BuildPipeSecurity_SoloConcedeAlSidDelUsuarioActual",
-              # Fase 4 (prompt, PII, SLO, idempotencia en servidor)
+              # Cierre de bugs historicos y red teaming (2026-11-22)
+              "TryGetVbe_ConVbe_RetornaTrue",
+              "TryGetVbe_VbeNull_RetornaFalse",
+              "OnConnection_SinVbe_NoLanza",
+              "ReadLineAsync_LineaSupera2MB_LanzaInvalidData",
+              "RedTeam_PayloadCierraEtiqueta_EsEscapado",              # Fase 4 (prompt, PII, SLO, idempotencia en servidor)
               "SystemPrompt_SeleccionVBE_VaDentroDeEtiquetaNoConfiable",
               "Scrub_NifEspanol_Redacta",
               "Scrub_IbanEspanol_Redacta",
@@ -847,13 +872,23 @@ jobs:
               "Logger_VerifyChain_ConEventosRecientes_EsValida",
               "Registry_Issue_SiempreDevuelveTokenNoVacio",
               "Contract_EnsuresViolado_LanzaPostconditionException",
-              "Contract_InvariantViolado_LanzaInvariantException",              # Fase 4 (prompt, PII, SLO, idempotencia en servidor)
+              "Contract_InvariantViolado_LanzaInvariantException",              # Cierre de bugs historicos y red teaming (2026-11-22)
+              "TryGetVbe_ConVbe_RetornaTrue",
+              "TryGetVbe_VbeNull_RetornaFalse",
+              "OnConnection_SinVbe_NoLanza",
+              "ReadLineAsync_LineaSupera2MB_LanzaInvalidData",
+              "RedTeam_PayloadCierraEtiqueta_EsEscapado",              # Fase 4 (prompt, PII, SLO, idempotencia en servidor)
               "SystemPrompt_SeleccionVBE_VaDentroDeEtiquetaNoConfiable",
               "Scrub_NifEspanol_Redacta",
               "Scrub_IbanEspanol_Redacta",
               "Logger_EmitSloSnapshot_EscribeEventoJSONYEscrituraEsVerificable",
               "ClaveDelClienteFalsificada_NoEvitaElReplayDelServidor",
-              "Idempotency_SinClaveDelCliente_ServidorLaDerivaYDeduplica",              "Logger_CadenaUnEvento_EsVerificable",
+              "Idempotency_SinClaveDelCliente_ServidorLaDerivaYDeduplica",              # Cierre de bugs historicos y red teaming (2026-11-22)
+              "TryGetVbe_ConVbe_RetornaTrue",
+              "TryGetVbe_VbeNull_RetornaFalse",
+              "OnConnection_SinVbe_NoLanza",
+              "ReadLineAsync_LineaSupera2MB_LanzaInvalidData",
+              "RedTeam_PayloadCierraEtiqueta_EsEscapado",              "Logger_CadenaUnEvento_EsVerificable",
               "Verify_TamperMensaje_DetectaCorrupcion",
               "Dispatcher_ConCorrelacion_LosEscribeEnElLog",
               "Idempotency_FrameDuplicado_NoEjecutaHandlerDosVeces",

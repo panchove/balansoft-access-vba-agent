@@ -17,6 +17,16 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Cierre de BalanceSoft-001: degradacion elegante en modo runtime `.accde`
+  (`TryGetVbe`, `MsgNoVbeRuntime` en 4 idiomas).
+- Cierre de BalanceSoft-002: `SseLineReader` con limite de 2 MB y dispose;
+  coalescing de chunks de texto en la terminal (un `BeginInvoke` por turno).
+- Red teaming determinista de inyeccion de prompt: 4 payloads, incluido
+  intento de cierre de etiqueta, ahora escapado.
+- Correccion de `RegisterAddin.ps1`/`UnregisterAddin.ps1`: las rutas CLSID
+  con llaves fallaban en PowerShell 5.1 x86; se usa la API de registro .NET.
+- Verificacion real en Access 2010 x86: add-in conectado, menu Tools ->
+  NIM Terminal, JSON-RPC `list_modules` respondiendo y log 48/48 valido.
 - Documentos de gobernanza anadidos: AIA (`AI-IMPACT-ASSESSMENT.md`),
   arquitectura C4 con diagramas Mermaid (`ARCHITECTURE-C4.md`) y
   `AI-INCIDENT-PLAYBOOK.md`. Los gates 3 y 8 exigen su presencia.
@@ -31,7 +41,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `Nerdbank.GitVersioning` fijado a 3.6.146 (antes version flotante 3.6.*).
 - SHA-256 del system prompt actualizado en el AI-BOM.
-- 5 tests nuevos; suite 310/310 en x86 y x64.
+- 5 tests nuevos; suite 320/320 en x86 y x64.
 
 ### Removed (Fase 3, auditoria 2026-11-22)
 - Siete skills redundantes u obsoletos: `bls-workflow-nemotron` (describia

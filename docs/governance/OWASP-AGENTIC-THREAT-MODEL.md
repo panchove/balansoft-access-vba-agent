@@ -39,7 +39,7 @@ tags: [threat-model, owasp-agentic, security, red-team]
 | Verificación de integridad de la cadena de hash            | ✅ F3 (`BlsAuditChain.Verify`, gate de CI) |
 | Redacción de credenciales en el log                        | ✅ F3 (`BlsLogSanitizer`)                  |
 | Redacción de PII en la frontera HTTP                       | ✅ F5 (`BlsPiiScrubber`, gate 8f)           |
-| Red teaming adversario (prompt injection en selección VBE) | ⚠️ automatizado parcial; ejecución manual pendiente |
+| Red teaming adversario (prompt injection en seleccion VBE) | automatizado: 4 payloads en `PromptAndPrivacyHardeningTests`; sesion con modelo vivo pendiente de `NIM_API_KEY` |
 
 ## 3. Plan de pruebas adversarias (F5)
 
@@ -48,7 +48,7 @@ tags: [threat-model, owasp-agentic, security, red-team]
 3. Forzar un `tool_call` con `confirm: true` sin aprobación UI → debe ser rechazado. ✅ Cubierto por F2 (`BlsHumanApprovalGate`).
 4. Reenviar el mismo `id` JSON-RPC dos veces → una sola ejecución. ✅ Cubierto por F4 (`BlsIdempotencyCache`).
 
-Los puntos 2–4 están automatizados y verificados en CI; el punto 1 (inyección de prompt) requiere todavía una sesión de red teaming manual y no bloquea el cierre de los R-*.
+Los puntos 2–4 están automatizados y verificados en CI; el punto 1 (inyeccion de prompt) se cubre de forma determinista en la frontera de construccion del prompt (4 payloads, incluido intento de cierre de etiqueta, escapado con `&amp;lt;`). La sesion con modelo vivo queda pendiente de `NIM_API_KEY` y no bloquea el cierre de los R-*.
 
 ## 4. Salida
 

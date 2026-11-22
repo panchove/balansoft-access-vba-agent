@@ -2,7 +2,7 @@
 
 > Contexto operativo y de mantenimiento para sesiones futuras.
 > Actualizar al cerrar cada bloque de trabajo relevante.
-> Última actualización: 2026-11-19 (F1 gobernanza IA + F2 fail-safe/HITL + F3 auditoría + F4 idempotencia/resiliencia + F5 privacidad/supply chain; 310 tests verdes, 13 gates de CI, R-01…R-12 cerrados).
+> Última actualización: 2026-11-19 (F1 gobernanza IA + F2 fail-safe/HITL + F3 auditoría + F4 idempotencia/resiliencia + F5 privacidad/supply chain; 320 tests verdes, 13 gates de CI, R-01…R-12 cerrados).
 
 ---
 
@@ -62,7 +62,7 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1
 
 **Existen** `.runsettings`, `Directory.Build.props`, y la solución real `Balansoft.AIAddin.slnx`. Los comandos usan los `.csproj` directos (la solución no propaga `Platform` a proyectos SDK-style).
 
-**La CI está operativa** y ejecuta 13 gates: build Debug/Release x86 y x64, tests 310/310, gobernanza IA, fail-safe/HITL, auditoría JSON/hash/correlación (F3), idempotencia y resiliencia (F4), privacidad/supply chain/doc sync (F5), PIAs, `dynamic`, `Thread.Sleep`, documentos, tests ADR y referencias cruzadas (rutas de código + índice de specs). En `push` a `main` ejecuta `Pack.ps1` y sube el ZIP.
+**La CI está operativa** y ejecuta 13 gates: build Debug/Release x86 y x64, tests 320/320, gobernanza IA, fail-safe/HITL, auditoría JSON/hash/correlación (F3), idempotencia y resiliencia (F4), privacidad/supply chain/doc sync (F5), PIAs, `dynamic`, `Thread.Sleep`, documentos, tests ADR y referencias cruzadas (rutas de código + índice de specs). En `push` a `main` ejecuta `Pack.ps1` y sube el ZIP.
 
 ---
 
@@ -144,7 +144,7 @@ pipe del cliente entrante y el segundo recibiría EOF en vez de `busy`).
 
 ## 7. Estado actual
 
-**Suite verde.** Rebuild limpio de ambos proyectos en x86 y x64, **310/310
+**Suite verde.** Rebuild limpio de ambos proyectos en x86 y x64, **320/320
 tests** (32 nuevos en F5). El reparto completo por fichero está en
 `specs/README.md`.
 

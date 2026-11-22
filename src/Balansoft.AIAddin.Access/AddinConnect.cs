@@ -110,8 +110,16 @@ namespace Balansoft.AIAddin.Access
             _accessApp = application;
             try
             {
-                _vbe = BlsComHelper.GetVbe(_accessApp);
-                CreateMenu();
+                // BalanceSoft-001: en .accde Access no expone VBE. No es un
+                // error: el add-in carga y simplemente no ofrece la terminal.
+                if (BlsComHelper.TryGetVbe(_accessApp, out _vbe))
+                {
+                    CreateMenu();
+                }
+                else
+                {
+                    _logger?.Info("AddinConnect", "VBE no disponible (modo runtime .accde)");
+                }
             }
             catch (Exception ex)
             {
@@ -214,7 +222,7 @@ namespace Balansoft.AIAddin.Access
             {
                 if (_vbe == null && _accessApp != null)
                 {
-                    _vbe = BlsComHelper.GetVbe(_accessApp);
+                    BlsComHelper.TryGetVbe(_accessApp, out _vbe);
                 }
                 if (_commandBarButton == null && _vbe != null)
                 {
@@ -381,11 +389,11 @@ namespace Balansoft.AIAddin.Access
                 // Asegurarse de que dispongamos de un VBE (puede ser nulo si no hay proyecto abierto)
                 if (_vbe == null && _accessApp != null)
                 {
-                    _vbe = BlsComHelper.GetVbe(_accessApp);
+                    BlsComHelper.TryGetVbe(_accessApp, out _vbe);
                 }
                 if (_vbe == null)
                 {
-                    MessageBox.Show("No se puede abrir la terminal NIM sin un proyecto de VBA abierto.", "Balansoft AI Add-in", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(BlsStrings.Get("MsgNoVbeRuntime"), "Balansoft AI Add-in", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 

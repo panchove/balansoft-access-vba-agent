@@ -175,3 +175,14 @@ tags: [change-requests, iso-12207, modification-process, square]
 * **Estado**: `Implementado en v1.1.0`
 * **Justificacion**: cierre de los hallazgos pendientes de la auditoria de gobernanza.
 * **Detalle**: clave de idempotencia derivada en servidor; timeout global de turno; delimitacion del contexto VBE; NIF/IBAN; NBGV 3.6.146 fijo; `GenerateSbom.ps1`; `EmitSloSnapshot`; hash del prompt actualizado en el AI-BOM.
+---
+
+### CR-011: Cierre de bugs de runtime y streams, y verificacion real
+* **ID**: `CR-011`
+* **Titulo**: BalanceSoft-001/002, red teaming y correccion de scripts de registro
+* **Prioridad**: Alta
+* **Area**: `AddinConnect`, `BlsComHelper`, `BlsNimTerminal`, `SseLineReader`, `scripts`
+* **Fecha**: 2026-11-22
+* **Estado**: `Implementado en v1.1.0`
+* **Justificacion**: ultimos bugs abiertos del registro y verificacion contra Access real.
+* **Detalle**: TryGetVbe sin excepcion, coalescing de UI, limite de linea SSE, scripts de registro con API .NET, red teaming de prompt y verificacion E2E en Access 2010 x86 con cadena SHA-256 valida.

@@ -100,6 +100,9 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
     // Estado del turno en curso (accedido desde el hilo de streaming y el de UI)
     private readonly object _turnSync = new object();
+    private readonly object _uiTextSync = new object();
+    private readonly StringBuilder _pendingUiText = new StringBuilder();
+    private bool _uiFlushScheduled;
     private readonly List<ToolCallComplete> _pendingToolCalls = new List<ToolCallComplete>();
     private readonly StringBuilder _assistantBuffer = new StringBuilder();
     private readonly Dictionary<string, ListViewItem> _toolRows = new Dictionary<string, ListViewItem>(StringComparer.Ordinal);
@@ -1462,15 +1465,44 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     }
 
     // IBlsNimSink implementation
-    public void OnTextChunk(string text)
-    {
-        lock (_turnSync)
+        public void OnTextChunk(string text)
         {
-            _assistantBuffer.Append(text);
+            lock (_turnSync)
+            {
+                _assistantBuffer.Append(text);
+            }
+
+            // BalanceSoft-002: un BeginInvoke por chunk saturaba la cola UI
+            // en streams largos. Se agrupan los chunks pendientes en un unico
+            // update por turno de mensaje.
+            lock (_uiTextSync)
+            {
+                _pendingUiText.Append(text);
+            }
+            ScheduleUiFlush();
         }
 
-        OnUi(() => AppendChunkToAssistantMessage(text));
-    }
+        private void ScheduleUiFlush()
+        {
+            lock (_uiTextSync)
+            {
+                if (_uiFlushScheduled) return;
+                _uiFlushScheduled = true;
+                OnUi(FlushUiText);
+            }
+        }
+
+        private void FlushUiText()
+        {
+            string text;
+            lock (_uiTextSync)
+            {
+                text = _pendingUiText.ToString();
+                _pendingUiText.Clear();
+                _uiFlushScheduled = false;
+            }
+            if (text.Length > 0) AppendChunkToAssistantMessage(text);
+        }
 
     public void OnToolCall(ToolCallComplete call)
     {

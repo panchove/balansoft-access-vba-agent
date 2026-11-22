@@ -30,7 +30,7 @@ tags: [bugs, quality, iso-12207, problem-resolution, square]
 **Área**: Registration | COM loading
 **Fecha**: 2025-10-10
 **Reporte por**: Sistema de documentación ISO/IEC
-**Estado**: Abierto
+**Estado**: Fixed in v1.1.0 (2026-11-22)
 
 **Descripción**:
 El add-in falla al cargarse cuando Access está en modo runtime (.accde) porque `Application.VBE` es nulo. El código actual asume que VBE siempre está disponible después de `OnConnection`.
@@ -56,7 +56,7 @@ El add-in falla al cargarse cuando Access está en modo runtime (.accde) porque 
 **Área**: UI | NimClient | streaming
 **Fecha**: 2025-10-12
 **Reporte por**: Sistema de documentación ISO/IEC
-**Estado**: Abierto
+**Estado**: Fixed in v1.1.0 (2026-11-22)
 
 **Descripción**:
 Durante streams de NIM prolongados (>30 minutos), el consumo de memoria del add-in aumenta progresivamente sin liberarse adecuadamente. Se sospecha que chunks SSE no se están liberando de memoria después de procesarlos.
@@ -233,13 +233,13 @@ En procesos host de Office 32-bit (.NET Framework 4.8), `ServicePointManager.Sec
 
 ## Estado de bugs abiertos (revision 2026-11-22)
 
-Los tres bugs historicos siguen **abiertos**; la Fase 0 no los cerro porque no se han implementado las correcciones:
+Los bugs historicos 001 y 002 quedan cerrados; el 003 ya se cerro en Fase 4; la Fase 0 no los cerro porque no se han implementado las correcciones:
 
-| ID | Gravedad | Estado | Motivo de permanencia |
-|----|----------|--------|-----------------------|
-| BalanceSoft-001 | Critical | Abierto | `Application.VBE` es null en modo runtime `.accde`; requiere discriminacion de `IsAvailable` en el arranque (Fase 1). |
-| BalanceSoft-002 | Medium | Abierto | Posible retencion de memoria en streams SSE largos; requiere perfilado en Access real. |
-| BalanceSoft-003 | High | Abierto | Timeout por chunk que se reinicia con multiples tool_calls; requiere timeout global de turno (Fase 4). |
+| ID              | Gravedad | Estado          | Motivo de permanencia                                                                                                 |
+|-----------------|----------|-----------------|-----------------------------------------------------------------------------------------------------------------------|
+| BalanceSoft-001 | Critical | Fixed in v1.1.0 | `Application.VBE` es null en modo runtime `.accde`; requiere discriminacion de `IsAvailable` en el arranque (Fase 1). |
+| BalanceSoft-002 | Medium   | Fixed in v1.1.0 | Posible retencion de memoria en streams SSE largos; requiere perfilado en Access real.                                |
+| BalanceSoft-003 | High     | Abierto         | Timeout por chunk que se reinicia con multiples tool_calls; requiere timeout global de turno (Fase 4).                |
 
 **Nota de gobernanza**: los 12 riesgos R-01..R-12 del registro de IA siguen cerrados. Los bugs de esta tabla son de producto, no de gobernanza, y se registran aqui para evitar que el cierre de riesgos se interprete como "sin incidencias abiertas".
 ### Bug #14: BalanceSoft-014
@@ -288,3 +288,10 @@ Los tres bugs historicos siguen **abiertos**; la Fase 0 no los cerro porque no s
 **Descripcion**: el timeout de 120 s por chunk se reiniciaba con multiples tool_calls (BalanceSoft-003, abierto desde 2025). Ademas la seleccion VBE se inyectaba como texto plano en el system prompt, sin separacion entre datos no confiables e instrucciones, y el scrubber no cubria NIF/IBAN.
 
 **Correccion**: timeout global de 5 min por turno via `CancelAfter`, HttpClient con timeout explicito de 10 min, etiquetas `<untrusted_vbe_context>`, reglas `[NIF]` y `[IBAN]`. Next bug ID: BalanceSoft-018.
+
+### Correcciones de BalanceSoft-001 y BalanceSoft-002 (2026-11-22)
+
+- **001**: `BlsComHelper.TryGetVbe` sustituye al `GetVbe` que lanzaba en modo runtime `.accde`. `AddinConnect` degrada sin diálogo de error: el add-in carga, no ofrece la terminal y registra un aviso. Hay 4 textos localizados `MsgNoVbeRuntime`.
+- **002**: `SseLineReader` limita la línea a 2 MB y se dispone al terminar el stream; `BlsNimTerminal` agrupa los chunks de texto en un único `BeginInvoke` por turno de UI, evitando la saturación de la cola en streams largos.
+
+Verificación real con Access 2010 x86 y `tests/BalansoftTest.accdb`: `Connect=True`, menú `Tools → NIM Terminal` presente, JSON-RPC `list_modules` respondiendo por el pipe y cadena SHA-256 del log 48/48 válida.

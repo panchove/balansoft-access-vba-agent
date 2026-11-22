@@ -97,9 +97,13 @@ else {
 $clsidKey = "HKCU:\Software\Classes\CLSID\{d31bf73e-dbe1-4739-84bc-2c974fcd3171}"
 $wowClsidKey = "HKCU:\Software\Classes\Wow6432Node\CLSID\{d31bf73e-dbe1-4739-84bc-2c974fcd3171}"
 $progidKey = "HKCU:\Software\Classes\Balansoft.AIAddin.Access"
-if (Test-Path $clsidKey) { Remove-Item -Path $clsidKey -Recurse -Force -ErrorAction SilentlyContinue }
-if (Test-Path $wowClsidKey) { Remove-Item -Path $wowClsidKey -Recurse -Force -ErrorAction SilentlyContinue }
-if (Test-Path $progidKey) { Remove-Item -Path $progidKey -Recurse -Force -ErrorAction SilentlyContinue }
+# El provider de registro de PowerShell 5.1 x86 falla con CLSID entre llaves.
+foreach ($sub in @(
+    "Software\Classes\CLSID\{d31bf73e-dbe1-4739-84bc-2c974fcd3171}",
+    "Software\Classes\Wow6432Node\CLSID\{d31bf73e-dbe1-4739-84bc-2c974fcd3171}",
+    "Software\Classes\Balansoft.AIAddin.Access")) {
+    try { [Microsoft.Win32.Registry]::CurrentUser.DeleteSubKeyTree($sub, $false) } catch { }
+}
 Write-Host "  + Clases COM de HKCU eliminadas" -ForegroundColor Green
 
 Write-Host ""

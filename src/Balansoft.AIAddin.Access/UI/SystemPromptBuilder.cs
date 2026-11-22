@@ -58,6 +58,17 @@ internal sealed class SystemPromptBuilder : ISystemPromptBuilder
 
     private const string SelectionTruncatedNote = "\n[Seleccion truncada a 32 KB]";
 
+    /// <summary>
+    /// Escapa delimitadores para que el contenido del editor no pueda cerrar
+    /// la etiqueta untrusted_vbe_context y escalar a instruccion (ASI04).
+    /// </summary>
+    private static string EscapeUntrusted(string value)
+    {
+        if (string.IsNullOrEmpty(value)) return value;
+        return value
+            .Replace("<", "&lt;")
+            .Replace(">", "&gt;");
+    }
     public string Build(VbeContext context, IReadOnlyList<string> availableToolNames)
     {
         var sb = new StringBuilder();
@@ -79,9 +90,9 @@ internal sealed class SystemPromptBuilder : ISystemPromptBuilder
             }
 
             sb.AppendLine(ActiveModuleTemplate
-                .Replace("{ActiveModuleName}", context.ActiveModuleName)
+                .Replace("{ActiveModuleName}", EscapeUntrusted(context.ActiveModuleName))
                 .Replace("{ActiveModuleType}", context.ActiveModuleType ?? "Standard")
-                .Replace("{SelectionText}", selectionText));
+                .Replace("{SelectionText}", EscapeUntrusted(selectionText)));
         }
         else
         {

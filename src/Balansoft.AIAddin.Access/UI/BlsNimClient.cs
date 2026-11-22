@@ -239,7 +239,7 @@ public sealed class BlsNimClient : IBlsNimClient
         var parser = new NimStreamParser(sink);
 
         var stream = await response.Content.ReadAsStreamAsync().ConfigureAwait(false);
-        var reader = new SseLineReader(stream);
+        using var reader = new SseLineReader(stream);
 
         while (true)
         {

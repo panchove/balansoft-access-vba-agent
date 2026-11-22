@@ -24,6 +24,27 @@ namespace Balansoft.AIAddin.Access.Helpers
         /// <param name="accessApp">Instancia nativa de Microsoft Access (<c>Application</c>).</param>
         /// <returns>Objeto nativo VBE late-bound.</returns>
         /// <exception cref="BlsComException">Se lanza si <paramref name="accessApp"/> o su propiedad <c>VBE</c> son nulos.</exception>
+        /// <summary>
+        /// Intenta obtener el VBE sin lanzar. En modo runtime (.accde), Access
+        /// no expone <c>Application.VBE</c>: el add-in debe degradar con
+        /// elegancia en lugar de abortar la inicializacion (BalanceSoft-001).
+        /// </summary>
+        public static bool TryGetVbe(dynamic accessApp, out dynamic vbe)
+        {
+            vbe = null!;
+            if (accessApp == null) return false;
+            try
+            {
+                dynamic candidate = accessApp.VBE;
+                if (candidate == null) return false;
+                vbe = candidate;
+                return true;
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+        }
         public static dynamic GetVbe(dynamic accessApp)
         {
             if (accessApp == null)
