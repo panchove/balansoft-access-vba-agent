@@ -2,7 +2,7 @@
 
 > Contexto operativo y de mantenimiento para sesiones futuras.
 > Actualizar al cerrar cada bloque de trabajo relevante.
-> Última actualización: 2026-11-19 (F1 gobernanza IA + F2 fail-safe/HITL + F3 auditoría + F4 idempotencia/resiliencia + F5 privacidad/supply chain; 289 tests verdes, 13 gates de CI, R-01…R-12 cerrados).
+> Última actualización: 2026-11-19 (F1 gobernanza IA + F2 fail-safe/HITL + F3 auditoría + F4 idempotencia/resiliencia + F5 privacidad/supply chain; 287 tests verdes, 13 gates de CI, R-01…R-12 cerrados).
 
 ---
 
@@ -62,7 +62,7 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1
 
 **Existen** `.runsettings`, `Directory.Build.props`, y la solución real `Balansoft.AIAddin.slnx`. Los comandos usan los `.csproj` directos (la solución no propaga `Platform` a proyectos SDK-style).
 
-**La CI está operativa** y ejecuta 13 gates: build Debug/Release x86 y x64, tests 289/289, gobernanza IA, fail-safe/HITL, auditoría JSON/hash/correlación (F3), idempotencia y resiliencia (F4), privacidad/supply chain/doc sync (F5), PIAs, `dynamic`, `Thread.Sleep`, documentos, tests ADR y referencias cruzadas (rutas de código + índice de specs). En `push` a `main` ejecuta `Pack.ps1` y sube el ZIP.
+**La CI está operativa** y ejecuta 13 gates: build Debug/Release x86 y x64, tests 287/287, gobernanza IA, fail-safe/HITL, auditoría JSON/hash/correlación (F3), idempotencia y resiliencia (F4), privacidad/supply chain/doc sync (F5), PIAs, `dynamic`, `Thread.Sleep`, documentos, tests ADR y referencias cruzadas (rutas de código + índice de specs). En `push` a `main` ejecuta `Pack.ps1` y sube el ZIP.
 
 ---
 
@@ -101,7 +101,7 @@ scripts/           Scaffold, RegisterAddin, UnregisterAddin, Pack, CopyDocs, dev
 
 ## 5. Protocolo Bridge
 
-10 métodos JSON-RPC, whitelist en `JsonRpcMethods.All`:
+19 métodos JSON-RPC, whitelist en `JsonRpcMethods.All`:
 
 - **VBE (7):** `list_modules`, `read_module`, `write_module`, `create_module`,
   `delete_module`, `get_selection`, `get_active_module`
@@ -144,7 +144,7 @@ pipe del cliente entrante y el segundo recibiría EOF en vez de `busy`).
 
 ## 7. Estado actual
 
-**Suite verde.** Rebuild limpio de ambos proyectos en x86 y x64, **289/289
+**Suite verde.** Rebuild limpio de ambos proyectos en x86 y x64, **287/287
 tests** (32 nuevos en F5). El reparto completo por fichero está en
 `specs/README.md`.
 
@@ -177,7 +177,7 @@ Estado por feature en `specs/README.md` (015/016/017/018/019 `implementado`).
 - **Deuda heredada de spec 008:** rotación de logs de 7 días y `BlsVersion`
   (versión + commit en la primera línea del log). ADR-011 queda parcialmente
   superado por ADR-016.
-- **Calidad:** spec 004 (Terminal, ~600 líneas WinForms sin tests directos),
+- **Calidad:** spec 004 (Terminal, 1845 líneas WinForms sin tests directos),
   005/006 (código sin aserciones) y 009 (registro incompleto).
 - **Historial con tool calls huérfanos.** `HistoryMessage` no tiene campo
   `ToolCalls`; al recargar se envía `role="tool"` sin su `assistant` previo.

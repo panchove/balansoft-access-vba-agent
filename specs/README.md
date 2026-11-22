@@ -69,7 +69,7 @@ Un spec por archivo, nombrado en mayúsculas estrictas `NNN-SLUG.md` (ej. `001-A
 completo pero ninguna aserción que lo valide, así que no pueden declararse
 implementados.
 
-Los 289 tests de la suite se reparten en veintinueve ficheros (los 257 anteriores
+Los 287 tests de la suite se reparten en veintinueve ficheros (los 257 anteriores
 más 32 de F5):
 `BlsNimClientTests` 28 · `JsonRpcDispatcherTests` 27 · `BlsSafetyGateTests` 18
 · `BlsContractTests` 17 · `BlsStringsTests` 18 · `NimStreamParserTests` 14
@@ -99,13 +99,13 @@ lo demás queda sin forma de probarse en Access real.
 
 Los specs 003 a 006 tienen código. La terminal (004) es la única que puede
 arrastrar a los otros dos, y por eso es el siguiente gap de calidad después
-de 001: ~600 líneas de WinForms sin un solo test.
+de 001: 1845 líneas de WinForms sin un solo test.
 
 ## Gaps que bloquean la CI
 
 - **La CI está operativa** y ejecuta todos los gates:
   - Build Debug x86 y x64 y Release x86 y x64 con `dotnet build` (0 warnings, 0 errors).
-  - Tests 289/289 en x86 y x64 con `dotnet vstest` + `.runsettings` + `/Platform`.
+  - Tests 287/287 en x86 y x64 con `dotnet vstest` + `.runsettings` + `/Platform`.
   - 56 documentos obligatorios verificados (incluye `docs/PRD.md`,
     `docs/CONSTITUTION.md`, `specs/` y los 18 ADRs).
   - Sin PIAs de Office en `src/`.

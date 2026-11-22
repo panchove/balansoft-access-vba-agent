@@ -56,7 +56,7 @@ documentan los controles que cerraron ambos riesgos:
   30 s con un único sondeo en HalfOpen. La cancelación de usuario (ADR-003) se
   comprueba antes del breaker.
 
-Evidencia: 18 tests nuevos, 289/289 verdes en x86 y x64, gate 8e de CI.
+Evidencia: 18 tests nuevos, 287/287 verdes en x86 y x64, gate 8e de CI.
 
 ## 5. Cierre de F5 (R-03, R-07, R-10 y R-11)
 
@@ -79,5 +79,23 @@ Evidencia: 18 tests nuevos, 289/289 verdes en x86 y x64, gate 8e de CI.
   reencripta antes de devolver la key. El usuario no vuelve a pegarla; si ambos
   fallan se propaga `BlsSecureStoreException`.
 
-Evidencia: 32 tests nuevos, 289/289 verdes en x86 y x64, 13 gates de CI.
+Evidencia: 32 tests nuevos, 287/287 verdes en x86 y x64, 13 gates de CI.
 **Todos los riesgos R-01 a R-12 están cerrados.**
+
+## 6. Auditoria de gobernanza 2026-11-22 (Fase 0)
+
+Auditoria de solo lectura seguida de correcciones aprobadas por el propietario. No cerro ningun riesgo nuevo: los R-01..R-12 permanecen cerrados por sus controles originales.
+
+| Hallazgo | Correccion | Evidencia |
+|----------|------------|-----------|
+| Gate 11 en rojo por un comentario con `Thread.Sleep` | Comentario reescrito | Gate reproducido: 0 coincidencias |
+| Cinco tests de ADR vacios contabilizados como verdes | Tres implementados, dos retirados, gate 12 rechaza cuerpo vacio | `ProjectKeyAndObjectDetailTests.cs` + `ci.yml` |
+| Test de SLO dependiente del reloj real | Asercion de latencia eliminada | 287/287 en ejecuciones consecutivas |
+| Step Release compilaba el proyecto de tests | Compila el add-in | `.github/workflows/ci.yml` |
+
+Riesgos de proceso detectados y **aun abiertos** (no son R-*):
+
+- **CS-008**: fail-safe y HITL no se comprueban en la frontera del pipe (`JsonRpcDispatcher`). Remediacion: Fase 1.
+- **CS-009**: cadena SHA-256 no verificada en ejecucion y fallos de escritura silenciados. Remediacion: Fase 2.
+
+La suite queda en **287/287** porque se retiraron dos tests ficticios y se convirtieron tres vacios en aserciones reales; no se elimino funcionalidad.

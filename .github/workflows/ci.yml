@@ -95,7 +95,7 @@ jobs:
       # ─────────────────────────────────────────────
       - name: Build (Release ${{ matrix.architecture }})
         run: >
-          dotnet build tests\Balansoft.AIAddin.Tests\Balansoft.AIAddin.Tests.csproj
+          dotnet build src\Balansoft.AIAddin.Access\Balansoft.AIAddin.Access.csproj
           -t:Restore,Build
           -c Release
           -p:Platform=${{ matrix.architecture }}
@@ -689,9 +689,8 @@ jobs:
               "ProjectKey_BaseGuardada_RetornaHash32Hex",
               "ProjectKey_BaseSinGuardar_RetornaHashConFlagEphemeral",
               "ProjectKey_DescriptionOverride_UsaValorDeclarado",
-              # ADR-004 (pendiente: IBlsAccess real)
-              "ObjectDetail_Tabla_DevuelveCamposSinSql",
-              "ObjectDetail_SqlExcede8KB_TruncaYMarca",
+              # ADR-004: ObjectDetail es hoy un stub (FieldCount=0). No se
+              # registran tests ficticios: se anadiran cuando se implemente.
               # ADR-015 (F2, verificados)
               "Trip_EnsureAllowed_ThrowsWithReason",
               "HighRisk_Denied_ReturnsDenied",
@@ -747,6 +746,19 @@ jobs:
           if ($missing.Count -gt 0) {
               Write-Host "::warning::Tests de ADR ausentes:"
               foreach ($m in $missing) { Write-Host "  - $m" }
+          }
+
+          # Un test cuyo cuerpo es `{ }` no verifica nada: detectarlos aqui
+          # evita que un nombre en la lista de requisitos de un falso verde.
+          $emptyBodies = @()
+          foreach ($name in $required) {
+              $emptyPattern = [regex]::Escape($name) + '\s*\([^)]*\)\s*\{\s*\}'
+              if ($allContent -match $emptyPattern) { $emptyBodies += $name }
+          }
+          if ($emptyBodies.Count -gt 0) {
+              Write-Host "::error::Tests de ADR con cuerpo vacio:"
+              foreach ($m in $emptyBodies) { Write-Host "  - $m" }
+              exit 1
           }
 
           if ($missingBlocking.Count -gt 0) {

@@ -19,7 +19,7 @@ namespace Balansoft.AIAddin.Tests.UI.Nim;
 
 /// <summary>
 /// F4 / R-09 — Backoff con full jitter y circuit breaker del cliente NIM.
-/// No hay ni un solo Thread.Sleep: el reloj del breaker y la función de
+/// No hay esperas fijas: el reloj del breaker y la función de
 /// aleatoriedad se inyectan (skill 09).
 /// </summary>
 [TestClass]

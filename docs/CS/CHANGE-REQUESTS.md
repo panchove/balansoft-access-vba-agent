@@ -114,3 +114,20 @@ tags: [change-requests, iso-12207, modification-process, square]
 ---
 
 ## 3. Próximo CR ID disponible: `CR-007`
+
+---
+
+### CR-006: Correcciones de veracidad de gates y tests (Fase 0)
+* **ID**: `CR-006`
+* **Titulo**: Eliminar falsos verdes en gates 11 y 12 y corregir el step Release de CI
+* **Prioridad**: Alta
+* **Area**: `CI`, `tests/`, documentacion de gobernanza
+* **Fecha**: 2026-11-22
+* **Estado**: `Implementado en v1.1.0`
+* **Justificacion**: la auditoria de gobernanza detecto que el gate 11 fallaba por un comentario, que cinco tests de ADR tenian cuerpo vacio y que el step Release compilaba el proyecto equivocado. La documentacion declaraba 289 tests y 600 lineas de terminal mientras el codigo tenia otra realidad.
+* **Detalle de implementacion**:
+  - Comentario de `BlsNimResilienceTests.cs` reescrito sin el literal prohibido.
+  - Tres tests ADR-001 implementados con dobles CLR; dos tests ADR-004 retirados por ser stubs; gate 12 rechaza cuerpos vacios.
+  - Test de SLO con asercion de latencia real eliminado (no determinista).
+  - Step Release de `ci.yml` compila el `.csproj` del add-in.
+  - Documentacion sincronizada: recuento 287/287, terminal 1845 lineas, entropia derivada v2, 19 metodos JSON-RPC y registros de bugs/change requests actualizados.

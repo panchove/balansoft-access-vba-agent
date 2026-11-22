@@ -201,6 +201,8 @@ public sealed class BlsAuditLoggerTests
         Assert.AreEqual(2, snapshot.TotalWrites);
         Assert.AreEqual(0, snapshot.FailedWrites);
         Assert.AreEqual(1.0, snapshot.WriteSuccessRate, 0.0001);
-        Assert.IsTrue(snapshot.IsWithinSlo);
+        // IsWithinSlo incluye p95 <= 50 ms: dependeria de la carga de la
+        // maquina y haria el test no determinista (skill 09). El SLO se
+        // verifica con reloj inyectable en BlsSloMetricsTests.
     }
 }

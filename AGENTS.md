@@ -4,7 +4,7 @@ COM Add-in para Microsoft Access 2010+ (x86) que integra NVIDIA NIM en el VBE.
 Stack: C# 10, .NET Framework 4.8 (net48), WinForms, sin PIAs, enlace tardío vía `dynamic`.
 ProgID: `Balansoft.AIAddin.Access` | CLSID: `{d31bf73e-dbe1-4739-84bc-2c974fcd3171}`.
 
-> Estado: el add-in carga en Access con ciclo de vida COM completo (spec 001). El bridge JSON-RPC, el cliente NIM, el almacén DPAPI, la supervision humana (F2), la auditoría JSON con hash encadenado (F3), la idempotencia con resiliencia (F4) y la privacidad/cadena de suministro (F5) están implementados con 289 tests verdes. Los 12 riesgos R-01…R-12 están cerrados.
+> Estado: el add-in carga en Access con ciclo de vida COM completo (spec 001). El bridge JSON-RPC, el cliente NIM, el almacén DPAPI, la supervision humana (F2), la auditoría JSON con hash encadenado (F3), la idempotencia con resiliencia (F4) y la privacidad/cadena de suministro (F5) están implementados con 287 tests verdes. Los 12 riesgos R-01…R-12 están cerrados.
 
 ## Reglas duras (CI las verifica y bloquea el merge)
 
@@ -81,7 +81,7 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1 -Configuration Release
 ## Estructura
 
 - `src/Balansoft.AIAddin.Access/` — add-in COM, Core, Helpers, UI (WinForms)
-- `tests/Balansoft.AIAddin.Tests/` — 289 tests MSTest (fakes, sin COM real). `BalansoftTest.accdb` es la base de prueba para verificar en Access real (no se usa en la suite por defecto).
+- `tests/Balansoft.AIAddin.Tests/` — 287 tests MSTest (fakes, sin COM real). `BalansoftTest.accdb` es la base de prueba para verificar en Access real (no se usa en la suite por defecto).
 - `specs/` — contratos SDD (001–019, MAYÚSCULAS `NNN-<SLUG>.md`); `specs/README.md` es el índice con estados y tests por spec.
 - `docs/design/` — ADR (`ADR-NNN-<SLUG>.md`)
 - `docs/governance/` — política de IA, registro de riesgos, AI-BOM y threat model
@@ -157,7 +157,7 @@ Un solo commit por feature a `main`. El PR usa `.github/PULL_REQUEST_TEMPLATE.md
 
 ## Orden de specs (SDD)
 
-El spec **001 (ADDIN-LIFECYCLE) ya está implementado**: el add-in carga en Access con `OnConnection`/`OnDisconnection` y 5 tests de ciclo de vida. El orden histórico era 001 → 008 (logging) → 009 (registro) → 002–007 (transporte y funcionalidad). La gobernanza incremental se entregó después: 015 (divulgación, F1), 016 (HITL, F2), 017 (auditoría, F3) y 018 (idempotencia y resiliencia, F4). Siguen como deuda 004 (terminal con ~600 líneas WinForms sin tests directos), 005/006 (sin aserciones) y 008/009 (pendientes parciales). Índice y estados exactos en `specs/README.md`.
+El spec **001 (ADDIN-LIFECYCLE) ya está implementado**: el add-in carga en Access con `OnConnection`/`OnDisconnection` y 5 tests de ciclo de vida. El orden histórico era 001 → 008 (logging) → 009 (registro) → 002–007 (transporte y funcionalidad). La gobernanza incremental se entregó después: 015 (divulgación, F1), 016 (HITL, F2), 017 (auditoría, F3) y 018 (idempotencia y resiliencia, F4). Siguen como deuda 004 (terminal con 1845 líneas WinForms sin tests directos), 005/006 (sin aserciones) y 008/009 (pendientes parciales). Índice y estados exactos en `specs/README.md`.
 
 ## Nueva dependencia NuGet
 
@@ -174,5 +174,5 @@ Requiere ADR (documentar por qué y evaluar compatibilidad net48/x86). No se agr
 1. Spec en `specs/` con criterios de aceptación verificables (primero).
 2. Implementar + tests (x86 y x64, sin PIAs, `dynamic` aislado).
 3. Verificar: build Debug + Release en **x86 y x64** y suite de tests verde en ambas arquitecturas.
-4. PR → CI ejecuta 13 gates: build, tests (289/289 en x86 y x64), gobernanza IA (política, BOM, divulgación y agente único), fail-safe/HITL (kill switch + DbC), auditoría (JSONL, cadena SHA-256, correlación y saneamiento, F3), idempotencia y resiliencia (clave SHA-256, caché TTL/FIFO, jitter y breaker, F4), privacidad/supply chain/doc sync (scrubber, hash del prompt y catálogo, entropía derivada, F5), documentos obligatorios, ausencia de PIAs, aislamiento de `dynamic`, ausencia de `Thread.Sleep` en tests, tests de ADR, referencias cruzadas en MDs (incluye rutas de código e índice de specs).
+4. PR → CI ejecuta 13 gates: build, tests (287/287 en x86 y x64), gobernanza IA (política, BOM, divulgación y agente único), fail-safe/HITL (kill switch + DbC), auditoría (JSONL, cadena SHA-256, correlación y saneamiento, F3), idempotencia y resiliencia (clave SHA-256, caché TTL/FIFO, jitter y breaker, F4), privacidad/supply chain/doc sync (scrubber, hash del prompt y catálogo, entropía derivada, F5), documentos obligatorios, ausencia de PIAs, aislamiento de `dynamic`, ausencia de `Thread.Sleep` en tests, tests de ADR, referencias cruzadas en MDs (incluye rutas de código e índice de specs).
 5. Merge a `main` → tag `v*` → release automático.

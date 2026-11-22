@@ -1,4 +1,4 @@
----
+s---
 version: 1.1.0
 date: 2026-10-15
 status: active
@@ -216,14 +216,29 @@ En procesos host de Office 32-bit (.NET Framework 4.8), `ServicePointManager.Sec
 
 ---
 
-## Próximo Bug ID disponible: BalanceSoft-010
+#
+## Próximo Bug ID disponible: BalanceSoft-014
 
 ### Política de cierre de bugs
 1. Cuando se corrige un bug, se añade la fecha de corrección
 2. Se marca el estado como "Fixed in vX.Y.Z"
 3. Se añade a la sección "Bugs Resueltos" del CHANGELOG.md
 4. El bug queda en el registro histórico pero ya no es "abierto"
-### Próxima revisión de bugs
+- Fecha: 2026-11-22 (revision tras auditoria de gobernanza)
 - Fecha: 2025-11-15
-- Responsable: bls-documentador
+- Responsable: propietario del producto (agente unico bls-architect)
 - Verificar: todos los bugs abiertos desde v1.0.0
+
+---
+
+## Estado de bugs abiertos (revision 2026-11-22)
+
+Los tres bugs historicos siguen **abiertos**; la Fase 0 no los cerro porque no se han implementado las correcciones:
+
+| ID | Gravedad | Estado | Motivo de permanencia |
+|----|----------|--------|-----------------------|
+| BalanceSoft-001 | Critical | Abierto | `Application.VBE` es null en modo runtime `.accde`; requiere discriminacion de `IsAvailable` en el arranque (Fase 1). |
+| BalanceSoft-002 | Medium | Abierto | Posible retencion de memoria en streams SSE largos; requiere perfilado en Access real. |
+| BalanceSoft-003 | High | Abierto | Timeout por chunk que se reinicia con multiples tool_calls; requiere timeout global de turno (Fase 4). |
+
+**Nota de gobernanza**: los 12 riesgos R-01..R-12 del registro de IA siguen cerrados. Los bugs de esta tabla son de producto, no de gobernanza, y se registran aqui para evitar que el cierre de riesgos se interprete como "sin incidencias abiertas".
