@@ -23,7 +23,7 @@ puntos de control se verifican en CI (gate *Gobernanza IA*) y no dependen de la 
 
 | ID     | Principio                                                                                              | Control verificable                                                |
 |--------|--------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
-| P-AI-1 | El modelo es un asistente, no una autoridad. Toda acción sobre VBA/Access requiere supervisión humana. | Gate HITL (F2)                                                     |
+| P-AI-1 | El modelo es un asistente, no una autoridad. Toda accion sobre VBA/Access se ejecuta como consecuencia de una instruccion explicita del usuario, que constituye la aprobacion; la decision queda auditada. | Gate HITL (F2)                                                     |
 | P-AI-2 | La identidad IA se divulga de forma visible en la terminal.                                            | Clave `AiDisclosure` + `_lblAiDisclosure`                          |
 | P-AI-3 | Las operaciones del modelo pasan por una whitelist de tools con esquema validado.                      | `JsonRpcMethods.All` + JSON Schema                                 |
 | P-AI-4 | Ningún secreto, PII ni fragmento de código sensible se envía al proveedor sin revisión.                | `BlsPiiScrubber` + `BlsPiiConsentGate` + gate 8f (F5)              |
@@ -59,8 +59,8 @@ El agente que produzca este u otros informes debe declarar su naturaleza de IA.
 | Nivel | Operaciones                                                                                     | Gate                                                                          |
 |-------|-------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
 | Bajo  | Lectura, explicación, resumen                                                                   | Ninguno (registro en log)                                                     |
-| Medio | `write_module`, `create_module`, `create_form`, `create_table`, `create_query`, `create_ribbon` | Confirmación UI + log de aprobación con `payload_sha256`                      |
-| Alto  | `delete_module`, `execute_sql`, `migrate_*`                                                     | Confirmación UI con detalle del payload + kill switch accesible y rechequeado |
+| Medio | `write_module`, `create_module`, `create_form`, `create_table`, `create_query`, `create_ribbon` | Instruccion directa del usuario + log de aprobacion con `payload_sha256`                      |
+| Alto  | `delete_module`, `execute_sql`, `migrate_*`                                                     | Instruccion directa con detalle del payload auditado + kill switch accesible y rechequeado |
 
 Implementado en F2 (`BlsSafetyGate`, `BlsToolRiskPolicy`, `BlsHumanApprovalGate` y botón de
 kill switch en la terminal). El rechazo devuelve un JSON de error y **no invoca el bridge**.

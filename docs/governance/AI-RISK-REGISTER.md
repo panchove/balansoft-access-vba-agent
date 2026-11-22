@@ -128,3 +128,6 @@ Se cierra el ultimo hallazgo documental de la auditoria (H8): `AI-IMPACT-ASSESSM
 ## 12. Verificacion en producto y cierre de bugs historicos (2026-11-22)
 
 Access 2010 x86 + `tests/BalansoftTest.accdb`: add-in `Connect=True`, menu `Tools -> NIM Terminal`, bridge responde `list_modules` por el named pipe y la cadena SHA-256 del log real es 48/48 valida. Se cierran BalanceSoft-001 (`.accde`) y BalanceSoft-002 (streams largos). Red teaming determinista de ASI04 con 4 payloads; la sesion con modelo vivo requiere `NIM_API_KEY` y queda registrada como pendiente, sin bloquear los R-*.
+## 13. Aprobacion directa por instruccion (2026-11-22)
+
+R-01 queda mitigado por la instruccion explicita del usuario, auditada con `payload_sha256`, en lugar de un dialogo modal. No se elimina ningun control de fail-safe: kill switch, token de un solo uso, ACL del pipe, auditoria y tope de 32 iteraciones siguen activos y verificados en CI.

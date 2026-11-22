@@ -17,6 +17,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Aprobacion directa de tools `Medium`/`High` en el momento de la instruccion:
+  se elimina el dialogo modal y el mensaje "HITL Denied... requiere aprobacion
+  humana". Cada aprobacion se audita con `payload_sha256`; se conservan kill
+  switch, token de un solo uso, ACL del pipe y tope de 32 iteraciones.
 - Cierre de BalanceSoft-001: degradacion elegante en modo runtime `.accde`
   (`TryGetVbe`, `MsgNoVbeRuntime` en 4 idiomas).
 - Cierre de BalanceSoft-002: `SseLineReader` con limite de 2 MB y dispose;

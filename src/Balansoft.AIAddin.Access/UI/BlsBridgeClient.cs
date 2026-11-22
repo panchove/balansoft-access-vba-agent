@@ -205,7 +205,7 @@ public sealed class BlsBridgeClient : IBlsBridgeClient
             -32002 => new BlsBridgeException($"Tool Timeout: {error.Message}"),
             -32003 => new BlsBridgeException($"Frame Incomplete: {error.Message}"),
             -32004 => new BlsBridgeException($"Bridge Busy: {error.Message}"),
-            -32005 => new BlsBridgeException($"HITL Denied: {error.Message}"),
+            -32005 => new BlsBridgeException(error.Message),
             -32006 => new BlsBridgeException($"Safety Tripped: {error.Message}"),
             -32007 => new BlsBridgeException($"Tool Iteration Limit: {error.Message}"),
             _ => new BlsBridgeException($"Unknown Error ({error.Code}): {error.Message}")

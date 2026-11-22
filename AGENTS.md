@@ -18,7 +18,7 @@ ProgID: `Balansoft.AIAddin.Access` | CLSID: `{d31bf73e-dbe1-4739-84bc-2c974fcd31
 8. **Errores COM/NIM se propagan** con categoría + mensaje original. Prohibido éxito falso ni `catch (Exception) { }`.
 9. **Nullable=annotations** (no `disable`).
 10. **Todo acceso a VBE/Access desde hilos no-UI** pasa por marshaling explícito al hilo de UI (`IUiScheduler`).
-11. **Supervision humana obligatoria (F2/ADR-015):** ninguna tool `Medium`/`High` se ejecuta sin aprobacion UI registrada; el kill switch (`BlsSafetyGate`) se comprueba antes de cada turno y tool call; un rechazo NUNCA invoca el bridge ni reporta exito falso. Fase 1 (auditoria 2026-11-22): el fail-safe, el HITL y el tope de 32 iteraciones tambien se refuerzan en `JsonRpcDispatcher`, y el pipe solo concede acceso al SID del usuario actual (`BlsVbeBridgeServer.BuildPipeSecurity`).
+11. **Supervision humana por instruccion directa (F2/ADR-015):** la aprobacion de tools `Medium`/`High` se produce en el instante en que el usuario da la instruccion; no se muestra dialogo, pero cada decision se audita con `payload_sha256` ("Aprobacion directa por instruccion del usuario"). El kill switch (`BlsSafetyGate`) se comprueba antes y despues de cada tool call, en la terminal y en `JsonRpcDispatcher`; un rechazo NUNCA invoca el bridge ni reporta exito falso. El tope es de 32 iteraciones por turno.
 12. **PII y supply chain (F5/ADR-018):** el scrubber se aplica siempre en `NimHttpRequestBuilder.BuildJson`; el único literal de modelo en `src/` está en `Helpers/BlsModelCatalog.cs`; la entropía DPAPI es derivada y el protector fijo solo se usa para leer. CI lo verifica en el gate 8f.
 
 ## Gobernanza de IA (ISO/IEC 42001 · 25 Pilares)

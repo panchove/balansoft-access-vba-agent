@@ -112,3 +112,8 @@ Decision: mover las tres comprobaciones deterministas a la frontera del pipe, si
 - `AddinConnect` crea un unico `BlsSafetyGate` y un unico registro y los comparte entre terminal y bridge.
 
 Criterios de aceptacion nuevos: un frame sin token sobre `delete_module` responde -32005 y no ejecuta; con kill switch disparado responde -32006; el noveno frame de un turno responde -32007. Evidencia: `JsonRpcSafetyTests` (7) y `BlsPipeSecurityTests` (1), gate 8c ampliado.
+## Aprobacion directa por instruccion (2026-11-22)
+
+La aprobacion de una tool `Medium`/`High` se produce en el mismo instante en que el usuario escribe la instruccion: no se muestra un dialogo modal. `BlsNimTerminal.ExecuteToolAsync` registra el evento `Aprobacion directa por instruccion del usuario` con `payload_sha256`, y el dispatcherverifica el token de autorizacion antes de ejecutar.
+
+Se conservan los controles deterministas: kill switch antes y despues de la aprobacion, ACL del pipe por SID, token de un solo uso y tope de 32 tool calls por turno. El rechazo sigue existiendo para clientes directos del pipe que no presentan token (`HITL_DENIED`, -32005), con el mensaje neutro "accion no autorizada en el bridge".

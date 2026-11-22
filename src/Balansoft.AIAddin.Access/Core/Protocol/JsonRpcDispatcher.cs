@@ -189,7 +189,7 @@ public sealed class JsonRpcDispatcher
                     $"Tool {request.Method} denegada en bridge; bridge NO invocado (payload_sha256={approval.PayloadSha256})");
                 return JsonRpcResponse.CreateError(request.Id, new JsonRpcError(
                     JsonRpcErrorCodes.HitlDenied,
-                    $"HITL_DENIED: {request.Method} requiere aprobacion humana",
+                    $"HITL_DENIED: accion no autorizada en el bridge",
                     new JsonRpcErrorData("HitlDenied", request.Method, null, null)));
             }
         }

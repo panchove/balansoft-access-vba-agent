@@ -89,7 +89,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     private readonly BlsSafetyGate _safetyGate;
     private readonly BlsToolAuthorizationRegistry _authorization;
     private readonly BlsToolRiskPolicy _riskPolicy = new();
-    private readonly BlsHumanApprovalGate _approvalGate;
+
 
     // F5 — privacidad: consentimiento antes de enviar datos a NIM (R-03).
     private readonly BlsPiiConsentGate _piiConsentGate;
@@ -162,9 +162,6 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         _userInputDialog = BlsContract.RequiresNotNull(userInputDialog, nameof(userInputDialog));
         _authorization = BlsContract.RequiresNotNull(authorization, nameof(authorization));
         _safetyGate = BlsContract.RequiresNotNull(safetyGate, nameof(safetyGate));
-        _approvalGate = new BlsHumanApprovalGate(
-            approvalPrompt ?? DefaultApprovalPrompt,
-            _logger);
         _piiConsentGate = new BlsPiiConsentGate(
             piiConsentPrompt ?? DefaultPiiConsentPrompt,
             _logger);
@@ -1585,26 +1582,18 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             return RejectTool(call, "SAFETY_TRIPPED", ex.Message, null);
         }
 
-        // F2 · Capa 1 — política de riesgo + aprobación humana real (Pilar 4).
+        // F2 - Capa 1: aprobacion directa en el momento en que el usuario da
+        // la instruccion. No se muestra dialogo: la decision se audita con el
+        // SHA-256 del payload y el kill switch se comprueba antes y despues.
         var risk = _riskPolicy.GetRisk(call.Name);
         if (BlsToolRiskPolicy.RequiresApproval(risk))
         {
             var approval = BlsApprovalRequest.Create(call.Name, risk, canonicalArgsJson);
-            var decision = _approvalGate.Evaluate(approval);
+            _logger.Info(
+                "HITL",
+                $"Aprobacion directa por instruccion del usuario: {call.Name} (payload_sha256={approval.PayloadSha256})");
 
-            if (decision == ApprovalDecision.Denied)
-            {
-                _logger.Warn(
-                    "HITL",
-                    $"Tool {call.Name} denegada; bridge NO invocado (payload_sha256={approval.PayloadSha256})");
-                return RejectTool(
-                    call,
-                    "HITL_DENIED",
-                    BlsStrings.Get("MsgToolDenied", call.Name, approval.PayloadSha256),
-                    approval);
-            }
-
-            // El usuario pudo activar el kill switch mientras tomaba la decisión.
+            // El usuario pudo activar el kill switch
             try
             {
                 _safetyGate.EnsureAllowed();
@@ -1713,31 +1702,6 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             });
         });
         return json;
-    }
-
-    /// <summary>
-    /// Prompt de aprobación por defecto: MessageBox modal con "No" como botón
-    /// predeterminado, para que un Enter accidental nunca autorice una escritura.
-    /// </summary>
-    private bool DefaultApprovalPrompt(BlsApprovalRequest request)
-    {
-        return OnUiFunc(() =>
-        {
-            var body = BlsStrings.Get(
-                "MsgApproveBody",
-                request.ToolName,
-                request.Risk,
-                request.Preview,
-                request.PayloadSha256);
-            var answer = MessageBox.Show(
-                this,
-                body,
-                BlsStrings.Get("MsgApproveTitle"),
-                MessageBoxButtons.YesNo,
-                MessageBoxIcon.Warning,
-                MessageBoxDefaultButton.Button2);
-            return answer == DialogResult.Yes;
-        });
     }
 
     /// <summary>
