@@ -13,7 +13,7 @@ namespace Balansoft.AIAddin.Helpers;
 public static class BlsModelCatalog
 {
     /// <summary>Modelo de producción, fijado en el AI-BOM.</summary>
-    public const string DefaultModel = "nvidia/nemotron-3-super-120b-a12b";
+    public const string DefaultModel = "nvidia/nemotron-3.5-super-vl-120b-a12b";
 
     /// <summary>Variable de entorno que permite el override del modelo.</summary>
     public const string EnvironmentVariable = "NIM_MODEL";

@@ -49,7 +49,7 @@ Un COM Add-in que:
 - Registro HKCU vía `regasm /codebase`, scripts `RegisterAddin.ps1` / `UnregisterAddin.ps1`
 - Empaquetado distribuible (`Pack.ps1`)
 - Logger rotación 7 días, captura global excepciones, versión+commit en log
-- API key DPAPI, modelo fijo `nvidia/nemotron-3-super-120b-a12b` (configurable vía `NIM_MODEL`)
+- API key DPAPI, modelo fijo `nvidia/nemotron-3.5-super-vl-120b-a12b` (configurable vía `NIM_MODEL`)
 - Historial por proyecto Access (persistente)
 - Textos en español (inglés pendiente)
 

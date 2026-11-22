@@ -17,6 +17,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Modelo por defecto cambiado a `nvidia/nemotron-3.5-super-vl-120b-a12b`
+  (VL 120B/12B activos, tool calls y `max_tokens` hasta 131072 en NIM).
 - Modelo por defecto actualizado a `nvidia/nemotron-3-super-120b-a12b`
   (120B/12B activos, `max_tokens` hasta 32768 y tool calls en NIM).
 - Temperatura de generacion de 0.2 a 0.6 para reducir la repeticion de

@@ -119,7 +119,7 @@ nombres son `Category` y `Op`, **no** `Kind` ni `Method`).
 ## 6. NIM
 
 - Endpoint: `https://integrate.api.nvidia.com/v1/chat/completions`
-- Modelo por defecto: `nvidia/nemotron-3-super-120b-a12b`
+- Modelo por defecto: `nvidia/nemotron-3.5-super-vl-120b-a12b`
 - Precedencia de modelo: parámetro > `NIM_MODEL` > default.
 - Retry: 429/5xx con backoff 1s → 2s → 4s (3 intentos). `Retry-After` se
   respeta pero se **corta a 30s**. 4xx es terminal.
