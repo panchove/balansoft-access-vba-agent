@@ -68,3 +68,12 @@ entregado por el propio modelo y `DeleteModule` podía devolver éxito sin borra
   subconjunto de `JsonRpcMethods.All` (restricción de dependencias Helpers ← Core).
 - Los eventos HITL usan el logger de texto plano actual; la cadena de hash y `correlation_id`
   llegan en F3. Hasta entonces, la auditabilidad es parcial (R-04 sigue abierto).
+
+## Requisitos anadidos en Fase 1 (2026-11-22)
+
+- **R007**: toda tool `Medium`/`High` recibida por `JsonRpcDispatcher` debe presentar un token de autorizacion valido, no reutilizado y no caducado. Un rechazo responde `HITL_DENIED` (-32005) y no invoca el handler.
+- **R008**: el dispatcher comprueba el kill switch antes de despachar cualquier metodo; si esta disparado responde `SAFETY_TRIPPED` (-32006).
+- **R009**: el numero de tool calls por `correlation_id` se limita a 8 tambien en el servidor; el exceso responde `TOOL_ITERATION_LIMIT` (-32007).
+- **R010**: el pipe del bridge solo concede acceso al SID del usuario que ejecuta el add-in.
+
+Tests obligatorios: `HighRisk_SinToken_DevuelveHitlDeniedYNoEjecuta`, `HighRisk_ConTokenValido_EjecutaUnaSolaVez`, `TokenDeUnSoloUso_SegundoFrameQuedaDenegado`, `KillSwitchDisparado_BloqueaAntesDelHandler`, `LimiteIteracionesPorTurno_SeRefuerzaEnElDispatcher`, `BuildPipeSecurity_SoloConcedeAlSidDelUsuarioActual`.

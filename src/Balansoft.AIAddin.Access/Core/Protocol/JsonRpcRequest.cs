@@ -17,6 +17,7 @@ namespace Balansoft.AIAddin.Core.Protocol;
 /// <param name="CorrelationId">F3: identificador del turno, propagado al log del dispatcher.</param>
 /// <param name="TraceId">F3: identificador de traza, compartido con el cliente.</param>
 /// <param name="IdempotencyKey">F4: clave derivada del turno para deduplicar escrituras reenviadas.</param>
+/// <param name="AuthorizationToken">HITL: token de un solo uso emitido tras la aprobacion humana en la terminal.</param>
 public sealed record JsonRpcRequest(
     [property: JsonPropertyName("jsonrpc")] string JsonRpc,
     [property: JsonPropertyName("id")] JsonElement Id,
@@ -27,7 +28,9 @@ public sealed record JsonRpcRequest(
     [property: JsonPropertyName("trace_id")]
     [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? TraceId = null,
     [property: JsonPropertyName("idempotency_key")]
-    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? IdempotencyKey = null)
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? IdempotencyKey = null,
+    [property: JsonPropertyName("authorization_token")]
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] string? AuthorizationToken = null)
 {
     /// <summary>
     /// Obtiene el Id como objeto (long, string, etc.) para uso interno.

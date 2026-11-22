@@ -4,7 +4,7 @@ COM Add-in para Microsoft Access 2010+ (x86) que integra NVIDIA NIM en el VBE.
 Stack: C# 10, .NET Framework 4.8 (net48), WinForms, sin PIAs, enlace tardío vía `dynamic`.
 ProgID: `Balansoft.AIAddin.Access` | CLSID: `{d31bf73e-dbe1-4739-84bc-2c974fcd3171}`.
 
-> Estado: el add-in carga en Access con ciclo de vida COM completo (spec 001). El bridge JSON-RPC, el cliente NIM, el almacén DPAPI, la supervision humana (F2), la auditoría JSON con hash encadenado (F3), la idempotencia con resiliencia (F4) y la privacidad/cadena de suministro (F5) están implementados con 287 tests verdes. Los 12 riesgos R-01…R-12 están cerrados.
+> Estado: el add-in carga en Access con ciclo de vida COM completo (spec 001). El bridge JSON-RPC, el cliente NIM, el almacén DPAPI, la supervision humana (F2), la auditoría JSON con hash encadenado (F3), la idempotencia con resiliencia (F4) y la privacidad/cadena de suministro (F5) están implementados con 295 tests verdes. Los 12 riesgos R-01…R-12 están cerrados.
 
 ## Reglas duras (CI las verifica y bloquea el merge)
 
@@ -18,7 +18,7 @@ ProgID: `Balansoft.AIAddin.Access` | CLSID: `{d31bf73e-dbe1-4739-84bc-2c974fcd31
 8. **Errores COM/NIM se propagan** con categoría + mensaje original. Prohibido éxito falso ni `catch (Exception) { }`.
 9. **Nullable=annotations** (no `disable`).
 10. **Todo acceso a VBE/Access desde hilos no-UI** pasa por marshaling explícito al hilo de UI (`IUiScheduler`).
-11. **Supervisión humana obligatoria (F2/ADR-015):** ninguna tool `Medium`/`High` se ejecuta sin aprobación UI registrada; el kill switch (`BlsSafetyGate`) se comprueba antes de cada turno y tool call; un rechazo NUNCA invoca el bridge ni reporta éxito falso.
+11. **Supervision humana obligatoria (F2/ADR-015):** ninguna tool `Medium`/`High` se ejecuta sin aprobacion UI registrada; el kill switch (`BlsSafetyGate`) se comprueba antes de cada turno y tool call; un rechazo NUNCA invoca el bridge ni reporta exito falso. Fase 1 (auditoria 2026-11-22): el fail-safe, el HITL y el tope de 8 iteraciones tambien se refuerzan en `JsonRpcDispatcher`, y el pipe solo concede acceso al SID del usuario actual (`BlsVbeBridgeServer.BuildPipeSecurity`).
 12. **PII y supply chain (F5/ADR-018):** el scrubber se aplica siempre en `NimHttpRequestBuilder.BuildJson`; el único literal de modelo en `src/` está en `Helpers/BlsModelCatalog.cs`; la entropía DPAPI es derivada y el protector fijo solo se usa para leer. CI lo verifica en el gate 8f.
 
 ## Gobernanza de IA (ISO/IEC 42001 · 25 Pilares)
@@ -81,7 +81,7 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1 -Configuration Release
 ## Estructura
 
 - `src/Balansoft.AIAddin.Access/` — add-in COM, Core, Helpers, UI (WinForms)
-- `tests/Balansoft.AIAddin.Tests/` — 287 tests MSTest (fakes, sin COM real). `BalansoftTest.accdb` es la base de prueba para verificar en Access real (no se usa en la suite por defecto).
+- `tests/Balansoft.AIAddin.Tests/` — 295 tests MSTest (fakes, sin COM real). `BalansoftTest.accdb` es la base de prueba para verificar en Access real (no se usa en la suite por defecto).
 - `specs/` — contratos SDD (001–019, MAYÚSCULAS `NNN-<SLUG>.md`); `specs/README.md` es el índice con estados y tests por spec.
 - `docs/design/` — ADR (`ADR-NNN-<SLUG>.md`)
 - `docs/governance/` — política de IA, registro de riesgos, AI-BOM y threat model
@@ -174,5 +174,5 @@ Requiere ADR (documentar por qué y evaluar compatibilidad net48/x86). No se agr
 1. Spec en `specs/` con criterios de aceptación verificables (primero).
 2. Implementar + tests (x86 y x64, sin PIAs, `dynamic` aislado).
 3. Verificar: build Debug + Release en **x86 y x64** y suite de tests verde en ambas arquitecturas.
-4. PR → CI ejecuta 13 gates: build, tests (287/287 en x86 y x64), gobernanza IA (política, BOM, divulgación y agente único), fail-safe/HITL (kill switch + DbC), auditoría (JSONL, cadena SHA-256, correlación y saneamiento, F3), idempotencia y resiliencia (clave SHA-256, caché TTL/FIFO, jitter y breaker, F4), privacidad/supply chain/doc sync (scrubber, hash del prompt y catálogo, entropía derivada, F5), documentos obligatorios, ausencia de PIAs, aislamiento de `dynamic`, ausencia de `Thread.Sleep` en tests, tests de ADR, referencias cruzadas en MDs (incluye rutas de código e índice de specs).
+4. PR → CI ejecuta 13 gates: build, tests (295/295 en x86 y x64), gobernanza IA (política, BOM, divulgación y agente único), fail-safe/HITL (kill switch + DbC), auditoría (JSONL, cadena SHA-256, correlación y saneamiento, F3), idempotencia y resiliencia (clave SHA-256, caché TTL/FIFO, jitter y breaker, F4), privacidad/supply chain/doc sync (scrubber, hash del prompt y catálogo, entropía derivada, F5), documentos obligatorios, ausencia de PIAs, aislamiento de `dynamic`, ausencia de `Thread.Sleep` en tests, tests de ADR, referencias cruzadas en MDs (incluye rutas de código e índice de specs).
 5. Merge a `main` → tag `v*` → release automático.

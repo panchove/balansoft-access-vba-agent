@@ -83,7 +83,8 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     private readonly IUserInputDialog _userInputDialog;
 
     // F2 — fail-safe y supervisión humana (Pilares 3 y 4).
-    private readonly BlsSafetyGate _safetyGate = new();
+    private readonly BlsSafetyGate _safetyGate;
+    private readonly BlsToolAuthorizationRegistry _authorization;
     private readonly BlsToolRiskPolicy _riskPolicy = new();
     private readonly BlsHumanApprovalGate _approvalGate;
 
@@ -139,6 +140,8 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         IVbeContextProvider vbeContext,
         ISystemPromptBuilder promptBuilder,
         IUserInputDialog userInputDialog,
+        BlsToolAuthorizationRegistry authorization,
+        BlsSafetyGate safetyGate,
         Func<BlsApprovalRequest, bool>? approvalPrompt = null,
         Func<BlsPiiConsentRequest, bool>? piiConsentPrompt = null)
     {
@@ -151,6 +154,8 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         _vbeContext = BlsContract.RequiresNotNull(vbeContext, nameof(vbeContext));
         _promptBuilder = BlsContract.RequiresNotNull(promptBuilder, nameof(promptBuilder));
         _userInputDialog = BlsContract.RequiresNotNull(userInputDialog, nameof(userInputDialog));
+        _authorization = BlsContract.RequiresNotNull(authorization, nameof(authorization));
+        _safetyGate = BlsContract.RequiresNotNull(safetyGate, nameof(safetyGate));
         _approvalGate = new BlsHumanApprovalGate(
             approvalPrompt ?? DefaultApprovalPrompt,
             _logger);
@@ -175,7 +180,9 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         IBlsLogger logger,
         IVbeContextProvider vbeContext,
         ISystemPromptBuilder promptBuilder,
-        IUserInputDialog userInputDialog)
+        IUserInputDialog userInputDialog,
+        BlsToolAuthorizationRegistry authorization,
+        BlsSafetyGate safetyGate)
     {
         BlsNimTerminal? existing = null;
         if (_instanceRef?.TryGetTarget(out existing) == true && existing != null && !existing.IsDisposed)
@@ -193,7 +200,9 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             logger,
             vbeContext,
             promptBuilder,
-            userInputDialog);
+            userInputDialog,
+            authorization,
+            safetyGate);
 
         _instanceRef = new WeakReference<BlsNimTerminal>(terminal);
         if (owner != null && owner.Handle != IntPtr.Zero)
@@ -1514,6 +1523,21 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     /// </summary>
     private async Task<string> ExecuteToolAsync(ToolCallComplete call, CancellationToken ct)
     {
+        // Payload canonico: el mismo JsonElement que se enviara por el pipe.
+        // Asi la huella aprobada por el humano coincide con la que valida el
+        // dispatcher y no hay divergencia por espacios ni orden de claves.
+        JsonElement args;
+        try
+        {
+            args = string.IsNullOrWhiteSpace(call.ArgumentsJson)
+                ? default
+                : JsonSerializer.Deserialize<JsonElement>(call.ArgumentsJson);
+        }
+        catch (JsonException)
+        {
+            args = default;
+        }
+        var canonicalArgsJson = args.ValueKind == JsonValueKind.Undefined ? "{}" : args.GetRawText();
         // F2 · Capa 0 — fail-safe: el kill switch se evalúa ANTES de cualquier efecto.
         try
         {
@@ -1529,8 +1553,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         var risk = _riskPolicy.GetRisk(call.Name);
         if (BlsToolRiskPolicy.RequiresApproval(risk))
         {
-            var argsJson = string.IsNullOrWhiteSpace(call.ArgumentsJson) ? "{}" : call.ArgumentsJson;
-            var approval = BlsApprovalRequest.Create(call.Name, risk, argsJson);
+            var approval = BlsApprovalRequest.Create(call.Name, risk, canonicalArgsJson);
             var decision = _approvalGate.Evaluate(approval);
 
             if (decision == ApprovalDecision.Denied)
@@ -1559,19 +1582,16 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         // Capa 2 — ejecución contra el bridge (comportamiento previo a F2).
         try
         {
-            JsonElement args;
-            try
+            string? authorizationToken = null;
+            if (BlsToolRiskPolicy.RequiresApproval(risk))
             {
-                args = string.IsNullOrWhiteSpace(call.ArgumentsJson)
-                    ? default
-                    : JsonSerializer.Deserialize<JsonElement>(call.ArgumentsJson);
-            }
-            catch (JsonException)
-            {
-                args = default;
+                authorizationToken = _authorization.Issue(
+                    call.Name,
+                    BlsCorrelationContext.CorrelationId,
+                    BlsApprovalRequest.Create(call.Name, risk, canonicalArgsJson).PayloadSha256);
             }
 
-            var result = await _bridgeClient.InvokeAsync<JsonElement>(call.Name, args, ct);
+            var result = await _bridgeClient.InvokeAsync<JsonElement>(call.Name, args, ct, authorizationToken);
             var json = result.ValueKind == JsonValueKind.Undefined ? "{}" : result.GetRawText();
 
             OnUi(() =>

@@ -293,10 +293,13 @@ jobs:
               "src/Balansoft.AIAddin.Access/Helpers/BlsToolRiskPolicy.cs",
               "src/Balansoft.AIAddin.Access/Helpers/BlsApprovalRequest.cs",
               "src/Balansoft.AIAddin.Access/Helpers/BlsHumanApprovalGate.cs",
+              "src/Balansoft.AIAddin.Access/Helpers/BlsToolAuthorizationRegistry.cs",
               "docs/design/ADR-015-HUMAN-IN-THE-LOOP.md",
               "specs/016-HUMAN-IN-THE-LOOP.md",
               "tests/Balansoft.AIAddin.Tests/Helpers/BlsSafetyGateTests.cs",
-              "tests/Balansoft.AIAddin.Tests/Core/BlsComHelperSafetyTests.cs"
+              "tests/Balansoft.AIAddin.Tests/Core/BlsComHelperSafetyTests.cs",
+              "tests/Balansoft.AIAddin.Tests/Core/Protocol/JsonRpcSafetyTests.cs",
+              "tests/Balansoft.AIAddin.Tests/Core/BlsPipeSecurityTests.cs"
           )
           foreach ($f in $required) {
               if (-not (Test-Path (Join-Path $root $f))) {
@@ -317,6 +320,30 @@ jobs:
               $c = Get-Content $comHelper -Raw
               if ($c -match 'if\s*\(\s*vbe\s*==\s*null\s*\|\|\s*!confirm\s*\)\s*return') {
                   $errors += "Regresion R-02: DeleteModule vuelve a hacer return silencioso"
+              }
+          }
+
+          # Fase 1: fail-safe y HITL deben reforzarse tambien en la frontera
+          # del pipe, no solo en la terminal (auditoria 2026-11-22).
+          $dispatcher = Join-Path $root "src/Balansoft.AIAddin.Access/Core/Protocol/JsonRpcDispatcher.cs"
+          if (Test-Path $dispatcher) {
+              $d = Get-Content $dispatcher -Raw
+              foreach ($token in @('JsonRpcErrorCodes.HitlDenied', 'JsonRpcErrorCodes.SafetyTripped', 'JsonRpcErrorCodes.ToolIterationLimit', '_authorization.Validate(', '_safetyGate.EnsureAllowed()')) {
+                  if (-not $d.Contains($token)) { $errors += "JsonRpcDispatcher.cs no contiene $token" }
+              }
+          }
+          $bridge = Join-Path $root "src/Balansoft.AIAddin.Access/Core/BlsVbeBridgeServer.cs"
+          if (Test-Path $bridge) {
+              $b = Get-Content $bridge -Raw
+              foreach ($token in @('BuildPipeSecurity()', 'PipeAccessRule', 'WindowsIdentity.GetCurrent()')) {
+                  if (-not $b.Contains($token)) { $errors += "BlsVbeBridgeServer.cs no contiene $token" }
+              }
+          }
+          $connect = Join-Path $root "src/Balansoft.AIAddin.Access/AddinConnect.cs"
+          if (Test-Path $connect) {
+              $a = Get-Content $connect -Raw
+              foreach ($token in @('new BlsSafetyGate()', 'new BlsToolAuthorizationRegistry()')) {
+                  if (-not $a.Contains($token)) { $errors += "AddinConnect.cs no contiene $token" }
               }
           }
 
@@ -695,6 +722,13 @@ jobs:
               "Trip_EnsureAllowed_ThrowsWithReason",
               "HighRisk_Denied_ReturnsDenied",
               "DeleteModule_WithoutConfirm_Throws",
+              # Fase 1 (fail-safe/HITL en la frontera del pipe)
+              "HighRisk_SinToken_DevuelveHitlDeniedYNoEjecuta",
+              "HighRisk_ConTokenValido_EjecutaUnaSolaVez",
+              "TokenDeUnSoloUso_SegundoFrameQuedaDenegado",
+              "KillSwitchDisparado_BloqueaAntesDelHandler",
+              "LimiteIteracionesPorTurno_SeRefuerzaEnElDispatcher",
+              "BuildPipeSecurity_SoloConcedeAlSidDelUsuarioActual",
               # ADR-016 (F3, verificados)
               "Logger_CadenaUnEvento_EsVerificable",
               "Verify_TamperMensaje_DetectaCorrupcion",
@@ -720,6 +754,12 @@ jobs:
               "Trip_EnsureAllowed_ThrowsWithReason",
               "HighRisk_Denied_ReturnsDenied",
               "DeleteModule_WithoutConfirm_Throws",
+              "HighRisk_SinToken_DevuelveHitlDeniedYNoEjecuta",
+              "HighRisk_ConTokenValido_EjecutaUnaSolaVez",
+              "TokenDeUnSoloUso_SegundoFrameQuedaDenegado",
+              "KillSwitchDisparado_BloqueaAntesDelHandler",
+              "LimiteIteracionesPorTurno_SeRefuerzaEnElDispatcher",
+              "BuildPipeSecurity_SoloConcedeAlSidDelUsuarioActual",
               "Logger_CadenaUnEvento_EsVerificable",
               "Verify_TamperMensaje_DetectaCorrupcion",
               "Dispatcher_ConCorrelacion_LosEscribeEnElLog",

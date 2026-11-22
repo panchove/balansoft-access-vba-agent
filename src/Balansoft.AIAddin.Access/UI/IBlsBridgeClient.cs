@@ -19,9 +19,11 @@ public interface IBlsBridgeClient : IDisposable
     /// <param name="method">Nombre del método JSON-RPC.</param>
     /// <param name="parameters">Parámetros del método (se serializan a JSON).</param>
     /// <param name="ct">Token de cancelación del turno (ADR-003).</param>
+    /// <param name="authorizationToken">Token HITL emitido por la terminal para tools Medium/High.</param>
     /// <returns>Resultado deserializado.</returns>
     Task<TResult> InvokeAsync<TResult>(
         string method,
         object? parameters,
-        CancellationToken ct);
+        CancellationToken ct,
+        string? authorizationToken = null);
 }

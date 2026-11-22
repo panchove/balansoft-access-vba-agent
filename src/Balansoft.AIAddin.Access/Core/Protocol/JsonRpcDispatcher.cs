@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: LGPL-3.0-or-later
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
@@ -27,10 +28,20 @@ public sealed class JsonRpcDispatcher
     private readonly IUiScheduler _ui;
     private readonly IBlsLogger _logger;
     private readonly IBlsIdempotencyCache _idempotency;
+    private readonly BlsToolAuthorizationRegistry? _authorization;
+    private readonly BlsSafetyGate? _safetyGate;
+    private readonly int _maxToolIterations;
     private readonly SemaphoreSlim _vbeGate = new(1, 1);
+    private readonly ConcurrentDictionary<string, TurnCounter> _turnCounters = new(StringComparer.Ordinal);
 
-    /// <summary>Constructor heredado: mantiene la firma y usa una caché en memoria.</summary>
-    public JsonRpcDispatcher(
+    private sealed class TurnCounter
+    {
+        private int _count;
+        public int Increment() => System.Threading.Interlocked.Increment(ref _count);
+    }
+
+    /// <summary>Constructor heredado: solo para tests; no refuerza HITL en el bridge.</summary>
+    internal JsonRpcDispatcher(
         IBlsVbe vbe,
         IBlsAccess access,
         IUiScheduler ui,
@@ -40,18 +51,58 @@ public sealed class JsonRpcDispatcher
     }
 
     /// <summary>Constructor F4: permite inyectar la caché (reloj y TTL) en tests.</summary>
-    public JsonRpcDispatcher(
+    internal JsonRpcDispatcher(
         IBlsVbe vbe,
         IBlsAccess access,
         IUiScheduler ui,
         IBlsLogger logger,
         IBlsIdempotencyCache idempotency)
+        : this(vbe, access, ui, logger, idempotency, null, null, 8, false)
     {
-        _vbe = vbe;
-        _access = access;
-        _ui = ui;
-        _logger = logger;
+    }
+
+    /// <summary>
+    /// Constructor de producción: refuerza fail-safe, HITL y el tope de
+    /// iteraciones en la frontera del pipe (Fase 1, auditoría 2026-11-22).
+    /// </summary>
+    public JsonRpcDispatcher(
+        IBlsVbe vbe,
+        IBlsAccess access,
+        IUiScheduler ui,
+        IBlsLogger logger,
+        IBlsIdempotencyCache idempotency,
+        BlsToolAuthorizationRegistry authorization,
+        BlsSafetyGate safetyGate,
+        int maxToolIterations = 8)
+        : this(
+            vbe, access, ui, logger, idempotency,
+            BlsContract.RequiresNotNull(authorization, nameof(authorization)),
+            BlsContract.RequiresNotNull(safetyGate, nameof(safetyGate)),
+            maxToolIterations,
+            true)
+    {
+    }
+
+    private JsonRpcDispatcher(
+        IBlsVbe vbe,
+        IBlsAccess access,
+        IUiScheduler ui,
+        IBlsLogger logger,
+        IBlsIdempotencyCache idempotency,
+        BlsToolAuthorizationRegistry? authorization,
+        BlsSafetyGate? safetyGate,
+        int maxToolIterations,
+        bool enforceSafety)
+    {
+        _vbe = BlsContract.RequiresNotNull(vbe, nameof(vbe));
+        _access = BlsContract.RequiresNotNull(access, nameof(access));
+        _ui = BlsContract.RequiresNotNull(ui, nameof(ui));
+        _logger = BlsContract.RequiresNotNull(logger, nameof(logger));
         _idempotency = BlsContract.RequiresNotNull(idempotency, nameof(idempotency));
+        _authorization = enforceSafety ? authorization : null;
+        _safetyGate = enforceSafety ? safetyGate : null;
+        BlsContract.RequiresRange(maxToolIterations > 0, nameof(maxToolIterations));
+        _maxToolIterations = maxToolIterations;
     }
 
     /// <summary>
@@ -84,7 +135,26 @@ public sealed class JsonRpcDispatcher
                 new JsonRpcErrorData("MethodNotFound", request.Method, null, null)));
         }
 
-        // F4 — Solo se deduplican escrituras (Medium/High). Las lecturas se
+        // Fase 1 - fail-safe en la frontera del bridge. La terminal tambien
+        // comprueba el kill switch, pero un cliente directo del pipe no pasa
+        // por la terminal: la parada determinista debe vivir aqui (IEEE 7009).
+        if (_safetyGate != null)
+        {
+            try
+            {
+                _safetyGate.EnsureAllowed();
+            }
+            catch (BlsSafetyTrippedException ex)
+            {
+                _logger.Warn("SAFETY", $"Tool {request.Method} bloqueada por kill switch en el bridge: {ex.Message}");
+                return JsonRpcResponse.CreateError(request.Id, new JsonRpcError(
+                    JsonRpcErrorCodes.SafetyTripped,
+                    $"SAFETY_TRIPPED: {ex.Message}",
+                    new JsonRpcErrorData("SafetyTripped", request.Method, null, null)));
+            }
+        }
+
+        // F4 - Solo se deduplican escrituras (Medium/High). Las lecturas se
         // ejecutan siempre para no devolver un estado obsoleto del VBE.
         string? idempotencyKey = null;
         if (!string.IsNullOrWhiteSpace(request.IdempotencyKey)
@@ -100,6 +170,44 @@ public sealed class JsonRpcDispatcher
         if (!string.IsNullOrWhiteSpace(request.IdempotencyKey))
         {
             idempotencyKey = request.IdempotencyKey;
+        }
+
+        // Fase 1 - HITL en la frontera del pipe. El token solo lo emite la
+        // terminal despues de una aprobacion humana real; es de un solo uso
+        // y esta ligado al metodo, al turno y al SHA-256 del payload.
+        if (_authorization != null && BlsToolRiskPolicy.RequiresApproval(RiskPolicy.GetRisk(request.Method)))
+        {
+            var payloadJson = request.Params?.GetRawText() ?? "{}";
+            var approval = BlsApprovalRequest.Create(request.Method, RiskPolicy.GetRisk(request.Method), payloadJson);
+            if (!_authorization.Validate(
+                    request.AuthorizationToken,
+                    request.Method,
+                    request.CorrelationId,
+                    approval.PayloadSha256))
+            {
+                _logger.Warn(
+                    "HITL",
+                    $"Tool {request.Method} denegada en bridge; bridge NO invocado (payload_sha256={approval.PayloadSha256})");
+                return JsonRpcResponse.CreateError(request.Id, new JsonRpcError(
+                    JsonRpcErrorCodes.HitlDenied,
+                    $"HITL_DENIED: {request.Method} requiere aprobacion humana",
+                    new JsonRpcErrorData("HitlDenied", request.Method, null, null)));
+            }
+        }
+
+        // Fase 1 - tope de iteraciones por turno, tambien en el servidor.
+        if (_authorization != null && !string.IsNullOrWhiteSpace(request.CorrelationId))
+        {
+            if (_turnCounters.Count > 1024) _turnCounters.Clear();
+            var counter = _turnCounters.GetOrAdd(request.CorrelationId!, _ => new TurnCounter());
+            if (counter.Increment() > _maxToolIterations)
+            {
+                _logger.Warn("SAFETY", $"Turno {request.CorrelationId} excede el maximo de {_maxToolIterations} tool calls");
+                return JsonRpcResponse.CreateError(request.Id, new JsonRpcError(
+                    JsonRpcErrorCodes.ToolIterationLimit,
+                    $"Se alcanzo el maximo de {_maxToolIterations} iteraciones de herramientas",
+                    new JsonRpcErrorData("ToolIterationLimit", request.Method, null, null)));
+            }
         }
 
         JsonRpcResponse response;

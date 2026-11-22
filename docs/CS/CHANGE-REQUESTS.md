@@ -131,3 +131,14 @@ tags: [change-requests, iso-12207, modification-process, square]
   - Test de SLO con asercion de latencia real eliminado (no determinista).
   - Step Release de `ci.yml` compila el `.csproj` del add-in.
   - Documentacion sincronizada: recuento 287/287, terminal 1845 lineas, entropia derivada v2, 19 metodos JSON-RPC y registros de bugs/change requests actualizados.
+---
+
+### CR-007: Refuerzo de fail-safe y HITL en la frontera del bridge
+* **ID**: `CR-007`
+* **Titulo**: Impedir la ejecucion directa de tools destructivas desde el unnamed pipe
+* **Prioridad**: Critical
+* **Area**: `Core/Protocol`, `Core/BlsVbeBridgeServer`, `UI/BlsNimTerminal`, `AddinConnect`
+* **Fecha**: 2026-11-22
+* **Estado**: `Implementado en v1.1.0`
+* **Justificacion**: la auditoria de gobernanza detecto que los controles F2 residian solo en la terminal y que la ACL del pipe heredaba la configuracion por defecto de Windows.
+* **Detalle de implementacion**: registro de autorizaciones de un solo uso; fail-safe, HITL y tope de 8 iteraciones en el dispatcher; ACL por SID del usuario; 8 tests nuevos; gate 8c ampliado.

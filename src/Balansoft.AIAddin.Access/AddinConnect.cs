@@ -95,6 +95,8 @@ namespace Balansoft.AIAddin.Access
         private ISystemPromptBuilder? _promptBuilder;
         private IUserInputDialog? _userInputDialog;
         private BlsNimTerminal? _terminal;
+        private BlsSafetyGate? _safetyGate;
+        private BlsToolAuthorizationRegistry? _authorization;
 
         /// <summary>
         /// Se invoca cuando el host Microsoft Access carga el complemento COM.
@@ -268,9 +270,22 @@ namespace Balansoft.AIAddin.Access
                 _nimClient = new BlsNimClient(_httpClient, _secureStore, _logger);
             }
 
+            // Fase 1: un unico kill switch y un unico registro de autorizaciones
+            // compartidos por la terminal y el bridge. Asi el fail-safe y el HITL
+            // se comprueban tanto en la UI como en la frontera del pipe.
+            if (_safetyGate == null)
+            {
+                _safetyGate = new BlsSafetyGate();
+            }
+            if (_authorization == null)
+            {
+                _authorization = new BlsToolAuthorizationRegistry();
+            }
+
             if (_bridgeServer == null && _vbeService != null && _accessService != null && _uiScheduler != null)
             {
-                _bridgeServer = new BlsVbeBridgeServer(_vbeService, _accessService, _uiScheduler, _logger);
+                _bridgeServer = new BlsVbeBridgeServer(
+                    _vbeService, _accessService, _uiScheduler, _logger, _authorization, _safetyGate);
                 try
                 {
                     _bridgeServer.Start();
@@ -369,7 +384,9 @@ namespace Balansoft.AIAddin.Access
                     _logger,
                     _vbeContext,
                     _promptBuilder,
-                    _userInputDialog);
+                    _userInputDialog,
+                    _authorization,
+                    _safetyGate);
 
                 _terminal.FormClosed += (s, e) => { _terminal = null; };
                 _terminal.BringToFront();

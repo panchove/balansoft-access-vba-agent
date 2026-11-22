@@ -217,7 +217,7 @@ En procesos host de Office 32-bit (.NET Framework 4.8), `ServicePointManager.Sec
 ---
 
 #
-## Próximo Bug ID disponible: BalanceSoft-014
+## Próximo Bug ID disponible: BalanceSoft-015
 
 ### Política de cierre de bugs
 1. Cuando se corrige un bug, se añade la fecha de corrección
@@ -242,3 +242,15 @@ Los tres bugs historicos siguen **abiertos**; la Fase 0 no los cerro porque no s
 | BalanceSoft-003 | High | Abierto | Timeout por chunk que se reinicia con multiples tool_calls; requiere timeout global de turno (Fase 4). |
 
 **Nota de gobernanza**: los 12 riesgos R-01..R-12 del registro de IA siguen cerrados. Los bugs de esta tabla son de producto, no de gobernanza, y se registran aqui para evitar que el cierre de riesgos se interprete como "sin incidencias abiertas".
+### Bug #14: BalanceSoft-014
+**Titulo**: HITL y kill switch eludibles mediante cliente directo del pipe
+**Gravedad**: Critical
+**Area**: Core/Protocol | Named Pipe | Frontera de seguridad
+**Fecha**: 2026-11-22
+**Reporte por**: Auditoria de gobernanza (asistida por IA)
+**Estado**: Fixed in v1.1.0
+
+**Descripcion**:
+`BlsSafetyGate.EnsureAllowed` y `BlsHumanApprovalGate.Evaluate` solo se invocaban desde `BlsNimTerminal`. `JsonRpcDispatcher` no las conocia, de modo que un frame JSON-RPC directo al pipe podia ejecutar `delete_module`, `execute_sql` o `migrate_*` sin aprobacion ni kill switch. La ACL por defecto del pipe tampoco estaba restringida al usuario actual.
+
+**Correccion**: token de aprobacion de un solo uso (`BlsToolAuthorizationRegistry`), comprobaciones de fail-safe/HITL/limite de iteraciones en el dispatcher y ACL por SID en `BlsVbeBridgeServer.BuildPipeSecurity`. El next bug ID pasa a BalanceSoft-015.

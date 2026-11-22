@@ -57,7 +57,7 @@ Documentar issues de código, buenas prácticas,anti-patrones y sugerencias de m
 - [x] Token del turno (ADR-003) propagado a todos los handlers
 
 ### Tests y Cobertura
-- [x] 287 tests unitarios verdes en CI (los de integracion NIM se filtran con `.runsettings`)
+- [x] 295 tests unitarios verdes en CI (los de integracion NIM se filtran con `.runsettings`)
 - [x] **NUNCA** `Thread.Sleep` en tests (usar `WaitAsync(TimeSpan)`)
 - [x] Tests sin Office (unitarias) corren en CI
 - [x] Tests de integración NIM con `NIM_API_KEY` en env
@@ -175,15 +175,15 @@ Los errores logged no siempre incluyen la versión actual del add-in ni el commi
 |--------|-------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------|
 | CS-004 | Gate 11 de CI detectaba la palabra `Thread.Sleep` dentro de un comentario de test, dejando la pipeline en rojo          | El comentario de `BlsNimResilienceTests.cs` ya no contiene el literal prohibido                                                                                                          | Gate 11 reproducido en local: 0 coincidencias            |
 | CS-005 | Cinco tests de ADR tenian cuerpo vacio (`{ }`) y se contaban como verdes                                                | Tres se implementaron con dobles CLR y aserciones reales (ADR-001); los dos de ADR-004 se retiraron porque `GetObjectDetail` sigue siendo un stub. El gate 12 ahora rechaza cuerpo vacio | `ProjectKeyAndObjectDetailTests.cs`, gate 12 de `ci.yml` |
-| CS-006 | Asuncion de SLO con tiempo real en `Logger_Metricas_ContabilizanEscriturasCorrectas` (p95 <= 50 ms) hacia el test flaky | Se eliminó la asercion de latencia; el SLO se verifica con reloj inyectable en `BlsSloMetricsTests`                                                                                      | Suite 287/287 en dos ejecuciones consecutivas            |
+| CS-006 | Asuncion de SLO con tiempo real en `Logger_Metricas_ContabilizanEscriturasCorrectas` (p95 <= 50 ms) hacia el test flaky | Se eliminó la asercion de latencia; el SLO se verifica con reloj inyectable en `BlsSloMetricsTests`                                                                                      | Suite 295/295 en dos ejecuciones consecutivas            |
 | CS-007 | El step "Build (Release)" de CI compilaba el proyecto de tests en vez del add-in                                        | Compila `Balansoft.AIAddin.Access.csproj`                                                                                                                                                | `.github/workflows/ci.yml`                               |
 
-**Recuento:** la suite pasa de 289 a 287 tests porque se retiraron dos tests ficticios y se convirtieron tres vacios en aserciones reales. Ninguna funcionalidad se elimino.
+**Recuento:** la suite pasa de 289 a 295 tests porque se retiraron dos tests ficticios y se convirtieron tres vacios en aserciones reales. Ninguna funcionalidad se elimino.
 
 ### Issue #4: CS-008 (abierto, prioridad alta)
 **Titulo**: Fail-safe y HITL no se comprueban en la frontera del pipe
 **Descripcion**: `BlsSafetyGate.EnsureAllowed` y `BlsHumanApprovalGate.Evaluate` solo se invocan desde `BlsNimTerminal`. `JsonRpcDispatcher` no los conoce, por lo que un cliente directo del pipe puede ejecutar `delete_module`, `execute_sql` y `migrate_*` sin aprobacion humana ni kill switch.
-**Estado**: Pendiente - Fase 1 del plan de remediacion aprobado 2026-11-22.
+**Estado**: Fixed in v1.1.0 (2026-11-22). `BlsToolAuthorizationRegistry` + refuerzo en `JsonRpcDispatcher` + ACL por SID. Evidencia: `JsonRpcSafetyTests` y `BlsPipeSecurityTests`.
 
 ### Issue #5: CS-009 (abierto, prioridad alta)
 **Titulo**: Cadena de auditoria no verificada en ejecucion

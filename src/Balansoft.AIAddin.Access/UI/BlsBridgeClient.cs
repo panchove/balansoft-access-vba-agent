@@ -49,7 +49,8 @@ public sealed class BlsBridgeClient : IBlsBridgeClient
     public async Task<TResult> InvokeAsync<TResult>(
         string method,
         object? parameters,
-        CancellationToken ct)
+        CancellationToken ct,
+        string? authorizationToken = null)
     {
         BlsContract.RequiresState(!_disposed, "El cliente del bridge ha sido dispuesto.");
         BlsContract.RequiresNotNullOrWhiteSpace(method, nameof(method));
@@ -85,7 +86,8 @@ public sealed class BlsBridgeClient : IBlsBridgeClient
                 parametersElement,
                 string.IsNullOrEmpty(correlationId) ? null : correlationId,
                 string.IsNullOrEmpty(traceId) ? null : traceId,
-                BlsIdempotencyKey.For(method, parametersElement, correlationId));
+                BlsIdempotencyKey.For(method, parametersElement, correlationId),
+                authorizationToken);
 
             var requestBytes = JsonSerializer.SerializeToUtf8Bytes(request);
             var header = BitConverter.GetBytes((uint)requestBytes.Length);
@@ -203,6 +205,9 @@ public sealed class BlsBridgeClient : IBlsBridgeClient
             -32002 => new BlsBridgeException($"Tool Timeout: {error.Message}"),
             -32003 => new BlsBridgeException($"Frame Incomplete: {error.Message}"),
             -32004 => new BlsBridgeException($"Bridge Busy: {error.Message}"),
+            -32005 => new BlsBridgeException($"HITL Denied: {error.Message}"),
+            -32006 => new BlsBridgeException($"Safety Tripped: {error.Message}"),
+            -32007 => new BlsBridgeException($"Tool Iteration Limit: {error.Message}"),
             _ => new BlsBridgeException($"Unknown Error ({error.Code}): {error.Message}")
         };
     }

@@ -7,6 +7,8 @@ using System;
 using System.Collections.Concurrent;
 using System.IO;
 using System.IO.Pipes;
+using System.Security.AccessControl;
+using System.Security.Principal;
 using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
@@ -37,6 +39,8 @@ public sealed class BlsVbeBridgeServer : IBlsBridgeServer
     private readonly IBlsLogger _logger;
     private readonly string _pipeName;
     private readonly JsonRpcDispatcher _dispatcher;
+    private readonly BlsToolAuthorizationRegistry? _authorization;
+    private readonly BlsSafetyGate? _safetyGate;
     private CancellationTokenSource? _loopCts;
     private Task? _acceptLoop;
     private volatile bool _isRunning;
@@ -44,19 +48,54 @@ public sealed class BlsVbeBridgeServer : IBlsBridgeServer
     private readonly ConcurrentBag<Task> _backgroundTasks = new();
     private NamedPipeServerStream? _currentListeningPipe;
 
-    public BlsVbeBridgeServer(
+    /// <summary>Constructor de tests: no refuerza HITL en el dispatcher.</summary>
+    internal BlsVbeBridgeServer(
         IBlsVbe vbe,
         IBlsAccess access,
         IUiScheduler ui,
         IBlsLogger logger,
         string pipeName = DefaultPipeName)
+        : this(vbe, access, ui, logger, null!, null!, pipeName, false)
+    {
+    }
+
+    /// <summary>Constructor de producción: HITL y fail-safe en la frontera del pipe.</summary>
+    public BlsVbeBridgeServer(
+        IBlsVbe vbe,
+        IBlsAccess access,
+        IUiScheduler ui,
+        IBlsLogger logger,
+        BlsToolAuthorizationRegistry authorization,
+        BlsSafetyGate safetyGate,
+        string pipeName = DefaultPipeName)
+        : this(vbe, access, ui, logger, authorization, safetyGate, pipeName, true)
+    {
+    }
+
+    private BlsVbeBridgeServer(
+        IBlsVbe vbe,
+        IBlsAccess access,
+        IUiScheduler ui,
+        IBlsLogger logger,
+        BlsToolAuthorizationRegistry? authorization,
+        BlsSafetyGate? safetyGate,
+        string pipeName,
+        bool enforceSafety)
     {
         _vbe = BlsContract.RequiresNotNull(vbe, nameof(vbe));
         _access = BlsContract.RequiresNotNull(access, nameof(access));
         _ui = BlsContract.RequiresNotNull(ui, nameof(ui));
         _logger = BlsContract.RequiresNotNull(logger, nameof(logger));
         _pipeName = BlsPipeFraming.NormalizePipeName(pipeName);
-        _dispatcher = new JsonRpcDispatcher(vbe, access, ui, logger);
+        _authorization = enforceSafety
+            ? BlsContract.RequiresNotNull(authorization, nameof(authorization))
+            : null;
+        _safetyGate = enforceSafety
+            ? BlsContract.RequiresNotNull(safetyGate, nameof(safetyGate))
+            : null;
+        _dispatcher = enforceSafety
+            ? new JsonRpcDispatcher(vbe, access, ui, logger, new BlsIdempotencyCache(), _authorization!, _safetyGate!)
+            : new JsonRpcDispatcher(vbe, access, ui, logger);
     }
 
     public bool IsRunning => _isRunning;
@@ -275,6 +314,29 @@ public sealed class BlsVbeBridgeServer : IBlsBridgeServer
         }
     }
 
+    /// <summary>
+    /// ACL minima del pipe: solo el SID del usuario que ejecuta el add-in.
+    /// La ACL por defecto de Windows incluye a todos los administradores del
+    /// equipo; aqui se sustituye para cumplir el principio de minimo privilegio
+    /// (Pilar 2 / ISO 27001 A.8.15 / OWASP ASI03).
+    /// </summary>
+    internal static PipeSecurity BuildPipeSecurity()
+    {
+        var identity = WindowsIdentity.GetCurrent();
+        var sid = identity.User;
+        if (sid == null)
+        {
+            throw new InvalidOperationException("No se pudo resolver el SID del usuario actual para la ACL del pipe.");
+        }
+
+        var security = new PipeSecurity();
+        security.AddAccessRule(new PipeAccessRule(
+            sid,
+            PipeAccessRights.FullControl,
+            AccessControlType.Allow));
+        return security;
+    }
+
     private NamedPipeServerStream? CreatePipe(CancellationToken ct)
     {
         try
@@ -284,7 +346,10 @@ public sealed class BlsVbeBridgeServer : IBlsBridgeServer
                 PipeDirection.InOut,
                 2, // max 2 instancias simultáneas
                 PipeTransmissionMode.Message,
-                PipeOptions.Asynchronous);
+                PipeOptions.Asynchronous,
+                0,
+                0,
+                BuildPipeSecurity());
 
             return pipe;
         }
