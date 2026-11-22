@@ -20,8 +20,8 @@ internal static class NimHttpRequestBuilder
     /// </summary>
     public const string DefaultModel = BlsModelCatalog.DefaultModel;
 
-    private const double Temperature = 0.6;
-    private const int MaxTokens = 8192;
+    private static double Temperature => Balansoft.AIAddin.Helpers.BlsSettings.Current.Temperature;
+    private static int MaxTokens => Balansoft.AIAddin.Helpers.BlsSettings.Current.MaxTokens;
 
     private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions
     {

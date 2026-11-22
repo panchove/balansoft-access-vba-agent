@@ -73,12 +73,12 @@ public sealed class JsonRpcDispatcher
         IBlsIdempotencyCache idempotency,
         BlsToolAuthorizationRegistry authorization,
         BlsSafetyGate safetyGate,
-        int maxToolIterations = 32)
+        int? maxToolIterations = null)
         : this(
             vbe, access, ui, logger, idempotency,
             BlsContract.RequiresNotNull(authorization, nameof(authorization)),
             BlsContract.RequiresNotNull(safetyGate, nameof(safetyGate)),
-            maxToolIterations,
+            maxToolIterations ?? BlsSettings.Current.MaxToolIterations,
             true)
     {
     }
@@ -91,7 +91,7 @@ public sealed class JsonRpcDispatcher
         IBlsIdempotencyCache idempotency,
         BlsToolAuthorizationRegistry? authorization,
         BlsSafetyGate? safetyGate,
-        int maxToolIterations,
+        int? maxToolIterations,
         bool enforceSafety)
     {
         _vbe = BlsContract.RequiresNotNull(vbe, nameof(vbe));
@@ -101,8 +101,9 @@ public sealed class JsonRpcDispatcher
         _idempotency = BlsContract.RequiresNotNull(idempotency, nameof(idempotency));
         _authorization = enforceSafety ? authorization : null;
         _safetyGate = enforceSafety ? safetyGate : null;
-        BlsContract.RequiresRange(maxToolIterations > 0, nameof(maxToolIterations));
-        _maxToolIterations = maxToolIterations;
+        var effectiveMax = maxToolIterations ?? BlsSettings.Current.MaxToolIterations;
+        BlsContract.RequiresRange(effectiveMax > 0, nameof(maxToolIterations));
+        _maxToolIterations = effectiveMax;
     }
 
     /// <summary>

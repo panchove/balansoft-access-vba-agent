@@ -82,7 +82,7 @@ Este repositorio aplica los **25 Pilares** de `AI_GOVERNANCE.md` (ISO/IEC 42001:
 - **Resiliencia (F4):** idempotencia SHA-256 del bridge, caché TTL/FIFO, full jitter y circuit breaker ([ADR-017](docs/design/ADR-017-IDEMPOTENCY-RESILIENCE.md), [spec 018](specs/018-IDEMPOTENCY-RESILIENCE.md)).
 - **Privacidad (F5):** saneamiento PII en la frontera HTTP, consentimiento UI, catálogo de modelo y entropía DPAPI derivada ([ADR-018](docs/design/ADR-018-PRIVACY-SUPPLY-CHAIN.md), [spec 019](specs/019-PRIVACY-SUPPLY-CHAIN-CONFIG.md)).
 
-> ✅ Riesgos **R-01…R-12 cerrados**. La suite tiene 324 tests verdes en x86 y x64 y la CI ejecuta 13 gates.
+> ✅ Riesgos **R-01…R-12 cerrados**. La suite tiene 326 tests verdes en x86 y x64 y la CI ejecuta 13 gates.
 
 ## 📂 Estructura del repositorio
 ```

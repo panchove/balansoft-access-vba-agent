@@ -70,7 +70,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     private const int MaxSelectionLength = 32 * 1024; // 32 KB
 
     /// <summary>Tope de vueltas de herramientas por turno, para no entrar en bucle infinito.</summary>
-    private const int MaxToolIterations = 32;
+    private static int MaxToolIterations => Balansoft.AIAddin.Helpers.BlsSettings.Current.MaxToolIterations;
 
     /// <summary>Timeout global del turno: sustituye al timeout por chunk que se reiniciaba (BalanceSoft-003).</summary>
     private static readonly TimeSpan TurnTimeout = TimeSpan.FromMinutes(5);
@@ -152,6 +152,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         Func<BlsApprovalRequest, bool>? approvalPrompt = null,
         Func<BlsPiiConsentRequest, bool>? piiConsentPrompt = null)
     {
+        BlsSettings.Load().Apply();
         _nimClient = BlsContract.RequiresNotNull(nimClient, nameof(nimClient));
         _bridgeClient = BlsContract.RequiresNotNull(bridgeClient, nameof(bridgeClient));
         _history = BlsContract.RequiresNotNull(history, nameof(history));
@@ -968,6 +969,9 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         try
         {
             BlsStrings.CurrentLanguage = lang;
+            var prefs = BlsSettings.Load();
+            prefs.Language = lang;
+            prefs.Save();
 
             // Refresh all localized UI texts
             Text = BlsStrings.Get("AppTitle") + " v" + BlsVersion.Current;

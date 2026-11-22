@@ -17,6 +17,9 @@ public interface IBlsNimClient : IDisposable
     /// la variable de entorno NIM_MODEL o desde BlsModelCatalog.DefaultModel.
     /// </summary>
     string? Model { get; set; }
+
+    /// <summary>Endpoint NIM usado en los proximos turnos.</summary>
+    string Endpoint { get; set; }
     /// <summary>
     /// Envía mensajes al modelo NIM y emite eventos al sink.
     /// </summary>

@@ -39,7 +39,7 @@ public sealed class BlsNimClient : IBlsNimClient
     private readonly IBlsSecureStore _secureStore;
     private readonly IBlsLogger _logger;
     private string? _model;
-    private readonly string _endpoint;
+    private string _endpoint;
     private readonly TimeSpan _chunkTimeout;
     private readonly IBlsNimRetryPolicy _retryPolicy;
     private readonly IBlsCircuitBreaker _breaker;
@@ -119,6 +119,12 @@ public sealed class BlsNimClient : IBlsNimClient
         }
     }
 
+    /// <inheritdoc />
+    public string Endpoint
+    {
+        get => _endpoint;
+        set => _endpoint = string.IsNullOrWhiteSpace(value) ? DefaultEndpoint : value!.Trim();
+    }
     /// <inheritdoc />
     public string? Model
     {
