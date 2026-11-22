@@ -195,7 +195,7 @@ jobs:
               ".opencode/skills/bls-com-late-binding/SKILL.md",
               ".opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md",
               ".opencode/skills/bls-secure-store-dpapi/SKILL.md",
-              ".opencode/skills/bls-testing-strategy/SKILL.md",
+              ".opencode/skills/bls-testing-strategy/SKILL.md"
           )
 
           foreach ($f in $expected) {
