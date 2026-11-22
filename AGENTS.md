@@ -73,7 +73,7 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1 -Configuration Release
 - **net48 limita APIs:** no `Task.WaitAsync`, no raw strings (C# 11), no `System.Net.Http.Json`, no E/S de archivos async. Para waits con timeout usar `tests/.../TaskTestExtensions.cs`.
 - **Named pipe:** framing `[uint32 LE longitud][UTF-8 JSON]`, máx 1 MB. Las clases `NamedPipe*` anteponen `\\.\pipe\` solas — pasar el nombre completo lo duplica. Usar el nombre pelado (`BlsPipeFraming.DefaultPipeName`).
 - **Scaffold.ps1 está roto** (4 errores de parser, líneas 762-775). **No usar.**
-- **Modelo:** `nvidia/nemotron-3-super-120b-a12b` (override por variable de entorno `NIM_MODEL`).
+- **Modelo:** `nvidia/nemotron-3.5-super-vl-120b-a12b` (override por variable de entorno `NIM_MODEL`).
 - **Tests de integración NIM** requieren `NIM_API_KEY` en el entorno (o `.env`); quedan fuera de la CI por defecto.
 - **`.env`** se copia de `.env.example`; nunca se commitea (está en `.gitignore`).
 - **API key en DPAPI:** nunca en logs, excepciones, JSON, registry ni disco (`BlsSecureStore`, `CurrentUser`). Véase AGENTS.md regla 7.
@@ -130,7 +130,7 @@ Copia `.env.example` a `.env` (nunca se commitea; está en `.gitignore`):
 | Variable               | Obligatorio               | Valor por defecto                                      |
 |------------------------|---------------------------|--------------------------------------------------------|
 | `NIM_API_KEY`          | sí (solo integración NIM) | —                                                      |
-| `NIM_MODEL`            | no                        | `nvidia/nemotron-3-super-120b-a12b`                |
+| `NIM_MODEL`            | no                        | `nvidia/nemotron-3.5-super-vl-120b-a12b`                |
 | `NIM_ENDPOINT`         | no                        | `https://integrate.api.nvidia.com/v1/chat/completions` |
 | `NIM_REASONING_EFFORT` | no                        | `default`                                              |
 | `NIM_DEFAULT_LANGUAGE` | no                        | `english`                                              |

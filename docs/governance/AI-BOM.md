@@ -17,7 +17,7 @@ tags: [ai-bom, sbom, supply-chain, model-inventory]
 | Campo        | Valor                                                                   |
 |--------------|-------------------------------------------------------------------------|
 | Proveedor    | NVIDIA (integrate.api.nvidia.com)                                       |
-| Modelo       | `nvidia/nemotron-3-super-120b-a12b`                                     |
+| Modelo       | `nvidia/nemotron-3.5-super-vl-120b-a12b`                                     |
 | Override     | Variable de entorno `NIM_MODEL`                                         |
 | Endpoint     | `https://integrate.api.nvidia.com/v1/chat/completions` (`NIM_ENDPOINT`) |
 | Protocolo    | HTTP/1.1 con streaming SSE                                              |
@@ -42,7 +42,7 @@ tags: [ai-bom, sbom, supply-chain, model-inventory]
 | Campo            | Valor                                                                                       |
 |------------------|---------------------------------------------------------------------------------------------|
 | Fuente           | `src/Balansoft.AIAddin.Access/Helpers/BlsModelCatalog.cs`                                   |
-| SHA-256          | `05D558521AD4A2EACA6B6C4CF222E80958136C1F11D310810204F9D94B830875`                          |
+| SHA-256          | `9D52C9CA8AEE118FD855E86595CA34BEC9CEF4B9B96A8ED6C65189E185D227B0`                          |
 | Alias compatible | `NimHttpRequestBuilder.DefaultModel` delega en `BlsModelCatalog.DefaultModel`               |
 | Verificación     | Gate 8f: el literal del modelo solo puede aparecer en `BlsModelCatalog.cs` dentro de `src/` |
 

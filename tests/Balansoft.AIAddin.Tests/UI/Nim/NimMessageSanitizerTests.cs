@@ -94,7 +94,7 @@ public class NimMessageSanitizerTests
             new ChatMessage("user", "que contiene?")
         };
 
-        var json = NimHttpRequestBuilder.BuildJson("nvidia/nemotron-3-super-120b-a12b", rawMessages, null);
+        var json = NimHttpRequestBuilder.BuildJson("nvidia/nemotron-3.5-super-vl-120b-a12b", rawMessages, null);
 
         using var doc = JsonDocument.Parse(json);
         var msgs = doc.RootElement.GetProperty("messages");
