@@ -130,4 +130,4 @@ propaga `BlsSecureStoreException` con la excepción original como inner.
 - `BlsLogger.EmitSloSnapshot` emite la instantanea SLO como objeto `slo` dentro del evento JSONL, cubierto por la cadena SHA-256 (Pilar 20).
 - Se actualizo el SHA-256 del prompt en el AI-BOM tras cambiar el system prompt.
 
-Evidencia: `PromptAndPrivacyHardeningTests` (4), `IdempotencyBoundaryTests` (1), 323/323 verdes, gate 8f con tokens de regresion.
+Evidencia: `PromptAndPrivacyHardeningTests` (4), `IdempotencyBoundaryTests` (1), 324/324 verdes, gate 8f con tokens de regresion.

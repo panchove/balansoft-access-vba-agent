@@ -111,6 +111,19 @@ namespace Balansoft.AIAddin.Tests.UI.Nim
             StringAssert.Contains(prompt, "Genera codigo nuevo a partir del requisito");
             StringAssert.Contains(prompt, "No reproduzcas el codigo de ejemplo");
         }
+        [TestMethod]
+        public void SystemPrompt_DebeEjecutarEscrituras_NoSoloMostrarCodigo()
+        {
+            var builder = new SystemPromptBuilder();
+            var context = new VbeContext("Modulo1", "Standard", "Sub A()\nEnd Sub", false);
+
+            var prompt = builder.Build(context, new List<string> { "write_module" });
+
+            StringAssert.Contains(prompt, "TIENES PERMISO para modificar el proyecto");
+            StringAssert.Contains(prompt, "DEBES ejecutar herramientas de escritura");
+            StringAssert.Contains(prompt, "No te limites a mostrar codigo para copiar y pegar");
+            StringAssert.Contains(prompt, "Nunca digas que el entorno bloquea la escritura");
+        }
         // Red teaming de la frontera de contexto (ASI04). Sin API key no se
         // puede invocar al modelo, pero si demostrar que ningun payload puede
         // escapar de la etiqueta de dato no confiable.
