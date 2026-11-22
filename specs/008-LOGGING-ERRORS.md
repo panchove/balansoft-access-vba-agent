@@ -159,22 +159,22 @@ Y el HResult aparece en hexadecimal
 
 Implementado parcialmente:
 
-| Test | Cubre | Estado |
-|---|---|---|
-| `Bridge_ExcepcionNoControlada_RegistraEnLogger` | R005 | existe |
-| `SendAsync_NoRegistraLaApiKeyEnLogs` | R007 | existe |
+| Test                                            | Cubre | Estado |
+|-------------------------------------------------|-------|--------|
+| `Bridge_ExcepcionNoControlada_RegistraEnLogger` | R005  | existe |
+| `SendAsync_NoRegistraLaApiKeyEnLogs`            | R007  | existe |
 
 Pendientes:
 
-| Test | Cubre |
-|---|---|
-| `Logger_Rotacion_DeleteSieteDias` | R002 |
-| `Logger_PrimeraLineaIncluyeVersionYCommit` | R003 |
-| `Logger_UnhandledException_EscribeAntesDeMorir` | R004 |
-| `Logger_Cancelacion_NoSeRegistraComoError` | R006 |
-| `Logger_FalloDeEscritura_NoPropaga` | R008 |
-| `Logger_NoRegistraApiKeyNiBodyNiCodigoVba` | R007 |
-| `JsonRpcErrorData_HResultEnHexadecimal` | R005 |
+| Test                                            | Cubre |
+|-------------------------------------------------|-------|
+| `Logger_Rotacion_DeleteSieteDias`               | R002  |
+| `Logger_PrimeraLineaIncluyeVersionYCommit`      | R003  |
+| `Logger_UnhandledException_EscribeAntesDeMorir` | R004  |
+| `Logger_Cancelacion_NoSeRegistraComoError`      | R006  |
+| `Logger_FalloDeEscritura_NoPropaga`             | R008  |
+| `Logger_NoRegistraApiKeyNiBodyNiCodigoVba`      | R007  |
+| `JsonRpcErrorData_HResultEnHexadecimal`         | R005  |
 
 Todos testeables con un directorio temporal. `FakeLogger` ya captura
 entradas con nivel y origen, así que varios pueden escribirse sin esperar a la

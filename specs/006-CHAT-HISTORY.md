@@ -128,15 +128,15 @@ Entonces no hay una escritura por chunk
 
 Ninguno implementado.
 
-| Test | Cubre |
-|---|---|
-| `History_RoundTrip_DevuelveMismosMensajes` | R003 |
-| `History_DosProyectos_NoCompartenArchivo` | R001 |
-| `History_ProyectoEphemeral_NoPersiste` | R002 |
-| `History_JsonInvalido_LanzaBlsHistoryCorruptException` | R003, R006 |
-| `History_EsquemaInvalido_LanzaBlsHistorySchemaException` | R006 |
-| `History_ArchivoGrande_RotaSinFallar` | R005 |
-| `History_MensajeCancelado_PersisteCancelled` | R003 |
+| Test                                                     | Cubre      |
+|----------------------------------------------------------|------------|
+| `History_RoundTrip_DevuelveMismosMensajes`               | R003       |
+| `History_DosProyectos_NoCompartenArchivo`                | R001       |
+| `History_ProyectoEphemeral_NoPersiste`                   | R002       |
+| `History_JsonInvalido_LanzaBlsHistoryCorruptException`   | R003, R006 |
+| `History_EsquemaInvalido_LanzaBlsHistorySchemaException` | R006       |
+| `History_ArchivoGrande_RotaSinFallar`                    | R005       |
+| `History_MensajeCancelado_PersisteCancelled`             | R003       |
 
 Todos son testeables con un directorio temporal, sin Office.
 

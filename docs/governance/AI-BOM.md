@@ -17,7 +17,7 @@ tags: [ai-bom, sbom, supply-chain, model-inventory]
 | Campo        | Valor                                                                   |
 |--------------|-------------------------------------------------------------------------|
 | Proveedor    | NVIDIA (integrate.api.nvidia.com)                                       |
-| Modelo       | `nvidia/nemotron-3.5-lightning-30b-a3b`                                 |
+| Modelo       | `nvidia/nemotron-3-super-120b-a12b`                                     |
 | Override     | Variable de entorno `NIM_MODEL`                                         |
 | Endpoint     | `https://integrate.api.nvidia.com/v1/chat/completions` (`NIM_ENDPOINT`) |
 | Protocolo    | HTTP/1.1 con streaming SSE                                              |
@@ -27,24 +27,24 @@ tags: [ai-bom, sbom, supply-chain, model-inventory]
 
 ## 2. Prompt del sistema
 
-| Campo                | Valor                                                                         |
-|----------------------|-------------------------------------------------------------------------------|
-| Identificador        | `PROMPT-v1.0`                                                                 |
-| Fuente               | `src/Balansoft.AIAddin.Access/UI/SystemPromptBuilder.cs`                      |
-| SHA-256              | `05F99B89B0C555F9E283F0559391BB8A63DD33C4762E4DB5C376801E43737478`            |
-| Verificación         | Gate de CI 8f recalcula el hash en cada PR y falla si hay deriva               |
-| Idioma de respuesta  | Español (constante embebida)                                                  |
-| Contexto inyectado   | Nombre/ProjectKey del proyecto, conteos de objetos y selección VBE (≤32 KB) ⚠️ |
-| Versionado           | `PROMPT-v1.0` compilado; sin carga de prompt en runtime (Pilar 10)             |
+| Campo               | Valor                                                                         |
+|---------------------|-------------------------------------------------------------------------------|
+| Identificador       | `PROMPT-v1.1`                                                                 |
+| Fuente              | `src/Balansoft.AIAddin.Access/UI/SystemPromptBuilder.cs`                      |
+| SHA-256             | `C2447617F3DDEF417F1DE53876D6D653D831FC39DDDE311FE19CDEA3C9A69113`            |
+| Verificación        | Gate de CI 8f recalcula el hash en cada PR y falla si hay deriva              |
+| Idioma de respuesta | Español (constante embebida)                                                  |
+| Contexto inyectado  | Nombre/ProjectKey del proyecto, conteos de objetos y selección VBE (≤32 KB) ⚠️ |
+| Versionado          | `PROMPT-v1.1` compilado; sin carga de prompt en runtime (Pilar 10)            |
 
 ### 2.1 Catálogo de modelo (única fuente en código)
 
-| Campo            | Valor                                                                                                 |
-|------------------|-------------------------------------------------------------------------------------------------------|
-| Fuente           | `src/Balansoft.AIAddin.Access/Helpers/BlsModelCatalog.cs`                                             |
-| SHA-256          | `2652C39EA350C93537584BC13AC604101331C560C4C742A996E6F27E1E3E0A1C`                                  |
-| Alias compatible | `NimHttpRequestBuilder.DefaultModel` delega en `BlsModelCatalog.DefaultModel`                         |
-| Verificación     | Gate 8f: el literal del modelo solo puede aparecer en `BlsModelCatalog.cs` dentro de `src/`           |
+| Campo            | Valor                                                                                       |
+|------------------|---------------------------------------------------------------------------------------------|
+| Fuente           | `src/Balansoft.AIAddin.Access/Helpers/BlsModelCatalog.cs`                                   |
+| SHA-256          | `05D558521AD4A2EACA6B6C4CF222E80958136C1F11D310810204F9D94B830875`                          |
+| Alias compatible | `NimHttpRequestBuilder.DefaultModel` delega en `BlsModelCatalog.DefaultModel`               |
+| Verificación     | Gate 8f: el literal del modelo solo puede aparecer en `BlsModelCatalog.cs` dentro de `src/` |
 
 ## 3. Tools expuestas al modelo
 
@@ -58,15 +58,15 @@ Whitelist en `JsonRpcMethods.All`. Operaciones de escritura marcadas con ✍️ 
 
 ## 4. Dependencias y runtime
 
-| Componente              | Versión                           | Notas                                          |
-|-------------------------|-----------------------------------|------------------------------------------------|
-| .NET Framework          | 4.8 (`net48`)                     | CPU-agnóstico vía `-p:PlatformTarget=x86\|x64` |
-| Lenguaje                | C# 10                             | `Nullable=annotations`                         |
-| `System.Text.Json`      | 8.0.5                             | Sin `System.Net.Http.Json` (restricción net48) |
-| WinForms                | Nativo                            | Marshaling explícito por `IUiScheduler`        |
+| Componente              | Versión                           | Notas                                               |
+|-------------------------|-----------------------------------|-----------------------------------------------------|
+| .NET Framework          | 4.8 (`net48`)                     | CPU-agnóstico vía `-p:PlatformTarget=x86\|x64`      |
+| Lenguaje                | C# 10                             | `Nullable=annotations`                              |
+| `System.Text.Json`      | 8.0.5                             | Sin `System.Net.Http.Json` (restricción net48)      |
+| WinForms                | Nativo                            | Marshaling explícito por `IUiScheduler`             |
 | DPAPI                   | `DataProtectionScope.CurrentUser` | Entropía derivada v2 (ADR-018); legacy solo lectura |
-| Servidores MCP          | **Ninguno**                       | Eliminados en el diseño v1.1.0                 |
-| CLI de agentes externos | **Ninguno en runtime**            | Uso solo en desarrollo                         |
+| Servidores MCP          | **Ninguno**                       | Eliminados en el diseño v1.1.0                      |
+| CLI de agentes externos | **Ninguno en runtime**            | Uso solo en desarrollo                              |
 
 ## 5. Controles de seguridad (F2)
 
@@ -101,28 +101,28 @@ Sin telemetría remota: las métricas solo se exponen en memoria para diagnósti
 
 ## 6.2 Idempotencia y resiliencia (F4)
 
-| Componente                        | Función                                                              | Evidencia                                                        |
-|-----------------------------------|----------------------------------------------------------------------|------------------------------------------------------------------|
-| `BlsIdempotencyKey`               | SHA-256(`correlation_id|method|params`) por turno                    | `JsonRpcIdempotencyTests` (2 de derivación)                      |
-| `BlsIdempotencyCache`             | Caché TTL 5 min / 256 entradas, evicción FIFO, reloj inyectable      | `JsonRpcIdempotencyTests` (3 de caducidad/evicción)              |
-| `JsonRpcDispatcher`               | Replay sin handler, solo tools `Medium`/`High`, log de clave truncada| `JsonRpcIdempotencyTests` (4 de dispatcher)                      |
-| `BlsExponentialJitterRetryPolicy` | Full jitter 1–30 s acotado; `Retry-After` prevalece                  | `BlsNimResilienceTests` (3 de retry)                             |
-| `BlsCircuitBreaker`               | Closed/Open/HalfOpen, 5 fallos, 30 s, un sondeo, reloj inyectable    | `BlsNimResilienceTests` (5 de breaker)                           |
-| `BlsNimCircuitOpenException`      | Error tipado sin petición HTTP en Open                               | `BlsNimResilienceTests` (1 cancelación + 1 apertura)             |
+| Componente                        | Función                                                               | Evidencia                                            |
+|-----------------------------------|-----------------------------------------------------------------------|------------------------------------------------------|
+| `BlsIdempotencyKey`               | SHA-256(`correlation_id                                               | method                                               |
+| `BlsIdempotencyCache`             | Caché TTL 5 min / 256 entradas, evicción FIFO, reloj inyectable       | `JsonRpcIdempotencyTests` (3 de caducidad/evicción)  |
+| `JsonRpcDispatcher`               | Replay sin handler, solo tools `Medium`/`High`, log de clave truncada | `JsonRpcIdempotencyTests` (4 de dispatcher)          |
+| `BlsExponentialJitterRetryPolicy` | Full jitter 1–30 s acotado; `Retry-After` prevalece                   | `BlsNimResilienceTests` (3 de retry)                 |
+| `BlsCircuitBreaker`               | Closed/Open/HalfOpen, 5 fallos, 30 s, un sondeo, reloj inyectable     | `BlsNimResilienceTests` (5 de breaker)               |
+| `BlsNimCircuitOpenException`      | Error tipado sin petición HTTP en Open                                | `BlsNimResilienceTests` (1 cancelación + 1 apertura) |
 
 Contratos: `specs/018-IDEMPOTENCY-RESILIENCE.md` y
 `docs/design/ADR-017-IDEMPOTENCY-RESILIENCE.md`. Cierra R-06 y R-09.
 
 ## 6.3 Privacidad, supply chain y secretos (F5)
 
-| Componente                          | Función                                                                     | Evidencia                                      |
-|-------------------------------------|-----------------------------------------------------------------------------|------------------------------------------------|
-| `BlsPiiScrubber`                    | Redacta correo, teléfono, IPv4, connection string, tokens y rutas de usuario | `BlsPiiScrubberTests` (8)                      |
-| `NimHttpRequestBuilder`             | Saneamiento obligatorio en la frontera HTTP; no muta el historial           | `NimPiiScrubbingTests` (4)                     |
-| `BlsPiiConsentGate`                 | Consentimiento UI; rechazo ⇒ `OnCancelled()`, cero peticiones               | `BlsPiiConsentGateTests` (6)                   |
-| `BlsModelCatalog`                   | Único literal de modelo en código; `NIM_MODEL` sigue siendo override        | `BlsModelCatalogTests` (6)                     |
-| `BlsMachineEntropy`                 | SHA-256(equipo + usuario + v2), estable y no embebida                        | `BlsSecureStoreEntropyTests` (8)               |
-| `DerivedEntropyDpapiDataProtector`  | DPAPI v2; el protector fijo queda como fallback de lectura                  | `BlsSecureStoreEntropyTests` (8)               |
+| Componente                         | Función                                                                      | Evidencia                        |
+|------------------------------------|------------------------------------------------------------------------------|----------------------------------|
+| `BlsPiiScrubber`                   | Redacta correo, teléfono, IPv4, connection string, tokens y rutas de usuario | `BlsPiiScrubberTests` (8)        |
+| `NimHttpRequestBuilder`            | Saneamiento obligatorio en la frontera HTTP; no muta el historial            | `NimPiiScrubbingTests` (4)       |
+| `BlsPiiConsentGate`                | Consentimiento UI; rechazo ⇒ `OnCancelled()`, cero peticiones                | `BlsPiiConsentGateTests` (6)     |
+| `BlsModelCatalog`                  | Único literal de modelo en código; `NIM_MODEL` sigue siendo override         | `BlsModelCatalogTests` (6)       |
+| `BlsMachineEntropy`                | SHA-256(equipo + usuario + v2), estable y no embebida                        | `BlsSecureStoreEntropyTests` (8) |
+| `DerivedEntropyDpapiDataProtector` | DPAPI v2; el protector fijo queda como fallback de lectura                   | `BlsSecureStoreEntropyTests` (8) |
 
 Contratos: `specs/019-PRIVACY-SUPPLY-CHAIN-CONFIG.md` y
 `docs/design/ADR-018-PRIVACY-SUPPLY-CHAIN.md`. Cierra R-03, R-07, R-10 y R-11.

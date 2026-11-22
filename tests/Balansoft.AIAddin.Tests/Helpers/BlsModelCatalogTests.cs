@@ -23,7 +23,7 @@ public class BlsModelCatalogTests
     public void DefaultModel_NimHttpRequestBuilder_EsAliasDelCatalogo()
     {
         Assert.AreEqual(BlsModelCatalog.DefaultModel, NimHttpRequestBuilder.DefaultModel);
-        Assert.AreEqual("nvidia/nemotron-3.5-lightning-30b-a3b", BlsModelCatalog.DefaultModel);
+        Assert.AreEqual("nvidia/nemotron-3-super-120b-a12b", BlsModelCatalog.DefaultModel);
     }
 
     [TestMethod]

@@ -20,7 +20,7 @@ internal static class NimHttpRequestBuilder
     /// </summary>
     public const string DefaultModel = BlsModelCatalog.DefaultModel;
 
-    private const double Temperature = 0.2;
+    private const double Temperature = 0.6;
     private const int MaxTokens = 8192;
 
     private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions

@@ -21,16 +21,16 @@ puntos de control se verifican en CI (gate *Gobernanza IA*) y no dependen de la 
 
 ## 2. Principios
 
-| ID     | Principio                                                                                              | Control verificable                                                |
-|--------|--------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
+| ID     | Principio                                                                                                                                                                                                  | Control verificable                                                |
+|--------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------|
 | P-AI-1 | El modelo es un asistente, no una autoridad. Toda accion sobre VBA/Access se ejecuta como consecuencia de una instruccion explicita del usuario, que constituye la aprobacion; la decision queda auditada. | Gate HITL (F2)                                                     |
-| P-AI-2 | La identidad IA se divulga de forma visible en la terminal.                                            | Clave `AiDisclosure` + `_lblAiDisclosure`                          |
-| P-AI-3 | Las operaciones del modelo pasan por una whitelist de tools con esquema validado.                      | `JsonRpcMethods.All` + JSON Schema                                 |
-| P-AI-4 | Ningún secreto, PII ni fragmento de código sensible se envía al proveedor sin revisión.                | `BlsPiiScrubber` + `BlsPiiConsentGate` + gate 8f (F5)              |
-| P-AI-5 | Todo comportamiento del modelo es trazable y auditable.                                                | `BlsLogger` JSONL + `BlsAuditChain.Verify` + `correlation_id` (F3) |
-| P-AI-6 | El sistema degrada con seguridad: parada determinista independiente del modelo.                        | `BlsSafetyGate` + botón de kill switch (F2)                        |
-| P-AI-7 | La configuración del modelo está versionada e inventariada.                                            | `docs/governance/AI-BOM.md`                                        |
-| P-AI-8 | Un solo agente de desarrollo; la gobernanza se aplica por gates de CI, no por agentes que "revisan".   | `agents_index` = 1                                                 |
+| P-AI-2 | La identidad IA se divulga de forma visible en la terminal.                                                                                                                                                | Clave `AiDisclosure` + `_lblAiDisclosure`                          |
+| P-AI-3 | Las operaciones del modelo pasan por una whitelist de tools con esquema validado.                                                                                                                          | `JsonRpcMethods.All` + JSON Schema                                 |
+| P-AI-4 | Ningún secreto, PII ni fragmento de código sensible se envía al proveedor sin revisión.                                                                                                                    | `BlsPiiScrubber` + `BlsPiiConsentGate` + gate 8f (F5)              |
+| P-AI-5 | Todo comportamiento del modelo es trazable y auditable.                                                                                                                                                    | `BlsLogger` JSONL + `BlsAuditChain.Verify` + `correlation_id` (F3) |
+| P-AI-6 | El sistema degrada con seguridad: parada determinista independiente del modelo.                                                                                                                            | `BlsSafetyGate` + botón de kill switch (F2)                        |
+| P-AI-7 | La configuración del modelo está versionada e inventariada.                                                                                                                                                | `docs/governance/AI-BOM.md`                                        |
+| P-AI-8 | Un solo agente de desarrollo; la gobernanza se aplica por gates de CI, no por agentes que "revisan".                                                                                                       | `agents_index` = 1                                                 |
 
 ## 3. Uso permitido
 
@@ -56,10 +56,10 @@ El agente que produzca este u otros informes debe declarar su naturaleza de IA.
 
 ## 6. Supervisión humana (Pilar 4)
 
-| Nivel | Operaciones                                                                                     | Gate                                                                          |
-|-------|-------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------|
-| Bajo  | Lectura, explicación, resumen                                                                   | Ninguno (registro en log)                                                     |
-| Medio | `write_module`, `create_module`, `create_form`, `create_table`, `create_query`, `create_ribbon` | Instruccion directa del usuario + log de aprobacion con `payload_sha256`                      |
+| Nivel | Operaciones                                                                                     | Gate                                                                                       |
+|-------|-------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------|
+| Bajo  | Lectura, explicación, resumen                                                                   | Ninguno (registro en log)                                                                  |
+| Medio | `write_module`, `create_module`, `create_form`, `create_table`, `create_query`, `create_ribbon` | Instruccion directa del usuario + log de aprobacion con `payload_sha256`                   |
 | Alto  | `delete_module`, `execute_sql`, `migrate_*`                                                     | Instruccion directa con detalle del payload auditado + kill switch accesible y rechequeado |
 
 Implementado en F2 (`BlsSafetyGate`, `BlsToolRiskPolicy`, `BlsHumanApprovalGate` y botón de

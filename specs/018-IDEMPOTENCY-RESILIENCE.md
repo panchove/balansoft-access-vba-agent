@@ -21,7 +21,7 @@ tags: [spec, idempotency, retry, jitter, circuit-breaker, reliability]
 | PRD | FR-03, FR-04, FR-09 + gobernanza (Pilares 3, 19, 22) |
 | ADRs | ADR-002 (framing), ADR-003 (cancelación), ADR-015 (HITL), ADR-017 |
 | Riesgos | Cierra R-06 (idempotencia) y R-09 (jitter/breaker) |
-| Tests | 18 nuevos (9 de idempotencia + 9 de resiliencia); 320/320 verdes en x86 y x64 tras F5 |
+| Tests | 18 nuevos (9 de idempotencia + 9 de resiliencia); 321/321 verdes en x86 y x64 tras F5 |
 
 ## Contexto
 

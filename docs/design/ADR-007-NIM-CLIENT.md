@@ -56,7 +56,7 @@ Y materializa:
 - Retry con backoff para 429/5xx (1s, 2s, 4s).
 - Cancelación cooperativa con `CancellationToken`.
 - API key obtenida de `IBlsSecureStore`.
-- Modelo fijo `nvidia/nemotron-3.5-lightning-30b-a3b` (override por env
+- Modelo fijo `nvidia/nemotron-3-super-120b-a12b` (override por env
   `NIM_MODEL`).
 - Tests unitarios sin red usando `FakeHttpHandler`.
 
@@ -372,7 +372,7 @@ misma llamada a `SendAsync`.
 - **Test:** `Nim_HttpClientUnico_NoSeRecrea`.
 
 ### CA-08 — Modelo fijo
-- [ ] Por defecto usa `nvidia/nemotron-3.5-lightning-30b-a3b`.
+- [ ] Por defecto usa `nvidia/nemotron-3-super-120b-a12b`.
 - [ ] `NIM_MODEL` env var lo sobrescribe.
 - [ ] El parámetro `model` del constructor tiene prioridad sobre env.
 - **Tests:** `Nim_ModeloDefault_EsNemotron`,

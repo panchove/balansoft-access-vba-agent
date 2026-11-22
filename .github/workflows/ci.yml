@@ -780,6 +780,7 @@ jobs:
               "KillSwitchDisparado_BloqueaAntesDelHandler",
               "LimiteIteracionesPorTurno_SeRefuerzaEnElDispatcher",
               "BuildPipeSecurity_SoloConcedeAlSidDelUsuarioActual",
+
               # Cierre de bugs historicos y red teaming (2026-11-22)
               "TryGetVbe_ConVbe_RetornaTrue",
               "TryGetVbe_VbeNull_RetornaFalse",
@@ -799,6 +800,7 @@ jobs:
               "Registry_Issue_SiempreDevuelveTokenNoVacio",
               "Contract_EnsuresViolado_LanzaPostconditionException",
               "Contract_InvariantViolado_LanzaInvariantException",              # ADR-016 (F3, verificados)
+
               # Cierre de bugs historicos y red teaming (2026-11-22)
               "TryGetVbe_ConVbe_RetornaTrue",
               "TryGetVbe_VbeNull_RetornaFalse",
@@ -817,7 +819,8 @@ jobs:
               "Logger_VerifyChain_ConEventosRecientes_EsValida",
               "Registry_Issue_SiempreDevuelveTokenNoVacio",
               "Contract_EnsuresViolado_LanzaPostconditionException",
-              "Contract_InvariantViolado_LanzaInvariantException",              # Cierre de bugs historicos y red teaming (2026-11-22)
+              "Contract_InvariantViolado_LanzaInvariantException",
+              # Cierre de bugs historicos y red teaming (2026-11-22)
               "TryGetVbe_ConVbe_RetornaTrue",
               "TryGetVbe_VbeNull_RetornaFalse",
               "OnConnection_SinVbe_NoLanza",
@@ -828,11 +831,13 @@ jobs:
               "Scrub_IbanEspanol_Redacta",
               "Logger_EmitSloSnapshot_EscribeEventoJSONYEscrituraEsVerificable",
               "ClaveDelClienteFalsificada_NoEvitaElReplayDelServidor",
-              "Idempotency_SinClaveDelCliente_ServidorLaDerivaYDeduplica",              # Cierre de bugs historicos y red teaming (2026-11-22)
+              "Idempotency_SinClaveDelCliente_ServidorLaDerivaYDeduplica",
+              # Cierre de bugs historicos y red teaming (2026-11-22)
               "TryGetVbe_ConVbe_RetornaTrue",
               "TryGetVbe_VbeNull_RetornaFalse",
               "OnConnection_SinVbe_NoLanza",
               "ReadLineAsync_LineaSupera2MB_LanzaInvalidData",
+              "SystemPrompt_ReglaAntiRepeticion_Presente",
               "RedTeam_PayloadCierraEtiqueta_EsEscapado",              "Logger_CadenaUnEvento_EsVerificable",
               "Verify_TamperMensaje_DetectaCorrupcion",
               "Dispatcher_ConCorrelacion_LosEscribeEnElLog",
@@ -863,6 +868,7 @@ jobs:
               "KillSwitchDisparado_BloqueaAntesDelHandler",
               "LimiteIteracionesPorTurno_SeRefuerzaEnElDispatcher",
               "BuildPipeSecurity_SoloConcedeAlSidDelUsuarioActual",
+
               # Cierre de bugs historicos y red teaming (2026-11-22)
               "TryGetVbe_ConVbe_RetornaTrue",
               "TryGetVbe_VbeNull_RetornaFalse",
@@ -881,7 +887,8 @@ jobs:
               "Logger_VerifyChain_ConEventosRecientes_EsValida",
               "Registry_Issue_SiempreDevuelveTokenNoVacio",
               "Contract_EnsuresViolado_LanzaPostconditionException",
-              "Contract_InvariantViolado_LanzaInvariantException",              # Cierre de bugs historicos y red teaming (2026-11-22)
+              "Contract_InvariantViolado_LanzaInvariantException",
+              # Cierre de bugs historicos y red teaming (2026-11-22)
               "TryGetVbe_ConVbe_RetornaTrue",
               "TryGetVbe_VbeNull_RetornaFalse",
               "OnConnection_SinVbe_NoLanza",
@@ -892,11 +899,13 @@ jobs:
               "Scrub_IbanEspanol_Redacta",
               "Logger_EmitSloSnapshot_EscribeEventoJSONYEscrituraEsVerificable",
               "ClaveDelClienteFalsificada_NoEvitaElReplayDelServidor",
-              "Idempotency_SinClaveDelCliente_ServidorLaDerivaYDeduplica",              # Cierre de bugs historicos y red teaming (2026-11-22)
+              "Idempotency_SinClaveDelCliente_ServidorLaDerivaYDeduplica",
+              # Cierre de bugs historicos y red teaming (2026-11-22)
               "TryGetVbe_ConVbe_RetornaTrue",
               "TryGetVbe_VbeNull_RetornaFalse",
               "OnConnection_SinVbe_NoLanza",
               "ReadLineAsync_LineaSupera2MB_LanzaInvalidData",
+              "SystemPrompt_ReglaAntiRepeticion_Presente",
               "RedTeam_PayloadCierraEtiqueta_EsEscapado",              "Logger_CadenaUnEvento_EsVerificable",
               "Verify_TamperMensaje_DetectaCorrupcion",
               "Dispatcher_ConCorrelacion_LosEscribeEnElLog",
@@ -1034,3 +1043,4 @@ jobs:
           path: Balansoft.AIAddin.Access-*-${{ matrix.architecture }}.zip
           if-no-files-found: warn
           retention-days: 30
+

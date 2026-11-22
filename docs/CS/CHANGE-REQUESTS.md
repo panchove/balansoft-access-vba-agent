@@ -186,3 +186,14 @@ tags: [change-requests, iso-12207, modification-process, square]
 * **Estado**: `Implementado en v1.1.0`
 * **Justificacion**: ultimos bugs abiertos del registro y verificacion contra Access real.
 * **Detalle**: TryGetVbe sin excepcion, coalescing de UI, limite de linea SSE, scripts de registro con API .NET, red teaming de prompt y verificacion E2E en Access 2010 x86 con cadena SHA-256 valida.
+---
+
+### CR-012: Actualizacion de modelo y prompt para reducir repeticion
+* **ID**: `CR-012`
+* **Titulo**: Modelo Nemotron Super 120B, temperatura 0.6 y regla anti-repeticion
+* **Prioridad**: Media
+* **Area**: `Helpers/BlsModelCatalog`, `UI/Nim/NimHttpRequestBuilder`, `UI/SystemPromptBuilder`
+* **Fecha**: 2026-11-22
+* **Estado**: `Implementado en v1.1.0`
+* **Justificacion**: el modelo anterior (30B/3B activos, temperatura 0.2) tendia a repetir los patrones del codigo seleccionado en lugar de generar codigo nuevo.
+* **Detalle**: modelo por defecto `nvidia/nemotron-3-super-120b-a12b`, temperatura 0.6, PROMPT-v1.1 con regla anti-repeticion y AI-BOM actualizado.

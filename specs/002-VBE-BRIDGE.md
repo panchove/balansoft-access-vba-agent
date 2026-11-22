@@ -179,49 +179,49 @@ Entonces cada una recibe su propia respuesta sin frames intercalados
 
 Ya implementados y verdes:
 
-| Test | Cubre |
-|---|---|
-| `Frame_EnvioSimple_LeeMismoPayload` | R001 |
-| `Frame_PayloadUtf8Multibyte_LengthEsEnBytes` | R001 |
-| `Frame_PayloadConNewlines_NoRompeFraming` | R001 |
-| `Frame_Excede1MB_CierraConError` | R001 |
-| `Frame_HeaderParcial_EsperaResto` | R001 |
-| `Frame_PayloadParcial_EsperaResto` | R001 |
-| `Frame_Vacio_RespondeInvalidRequest` | R001 |
-| `Frame_JsonInvalido_RespondeInvalidRequest` | R001 |
-| `Frame_TimeoutInactivo_MitadDeFrame_Cierra` | R001 |
-| `Frame_TimeoutIdle_EntreFrames_NoCierra` | R001 |
-| `Bridge_MetodoDesconocido_RespondeMethodNotFound` | R002 |
-| `Bridge_ParamsInvalidos_RespondeInvalidParams` | R002 |
-| `Bridge_ListModules_DevuelveLista` | R002 |
-| `Bridge_ReadModule_DevuelveCodigo` | R002 |
-| `Bridge_WriteModule_EscribeEnVbe` | R002 |
-| `Bridge_CreateModule_CreaEnVbe` | R002 |
-| `Bridge_DeleteModule_ConConfirm_Borra` | R002 |
-| `Bridge_DeleteModule_SinConfirm_RespondeInvalidParams` | R002 |
-| `Bridge_GetSelection_DevuelveRango` | R002 |
-| `Bridge_GetActiveModule_DevuelveInfo` | R002 |
-| `Bridge_HandlerVbe_PasaPorUiScheduler` | R003 |
-| `Bridge_HandlerFalla_DevuelveErrorNoExito` | R004 |
-| `Bridge_ErrorTipado_NoSeReportaComoInternalError` | R004 |
-| `Bridge_ExcepcionNoControlada_RegistraEnLogger` | R004 |
-| `Bridge_ExcepcionNoControlada_RespondeInternalError` | R004 |
-| `JsonRpcErrorData_SoloStackEnDebug` | R004 |
-| `JsonRpcResponse_SerializaCancelled` | R005 |
-| `Turno_CanceladoAntesDeTool_NoEjecutaTool` | R005 |
-| `Turno_NoCancelado_EjecutaTool` | R005 |
-| `Bridge_CancelacionUsuario_NoEsError` | R005 |
-| `Frame_SegundoCliente_RespondeBusy` | R006 |
-| `Bridge_ClienteReal_ConectaYRecibeRespuesta` | R008 |
-| `Bridge_DosInvocacionesConcurrentes_NoIntercalanFrames` | R010 |
-| `Bridge_StartArrancaLoop_NoBloquea` | R003 |
-| `Bridge_StopAsync_CierraPipeYEspera` | R003 |
-| `Bridge_Dispose_Idempotente` | R003 |
-| `JsonRpcRequest_DeserializaConIdNumerico` | R001 |
-| `JsonRpcRequest_DeserializaConIdString` | R001 |
-| `JsonRpcRequest_ParamsNull_DeserializaComoNull` | R001 |
-| `JsonRpcResponse_SerializaOk` | R001 |
-| `JsonRpcResponse_SerializaError` | R004 |
+| Test                                                    | Cubre |
+|---------------------------------------------------------|-------|
+| `Frame_EnvioSimple_LeeMismoPayload`                     | R001  |
+| `Frame_PayloadUtf8Multibyte_LengthEsEnBytes`            | R001  |
+| `Frame_PayloadConNewlines_NoRompeFraming`               | R001  |
+| `Frame_Excede1MB_CierraConError`                        | R001  |
+| `Frame_HeaderParcial_EsperaResto`                       | R001  |
+| `Frame_PayloadParcial_EsperaResto`                      | R001  |
+| `Frame_Vacio_RespondeInvalidRequest`                    | R001  |
+| `Frame_JsonInvalido_RespondeInvalidRequest`             | R001  |
+| `Frame_TimeoutInactivo_MitadDeFrame_Cierra`             | R001  |
+| `Frame_TimeoutIdle_EntreFrames_NoCierra`                | R001  |
+| `Bridge_MetodoDesconocido_RespondeMethodNotFound`       | R002  |
+| `Bridge_ParamsInvalidos_RespondeInvalidParams`          | R002  |
+| `Bridge_ListModules_DevuelveLista`                      | R002  |
+| `Bridge_ReadModule_DevuelveCodigo`                      | R002  |
+| `Bridge_WriteModule_EscribeEnVbe`                       | R002  |
+| `Bridge_CreateModule_CreaEnVbe`                         | R002  |
+| `Bridge_DeleteModule_ConConfirm_Borra`                  | R002  |
+| `Bridge_DeleteModule_SinConfirm_RespondeInvalidParams`  | R002  |
+| `Bridge_GetSelection_DevuelveRango`                     | R002  |
+| `Bridge_GetActiveModule_DevuelveInfo`                   | R002  |
+| `Bridge_HandlerVbe_PasaPorUiScheduler`                  | R003  |
+| `Bridge_HandlerFalla_DevuelveErrorNoExito`              | R004  |
+| `Bridge_ErrorTipado_NoSeReportaComoInternalError`       | R004  |
+| `Bridge_ExcepcionNoControlada_RegistraEnLogger`         | R004  |
+| `Bridge_ExcepcionNoControlada_RespondeInternalError`    | R004  |
+| `JsonRpcErrorData_SoloStackEnDebug`                     | R004  |
+| `JsonRpcResponse_SerializaCancelled`                    | R005  |
+| `Turno_CanceladoAntesDeTool_NoEjecutaTool`              | R005  |
+| `Turno_NoCancelado_EjecutaTool`                         | R005  |
+| `Bridge_CancelacionUsuario_NoEsError`                   | R005  |
+| `Frame_SegundoCliente_RespondeBusy`                     | R006  |
+| `Bridge_ClienteReal_ConectaYRecibeRespuesta`            | R008  |
+| `Bridge_DosInvocacionesConcurrentes_NoIntercalanFrames` | R010  |
+| `Bridge_StartArrancaLoop_NoBloquea`                     | R003  |
+| `Bridge_StopAsync_CierraPipeYEspera`                    | R003  |
+| `Bridge_Dispose_Idempotente`                            | R003  |
+| `JsonRpcRequest_DeserializaConIdNumerico`               | R001  |
+| `JsonRpcRequest_DeserializaConIdString`                 | R001  |
+| `JsonRpcRequest_ParamsNull_DeserializaComoNull`         | R001  |
+| `JsonRpcResponse_SerializaOk`                           | R001  |
+| `JsonRpcResponse_SerializaError`                        | R004  |
 
 **Pendiente** (la CI los busca por nombre y hoy avisa):
 `ProjectKey_BaseGuardada_RetornaHash32Hex`,

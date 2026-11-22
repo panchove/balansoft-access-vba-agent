@@ -17,6 +17,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Modelo por defecto actualizado a `nvidia/nemotron-3-super-120b-a12b`
+  (120B/12B activos, `max_tokens` hasta 32768 y tool calls en NIM).
+- Temperatura de generacion de 0.2 a 0.6 para reducir la repeticion de
+  patrones del contexto.
+- Regla anti-repeticion anadida al system prompt (PROMPT-v1.1): genera codigo
+  nuevo a partir del requisito, no reproduzcas el ejemplo.
+- AI-BOM actualizado con los nuevos hashes normalizados del prompt y catalogo.
 - Aprobacion directa de tools `Medium`/`High` en el momento de la instruccion:
   se elimina el dialogo modal y el mensaje "HITL Denied... requiere aprobacion
   humana". Cada aprobacion se audita con `payload_sha256`; se conservan kill
@@ -45,7 +52,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `Nerdbank.GitVersioning` fijado a 3.6.146 (antes version flotante 3.6.*).
 - SHA-256 del system prompt actualizado en el AI-BOM.
-- 5 tests nuevos; suite 320/320 en x86 y x64.
+- 5 tests nuevos; suite 321/321 en x86 y x64.
 
 ### Removed (Fase 3, auditoria 2026-11-22)
 - Siete skills redundantes u obsoletos: `bls-workflow-nemotron` (describia

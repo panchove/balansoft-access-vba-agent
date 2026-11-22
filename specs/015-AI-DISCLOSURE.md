@@ -11,12 +11,12 @@ tags: [spec, ai-disclosure, eu-ai-act, i18n]
 
 ## Cabecera
 
-| Campo | Valor |
-|-------|-------|
-| Estado | `implementado` |
-| PRD | Requisito no funcional de gobernanza (EU AI Act Art. 50) |
-| ADRs | — |
-| Tests | 1 verde (`AiDisclosure_PresentInAllLanguages`) + gate de CI |
+| Campo  | Valor                                                       |
+|--------|-------------------------------------------------------------|
+| Estado | `implementado`                                              |
+| PRD    | Requisito no funcional de gobernanza (EU AI Act Art. 50)    |
+| ADRs   | —                                                           |
+| Tests  | 1 verde (`AiDisclosure_PresentInAllLanguages`) + gate de CI |
 
 ## Contexto
 

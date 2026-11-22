@@ -65,7 +65,7 @@ ni enviar la petición. Nunca se registra la key.
 ### R003 — Modelo
 
 Precedencia: parámetro explícito > variable `NIM_MODEL` > default
-`nvidia/nemotron-3.5-lightning-30b-a3b`.
+`nvidia/nemotron-3-super-120b-a12b`.
 
 ### R004 — Reintentos
 
@@ -162,34 +162,34 @@ Y ningún log contiene la key
 
 Ya implementados y verdes:
 
-| Test | Cubre |
-|---|---|
-| `SendAsync_AuthorizationVaComoHeaderDeRequest` | R001 |
-| `SendAsync_SinApiKey_EmiteAuthErrorYNoHaceRequest` | R002 |
-| `SendAsync_NoRegistraLaApiKeyEnLogs` | R002, P7 |
-| `BuildJson_ModeloParametro_TienePrioridadSobreEnv` | R003 |
-| `BuildJson_ModeloEnv_SeUsaCuandoNoHayParametro` | R003 |
-| `SendAsync_429_ReintentaYEventuallyFunciona` | R004 |
-| `SendAsync_RetryRespetaRetryAfter` | R004 |
-| `SendAsync_RetryAfterSeAcotaA30Segundos` | R004 |
-| `SendAsync_RetryUsaBackoffEntreIntentos` | R004 |
-| `SendAsync_429_Agotado_EmiteRateLimitException` | R004 |
-| `SendAsync_500_ReintentaYEventuallyFunciona` | R004 |
-| `SendAsync_500_Agotado_EmiteServerException` | R004 |
-| `SendAsync_400_NoReintentaYPreservaBody` | R004 |
-| `SendAsync_401_EmiteAuthErrorYNoReintenta` | R004 |
-| `SendAsync_CanceladoAntesDelPost_NoHaceRequestYEmiteCancelled` | R005 |
-| `SendAsync_CanceladoDuranteBackoff_NoReintenta` | R005 |
-| `SendAsync_SinDatos_LanzaTimeoutReportadoComoError` | R006 |
-| `SendAsync_ToolCallsFragmentados_EmiteEnOrdenDeIndex` | R007 |
-| `Feed_MultiplesToolCalls_EmiteEnOrdenDeIndex` | R007 |
-| `Complete_ToolCallConArgumentosInvalidos_EmiteOnErrorYNoToolCall` | R007 |
-| `Complete_LlamadoDosVeces_NoEmiteDuplicados` | R007 |
-| `Feed_ToolCallSinIdNiName_NoEmite` | R007 |
-| `Feed_JsonInvalido_LanzaBlsNimProtocolException` | R007 |
-| `BuildJson_ConTools_EnvuelveEnTypeFunction` | R008 |
-| `BuildJson_SinTools_NoIncluyeToolsNiToolChoice` | R008 |
-| `BuildJson_MensajeTool_IncluyeToolCallId` | R008 |
+| Test                                                              | Cubre    |
+|-------------------------------------------------------------------|----------|
+| `SendAsync_AuthorizationVaComoHeaderDeRequest`                    | R001     |
+| `SendAsync_SinApiKey_EmiteAuthErrorYNoHaceRequest`                | R002     |
+| `SendAsync_NoRegistraLaApiKeyEnLogs`                              | R002, P7 |
+| `BuildJson_ModeloParametro_TienePrioridadSobreEnv`                | R003     |
+| `BuildJson_ModeloEnv_SeUsaCuandoNoHayParametro`                   | R003     |
+| `SendAsync_429_ReintentaYEventuallyFunciona`                      | R004     |
+| `SendAsync_RetryRespetaRetryAfter`                                | R004     |
+| `SendAsync_RetryAfterSeAcotaA30Segundos`                          | R004     |
+| `SendAsync_RetryUsaBackoffEntreIntentos`                          | R004     |
+| `SendAsync_429_Agotado_EmiteRateLimitException`                   | R004     |
+| `SendAsync_500_ReintentaYEventuallyFunciona`                      | R004     |
+| `SendAsync_500_Agotado_EmiteServerException`                      | R004     |
+| `SendAsync_400_NoReintentaYPreservaBody`                          | R004     |
+| `SendAsync_401_EmiteAuthErrorYNoReintenta`                        | R004     |
+| `SendAsync_CanceladoAntesDelPost_NoHaceRequestYEmiteCancelled`    | R005     |
+| `SendAsync_CanceladoDuranteBackoff_NoReintenta`                   | R005     |
+| `SendAsync_SinDatos_LanzaTimeoutReportadoComoError`               | R006     |
+| `SendAsync_ToolCallsFragmentados_EmiteEnOrdenDeIndex`             | R007     |
+| `Feed_MultiplesToolCalls_EmiteEnOrdenDeIndex`                     | R007     |
+| `Complete_ToolCallConArgumentosInvalidos_EmiteOnErrorYNoToolCall` | R007     |
+| `Complete_LlamadoDosVeces_NoEmiteDuplicados`                      | R007     |
+| `Feed_ToolCallSinIdNiName_NoEmite`                                | R007     |
+| `Feed_JsonInvalido_LanzaBlsNimProtocolException`                  | R007     |
+| `BuildJson_ConTools_EnvuelveEnTypeFunction`                       | R008     |
+| `BuildJson_SinTools_NoIncluyeToolsNiToolChoice`                   | R008     |
+| `BuildJson_MensajeTool_IncluyeToolCallId`                         | R008     |
 
 ---
 

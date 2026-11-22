@@ -13,11 +13,11 @@ tags: [governance, incident-response, playbook]
 
 ## 1. Clasificación
 
-| Nivel | Ejemplo | Acción inicial |
-|-------|---------|----------------|
+| Nivel | Ejemplo                                                                              | Acción inicial                      |
+|-------|--------------------------------------------------------------------------------------|-------------------------------------|
 | SEV-1 | Tool destructiva ejecutada sin aprobación, cadena de auditoría rota, fuga de API key | Kill switch + aislamiento inmediato |
-| SEV-2 | Rechazo HITL ignorado, PII enviada sin consentimiento, breaker en Open persistente | Kill switch + revisión del log |
-| SEV-3 | Respuesta incorrecta no destructiva, latencia fuera de SLO | Registro y seguimiento |
+| SEV-2 | Rechazo HITL ignorado, PII enviada sin consentimiento, breaker en Open persistente   | Kill switch + revisión del log      |
+| SEV-3 | Respuesta incorrecta no destructiva, latencia fuera de SLO                           | Registro y seguimiento              |
 
 ## 2. Contención (minutos 0-5)
 

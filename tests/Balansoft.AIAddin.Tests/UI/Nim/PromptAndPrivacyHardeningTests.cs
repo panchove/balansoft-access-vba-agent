@@ -100,6 +100,17 @@ namespace Balansoft.AIAddin.Tests.UI.Nim
             }
         }
 
+        [TestMethod]
+        public void SystemPrompt_ReglaAntiRepeticion_Presente()
+        {
+            var builder = new SystemPromptBuilder();
+            var context = new VbeContext("Modulo1", "Standard", "Sub A()\nEnd Sub", false);
+
+            var prompt = builder.Build(context, new List<string> { "list_modules" });
+
+            StringAssert.Contains(prompt, "Genera codigo nuevo a partir del requisito");
+            StringAssert.Contains(prompt, "No reproduzcas el codigo de ejemplo");
+        }
         // Red teaming de la frontera de contexto (ASI04). Sin API key no se
         // puede invocar al modelo, pero si demostrar que ningun payload puede
         // escapar de la etiqueta de dato no confiable.

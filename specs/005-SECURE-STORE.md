@@ -115,14 +115,14 @@ Entonces es CurrentUser, nunca LocalMachine
 
 Ninguno implementado.
 
-| Test | Cubre |
-|---|---|
-| `SecureStore_RoundTrip_DevuelveMismaKey` | R001 |
-| `SecureStore_KeyNoGuardada_TryGetDevuelveFalse` | R006 |
-| `SecureStore_BytesCifrados_NoContienenLaKeyEnClaro` | R002 |
-| `SecureStore_Archivo corrupto_LanzaBlsSecureStoreException` | R005 |
-| `SecureStore_NoEscribeLaKeyEnLogs` | R002 |
-| `SecureStore_UsaCurrentUser_NoLocalMachine` | R001 |
+| Test                                                        | Cubre |
+|-------------------------------------------------------------|-------|
+| `SecureStore_RoundTrip_DevuelveMismaKey`                    | R001  |
+| `SecureStore_KeyNoGuardada_TryGetDevuelveFalse`             | R006  |
+| `SecureStore_BytesCifrados_NoContienenLaKeyEnClaro`         | R002  |
+| `SecureStore_Archivo corrupto_LanzaBlsSecureStoreException` | R005  |
+| `SecureStore_NoEscribeLaKeyEnLogs`                          | R002  |
+| `SecureStore_UsaCurrentUser_NoLocalMachine`                 | R001  |
 
 `SecureStore_BytesCifrados_NoContienenLaKeyEnClaro` es el más importante: lee
 el archivo byte a byte y verifica que la key no aparece. Es el test que
