@@ -9,11 +9,14 @@ using Balansoft.AIAddin.UI.Nim;
 
 namespace Balansoft.AIAddin.UI;
 
-/// <summary>
 /// Cliente para la API NIM con streaming SSE y tool calls.
-/// </summary>
 public interface IBlsNimClient : IDisposable
 {
+    /// <summary>
+    /// Modelo NIM usado en los proximos turnos. Si es null se resuelve desde
+    /// la variable de entorno NIM_MODEL o desde BlsModelCatalog.DefaultModel.
+    /// </summary>
+    string? Model { get; set; }
     /// <summary>
     /// Envía mensajes al modelo NIM y emite eventos al sink.
     /// </summary>

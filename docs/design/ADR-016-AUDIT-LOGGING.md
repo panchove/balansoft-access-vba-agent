@@ -153,4 +153,4 @@ cada rechazo HITL/fail-safe.
 - `BlsLogger.LastWriteError` expone el ultimo fallo de escritura en lugar de silenciarlo; el evento nunca se falsifica y el error se contabiliza en `BlsSloMetrics`.
 - Los `catch { }` de `AddinConnect.RemoveMenu` y `BlsNimClient` (fijacion TLS) ahora registran advertencia.
 
-Evidencia: `BlsAuditChainDirectoryTests` (5) y 321/321 tests verdes; gate 8d con tokens de regresion.
+Evidencia: `BlsAuditChainDirectoryTests` (5) y 323/323 tests verdes; gate 8d con tokens de regresion.

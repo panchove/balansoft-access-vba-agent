@@ -38,7 +38,7 @@ public sealed class BlsNimClient : IBlsNimClient
     private readonly HttpClient _httpClient;
     private readonly IBlsSecureStore _secureStore;
     private readonly IBlsLogger _logger;
-    private readonly string _model;
+    private string? _model;
     private readonly string _endpoint;
     private readonly TimeSpan _chunkTimeout;
     private readonly IBlsNimRetryPolicy _retryPolicy;
@@ -117,6 +117,13 @@ public sealed class BlsNimClient : IBlsNimClient
         {
             _logger.Warn("BlsNimClient", "No se pudo fijar TLS 1.2/1.3; se usa la configuracion del host", ex);
         }
+    }
+
+    /// <inheritdoc />
+    public string? Model
+    {
+        get => _model;
+        set => _model = string.IsNullOrWhiteSpace(value) ? null : value!.Trim();
     }
 
     public async Task SendAsync(

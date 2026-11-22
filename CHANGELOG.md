@@ -17,6 +17,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Dialogo de ajustes en la terminal: cambiar la API key (DPAPI) y el modelo
+  NIM en caliente, con la version de ejecucion visible en la barra de titulo.
+- `IBlsNimClient.Model` permite cambiar el modelo sin reiniciar el add-in.
 - Modelo por defecto cambiado a `nvidia/nemotron-3.5-super-vl-120b-a12b`
   (VL 120B/12B activos, tool calls y `max_tokens` hasta 131072 en NIM).
 - Modelo por defecto actualizado a `nvidia/nemotron-3-super-120b-a12b`
@@ -54,7 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `Nerdbank.GitVersioning` fijado a 3.6.146 (antes version flotante 3.6.*).
 - SHA-256 del system prompt actualizado en el AI-BOM.
-- 5 tests nuevos; suite 321/321 en x86 y x64.
+- 5 tests nuevos; suite 323/323 en x86 y x64.
 
 ### Removed (Fase 3, auditoria 2026-11-22)
 - Siete skills redundantes u obsoletos: `bls-workflow-nemotron` (describia

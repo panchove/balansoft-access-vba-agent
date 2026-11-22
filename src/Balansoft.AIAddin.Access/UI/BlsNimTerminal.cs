@@ -129,6 +129,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     private Button _btnEnviar = null!;
     private Button _btnDetener = null!;
     private Button _btnKillSwitch = null!;
+        private Button _btnSettings = null!;
     private Label _lblStatus = null!;
     private Label _lblAiDisclosure = null!;
     private bool _loadingSessions;
@@ -224,7 +225,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     private void InitializeComponent()
     {
         // Configuracion del Form
-        Text = BlsStrings.Get("AppTitle");
+        Text = BlsStrings.Get("AppTitle") + " v" + BlsVersion.Current;
         Size = new Size(1000, 700);
         MinimumSize = new Size(750, 480);
         StartPosition = FormStartPosition.CenterScreen;
@@ -485,6 +486,15 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             BackColor = Color.MistyRose
         };
         _btnKillSwitch.Click += OnKillSwitchClick;
+        _btnSettings = new Button
+        {
+            Text = BlsStrings.Get("BtnSettings"),
+            Dock = DockStyle.Right,
+            Width = 90,
+            Height = 28,
+            Font = new Font("Segoe UI", 9F)
+        };
+        _btnSettings.Click += OnSettingsClick;
 
         _lblStatus = new Label
         {
@@ -500,6 +510,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         bottomControls.Controls.Add(_btnEnviar);
         bottomControls.Controls.Add(_btnDetener);
         bottomControls.Controls.Add(_btnKillSwitch);
+        bottomControls.Controls.Add(_btnSettings);
 
         // Botonera de comandos rápidos (Slash Commands)
         _commandBar = new FlowLayoutPanel
@@ -959,7 +970,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             BlsStrings.CurrentLanguage = lang;
 
             // Refresh all localized UI texts
-            Text = BlsStrings.Get("AppTitle");
+            Text = BlsStrings.Get("AppTitle") + " v" + BlsVersion.Current;
             _lblLanguage.Text = BlsStrings.Get("LangLabel");
             _btnNuevaSesion.Text = BlsStrings.Get("BtnNewSession");
             _btnEliminarSesion.Text = BlsStrings.Get("BtnDeleteSession");
@@ -969,6 +980,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             _btnEnviar.Text = BlsStrings.Get("BtnSend");
             _btnKillSwitch.Text = BlsStrings.Get(
                 _safetyGate.IsTripped ? "BtnSafetyReset" : "BtnSafety");
+            _btnSettings.Text = BlsStrings.Get("BtnSettings");
             _lblStatus.Text = BlsStrings.Get("StatusReady");
             _lblAiDisclosure.Text = BlsStrings.Get("AiDisclosure");
 
@@ -1210,6 +1222,12 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     }
 
     /// <summary>
+    private void OnSettingsClick(object? sender, EventArgs e)
+    {
+        using var dialog = new BlsSettingsForm(_secureStore, _nimClient);
+        dialog.ShowDialog(this);
+    }
+
     /// F2 — Kill switch. A diferencia de "Detener" (cancela un turno), esto bloquea
     /// TODAS las acciones de IA hasta una reactivación humana explícita (Pilar 3).
     /// </summary>
