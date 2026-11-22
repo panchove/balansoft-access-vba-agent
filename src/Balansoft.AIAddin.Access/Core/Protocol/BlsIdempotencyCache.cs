@@ -84,5 +84,7 @@ public sealed class BlsIdempotencyCache : IBlsIdempotencyCache
         {
             _entries.TryRemove(victim, out _);
         }
+
+        BlsContract.Invariant(_entries.Count <= _maxEntries, "La cache no debe exceder maxEntries.");
     }
 }

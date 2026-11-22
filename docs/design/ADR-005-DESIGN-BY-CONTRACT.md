@@ -63,3 +63,13 @@ Se adopta **Diseño por Contrato (DbC)** formal como directriz no negociable del
 
 ### Negativas / Mitigaciones
 - Ligeramente más líneas de código al inicio de cada método (mitigado por métodos fluídos y concisos de `BlsContract`).
+
+## Fase 2 - Postcondiciones e invariantes (2026-11-22)
+
+La auditoria detecto 114 `BlsContract.Requires` frente a 1 `Ensures` y 1 `Invariant`. Se anaden garantias de salida a los componentes que modifican estado:
+
+- `BlsToolAuthorizationRegistry.Issue`: Ensures token no vacio e Invariant de capacidad <= 512.
+- `BlsSecureStore.TryGetApiKey`: Ensures key descifrada no vacia; `SaveApiKey`: Ensures fichero persistido.
+- `BlsIdempotencyCache.Store`: Invariant de capacidad <= maxEntries.
+
+El gate 8d exige al menos 3 postcondiciones y 2 invariantes en `src/`. Evidencia: `BlsPostconditionTests` (5).

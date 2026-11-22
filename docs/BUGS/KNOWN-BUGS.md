@@ -217,7 +217,7 @@ En procesos host de Office 32-bit (.NET Framework 4.8), `ServicePointManager.Sec
 ---
 
 #
-## Próximo Bug ID disponible: BalanceSoft-015
+## Próximo Bug ID disponible: BalanceSoft-016
 
 ### Política de cierre de bugs
 1. Cuando se corrige un bug, se añade la fecha de corrección
@@ -254,3 +254,14 @@ Los tres bugs historicos siguen **abiertos**; la Fase 0 no los cerro porque no s
 `BlsSafetyGate.EnsureAllowed` y `BlsHumanApprovalGate.Evaluate` solo se invocaban desde `BlsNimTerminal`. `JsonRpcDispatcher` no las conocia, de modo que un frame JSON-RPC directo al pipe podia ejecutar `delete_module`, `execute_sql` o `migrate_*` sin aprobacion ni kill switch. La ACL por defecto del pipe tampoco estaba restringida al usuario actual.
 
 **Correccion**: token de aprobacion de un solo uso (`BlsToolAuthorizationRegistry`), comprobaciones de fail-safe/HITL/limite de iteraciones en el dispatcher y ACL por SID en `BlsVbeBridgeServer.BuildPipeSecurity`. El next bug ID pasa a BalanceSoft-015.
+### Bug #15: BalanceSoft-015
+**Titulo**: Cadena de auditoria no verificada en ejecucion y reiniciada cada dia
+**Gravedad**: High
+**Area**: Helpers/BlsAuditChain, Helpers/BlsLogger, AddinConnect
+**Fecha**: 2026-11-22
+**Reporte por**: Auditoria de gobernanza (asistida por IA)
+**Estado**: Fixed in v1.1.0
+
+**Descripcion**: `BlsAuditChain.Verify` solo se usaba en tests; cada fichero diario empezaba con `GENESIS`, por lo que borrar un dia completo era indetectable. Ademas `BlsLogger` silenciaba los fallos de escritura con un `catch { }` y ADR-005 tenia solo precondiciones.
+
+**Correccion**: `VerifyDirectory` + `SeedFor` encadenan los dias; `AddinConnect` verifica al arranque y dispara el kill switch si la cadena esta rota; `LastWriteError` expone el fallo; se anaden postcondiciones e invariantes. El next bug ID pasa a BalanceSoft-016.

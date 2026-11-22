@@ -229,6 +229,19 @@ namespace Balansoft.AIAddin.Access
             if (_logger == null)
             {
                 _logger = new BlsLogger();
+
+                // Fase 2 (CS-009): verificar la cadena de auditoria al arranque.
+                // Una cadena manipulada dispara el mismo kill switch que una
+                // accion insegura: el modelo no puede operar sin trazabilidad.
+                var integrity = BlsAuditChain.VerifyDirectory(BlsPaths.LogsDir);
+                if (!integrity.IsValid)
+                {
+                    if (_safetyGate == null) _safetyGate = new BlsSafetyGate();
+                    _safetyGate.Trip("Integridad de la cadena de auditoria comprometida");
+                    _logger.Error(
+                        "BlsLogger",
+                        $"Cadena de auditoria invalida en linea {integrity.FirstInvalidLine}: {integrity.Reason}");
+                }
             }
 
             if (_uiScheduler == null)
@@ -344,7 +357,10 @@ namespace Balansoft.AIAddin.Access
                     _commandBarButton = null;
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                _logger?.Warn("AddinConnect", "No se pudo eliminar el menu del VBE al desconectar", ex);
+            }
         }
 
         internal void OnMenuClick(object ctrl, ref bool cancelDefault)

@@ -35,6 +35,9 @@ namespace Balansoft.AIAddin.Helpers
         /// <summary>Métricas SLO del logger.</summary>
         public BlsSloMetrics Metrics { get; } = new();
 
+        /// <summary>Ultimo error de escritura; nunca contiene datos del evento.</summary>
+        public Exception? LastWriteError { get; private set; }
+
         /// <summary>Crea el logger. El directorio se crea en la primera escritura.</summary>
         /// <param name="logDir">Directorio inyectable para tests; <c>null</c> usa <see cref="BlsPaths.LogsDir"/>.</param>
         public BlsLogger(string? logDir = null)
@@ -59,7 +62,7 @@ namespace Balansoft.AIAddin.Helpers
 
                 var path = Path.Combine(
                     _logDir,
-                    $"balansoft-{DateTime.UtcNow:yyyyMMdd}.log");
+                    BlsAuditChain.FileNameFor(DateTime.UtcNow));
 
                 lock (_sync)
                 {
@@ -70,8 +73,11 @@ namespace Balansoft.AIAddin.Helpers
                         return;
                     }
 
+                    // Fase 2: si el fichero de hoy aun no tiene eventos, la
+                    // semilla es el ultimo hash del dia anterior. Borrar un
+                    // dia entero rompe la cadena y VerifyDirectory lo detecta.
                     var prevHash = string.IsNullOrEmpty(lastHash)
-                        ? BlsAuditChain.GenesisHash
+                        ? BlsAuditChain.SeedFor(_logDir, DateTime.UtcNow)
                         : lastHash!;
 
                     var correlationId = BlsCorrelationContext.CorrelationId;
@@ -97,9 +103,12 @@ namespace Balansoft.AIAddin.Helpers
 
                 succeeded = true;
             }
-            catch
+            catch (Exception writeEx)
             {
-                // Un fallo de log nunca debe tumbar el host COM (spec 008 R008).
+                // Un fallo de log nunca debe tumbar el host COM (spec 008 R008),
+                // pero el error queda expuesto para que el arranque pueda
+                // disparar el fail-safe (Fase 2).
+                LastWriteError = writeEx;
             }
             finally
             {
@@ -150,6 +159,12 @@ namespace Balansoft.AIAddin.Helpers
             return Encoding.UTF8.GetString(stream.ToArray());
         }
 
+        /// <summary>
+        /// Verifica la cadena completa de todos los dias. Al arranque, un
+        /// resultado invalido debe disparar el kill switch antes de cualquier
+        /// tool call (Fase 2, CS-009).
+        /// </summary>
+        public BlsAuditVerificationResult VerifyChain() => BlsAuditChain.VerifyDirectory(_logDir);
         public void Dispose()
         {
             if (_disposed) return;

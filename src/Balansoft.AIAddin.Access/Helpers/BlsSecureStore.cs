@@ -65,6 +65,7 @@ public sealed class BlsSecureStore : IBlsSecureStore
             }
 
             key = Encoding.UTF8.GetString(plain);
+            BlsContract.Ensures(!string.IsNullOrEmpty(key), "La API key descifrada no puede estar vacia.");
 
             if (migrated)
             {

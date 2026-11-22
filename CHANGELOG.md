@@ -18,6 +18,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (Fase 2, auditoria 2026-11-22)
+- `BlsAuditChain.VerifyDirectory` y `SeedFor`: cadena SHA-256 entre dias, con
+  compatibilidad para los logs legacy que empezaban con GENESIS cada dia.
+- Verificacion de integridad al arranque: una cadena rota dispara el kill switch.
+- `BlsLogger.LastWriteError`: los fallos de escritura dejan de silenciarse.
+- Postcondiciones e invariantes en registro de autorizaciones, almacen seguro
+  y cache de idempotencia (ADR-005).
+- 10 tests nuevos: `BlsAuditChainDirectoryTests` y `BlsPostconditionTests`.
+
 ### Added (Fase 1, auditoria 2026-11-22)
 - `BlsToolAuthorizationRegistry`: tokens de aprobacion de un solo uso, con TTL
   de 60 s y vinculados a metodo, turno y SHA-256 del payload.

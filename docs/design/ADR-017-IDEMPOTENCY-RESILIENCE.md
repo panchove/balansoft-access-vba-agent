@@ -198,6 +198,6 @@ cancelación del usuario.
 ## Evidencia
 
 - Tests: `JsonRpcIdempotencyTests` (9) y `BlsNimResilienceTests` (9) — 18
-  nuevos, **295/295 verdes** en x86 y x64 tras F5.
+  nuevos, **305/305 verdes** en x86 y x64 tras F5.
 - Gate de CI: *Idempotencia y resiliencia (F4)*.
 - Spec: `specs/018-IDEMPOTENCY-RESILIENCE.md`.

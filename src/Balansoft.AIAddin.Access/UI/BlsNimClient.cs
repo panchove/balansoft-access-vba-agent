@@ -113,7 +113,10 @@ public sealed class BlsNimClient : IBlsNimClient
         {
             ServicePointManager.SecurityProtocol |= SecurityProtocolType.Tls12 | (SecurityProtocolType)12288;
         }
-        catch { }
+        catch (Exception ex)
+        {
+            _logger.Warn("BlsNimClient", "No se pudo fijar TLS 1.2/1.3; se usa la configuracion del host", ex);
+        }
     }
 
     public async Task SendAsync(

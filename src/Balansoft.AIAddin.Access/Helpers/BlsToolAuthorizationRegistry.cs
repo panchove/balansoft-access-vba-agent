@@ -68,6 +68,8 @@ namespace Balansoft.AIAddin.Helpers
                 System.Threading.Interlocked.Increment(ref _sequence));
 
             Prune(now);
+            BlsContract.Ensures(!string.IsNullOrWhiteSpace(token), "El token emitido no puede estar vacio.");
+            BlsContract.Invariant(_entries.Count <= MaxEntries, "El registro no debe exceder su capacidad.");
             return token;
         }
 

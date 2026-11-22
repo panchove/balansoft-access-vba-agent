@@ -144,3 +144,13 @@ cada rechazo HITL/fail-safe.
   **239/239 verdes**.
 - Gate de CI: *Auditoría JSON, hash encadenado y correlación (F3)*.
 - Spec: `specs/017-AUDIT-LOGGING.md`.
+
+## Fase 2 - Verificacion en ejecucion y cadena entre dias (2026-11-22)
+
+- `BlsAuditChain.VerifyDirectory(logDir)` verifica todos los ficheros `balansoft-yyyyMMdd.log` en orden cronologico. El primer evento de una cadena nueva usa `GenesisHash`; `SeedFor(logDir, date)` toma el ultimo hash del dia anterior como semilla del dia actual. Borrar un dia intermedio rompe la cadena.
+- Los logs escritos antes de esta fase empezaban cada dia con `GENESIS`; se reconocen como segmentos legacy y siguen siendo verificables.
+- `AddinConnect` llama a `VerifyDirectory(BlsPaths.LogsDir)` al arrancar. Si la cadena es invalida dispara el kill switch: sin trazabilidad fiable no se permite operar (EU AI Act Art. 12 + IEEE 7009).
+- `BlsLogger.LastWriteError` expone el ultimo fallo de escritura en lugar de silenciarlo; el evento nunca se falsifica y el error se contabiliza en `BlsSloMetrics`.
+- Los `catch { }` de `AddinConnect.RemoveMenu` y `BlsNimClient` (fijacion TLS) ahora registran advertencia.
+
+Evidencia: `BlsAuditChainDirectoryTests` (5) y 305/305 tests verdes; gate 8d con tokens de regresion.

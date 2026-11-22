@@ -142,3 +142,14 @@ tags: [change-requests, iso-12207, modification-process, square]
 * **Estado**: `Implementado en v1.1.0`
 * **Justificacion**: la auditoria de gobernanza detecto que los controles F2 residian solo en la terminal y que la ACL del pipe heredaba la configuracion por defecto de Windows.
 * **Detalle de implementacion**: registro de autorizaciones de un solo uso; fail-safe, HITL y tope de 8 iteraciones en el dispatcher; ACL por SID del usuario; 8 tests nuevos; gate 8c ampliado.
+---
+
+### CR-008: Integridad de auditoria verificable en ejecucion y DbC completo
+* **ID**: `CR-008`
+* **Titulo**: Encadenar los logs entre dias, verificar al arranque y anadir postcondiciones
+* **Prioridad**: Alta
+* **Area**: `Helpers/BlsAuditChain`, `Helpers/BlsLogger`, `AddinConnect`, `Helpers/BlsContract`
+* **Fecha**: 2026-11-22
+* **Estado**: `Implementado en v1.1.0`
+* **Justificacion**: la cadena SHA-256 solo se verificaba en tests y se reiniciaba cada dia; ADR-005 exigia los tres tipos de contrato.
+* **Detalle de implementacion**: `VerifyDirectory`/`SeedFor`, verificacion al arranque con kill switch, `LastWriteError`, postcondiciones e invariantes, 10 tests nuevos y gate 8d reforzado.

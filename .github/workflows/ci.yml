@@ -380,18 +380,19 @@ jobs:
               "tests/Balansoft.AIAddin.Tests/Helpers/BlsLogSanitizerTests.cs",
               "tests/Balansoft.AIAddin.Tests/Helpers/BlsCorrelationContextTests.cs",
               "tests/Balansoft.AIAddin.Tests/Helpers/BlsSloMetricsTests.cs",
-              "tests/Balansoft.AIAddin.Tests/Core/Protocol/JsonRpcCorrelationTests.cs"
+              "tests/Balansoft.AIAddin.Tests/Core/Protocol/JsonRpcCorrelationTests.cs",
+              "tests/Balansoft.AIAddin.Tests/Helpers/BlsAuditChainDirectoryTests.cs",
+              "tests/Balansoft.AIAddin.Tests/Helpers/BlsPostconditionTests.cs"
           )
           foreach ($f in $required) {
               if (-not (Test-Path (Join-Path $root $f))) {
                   $errors += "Falta artefacto de auditoria: $f"
               }
           }
-
           $logger = Join-Path $root "src/Balansoft.AIAddin.Access/Helpers/BlsLogger.cs"
           if (Test-Path $logger) {
               $l = Get-Content $logger -Raw
-              foreach ($token in @('IBlsLogger', 'IBlsSloAware', 'BlsAuditChain', 'prev_hash', 'BlsLogSanitizer', 'BlsCorrelationContext')) {
+              foreach ($token in @('IBlsLogger', 'IBlsSloAware', 'BlsAuditChain', 'prev_hash', 'BlsLogSanitizer', 'BlsCorrelationContext', 'VerifyDirectory', 'LastWriteError')) {
                   if (-not $l.Contains($token)) { $errors += "BlsLogger.cs no contiene $token" }
               }
           }
@@ -399,10 +400,25 @@ jobs:
           $chain = Join-Path $root "src/Balansoft.AIAddin.Access/Helpers/BlsAuditChain.cs"
           if (Test-Path $chain) {
               $c = Get-Content $chain -Raw
-              foreach ($token in @('SHA256', 'GenesisHash', 'TryReadLastHash', 'Verify', 'FirstInvalidLine')) {
+              foreach ($token in @('SHA256', 'GenesisHash', 'TryReadLastHash', 'Verify', 'FirstInvalidLine', 'VerifyDirectory', 'SeedFor')) {
                   if (-not $c.Contains($token)) { $errors += "BlsAuditChain.cs no contiene $token" }
               }
           }
+
+          # Fase 2: verificacion al arranque y DbC completo (auditoria 2026-11-22).
+          $connect = Join-Path $root "src/Balansoft.AIAddin.Access/AddinConnect.cs"
+          if (Test-Path $connect) {
+              $ac = Get-Content $connect -Raw
+              if (-not $ac.Contains('BlsAuditChain.VerifyDirectory(BlsPaths.LogsDir)')) {
+                  $errors += "AddinConnect no verifica la cadena de auditoria al arranque"
+              }
+          }
+          $allSrc = (Get-ChildItem -Path (Join-Path $root "src") -Recurse -Filter "*.cs" -File |
+                     Where-Object { $_.FullName -notmatch '\\(bin|obj)\\' } | Get-Content -Raw) -join "`n"
+          $ensuresCount = ([regex]::Matches($allSrc, 'BlsContract\.Ensures')).Count
+          $invariantCount = ([regex]::Matches($allSrc, 'BlsContract\.Invariant')).Count
+          if ($ensuresCount -lt 3) { $errors += "DbC: solo $ensuresCount postcondiciones (minimo 3)" }
+          if ($invariantCount -lt 2) { $errors += "DbC: solo $invariantCount invariantes (minimo 2)" }
 
           $request = Join-Path $root "src/Balansoft.AIAddin.Access/Core/Protocol/JsonRpcRequest.cs"
           if (Test-Path $request) {
@@ -729,8 +745,22 @@ jobs:
               "KillSwitchDisparado_BloqueaAntesDelHandler",
               "LimiteIteracionesPorTurno_SeRefuerzaEnElDispatcher",
               "BuildPipeSecurity_SoloConcedeAlSidDelUsuarioActual",
-              # ADR-016 (F3, verificados)
-              "Logger_CadenaUnEvento_EsVerificable",
+              # Fase 2 (auditoria y DbC)
+              "VerifyDirectory_DosDiasEncadenados_EsValida",
+              "VerifyDirectory_BorradoDeDiaIntermedio_DetectaCorrupcion",
+              "SeedFor_DiaSinEventos_UsaUltimoHashDelDiaAnterior",
+              "Logger_VerifyChain_ConEventosRecientes_EsValida",
+              "Registry_Issue_SiempreDevuelveTokenNoVacio",
+              "Contract_EnsuresViolado_LanzaPostconditionException",
+              "Contract_InvariantViolado_LanzaInvariantException",              # ADR-016 (F3, verificados)
+              # Fase 2 (auditoria y DbC)
+              "VerifyDirectory_DosDiasEncadenados_EsValida",
+              "VerifyDirectory_BorradoDeDiaIntermedio_DetectaCorrupcion",
+              "SeedFor_DiaSinEventos_UsaUltimoHashDelDiaAnterior",
+              "Logger_VerifyChain_ConEventosRecientes_EsValida",
+              "Registry_Issue_SiempreDevuelveTokenNoVacio",
+              "Contract_EnsuresViolado_LanzaPostconditionException",
+              "Contract_InvariantViolado_LanzaInvariantException",              "Logger_CadenaUnEvento_EsVerificable",
               "Verify_TamperMensaje_DetectaCorrupcion",
               "Dispatcher_ConCorrelacion_LosEscribeEnElLog",
               # ADR-017 (F4, verificados)
@@ -760,7 +790,14 @@ jobs:
               "KillSwitchDisparado_BloqueaAntesDelHandler",
               "LimiteIteracionesPorTurno_SeRefuerzaEnElDispatcher",
               "BuildPipeSecurity_SoloConcedeAlSidDelUsuarioActual",
-              "Logger_CadenaUnEvento_EsVerificable",
+              # Fase 2 (auditoria y DbC)
+              "VerifyDirectory_DosDiasEncadenados_EsValida",
+              "VerifyDirectory_BorradoDeDiaIntermedio_DetectaCorrupcion",
+              "SeedFor_DiaSinEventos_UsaUltimoHashDelDiaAnterior",
+              "Logger_VerifyChain_ConEventosRecientes_EsValida",
+              "Registry_Issue_SiempreDevuelveTokenNoVacio",
+              "Contract_EnsuresViolado_LanzaPostconditionException",
+              "Contract_InvariantViolado_LanzaInvariantException",              "Logger_CadenaUnEvento_EsVerificable",
               "Verify_TamperMensaje_DetectaCorrupcion",
               "Dispatcher_ConCorrelacion_LosEscribeEnElLog",
               "Idempotency_FrameDuplicado_NoEjecutaHandlerDosVeces",
