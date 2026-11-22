@@ -137,7 +137,7 @@ Flush()
    `-32004 "busy"` en el primer frame, luego cierra.
 3. El listener corre en hilo dedicado (`Task` con
    `TaskCreationOptions.LongRunning`).
-4. El despacho al hilo UI (VBE) se hace vía el scheduler del skill bls-vbe-automation.
+4. El despacho al hilo UI (VBE) se hace vía el scheduler del AGENTS.md.
 5. Nunca bloquear el hilo del pipe con operaciones VBE lentas: usar cola
    + worker (ver skill bls-jsonrpc-pipe-bridge).
 6. Toda excepción no controlada en el loop de lectura:

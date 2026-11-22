@@ -261,24 +261,24 @@ loguea y se sigue.
 - `docs/design/ADR-001-PROJECT-IDENTITY.md`.
 - `docs/design/ADR-003-ABORT-MODEL.md` (marca `cancelled`).
 - PRD §3.5, §3.6, §7 FR-08, FR-10.
-- `.opencode/skills/bls-vbe-automation/SKILL.md` (origen de `projectKey`).
-- `.opencode/skills/bls-nim-client-streaming/SKILL.md` (consumidor de la API key).
-- `.opencode/skills/bls-logging-errors/SKILL.md` (nunca loguear la key).
+- `AGENTS.md` (origen de `projectKey`).
+- `AGENTS.md` (consumidor de la API key).
+- `AGENTS.md` (nunca loguear la key).
 - `.opencode/skills/bls-testing-strategy/SKILL.md` (fake `IDataProtector`).
 
 ## Referencias Cruzadas
 
 Las siguientes skills están directamente relacionadas y deben consultarse según el área de trabajo:
 
-- [.opencode/skills/bls-project-context/SKILL.md](.opencode/skills/bls-project-context/SKILL.md) — Skill 00: Contexto y visión del proyecto
+- [AGENTS.md](AGENTS.md) — Skill 00: Contexto y visión del proyecto
 - [.opencode/skills/bls-com-late-binding/SKILL.md](.opencode/skills/bls-com-late-binding/SKILL.md) — Skill 01: COM late-binding sin PIAs
-- [.opencode/skills/bls-vbe-automation/SKILL.md](.opencode/skills/bls-vbe-automation/SKILL.md) — Skill 02: Automatización VBE
-- [.opencode/skills/bls-nim-client-streaming/SKILL.md](.opencode/skills/bls-nim-client-streaming/SKILL.md) — Skill 03: Cliente NIM streaming
+- [AGENTS.md](AGENTS.md) — Skill 02: Automatización VBE
+- [AGENTS.md](AGENTS.md) — Skill 03: Cliente NIM streaming
 - [.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md](.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md) — Skill 04: Bridge JSON-RPC sobre Named Pipe
 - [.opencode/skills/bls-secure-store-dpapi/SKILL.md](.opencode/skills/bls-secure-store-dpapi/SKILL.md) — Skill 05: DPAPI y almacenamiento seguro
-- [.opencode/skills/bls-winforms-threading/SKILL.md](.opencode/skills/bls-winforms-threading/SKILL.md) — Skill 06: WinForms y threading
-- [.opencode/skills/bls-registration-scripts/SKILL.md](.opencode/skills/bls-registration-scripts/SKILL.md) — Skill 07: Registro HKCU + scripts
-- [.opencode/skills/bls-logging-errors/SKILL.md](.opencode/skills/bls-logging-errors/SKILL.md) — Skill 08: Logging y propagación de errores
+- [AGENTS.md](AGENTS.md) — Skill 06: WinForms y threading
+- [AGENTS.md](AGENTS.md) — Skill 07: Registro HKCU + scripts
+- [AGENTS.md](AGENTS.md) — Skill 08: Logging y propagación de errores
 - [.opencode/skills/bls-testing-strategy/SKILL.md](.opencode/skills/bls-testing-strategy/SKILL.md) — Skill 09: Estrategia de tests
-- [.opencode/skills/bls-workflow-nemotron/SKILL.md](.opencode/skills/bls-workflow-nemotron/SKILL.md) — Skill 10: Workflow Nemotron 3 Ultra
+- [AGENTS.md](AGENTS.md) — Skill 10: Workflow Nemotron 3 Ultra
 - [.opencode/agents/bls-iso.md](.opencode/agents/bls-iso.md) — Agente de cumplimiento y gobernanza ISO/IEC (42001, 27001, 25010, 29148, 12207)

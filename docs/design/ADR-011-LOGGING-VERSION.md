@@ -44,7 +44,7 @@ Dos utilidades transversales que **todo** el resto del código usa:
    de arranque.
 
 Sin ellas no hay forma de:
-- Diagnosticar fallos en producción (skill bls-logging-errors).
+- Diagnosticar fallos en producción (AGENTS.md).
 - Saber qué versión está corriendo cada usuario.
 - Cumplir la promesa de "versión + commit en primera línea del log"
   (PRD FR-07).
@@ -56,7 +56,7 @@ Cubre:
 Y materializa:
 - AGENTS.md regla 4 (nunca API key en log).
 - AGENTS.md regla 5 (errores reales, nunca éxito falso).
-- skill bls-logging-errors (logging y propagación de errores).
+- AGENTS.md (logging y propagación de errores).
 
 ---
 
@@ -205,11 +205,11 @@ internal static class GlobalExceptionHandlers
 | PRD FR-07                | Rotación 7 días                   | `RotateOldLogs()` en constructor                  |
 | PRD FR-07                | Captura global                    | `GlobalExceptionHandlers.Register`                |
 | PRD FR-07                | Versión + commit en primera línea | `BlsVersionContext.BuildFirstLine`                |
-| skill bls-logging-errors | Formato canónico                  | `Write(...)` centralizado                         |
-| skill bls-logging-errors | Nivel alineado 5 chars            | `level.PadRight(5)`                               |
-| skill bls-logging-errors | Stack solo en Debug               | `#if DEBUG` en `Error`                            |
-| skill bls-logging-errors | Cancelación ≠ error               | `BlsLogger` no distingue; lo hacen los llamadores |
-| skill bls-logging-errors | No loguear código VBA completo    | Llamadores truncan a 80 chars                     |
+| AGENTS.md | Formato canónico                  | `Write(...)` centralizado                         |
+| AGENTS.md | Nivel alineado 5 chars            | `level.PadRight(5)`                               |
+| AGENTS.md | Stack solo en Debug               | `#if DEBUG` en `Error`                            |
+| AGENTS.md | Cancelación ≠ error               | `BlsLogger` no distingue; lo hacen los llamadores |
+| AGENTS.md | No loguear código VBA completo    | Llamadores truncan a 80 chars                     |
 
 ---
 
@@ -643,14 +643,14 @@ defensa.
 En este orden:
 
 1. `AGENTS.md` (reglas 4, 5).
-2. `.opencode/skills/bls-project-context/SKILL.md`.
-3. `.opencode/skills/bls-logging-errors/SKILL.md` (este dominio).
+2. `AGENTS.md`.
+3. `AGENTS.md` (este dominio).
 4. `.opencode/skills/bls-testing-strategy/SKILL.md` (temp dirs, fakes).
 5. `docs/design/ADR-010-REGISTRATION-SCRIPTS.md` (version.txt en el
    ZIP).
 
 Opcional:
-- `.opencode/skills/bls-registration-scripts/SKILL.md` (relación con el
+- `AGENTS.md` (relación con el
   packaging).
 
 ---
@@ -695,7 +695,7 @@ Cuando Nemotron termine, el PR debe:
 
 - `AGENTS.md` reglas 4, 5.
 - `PRD.md` §7 FR-07, §11 criterio 8.
-- `.opencode/skills/bls-logging-errors/SKILL.md`.
+- `AGENTS.md`.
 - `.opencode/skills/bls-testing-strategy/SKILL.md`.
 - `docs/design/ADR-009-SECURE-STORE.md` (`BlsPaths`).
 - `docs/design/ADR-010-REGISTRATION-SCRIPTS.md` (`version.txt` en el ZIP).
@@ -714,7 +714,7 @@ opencode --model nemotron-3-ultra \
 
 Lee en este orden:
 1. AGENTS.md
-2. .opencode/skills/bls-project-context/SKILL.md
+2. AGENTS.md
 3. docs/design/ADR-011-LOGGING-VERSION.md (el diseño)
 4. Los skills citados en §13 del diseño
 
@@ -738,16 +738,16 @@ opencode --model big-pickle \
 
 Lee:
 1. AGENTS.md
-2. .opencode/skills/bls-workflow-nemotron/SKILL.md (checklist de rechazo)
+2. AGENTS.md (checklist de rechazo)
 3. docs/design/ADR-011-LOGGING-VERSION.md (diseño)
 4. El diff del PR
 
-Aplica el checklist de rechazo del skill bls-workflow-nemotron.
+Aplica el checklist de rechazo del AGENTS.md.
 Presta especial atención a:
 - Nunca loguear la API key (regla 4).
-- Stack solo en Debug (skill bls-logging-errors §Error).
-- UnhandledException no relanza (skill bls-logging-errors §Captura global).
-- UnobservedTaskException llama SetObserved (skill bls-logging-errors §Captura global).
+- Stack solo en Debug (AGENTS.md §Error).
+- UnhandledException no relanza (AGENTS.md §Captura global).
+- UnobservedTaskException llama SetObserved (AGENTS.md §Captura global).
 - Formato canónico de línea (timestamp ISO 8601 UTC, nivel 5 chars).
 - Rotación 7 días en constructor (no en cada Write).
 

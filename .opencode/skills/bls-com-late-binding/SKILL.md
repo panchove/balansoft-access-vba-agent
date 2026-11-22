@@ -97,7 +97,7 @@ Access puede arrancar en **modo runtime** (`.accde`, `/runtime`) donde
 
 ### 5. Threading
 `BlsComHelper` **no** hace marshaling por ti. El marshaling al hilo UI
-es responsabilidad del caller (ver skill bls-winforms-threading). Regla simple:
+es responsabilidad del caller (ver skill AGENTS.md). Regla simple:
 
 - Si no estás en el hilo UI, no toques COM.
 - Si no sabes si estás en el hilo UI, asume que no.
@@ -224,7 +224,7 @@ dentro, pero los consumidores (bridge, terminal) solo ven `IBlsVbe`.
 - [ ] ¿`dynamic` está solo en `Helpers/BlsComHelper.cs`?
 - [ ] ¿Cada llamada COM está envuelta en `BlsComHelper.Invoke`?
 - [ ] ¿Se comprueba `VBE == null` en `AttachVbe` y antes de usarlo?
-- [ ] ¿El marshaling al hilo UI está explícito (skill bls-winforms-threading)?
+- [ ] ¿El marshaling al hilo UI está explícito (skill AGENTS.md)?
 - [ ] ¿No hay `ReleaseComObject` ni `GetActiveObject`?
 - [ ] ¿Los errores se propagan con `BlsComException` (no se tragan)?
 
@@ -234,23 +234,23 @@ dentro, pero los consumidores (bridge, terminal) solo ven `IBlsVbe`.
 
 - `AGENTS.md` reglas 1, 2, 3, 5.
 - PRD §8 (compatibilidad x86, sin PIAs).
-- `.opencode/skills/bls-vbe-automation/SKILL.md` (uso del contrato `IBlsVbe`).
-- `.opencode/skills/bls-winforms-threading/SKILL.md` (marshaling al hilo UI).
-- `.opencode/skills/bls-logging-errors/SKILL.md` (propagación de errores).
+- `AGENTS.md` (uso del contrato `IBlsVbe`).
+- `AGENTS.md` (marshaling al hilo UI).
+- `AGENTS.md` (propagación de errores).
 
 ## Referencias Cruzadas
 
 Las siguientes skills están directamente relacionadas y deben consultarse según el área de trabajo:
 
-- [.opencode/skills/bls-project-context/SKILL.md](.opencode/skills/bls-project-context/SKILL.md) — Skill 00: Contexto y visión del proyecto
+- [AGENTS.md](AGENTS.md) — Skill 00: Contexto y visión del proyecto
 - [.opencode/skills/bls-com-late-binding/SKILL.md](.opencode/skills/bls-com-late-binding/SKILL.md) — Skill 01: COM late-binding sin PIAs
-- [.opencode/skills/bls-vbe-automation/SKILL.md](.opencode/skills/bls-vbe-automation/SKILL.md) — Skill 02: Automatización VBE
-- [.opencode/skills/bls-nim-client-streaming/SKILL.md](.opencode/skills/bls-nim-client-streaming/SKILL.md) — Skill 03: Cliente NIM streaming
+- [AGENTS.md](AGENTS.md) — Skill 02: Automatización VBE
+- [AGENTS.md](AGENTS.md) — Skill 03: Cliente NIM streaming
 - [.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md](.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md) — Skill 04: Bridge JSON-RPC sobre Named Pipe
 - [.opencode/skills/bls-secure-store-dpapi/SKILL.md](.opencode/skills/bls-secure-store-dpapi/SKILL.md) — Skill 05: DPAPI y almacenamiento seguro
-- [.opencode/skills/bls-winforms-threading/SKILL.md](.opencode/skills/bls-winforms-threading/SKILL.md) — Skill 06: WinForms y threading
-- [.opencode/skills/bls-registration-scripts/SKILL.md](.opencode/skills/bls-registration-scripts/SKILL.md) — Skill 07: Registro HKCU + scripts
-- [.opencode/skills/bls-logging-errors/SKILL.md](.opencode/skills/bls-logging-errors/SKILL.md) — Skill 08: Logging y propagación de errores
+- [AGENTS.md](AGENTS.md) — Skill 06: WinForms y threading
+- [AGENTS.md](AGENTS.md) — Skill 07: Registro HKCU + scripts
+- [AGENTS.md](AGENTS.md) — Skill 08: Logging y propagación de errores
 - [.opencode/skills/bls-testing-strategy/SKILL.md](.opencode/skills/bls-testing-strategy/SKILL.md) — Skill 09: Estrategia de tests
-- [.opencode/skills/bls-workflow-nemotron/SKILL.md](.opencode/skills/bls-workflow-nemotron/SKILL.md) — Skill 10: Workflow Nemotron 3 Ultra
+- [AGENTS.md](AGENTS.md) — Skill 10: Workflow Nemotron 3 Ultra
 - [.opencode/agents/bls-iso.md](.opencode/agents/bls-iso.md) — Agente de cumplimiento y gobernanza ISO/IEC (42001, 27001, 25010, 29148, 12207)

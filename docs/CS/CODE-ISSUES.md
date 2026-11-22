@@ -163,7 +163,7 @@ Los errores logged no siempre incluyen la versión actual del add-in ni el commi
 - AGENTS.md — Reglas duras del proyecto
 - PRD.md — Historias de usuario y requisitos
 - .opencode/skills/bls-com-late-binding/SKILL.md — Envoltorio COM
-- .opencode/skills/bls-logging-errors/SKILL.md — Logging y formato
+- AGENTS.md — Logging y formato
 - .opencode/skills/bls-testing-strategy/SKILL.md — Tests y calidad
 - ADR-001..004 — Decisiones arquitectónicas
 

@@ -265,7 +265,7 @@ internal sealed class DpapiDataProtector : IDataProtector
 | skill bls-secure-store-dpapi | Debounce 500 ms                 | `System.Threading.Timer` interno                    |
 | skill bls-secure-store-dpapi | Rotación a 1 MB, máx 5          | `RotateIfNeeded()`                                  |
 | skill bls-secure-store-dpapi | Fallo historial no bloquea chat | `LoadAsync` devuelve vacío en error                 |
-| skill bls-logging-errors     | Nunca loguear API key           | Revisión de cada `logger.*` en la clase             |
+| AGENTS.md     | Nunca loguear API key           | Revisión de cada `logger.*` en la clase             |
 | PRD FR-08                    | Prompt si no existe             | El diálogo vive en UI, no en store                  |
 
 ---
@@ -620,15 +620,15 @@ se conserva (evita borrados accidentales).
 En este orden:
 
 1. `AGENTS.md` (regla 4 en particular).
-2. `.opencode/skills/bls-project-context/SKILL.md`.
+2. `AGENTS.md`.
 3. `.opencode/skills/bls-secure-store-dpapi/SKILL.md` (este dominio).
-4. `.opencode/skills/bls-logging-errors/SKILL.md` (nunca loguear la key).
+4. `AGENTS.md` (nunca loguear la key).
 5. `.opencode/skills/bls-testing-strategy/SKILL.md` (fakes, temp dirs).
 6. `docs/design/ADR-001-PROJECT-IDENTITY.md` (projectKey).
 
 Opcional:
-- `.opencode/skills/bls-nim-client-streaming/SKILL.md` (consumidor de la key).
-- `.opencode/skills/bls-winforms-threading/SKILL.md` (consumidor del historial).
+- `AGENTS.md` (consumidor de la key).
+- `AGENTS.md` (consumidor del historial).
 
 ---
 
@@ -675,7 +675,7 @@ Cuando Nemotron termine, el PR debe:
 - `docs/design/ADR-003-ABORT-MODEL.md` (marca `cancelled`).
 - `PRD.md` §3.5, §3.6, §7 FR-08, FR-10, §11.
 - `.opencode/skills/bls-secure-store-dpapi/SKILL.md`.
-- `.opencode/skills/bls-logging-errors/SKILL.md`.
+- `AGENTS.md`.
 - `.opencode/skills/bls-testing-strategy/SKILL.md`.
 ```
 
@@ -691,7 +691,7 @@ opencode --model nemotron-3-ultra \
 
 Lee en este orden:
 1. AGENTS.md
-2. .opencode/skills/bls-project-context/SKILL.md
+2. AGENTS.md
 3. docs/design/ADR-009-SECURE-STORE.md (el diseño)
 4. Los skills citados en §11 del diseño
 5. ADR-001 y ADR-003
@@ -710,11 +710,11 @@ opencode --model big-pickle \
 
 Lee:
 1. AGENTS.md
-2. .opencode/skills/bls-workflow-nemotron/SKILL.md (checklist de rechazo)
+2. AGENTS.md (checklist de rechazo)
 3. docs/design/ADR-009-SECURE-STORE.md (diseño)
 4. El diff del PR
 
-Aplica el checklist de rechazo del skill bls-workflow-nemotron.
+Aplica el checklist de rechazo del AGENTS.md.
 Presta especial atención a:
 - API key nunca en claro (log, JSON, excepciones).
 - DataProtectionScope.CurrentUser (no LocalMachine).

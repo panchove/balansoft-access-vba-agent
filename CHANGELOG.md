@@ -18,6 +18,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Removed (Fase 3, auditoria 2026-11-22)
+- Siete skills redundantes u obsoletos: `bls-workflow-nemotron` (describia
+  el flujo de dos modelos retirado en F1), `bls-logging-errors`,
+  `bls-nim-client-streaming`, `bls-project-context`,
+  `bls-registration-scripts`, `bls-vbe-automation` y `bls-winforms-threading`.
+- Aproximadamente 2.500 LOC de documentacion duplicada; quedan cuatro skills canonicos.
+
+### Changed
+- `skills_index` y la lista de documentos obligatorios de CI reducidos a 4 skills.
+- Las referencias historicas a skills retirados en ADRs y specs se redirigen
+  a `AGENTS.md` como fuente canonica de reglas.
+
 ### Added (Fase 2, auditoria 2026-11-22)
 - `BlsAuditChain.VerifyDirectory` y `SeedFor`: cadena SHA-256 entre dias, con
   compatibilidad para los logs legacy que empezaban con GENESIS cada dia.

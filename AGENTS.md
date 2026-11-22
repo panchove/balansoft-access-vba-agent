@@ -176,3 +176,20 @@ Requiere ADR (documentar por qué y evaluar compatibilidad net48/x86). No se agr
 3. Verificar: build Debug + Release en **x86 y x64** y suite de tests verde en ambas arquitecturas.
 4. PR → CI ejecuta 13 gates: build, tests (305/305 en x86 y x64), gobernanza IA (política, BOM, divulgación y agente único), fail-safe/HITL (kill switch + DbC), auditoría (JSONL, cadena SHA-256, correlación y saneamiento, F3), idempotencia y resiliencia (clave SHA-256, caché TTL/FIFO, jitter y breaker, F4), privacidad/supply chain/doc sync (scrubber, hash del prompt y catálogo, entropía derivada, F5), documentos obligatorios, ausencia de PIAs, aislamiento de `dynamic`, ausencia de `Thread.Sleep` en tests, tests de ADR, referencias cruzadas en MDs (incluye rutas de código e índice de specs).
 5. Merge a `main` → tag `v*` → release automático.
+
+## Skills consolidados (auditoría 2026-11-22, Fase 3)
+
+El workspace mantenía 11 skills (2.879 LOC) que duplicaban ADRs y specs; el skill
+`bls-workflow-nemotron` describía un flujo de dos modelos con `bls-implementer`
+que F1 había retirado. Se conservan solo cuatro skills canónicos:
+
+- `.opencode/skills/bls-com-late-binding/SKILL.md`
+- `.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md`
+- `.opencode/skills/bls-secure-store-dpapi/SKILL.md`
+- `.opencode/skills/bls-testing-strategy/SKILL.md`
+
+Los siete restantes se eliminaron y sus referencias históricas en ADRs y specs se
+redirigieron a este fichero, que es la fuente canónica de reglas. La gobernanza
+sigue siendo un agente único (`bls-architect`) con gates de CI; no hay handoffs
+entre modelos. `skills_index` y la lista de documentos obligatorios de CI se
+actualizaron en consecuencia.

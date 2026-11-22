@@ -191,17 +191,10 @@ jobs:
               "Directory.Build.props",
               ".runsettings",
               "Balansoft.AIAddin.slnx",
-              ".opencode/skills/bls-project-context/SKILL.md",
               ".opencode/skills/bls-com-late-binding/SKILL.md",
-              ".opencode/skills/bls-vbe-automation/SKILL.md",
-              ".opencode/skills/bls-nim-client-streaming/SKILL.md",
               ".opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md",
               ".opencode/skills/bls-secure-store-dpapi/SKILL.md",
-              ".opencode/skills/bls-winforms-threading/SKILL.md",
-              ".opencode/skills/bls-registration-scripts/SKILL.md",
-              ".opencode/skills/bls-logging-errors/SKILL.md",
               ".opencode/skills/bls-testing-strategy/SKILL.md",
-              ".opencode/skills/bls-workflow-nemotron/SKILL.md"
           )
 
           foreach ($f in $expected) {

@@ -45,7 +45,7 @@ El add-in falla al cargarse cuando Access está en modo runtime (.accde) porque 
 
 **Referencias**: 
 - ADR-001 (Identidad de proyecto)
-- .opencode/skills/bls-vbe-automation/SKILL.md
+- AGENTS.md
 - AGENTS.md regla 4
 
 ---
@@ -70,7 +70,7 @@ Durante streams de NIM prolongados (>30 minutos), el consumo de memoria del add-
 **Fecha de corrección estimada**: v1.2.0
 
 **Referencias**: 
-- .opencode/skills/bls-nim-client-streaming/SKILL.md
+- AGENTS.md
 - AGENTS.md regla 5 (errores reales)
 
 ---
@@ -95,7 +95,7 @@ El timeout de 120 segundos por chunk se reinicia incorrectamente cuando hay múl
 **Fecha de corrección estimada**: v1.1.1
 
 **Referencias**: 
-- .opencode/skills/bls-nim-client-streaming/SKILL.md
+- AGENTS.md
 - ADR-003 (Abort model)
 - AGENTS.md regla 5
 
@@ -217,7 +217,7 @@ En procesos host de Office 32-bit (.NET Framework 4.8), `ServicePointManager.Sec
 ---
 
 #
-## Próximo Bug ID disponible: BalanceSoft-016
+## Próximo Bug ID disponible: BalanceSoft-017
 
 ### Política de cierre de bugs
 1. Cuando se corrige un bug, se añade la fecha de corrección
@@ -265,3 +265,14 @@ Los tres bugs historicos siguen **abiertos**; la Fase 0 no los cerro porque no s
 **Descripcion**: `BlsAuditChain.Verify` solo se usaba en tests; cada fichero diario empezaba con `GENESIS`, por lo que borrar un dia completo era indetectable. Ademas `BlsLogger` silenciaba los fallos de escritura con un `catch { }` y ADR-005 tenia solo precondiciones.
 
 **Correccion**: `VerifyDirectory` + `SeedFor` encadenan los dias; `AddinConnect` verifica al arranque y dispara el kill switch si la cadena esta rota; `LastWriteError` expone el fallo; se anaden postcondiciones e invariantes. El next bug ID pasa a BalanceSoft-016.
+### Bug #16: BalanceSoft-016
+**Titulo**: Skill de workflow con orquestacion de modelos retirada
+**Gravedad**: Medium
+**Area**: Documentacion | .opencode/skills
+**Fecha**: 2026-11-22
+**Reporte por**: Auditoria de gobernanza (asistida por IA)
+**Estado**: Fixed in v1.1.0
+
+**Descripcion**: once skills con 2.879 LOC duplicaban ADRs y specs. `bls-workflow-nemotron` describia handoffs con `bls-implementer` y un modelo de dos agentes que F1 habia retirado, contradiciendo el agente unico y generando deriva documental.
+
+**Correccion**: eliminados siete skills; los cuatro restantes son canonicos. `skills_index` y la lista de documentos obligatorios de CI actualizados; referencias historicas redirigidas a AGENTS.md. Next bug ID: BalanceSoft-017.

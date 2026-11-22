@@ -114,3 +114,6 @@ Evidencia: 8 tests nuevos (`JsonRpcSafetyTests`, `BlsPipeSecurityTests`), 305/30
 La cadena SHA-256 era verificable solo en tests. Ahora se verifica al arranque, abarca varios dias y un fallo dispara el kill switch. Los fallos de escritura dejan de silenciarse y ADR-005 incorpora postcondiciones e invariantes.
 
 Evidencia: 10 tests nuevos (`BlsAuditChainDirectoryTests`, `BlsPostconditionTests`), 305/305 verdes en x86, gate 8d ampliado. CS-008 y CS-009 quedan cerrados; quedan abiertos los hallazgos de las fases 3 y 4 del plan.
+## 9. Fase 3 - simplificacion documental (2026-11-22)
+
+El hallazgo H7 de la auditoria (skills con orquestacion retirada) queda cerrado: de 11 skills se pasa a 4 canonicos, sin referencias a `bls-implementer` ni handoffs entre modelos. El gate 3 sigue exigiendo `agents_index = 1` y el gate 8 la presencia de los cuatro skills. No se cierra ningun riesgo R-* nuevo.

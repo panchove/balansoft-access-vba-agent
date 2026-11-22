@@ -347,7 +347,7 @@ Estos puntos del diagnóstico inicial ya no son deuda; se resuelven con
 - **`msbuild` de Visual Studio no sirve** en un equipo con VS/BuildTools sin el
   workload de .NET: falla con MSB4236 al no resolver `Microsoft.NET.Sdk`. El
   comando canónico es `dotnet build`.
-- **Referencias cruzadas**: los ficheros apuntaban al skill bls-workflow-nemotron con otro nombre
+- **Referencias cruzadas**: los ficheros apuntaban al AGENTS.md con otro nombre
   y `AGENTS.md` a un nombre de skills que no existe. Corregidos; el gate de
   referencias pasa.
 

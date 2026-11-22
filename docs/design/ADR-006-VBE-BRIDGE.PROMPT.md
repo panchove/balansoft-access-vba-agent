@@ -19,11 +19,11 @@ Estado del repo: scaffolding completo, sin código de implementación aún.
 LECTURA OBLIGATORIA (en este orden)
 ===================================
 1. AGENTS.md
-2. .opencode/skills/bls-project-context/SKILL.md
+2. AGENTS.md
 3. .opencode/skills/bls-com-late-binding/SKILL.md
-4. .opencode/skills/bls-vbe-automation/SKILL.md
+4. AGENTS.md
 5. .opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md
-6. .opencode/skills/bls-logging-errors/SKILL.md
+6. AGENTS.md
 7. .opencode/skills/bls-testing-strategy/SKILL.md
 8. docs/design/ADR-002-PIPE-FRAMING.md
 9. docs/design/ADR-003-ABORT-MODEL.md

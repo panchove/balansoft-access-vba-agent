@@ -224,9 +224,9 @@ internal static class NimHttpRequestBuilder
 | PRD FR-09                         | Timeout 120s              | Timeout por chunk con `CancelAfter(120s)`                                          |
 | PRD FR-09                         | Tool calls via bridge     | El cliente **no** ejecuta; emite `OnToolCall`                                      |
 | PRD FR-09                         | Reconexión                | Retry con backoff 1s/2s/4s en 429/5xx                                              |
-| skill bls-nim-client-streaming §1 | HttpClient único          | Inyectado, no creado por request                                                   |
-| skill bls-nim-client-streaming §2 | `ResponseHeadersRead`     | Forzado en `HttpRequestMessage`                                                    |
-| skill bls-nim-client-streaming §4 | Tool_calls por `index`    | `NimStreamParser` acumula por índice                                               |
+| AGENTS.md §1 | HttpClient único          | Inyectado, no creado por request                                                   |
+| AGENTS.md §2 | `ResponseHeadersRead`     | Forzado en `HttpRequestMessage`                                                    |
+| AGENTS.md §4 | Tool_calls por `index`    | `NimStreamParser` acumula por índice                                               |
 
 ---
 
@@ -482,15 +482,15 @@ Prioridad explícita para permitir tests deterministas.
 En este orden:
 
 1. `AGENTS.md` (reglas duras).
-2. `.opencode/skills/bls-project-context/SKILL.md` (contexto general).
-3. `.opencode/skills/bls-nim-client-streaming/SKILL.md` (este dominio).
+2. `AGENTS.md` (contexto general).
+3. `AGENTS.md` (este dominio).
 4. `.opencode/skills/bls-secure-store-dpapi/SKILL.md` (origen de la API key).
-5. `.opencode/skills/bls-logging-errors/SKILL.md` (excepciones tipadas).
+5. `AGENTS.md` (excepciones tipadas).
 6. `.opencode/skills/bls-testing-strategy/SKILL.md` (fake HttpMessageHandler).
 7. `docs/design/ADR-003-ABORT-MODEL.md` (cancelación vs timeout).
 
 Opcional:
-- `.opencode/skills/bls-winforms-threading/SKILL.md` (cómo la terminal consume
+- `AGENTS.md` (cómo la terminal consume
   los eventos).
 
 ---
@@ -537,11 +537,11 @@ Cuando Nemotron termine, el PR debe:
 - `AGENTS.md` reglas 4, 5, 10.
 - `docs/design/ADR-003-ABORT-MODEL.md`.
 - `PRD.md` §3.3, §7 FR-09, §11.
-- `.opencode/skills/bls-nim-client-streaming/SKILL.md`.
+- `AGENTS.md`.
 - `.opencode/skills/bls-secure-store-dpapi/SKILL.md`.
-- `.opencode/skills/bls-logging-errors/SKILL.md`.
+- `AGENTS.md`.
 - `.opencode/skills/bls-testing-strategy/SKILL.md`.
-- `.opencode/skills/bls-winforms-threading/SKILL.md`.
+- `AGENTS.md`.
 ```
 
 ---
@@ -556,7 +556,7 @@ opencode --model nemotron-3-ultra \
 
 Lee en este orden:
 1. AGENTS.md
-2. .opencode/skills/bls-project-context/SKILL.md
+2. AGENTS.md
 3. docs/design/ADR-007-NIM-CLIENT.md (el diseño)
 4. Los skills citados en §11 del diseño
 5. Los ADRs referenciados en §14 del diseño
@@ -574,15 +574,15 @@ opencode --model big-pickle \
 
 Lee:
 1. AGENTS.md
-2. .opencode/skills/bls-workflow-nemotron/SKILL.md (checklist de rechazo)
+2. AGENTS.md (checklist de rechazo)
 3. docs/design/ADR-007-NIM-CLIENT.md (diseño)
 4. El diff del PR
 
-Aplica el checklist de rechazo del skill bls-workflow-nemotron.
+Aplica el checklist de rechazo del AGENTS.md.
 Presta especial atención a:
 - Cancelación ≠ timeout (ADR-003).
-- HttpClient único (skill bls-nim-client-streaming §1).
-- API key nunca en log (skill bls-nim-client-streaming §anti-patrones).
+- HttpClient único (AGENTS.md §1).
+- API key nunca en log (AGENTS.md §anti-patrones).
 
 Si todo pasa, aprueba con 'LGTM'. Si algo falla, indica la regla violada."
 ```

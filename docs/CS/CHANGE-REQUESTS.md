@@ -153,3 +153,14 @@ tags: [change-requests, iso-12207, modification-process, square]
 * **Estado**: `Implementado en v1.1.0`
 * **Justificacion**: la cadena SHA-256 solo se verificaba en tests y se reiniciaba cada dia; ADR-005 exigia los tres tipos de contrato.
 * **Detalle de implementacion**: `VerifyDirectory`/`SeedFor`, verificacion al arranque con kill switch, `LastWriteError`, postcondiciones e invariantes, 10 tests nuevos y gate 8d reforzado.
+---
+
+### CR-009: Consolidacion de skills y sincronizacion documental
+* **ID**: `CR-009`
+* **Titulo**: Reducir 11 skills a 4 y eliminar el workflow de dos modelos
+* **Prioridad**: Media
+* **Area**: `.opencode/skills`, `docs`, `.github/workflows/ci.yml`
+* **Fecha**: 2026-11-22
+* **Estado**: `Implementado en v1.1.0`
+* **Justificacion**: sobreingenieria documental detectada en la auditoria; duplicidad con ADRs y presencia de un workflow retirado.
+* **Detalle**: siete skills eliminados, referencias redirigidas a `AGENTS.md`, indices y gates actualizados.

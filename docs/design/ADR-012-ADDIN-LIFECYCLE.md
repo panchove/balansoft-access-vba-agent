@@ -65,9 +65,9 @@ Cubre:
 Y materializa:
 - AGENTS.md reglas 1, 2, 3, 5.
 - ADR-002, ADR-003 (aplicados al shutdown).
-- skill bls-vbe-automation (`AttachVbe`, `GetVbeHwnd`, menú Tools).
-- skill bls-winforms-threading (una sola terminal, cierre limpio).
-- skill bls-logging-errors (log de arranque, captura global).
+- AGENTS.md (`AttachVbe`, `GetVbeHwnd`, menú Tools).
+- AGENTS.md (una sola terminal, cierre limpio).
+- AGENTS.md (log de arranque, captura global).
 
 ---
 
@@ -256,9 +256,9 @@ internal interface IAddinLifecycleObserver
 | PRD FR-01                                | Tolerante a `COMException`    | `try/catch` en cada callback                       |
 | PRD FR-01                                | Tolerante a `VBE == null`     | `VbeAttachResult`                                  |
 | PRD FR-05                                | Menú Tools                    | `BlsVbeMenuManager.EnsureMenu` tras VBE            |
-| skill bls-winforms-threading §1          | Una sola terminal             | Gestionada por `BlsNimTerminal.ShowOrFocus`        |
-| skill bls-logging-errors §Captura global | Handlers al arranque          | `GlobalExceptionHandlers.Register`                 |
-| skill bls-vbe-automation                 | `AttachVbe` antes de bridge   | Orden explícito en `AddinServiceContainer`         |
+| AGENTS.md §1          | Una sola terminal             | Gestionada por `BlsNimTerminal.ShowOrFocus`        |
+| AGENTS.md §Captura global | Handlers al arranque          | `GlobalExceptionHandlers.Register`                 |
+| AGENTS.md                 | `AttachVbe` antes de bridge   | Orden explícito en `AddinServiceContainer`         |
 
 ---
 
@@ -805,15 +805,15 @@ En producción se usa `NullLifecycleObserver` (no-op). En tests, un
 En este orden:
 
 1. `AGENTS.md` (reglas 1, 2, 3, 5).
-2. `.opencode/skills/bls-project-context/SKILL.md`.
+2. `AGENTS.md`.
 3. `.opencode/skills/bls-com-late-binding/SKILL.md` (`Application` como
    `dynamic`).
-4. `.opencode/skills/bls-vbe-automation/SKILL.md` (`AttachVbe`, menú Tools).
-5. `.opencode/skills/bls-winforms-threading/SKILL.md` (UI scheduler, cierre
+4. `AGENTS.md` (`AttachVbe`, menú Tools).
+5. `AGENTS.md` (UI scheduler, cierre
    limpio).
-6. `.opencode/skills/bls-registration-scripts/SKILL.md` (verificación en
+6. `AGENTS.md` (verificación en
    runtime).
-7. `.opencode/skills/bls-logging-errors/SKILL.md` (log de arranque, handlers
+7. `AGENTS.md` (log de arranque, handlers
    globales).
 8. `.opencode/skills/bls-testing-strategy/SKILL.md` (fakes, observer).
 9. `docs/design/ADR-003-ABORT-MODEL.md` (shutdown con turno activo).
@@ -891,10 +891,10 @@ Cuando Nemotron termine, el PR debe:
 - `docs/design/ADR-010-REGISTRATION-SCRIPTS.md`.
 - `docs/design/ADR-011-LOGGING-VERSION.md`.
 - `.opencode/skills/bls-com-late-binding/SKILL.md`.
-- `.opencode/skills/bls-vbe-automation/SKILL.md`.
-- `.opencode/skills/bls-winforms-threading/SKILL.md`.
-- `.opencode/skills/bls-registration-scripts/SKILL.md`.
-- `.opencode/skills/bls-logging-errors/SKILL.md`.
+- `AGENTS.md`.
+- `AGENTS.md`.
+- `AGENTS.md`.
+- `AGENTS.md`.
 - `.opencode/skills/bls-testing-strategy/SKILL.md`.
 ```
 
@@ -910,7 +910,7 @@ opencode --model nemotron-3-ultra \
 
 Lee en este orden:
 1. AGENTS.md
-2. .opencode/skills/bls-project-context/SKILL.md
+2. AGENTS.md
 3. docs/design/ADR-012-ADDIN-LIFECYCLE.md (el diseño)
 4. Los skills citados en §13 del diseño
 5. Los 6 docs de diseño previos citados en §16
@@ -936,11 +936,11 @@ opencode --model big-pickle \
 
 Lee:
 1. AGENTS.md
-2. .opencode/skills/bls-workflow-nemotron/SKILL.md (checklist de rechazo)
+2. AGENTS.md (checklist de rechazo)
 3. docs/design/ADR-012-ADDIN-LIFECYCLE.md (diseño)
 4. El diff del PR
 
-Aplica el checklist de rechazo del skill bls-workflow-nemotron.
+Aplica el checklist de rechazo del AGENTS.md.
 Presta especial atención a:
 - OnConnection sin lógica pesada (FR-01).
 - Tolerancia a VBE == null y COMException (FR-01).

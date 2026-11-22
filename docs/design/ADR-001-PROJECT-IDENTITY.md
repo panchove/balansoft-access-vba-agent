@@ -151,7 +151,7 @@ legibilidad (128 bits efectivos, colisión despreciable en este dominio).
 
 ## Referencias
 - PRD §3.6 (historial persistente), §7 FR-10.
-- `.opencode/skills/bls-project-context/SKILL.md` (resumen de la decisión).
-- `.opencode/skills/bls-vbe-automation/SKILL.md` (dónde se implementa).
+- `AGENTS.md` (resumen de la decisión).
+- `AGENTS.md` (dónde se implementa).
 - `.opencode/skills/bls-secure-store-dpapi/SKILL.md` (cómo se usa para el archivo).
 - `.opencode/skills/bls-testing-strategy/SKILL.md` (tests obligatorios).
