@@ -1592,7 +1592,9 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         {
             args = default;
         }
-        var canonicalArgsJson = args.ValueKind == JsonValueKind.Undefined ? "{}" : args.GetRawText();
+        var canonicalArgsJson = args.ValueKind == JsonValueKind.Undefined
+            ? "{}"
+            : JsonSerializer.SerializeToElement(args).GetRawText();
         // F2 · Capa 0 — fail-safe: el kill switch se evalúa ANTES de cualquier efecto.
         try
         {
@@ -1634,7 +1636,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             {
                 authorizationToken = _authorization.Issue(
                     call.Name,
-                    BlsCorrelationContext.CorrelationId,
+                    null,
                     BlsApprovalRequest.Create(call.Name, risk, canonicalArgsJson).PayloadSha256);
             }
 

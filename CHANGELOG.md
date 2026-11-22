@@ -17,6 +17,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Corregido HITL_DENIED en el flujo normal: el token ya no se vincula al correlation_id (que puede diferir entre hilos) y el hash del payload se canoniza igual en terminal y bridge. El log indica motivo del rechazo.
 - El endpoint acepta la URL base (/v1/) o la completa (/v1/chat/completions); ambas se normalizan.
 - Dialogo de ajustes ampliado: temperatura, max tokens, max herramientas por
   turno, endpoint NIM e idioma, persistidos en settings.json (sin secretos).
@@ -65,7 +66,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - `Nerdbank.GitVersioning` fijado a 3.6.146 (antes version flotante 3.6.*).
 - SHA-256 del system prompt actualizado en el AI-BOM.
-- 5 tests nuevos; suite 328/328 en x86 y x64.
+- 5 tests nuevos; suite 329/329 en x86 y x64.
 
 ### Removed (Fase 3, auditoria 2026-11-22)
 - Siete skills redundantes u obsoletos: `bls-workflow-nemotron` (describia

@@ -86,7 +86,7 @@ namespace Balansoft.AIAddin.Tests.Core.Protocol
             var risk = new BlsToolRiskPolicy().GetRisk(method);
             return _authorization.Issue(
                 method,
-                "turno-1",
+                null,
                 BlsApprovalRequest.Create(method, risk, payload).PayloadSha256);
         }
 
@@ -178,6 +178,35 @@ namespace Balansoft.AIAddin.Tests.Core.Protocol
             Assert.AreEqual(JsonRpcErrorCodes.ToolIterationLimit, c.Error.Code);
         }
 
+        [TestMethod]
+        public async Task FlujoReal_TokenDeTerminal_EjecutaSinHitlDenied()
+        {
+            var registry = new BlsToolAuthorizationRegistry();
+            var localVbe = new MockVbe();
+            localVbe.Modules.Add("Mod1");
+            localVbe.Code["Mod1"] = string.Empty;
+            var dispatcher = new JsonRpcDispatcher(
+                localVbe, _access, _ui, _logger,
+                new BlsIdempotencyCache(), registry, new BlsSafetyGate());
+
+            using var argsDoc = JsonDocument.Parse("{\"name\":\"Mod1\",\"code\":\"Sub A()\"}");
+            var args = argsDoc.RootElement.Clone();
+            // exactamente lo que hace BlsBridgeClient y la terminal
+            var canonical = JsonSerializer.SerializeToElement(args).GetRawText();
+            var risk = new BlsToolRiskPolicy().GetRisk("write_module");
+            var token = registry.Issue(
+                "write_module", null,
+                BlsApprovalRequest.Create("write_module", risk, canonical).PayloadSha256);
+
+            var request = new JsonRpcRequest(
+                "2.0", JsonSerializer.SerializeToElement(1L), "write_module",
+                JsonSerializer.SerializeToElement(args), null, null, null, token);
+
+            var response = await dispatcher.DispatchAsync(request, CancellationToken.None);
+
+            Assert.IsNull(response.Error, response.Error?.Message);
+            CollectionAssert.Contains(localVbe.ExecutedMethods, "write_module");
+        }
         [TestMethod]
         public void Registro_TokenCaducado_NoValida()
         {

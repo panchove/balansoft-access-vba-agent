@@ -182,12 +182,12 @@ public sealed class JsonRpcDispatcher
             if (!_authorization.Validate(
                     request.AuthorizationToken,
                     request.Method,
-                    request.CorrelationId,
+                    null,
                     approval.PayloadSha256))
             {
                 _logger.Warn(
                     "HITL",
-                    $"Tool {request.Method} denegada en bridge; bridge NO invocado (payload_sha256={approval.PayloadSha256})");
+                    $"Tool {request.Method} denegada en bridge; token={(string.IsNullOrEmpty(request.AuthorizationToken) ? "AUSENTE" : request.AuthorizationToken.Substring(0, 8))} correlation={request.CorrelationId} payload_sha256={approval.PayloadSha256}");
                 return JsonRpcResponse.CreateError(request.Id, new JsonRpcError(
                     JsonRpcErrorCodes.HitlDenied,
                     $"HITL_DENIED: accion no autorizada en el bridge",
