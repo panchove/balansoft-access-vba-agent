@@ -600,8 +600,17 @@ jobs:
           }
 
           $bom = Get-Content (Join-Path $root "docs/governance/AI-BOM.md") -Raw
-          $promptHash = (Get-FileHash -Algorithm SHA256 (Join-Path $root "src/Balansoft.AIAddin.Access/UI/SystemPromptBuilder.cs")).Hash
-          $catalogHash = (Get-FileHash -Algorithm SHA256 (Join-Path $root "src/Balansoft.AIAddin.Access/Helpers/BlsModelCatalog.cs")).Hash
+          # Hash normalizado: el checkout de GitHub usa CRLF y el repositorio LF.
+          # Sin esta normalizacion el gate falla aunque el contenido sea identico.
+          function Get-NormalizedFileHash([string]$path) {
+              $text = [System.IO.File]::ReadAllText($path)
+              $normalized = $text.Replace("`r`n", "`n")
+              $sha = [System.Security.Cryptography.SHA256]::Create()
+              $bytes = $sha.ComputeHash([System.Text.Encoding]::UTF8.GetBytes($normalized))
+              return ([System.BitConverter]::ToString($bytes)).Replace("-", "")
+          }
+          $promptHash = Get-NormalizedFileHash (Join-Path $root "src/Balansoft.AIAddin.Access/UI/SystemPromptBuilder.cs")
+          $catalogHash = Get-NormalizedFileHash (Join-Path $root "src/Balansoft.AIAddin.Access/Helpers/BlsModelCatalog.cs")
           if (-not $bom.Contains($promptHash)) { $errors += "AI-BOM: hash del prompt desactualizado ($promptHash)" }
           if (-not $bom.Contains($catalogHash)) { $errors += "AI-BOM: hash del catálogo desactualizado ($catalogHash)" }
           if (-not $bom.Contains($modelLiteral)) { $errors += "AI-BOM: falta el modelo exacto" }

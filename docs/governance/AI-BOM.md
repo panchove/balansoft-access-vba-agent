@@ -31,7 +31,7 @@ tags: [ai-bom, sbom, supply-chain, model-inventory]
 |----------------------|-------------------------------------------------------------------------------|
 | Identificador        | `PROMPT-v1.0`                                                                 |
 | Fuente               | `src/Balansoft.AIAddin.Access/UI/SystemPromptBuilder.cs`                      |
-| SHA-256              | `64B29527A270A480AFB15C4CA98291A1D7E0410D1295BC508E600430A9452716`            |
+| SHA-256              | `05F99B89B0C555F9E283F0559391BB8A63DD33C4762E4DB5C376801E43737478`            |
 | Verificación         | Gate de CI 8f recalcula el hash en cada PR y falla si hay deriva               |
 | Idioma de respuesta  | Español (constante embebida)                                                  |
 | Contexto inyectado   | Nombre/ProjectKey del proyecto, conteos de objetos y selección VBE (≤32 KB) ⚠️ |
