@@ -32,7 +32,17 @@ namespace Balansoft.AIAddin.Tests.Core.Protocol
         private BlsSafetyGate _safetyGate = null!;
         private JsonRpcDispatcher _dispatcher = null!;
 
-        [TestInitialize]
+        private sealed class NoOpIdempotencyCache : IBlsIdempotencyCache
+    {
+        public bool TryGet(string key, out JsonRpcResponse? response)
+        {
+            response = null;
+            return false;
+        }
+
+        public void Store(string key, JsonRpcResponse response) { }
+    }
+    [TestInitialize]
         public void Setup()
         {
             _vbe = new MockVbe();
@@ -110,11 +120,14 @@ namespace Balansoft.AIAddin.Tests.Core.Protocol
         [TestMethod]
         public async Task TokenDeUnSoloUso_SegundoFrameQuedaDenegado()
         {
+            var dispatcher = new JsonRpcDispatcher(
+                _vbe, _access, _ui, _logger,
+                new NoOpIdempotencyCache(), _authorization, _safetyGate);
             var token = Issue("delete_module", new { name = "Mod1", confirm = true });
             var request = Request("delete_module", new { name = "Mod1", confirm = true }, authorizationToken: token);
 
-            var first = await _dispatcher.DispatchAsync(request, CancellationToken.None);
-            var second = await _dispatcher.DispatchAsync(request, CancellationToken.None);
+            var first = await dispatcher.DispatchAsync(request, CancellationToken.None);
+            var second = await dispatcher.DispatchAsync(request, CancellationToken.None);
 
             Assert.IsNull(first.Error);
             Assert.IsNotNull(second.Error);

@@ -50,7 +50,7 @@ namespace Balansoft.AIAddin.Helpers
         public void Warn(string component, string message, Exception? ex = null) => Write("WARN", component, message, ex);
         public void Error(string component, string message, Exception? ex = null) => Write("ERROR", component, message, ex);
 
-        private void Write(string level, string component, string message, Exception? ex)
+        private void Write(string level, string component, string message, Exception? ex, Action<Utf8JsonWriter>? extra = null)
         {
             if (_disposed) return;
 
@@ -89,7 +89,7 @@ namespace Balansoft.AIAddin.Helpers
                     var detail = ex == null ? null : BlsLogSanitizer.DescribeException(ex);
                     var payload = BuildPayload(
                         timestamp, level, component, message,
-                        correlationId, traceId, detail, prevHash);
+                        correlationId, traceId, detail, prevHash, extra);
 
                     var hash = BlsAuditChain.ComputeHash(prevHash, payload);
                     var line = payload.Substring(0, payload.Length - 1) + ",\"hash\":\"" + hash + "\"}";
@@ -129,7 +129,8 @@ namespace Balansoft.AIAddin.Helpers
             string correlationId,
             string traceId,
             BlsExceptionDetail? detail,
-            string prevHash)
+            string prevHash,
+            Action<Utf8JsonWriter>? extra)
         {
             using var stream = new MemoryStream();
             using (var json = new Utf8JsonWriter(stream, new JsonWriterOptions { Indented = false }))
@@ -152,6 +153,7 @@ namespace Balansoft.AIAddin.Helpers
                     json.WriteEndObject();
                 }
 
+                if (extra != null) extra(json);
                 json.WriteString("prev_hash", prevHash);
                 json.WriteEndObject();
             }
@@ -159,6 +161,24 @@ namespace Balansoft.AIAddin.Helpers
             return Encoding.UTF8.GetString(stream.ToArray());
         }
 
+        /// <summary>
+        /// Emite una instantanea SLO como evento JSONL estructurado (Pilar 20).
+        /// El hash de la cadena cubre tambien este evento.
+        /// </summary>
+        public void EmitSloSnapshot(BlsSloSnapshot snapshot)
+        {
+            BlsContract.RequiresNotNull(snapshot, nameof(snapshot));
+            Write("INFO", "SLO", "slo_snapshot", null, json =>
+            {
+                json.WriteStartObject("slo");
+                json.WriteNumber("write_success_rate", snapshot.WriteSuccessRate);
+                json.WriteNumber("write_p95_ms", snapshot.WriteP95Ms);
+                json.WriteNumber("turn_success_rate", snapshot.TurnSuccessRate);
+                json.WriteNumber("tool_rejections", snapshot.ToolRejections);
+                json.WriteBoolean("within_slo", snapshot.IsWithinSlo);
+                json.WriteEndObject();
+            });
+        }
         /// <summary>
         /// Verifica la cadena completa de todos los dias. Al arranque, un
         /// resultado invalido debe disparar el kill switch antes de cualquier

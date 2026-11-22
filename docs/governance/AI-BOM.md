@@ -31,7 +31,7 @@ tags: [ai-bom, sbom, supply-chain, model-inventory]
 |----------------------|-------------------------------------------------------------------------------|
 | Identificador        | `PROMPT-v1.0`                                                                 |
 | Fuente               | `src/Balansoft.AIAddin.Access/UI/SystemPromptBuilder.cs`                      |
-| SHA-256              | `3A8CD21FAF891BB0B5D4B74EDAEFEA361C44726336B0C17935BF90EAB4F73E37`            |
+| SHA-256              | `E388FF6A16D126E559332B549C94C96D948C47AE41CDAEF5ADEE082773C62CB1`            |
 | Verificación         | Gate de CI 8f recalcula el hash en cada PR y falla si hay deriva               |
 | Idioma de respuesta  | Español (constante embebida)                                                  |
 | Contexto inyectado   | Nombre/ProjectKey del proyecto, conteos de objetos y selección VBE (≤32 KB) ⚠️ |
@@ -131,7 +131,7 @@ literal único del modelo, ausencia de carga dinámica y registro de specs).
 
 ## 7. Brechas conocidas
 
-1. Sin SBOM de dependencias NuGet generado automáticamente en CI.
+1. ~~Sin SBOM de dependencias NuGet generado automáticamente en CI.~~ Resuelto en Fase 4: `scripts/GenerateSbom.ps1` y artefacto `sbom-*` en CI.
 2. El endpoint sigue documentado en varios artefactos; no se carga en runtime,
    pero no tiene todavía una constante única verificada en CI.
 3. Sin residencia de datos declarada por el proveedor (⚠️ en §1).

@@ -156,20 +156,19 @@ public sealed class JsonRpcDispatcher
 
         // F4 - Solo se deduplican escrituras (Medium/High). Las lecturas se
         // ejecutan siempre para no devolver un estado obsoleto del VBE.
+        // Fase 4: la clave se deriva en el servidor desde correlation_id,
+        // metodo y parametros. No se confia en la clave del cliente (R-06).
         string? idempotencyKey = null;
-        if (!string.IsNullOrWhiteSpace(request.IdempotencyKey)
-            && RiskPolicy.GetRisk(request.Method) != BlsToolRisk.Low
-            && _idempotency.TryGet(request.IdempotencyKey, out var cached)
-            && cached != null)
+        if (RiskPolicy.GetRisk(request.Method) != BlsToolRisk.Low)
         {
-            _logger.Info("JsonRpcDispatcher",
-                $"idempotency hit key={ShortKey(request.IdempotencyKey)} method={request.Method} correlation_id={correlationScope.CorrelationId}");
-            return cached with { Id = request.Id, IdempotentReplay = true };
-        }
-
-        if (!string.IsNullOrWhiteSpace(request.IdempotencyKey))
-        {
-            idempotencyKey = request.IdempotencyKey;
+            var derivedKey = BlsIdempotencyKey.For(request.Method, request.Params, request.CorrelationId);
+            if (_idempotency.TryGet(derivedKey, out var cached) && cached != null)
+            {
+                _logger.Info("JsonRpcDispatcher",
+                    $"idempotency hit key={ShortKey(derivedKey)} method={request.Method} correlation_id={correlationScope.CorrelationId}");
+                return cached with { Id = request.Id, IdempotentReplay = true };
+            }
+            idempotencyKey = derivedKey;
         }
 
         // Fase 1 - HITL en la frontera del pipe. El token solo lo emite la

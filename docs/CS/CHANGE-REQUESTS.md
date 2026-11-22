@@ -164,3 +164,14 @@ tags: [change-requests, iso-12207, modification-process, square]
 * **Estado**: `Implementado en v1.1.0`
 * **Justificacion**: sobreingenieria documental detectada en la auditoria; duplicidad con ADRs y presencia de un workflow retirado.
 * **Detalle**: siete skills eliminados, referencias redirigidas a `AGENTS.md`, indices y gates actualizados.
+---
+
+### CR-010: Endurecimiento final de resiliencia, privacidad y supply chain
+* **ID**: `CR-010`
+* **Titulo**: Timeout global, contexto no confiable, NIF/IBAN, SBOM y SLO estructurado
+* **Prioridad**: Alta
+* **Area**: `Core/Protocol`, `UI`, `Helpers`, `scripts`, CI
+* **Fecha**: 2026-11-22
+* **Estado**: `Implementado en v1.1.0`
+* **Justificacion**: cierre de los hallazgos pendientes de la auditoria de gobernanza.
+* **Detalle**: clave de idempotencia derivada en servidor; timeout global de turno; delimitacion del contexto VBE; NIF/IBAN; NBGV 3.6.146 fijo; `GenerateSbom.ps1`; `EmitSloSnapshot`; hash del prompt actualizado en el AI-BOM.

@@ -146,7 +146,7 @@ public class JsonRpcIdempotencyTests
     }
 
     [TestMethod]
-    public async Task Idempotency_SinClave_SeEjecutaSiempre()
+    public async Task Idempotency_SinClaveDelCliente_ServidorLaDerivaYDeduplica()
     {
         var dispatcher = CreateDispatcher();
         var parameters = WriteParams();
@@ -156,8 +156,8 @@ public class JsonRpcIdempotencyTests
         await dispatcher.DispatchAsync(
             CreateRequest("write_module", 2, parameters), CancellationToken.None);
 
-        Assert.AreEqual(2, _vbe.ExecutedMethods.Count(m => m == "write_module"),
-            "Compatibilidad hacia atrás: sin clave no hay deduplicación.");
+        Assert.AreEqual(1, _vbe.ExecutedMethods.Count(m => m == "write_module"),
+            "Fase 4: el servidor deriva la clave aunque el cliente no la envie.");
     }
 
     [TestMethod]

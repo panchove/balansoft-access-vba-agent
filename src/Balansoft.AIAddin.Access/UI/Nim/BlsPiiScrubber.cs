@@ -70,6 +70,14 @@ public static class BlsPiiScrubber
             "[IPV4]",
             @"\b(?:\d{1,3}\.){3}\d{1,3}\b"),
         new Rule(
+            "IBAN",
+            "[IBAN]",
+            @"\bES\d{22}\b"),
+        new Rule(
+            "NIF",
+            "[NIF]",
+            @"\b[0-9XYZ][0-9]{7}[A-Z]\b"),
+        new Rule(
             "PHONE",
             "[PHONE]",
             @"(?<!\d)(?:\+?\d{1,3}[\s.\-]?)?(?:\(\d{2,4}\)[\s.\-]?)?\d{3,4}[\s.\-]\d{3,4}(?!\d)")

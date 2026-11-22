@@ -121,3 +121,13 @@ propaga `BlsSecureStoreException` con la excepción original como inner.
 ## Verificación
 
 `specs/019-PRIVACY-SUPPLY-CHAIN-CONFIG.md` §4 y el reporte del gate F5.
+
+## Fase 4 - Inyeccion de contexto, PII y Supply Chain (2026-11-22)
+
+- `SystemPromptBuilder` envuelve el nombre de modulo y la seleccion VBE en `<untrusted_vbe_context>...</untrusted_vbe_context>` y anade la regla explicita de que ese contenido es dato, no instruccion (OWASP ASI04). Antes el texto del editor se concatenaba directamente en el system prompt.
+- `BlsPiiScrubber` anade reglas para NIF/NIE espanol (`[NIF]`) e IBAN espanol (`[IBAN]`).
+- `Nerdbank.GitVersioning` se fija a la version exacta 3.6.146 (antes `3.6.*`) y `scripts/GenerateSbom.ps1` genera un SBOM de las dependencias NuGet restauradas; CI lo publica como artefacto.
+- `BlsLogger.EmitSloSnapshot` emite la instantanea SLO como objeto `slo` dentro del evento JSONL, cubierto por la cadena SHA-256 (Pilar 20).
+- Se actualizo el SHA-256 del prompt en el AI-BOM tras cambiar el system prompt.
+
+Evidencia: `PromptAndPrivacyHardeningTests` (4), `IdempotencyBoundaryTests` (1), 310/310 verdes, gate 8f con tokens de regresion.

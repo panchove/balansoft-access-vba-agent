@@ -18,6 +18,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added (Fase 4, auditoria 2026-11-22)
+- Clave de idempotencia derivada en el servidor: las claves del cliente se ignoran.
+- Timeout global de turno (5 min) y `HttpClient.Timeout` explicito (10 min).
+- Delimitacion `<untrusted_vbe_context>` en el system prompt y reglas `[NIF]`/`[IBAN]`.
+- `scripts/GenerateSbom.ps1`: SBOM de dependencias NuGet publicado en CI.
+- `BlsLogger.EmitSloSnapshot`: metricas SLO como evento JSONL cubierto por la cadena SHA-256.
+
+### Changed
+- `Nerdbank.GitVersioning` fijado a 3.6.146 (antes version flotante 3.6.*).
+- SHA-256 del system prompt actualizado en el AI-BOM.
+- 5 tests nuevos; suite 310/310 en x86 y x64.
+
 ### Removed (Fase 3, auditoria 2026-11-22)
 - Siete skills redundantes u obsoletos: `bls-workflow-nemotron` (describia
   el flujo de dos modelos retirado en F1), `bls-logging-errors`,

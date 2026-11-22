@@ -72,6 +72,9 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     /// <summary>Tope de vueltas de herramientas por turno, para no entrar en bucle infinito.</summary>
     private const int MaxToolIterations = 8;
 
+    /// <summary>Timeout global del turno: sustituye al timeout por chunk que se reiniciaba (BalanceSoft-003).</summary>
+    private static readonly TimeSpan TurnTimeout = TimeSpan.FromMinutes(5);
+
     private readonly IBlsNimClient _nimClient;
     private readonly IBlsBridgeClient _bridgeClient;
     private readonly IBlsChatHistory _history;
@@ -1167,6 +1170,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         AppendUserMessage(prompt);
 
         _currentTurnCts = new CancellationTokenSource();
+        _currentTurnCts.CancelAfter(TurnTimeout);
         _btnDetener.Enabled = true;
         _btnEnviar.Enabled = false;
         SetState(BlsStrings.Get("StatusThinking"));

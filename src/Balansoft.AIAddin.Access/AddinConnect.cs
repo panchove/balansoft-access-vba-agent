@@ -275,7 +275,9 @@ namespace Balansoft.AIAddin.Access
 
             if (_httpClient == null)
             {
-                _httpClient = new HttpClient();
+                // Fase 4: timeout explicito de transporte; el timeout logico
+                // del turno se aplica en BlsNimTerminal con CancelAfter.
+                _httpClient = new HttpClient { Timeout = TimeSpan.FromMinutes(10) };
             }
 
             if (_nimClient == null && _secureStore != null)

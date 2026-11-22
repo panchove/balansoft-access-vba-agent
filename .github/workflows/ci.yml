@@ -487,7 +487,7 @@ jobs:
           $dispatcher = Join-Path $root "src/Balansoft.AIAddin.Access/Core/Protocol/JsonRpcDispatcher.cs"
           if (Test-Path $dispatcher) {
               $d = Get-Content $dispatcher -Raw
-              foreach ($token in @('idempotency hit', 'IdempotentReplay = true', 'BlsToolRisk.Low')) {
+              foreach ($token in @('idempotency hit', 'IdempotentReplay = true', 'BlsToolRisk.Low', 'BlsIdempotencyKey.For(request.Method')) {
                   if (-not $d.Contains($token)) { $errors += "JsonRpcDispatcher.cs no contiene $token" }
               }
           }
@@ -616,6 +616,36 @@ jobs:
               }
           }
 
+          # Fase 4: defensa de prompt, PII, SLO y timeouts (auditoria 2026-11-22).
+          $prompt = Join-Path $root "src/Balansoft.AIAddin.Access/UI/SystemPromptBuilder.cs"
+          if (Test-Path $prompt) {
+              $ptext = Get-Content $prompt -Raw
+              if (-not $ptext.Contains('untrusted_vbe_context')) { $errors += "SystemPromptBuilder no delimita el contexto no confiable" }
+          }
+          $terminal = Join-Path $root "src/Balansoft.AIAddin.Access/UI/BlsNimTerminal.cs"
+          if (Test-Path $terminal) {
+              $tt = Get-Content $terminal -Raw
+              if (-not $tt.Contains('CancelAfter(TurnTimeout)')) { $errors += "BlsNimTerminal no aplica timeout global de turno" }
+          }
+          $connect = Join-Path $root "src/Balansoft.AIAddin.Access/AddinConnect.cs"
+          if (Test-Path $connect) {
+              $ct = Get-Content $connect -Raw
+              if (-not $ct.Contains('Timeout = TimeSpan.FromMinutes(10)')) { $errors += "AddinConnect no fija HttpClient.Timeout" }
+          }
+          $logger = Join-Path $root "src/Balansoft.AIAddin.Access/Helpers/BlsLogger.cs"
+          if (Test-Path $logger) {
+              $lt = Get-Content $logger -Raw
+              if (-not $lt.Contains('EmitSloSnapshot')) { $errors += "BlsLogger no emite snapshots SLO" }
+          }
+          # Fase 4: versiones fijas y SBOM generado en CI (Pilar 10).
+          $props = Get-Content (Join-Path $root "Directory.Build.props") -Raw
+          if ($props -match 'Version="[0-9]+\.[0-9]+\.\*"') {
+              $errors += "Directory.Build.props usa una version NuGet flotante"
+          }
+          if (-not (Test-Path (Join-Path $root "scripts/GenerateSbom.ps1"))) {
+              $errors += "Falta scripts/GenerateSbom.ps1"
+          }
+
           if ($errors.Count -gt 0) {
               Write-Host "::error::Privacidad/supply chain F5 incompleta:"
               foreach ($e in $errors) { Write-Host "  - $e" }
@@ -738,7 +768,13 @@ jobs:
               "KillSwitchDisparado_BloqueaAntesDelHandler",
               "LimiteIteracionesPorTurno_SeRefuerzaEnElDispatcher",
               "BuildPipeSecurity_SoloConcedeAlSidDelUsuarioActual",
-              # Fase 2 (auditoria y DbC)
+              # Fase 4 (prompt, PII, SLO, idempotencia en servidor)
+              "SystemPrompt_SeleccionVBE_VaDentroDeEtiquetaNoConfiable",
+              "Scrub_NifEspanol_Redacta",
+              "Scrub_IbanEspanol_Redacta",
+              "Logger_EmitSloSnapshot_EscribeEventoJSONYEscrituraEsVerificable",
+              "ClaveDelClienteFalsificada_NoEvitaElReplayDelServidor",
+              "Idempotency_SinClaveDelCliente_ServidorLaDerivaYDeduplica",              # Fase 2 (auditoria y DbC)
               "VerifyDirectory_DosDiasEncadenados_EsValida",
               "VerifyDirectory_BorradoDeDiaIntermedio_DetectaCorrupcion",
               "SeedFor_DiaSinEventos_UsaUltimoHashDelDiaAnterior",
@@ -746,14 +782,26 @@ jobs:
               "Registry_Issue_SiempreDevuelveTokenNoVacio",
               "Contract_EnsuresViolado_LanzaPostconditionException",
               "Contract_InvariantViolado_LanzaInvariantException",              # ADR-016 (F3, verificados)
-              # Fase 2 (auditoria y DbC)
+              # Fase 4 (prompt, PII, SLO, idempotencia en servidor)
+              "SystemPrompt_SeleccionVBE_VaDentroDeEtiquetaNoConfiable",
+              "Scrub_NifEspanol_Redacta",
+              "Scrub_IbanEspanol_Redacta",
+              "Logger_EmitSloSnapshot_EscribeEventoJSONYEscrituraEsVerificable",
+              "ClaveDelClienteFalsificada_NoEvitaElReplayDelServidor",
+              "Idempotency_SinClaveDelCliente_ServidorLaDerivaYDeduplica",              # Fase 2 (auditoria y DbC)
               "VerifyDirectory_DosDiasEncadenados_EsValida",
               "VerifyDirectory_BorradoDeDiaIntermedio_DetectaCorrupcion",
               "SeedFor_DiaSinEventos_UsaUltimoHashDelDiaAnterior",
               "Logger_VerifyChain_ConEventosRecientes_EsValida",
               "Registry_Issue_SiempreDevuelveTokenNoVacio",
               "Contract_EnsuresViolado_LanzaPostconditionException",
-              "Contract_InvariantViolado_LanzaInvariantException",              "Logger_CadenaUnEvento_EsVerificable",
+              "Contract_InvariantViolado_LanzaInvariantException",              # Fase 4 (prompt, PII, SLO, idempotencia en servidor)
+              "SystemPrompt_SeleccionVBE_VaDentroDeEtiquetaNoConfiable",
+              "Scrub_NifEspanol_Redacta",
+              "Scrub_IbanEspanol_Redacta",
+              "Logger_EmitSloSnapshot_EscribeEventoJSONYEscrituraEsVerificable",
+              "ClaveDelClienteFalsificada_NoEvitaElReplayDelServidor",
+              "Idempotency_SinClaveDelCliente_ServidorLaDerivaYDeduplica",              "Logger_CadenaUnEvento_EsVerificable",
               "Verify_TamperMensaje_DetectaCorrupcion",
               "Dispatcher_ConCorrelacion_LosEscribeEnElLog",
               # ADR-017 (F4, verificados)
@@ -783,14 +831,26 @@ jobs:
               "KillSwitchDisparado_BloqueaAntesDelHandler",
               "LimiteIteracionesPorTurno_SeRefuerzaEnElDispatcher",
               "BuildPipeSecurity_SoloConcedeAlSidDelUsuarioActual",
-              # Fase 2 (auditoria y DbC)
+              # Fase 4 (prompt, PII, SLO, idempotencia en servidor)
+              "SystemPrompt_SeleccionVBE_VaDentroDeEtiquetaNoConfiable",
+              "Scrub_NifEspanol_Redacta",
+              "Scrub_IbanEspanol_Redacta",
+              "Logger_EmitSloSnapshot_EscribeEventoJSONYEscrituraEsVerificable",
+              "ClaveDelClienteFalsificada_NoEvitaElReplayDelServidor",
+              "Idempotency_SinClaveDelCliente_ServidorLaDerivaYDeduplica",              # Fase 2 (auditoria y DbC)
               "VerifyDirectory_DosDiasEncadenados_EsValida",
               "VerifyDirectory_BorradoDeDiaIntermedio_DetectaCorrupcion",
               "SeedFor_DiaSinEventos_UsaUltimoHashDelDiaAnterior",
               "Logger_VerifyChain_ConEventosRecientes_EsValida",
               "Registry_Issue_SiempreDevuelveTokenNoVacio",
               "Contract_EnsuresViolado_LanzaPostconditionException",
-              "Contract_InvariantViolado_LanzaInvariantException",              "Logger_CadenaUnEvento_EsVerificable",
+              "Contract_InvariantViolado_LanzaInvariantException",              # Fase 4 (prompt, PII, SLO, idempotencia en servidor)
+              "SystemPrompt_SeleccionVBE_VaDentroDeEtiquetaNoConfiable",
+              "Scrub_NifEspanol_Redacta",
+              "Scrub_IbanEspanol_Redacta",
+              "Logger_EmitSloSnapshot_EscribeEventoJSONYEscrituraEsVerificable",
+              "ClaveDelClienteFalsificada_NoEvitaElReplayDelServidor",
+              "Idempotency_SinClaveDelCliente_ServidorLaDerivaYDeduplica",              "Logger_CadenaUnEvento_EsVerificable",
               "Verify_TamperMensaje_DetectaCorrupcion",
               "Dispatcher_ConCorrelacion_LosEscribeEnElLog",
               "Idempotency_FrameDuplicado_NoEjecutaHandlerDosVeces",
@@ -899,6 +959,19 @@ jobs:
           Write-Host "OK: sin referencias cruzadas rotas."
 
       # ─────────────────────────────────────────────
+      # Fase 4: SBOM determinista y sin dependencias nuevas (Pilar 10).
+      - name: Generar SBOM
+        shell: pwsh
+        run: powershell -ExecutionPolicy Bypass -File scripts\GenerateSbom.ps1
+
+      - name: Subir SBOM como artefacto
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-${{ matrix.architecture }}
+          path: artifacts/sbom.json
+          if-no-files-found: error
+          retention-days: 30
+
       # 14. Pack + Artifact (solo en push a main)
       # ─────────────────────────────────────────────
       - name: Pack (solo en main)

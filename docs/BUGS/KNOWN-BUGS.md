@@ -217,7 +217,7 @@ En procesos host de Office 32-bit (.NET Framework 4.8), `ServicePointManager.Sec
 ---
 
 #
-## Próximo Bug ID disponible: BalanceSoft-017
+## Próximo Bug ID disponible: BalanceSoft-018
 
 ### Política de cierre de bugs
 1. Cuando se corrige un bug, se añade la fecha de corrección
@@ -276,3 +276,15 @@ Los tres bugs historicos siguen **abiertos**; la Fase 0 no los cerro porque no s
 **Descripcion**: once skills con 2.879 LOC duplicaban ADRs y specs. `bls-workflow-nemotron` describia handoffs con `bls-implementer` y un modelo de dos agentes que F1 habia retirado, contradiciendo el agente unico y generando deriva documental.
 
 **Correccion**: eliminados siete skills; los cuatro restantes son canonicos. `skills_index` y la lista de documentos obligatorios de CI actualizados; referencias historicas redirigidas a AGENTS.md. Next bug ID: BalanceSoft-017.
+
+### Bug #17: BalanceSoft-017
+**Titulo**: Timeout por chunk reiniciado y contexto VBE sin delimitar
+**Gravedad**: High
+**Area**: UI/BlsNimTerminal, UI/SystemPromptBuilder, UI/Nim/BlsPiiScrubber
+**Fecha**: 2026-11-22
+**Reporte por**: Auditoria de gobernanza (asistida por IA)
+**Estado**: Fixed in v1.1.0
+
+**Descripcion**: el timeout de 120 s por chunk se reiniciaba con multiples tool_calls (BalanceSoft-003, abierto desde 2025). Ademas la seleccion VBE se inyectaba como texto plano en el system prompt, sin separacion entre datos no confiables e instrucciones, y el scrubber no cubria NIF/IBAN.
+
+**Correccion**: timeout global de 5 min por turno via `CancelAfter`, HttpClient con timeout explicito de 10 min, etiquetas `<untrusted_vbe_context>`, reglas `[NIF]` y `[IBAN]`. Next bug ID: BalanceSoft-018.

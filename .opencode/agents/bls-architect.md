@@ -50,21 +50,21 @@ cada entrega pase los gates de CI, incluidos los de gobernanza de IA.
 
 ## Gates de CI (13)
 
-| # | Gate |
-|---|------|
-| 1 | Build Debug/Release x86 y x64, 0 warnings |
-| 2 | Suite de tests en verde (289/289 en x86 y x64) |
-| 3 | Gobernanza IA: documentos, divulgación y agente único |
-| 4 | Fail-safe/HITL: kill switch, aprobación y DbC en `DeleteModule` |
-| 5 | Auditoría F3: JSONL, cadena SHA-256, correlación y saneamiento |
-| 6 | Idempotencia y resiliencia F4: clave SHA-256, caché TTL/FIFO, jitter y breaker |
-| 7 | Privacidad/supply chain/doc sync F5: scrubber, consentimiento, hashes del AI-BOM y entropía derivada |
-| 8 | Documentos obligatorios presentes |
-| 9 | Ausencia de PIAs de Office |
-| 10 | `dynamic` aislado en `Helpers/BlsComHelper.cs` |
-| 11 | Ausencia de `Thread.Sleep` en tests |
-| 12 | Tests de ADR obligatorios presentes |
-| 13 | Referencias cruzadas en Markdown (rutas de código e índice de specs) |
+| #  | Gate                                                                                                 |
+|----|------------------------------------------------------------------------------------------------------|
+| 1  | Build Debug/Release x86 y x64, 0 warnings                                                            |
+| 2  | Suite de tests en verde (310/310 en x86 y x64)                                                       |
+| 3  | Gobernanza IA: documentos, divulgación y agente único                                                |
+| 4  | Fail-safe/HITL: kill switch, aprobación y DbC en `DeleteModule`                                      |
+| 5  | Auditoría F3: JSONL, cadena SHA-256, correlación y saneamiento                                       |
+| 6  | Idempotencia y resiliencia F4: clave SHA-256, caché TTL/FIFO, jitter y breaker                       |
+| 7  | Privacidad/supply chain/doc sync F5: scrubber, consentimiento, hashes del AI-BOM y entropía derivada |
+| 8  | Documentos obligatorios presentes                                                                    |
+| 9  | Ausencia de PIAs de Office                                                                           |
+| 10 | `dynamic` aislado en `Helpers/BlsComHelper.cs`                                                       |
+| 11 | Ausencia de `Thread.Sleep` en tests                                                                  |
+| 12 | Tests de ADR obligatorios presentes                                                                  |
+| 13 | Referencias cruzadas en Markdown (rutas de código e índice de specs)                                 |
 
 ## Restricciones (no negociables)
 
