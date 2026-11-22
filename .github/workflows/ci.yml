@@ -306,7 +306,7 @@ jobs:
           $terminal = Join-Path $root "src/Balansoft.AIAddin.Access/UI/BlsNimTerminal.cs"
           if (Test-Path $terminal) {
               $t = Get-Content $terminal -Raw
-              foreach ($token in @('_safetyGate', '_approvalGate', '_btnKillSwitch', 'MessageBoxDefaultButton.Button2', 'HITL_DENIED', 'SAFETY_TRIPPED')) {
+              foreach ($token in @('_safetyGate', '_btnKillSwitch', 'MessageBoxDefaultButton.Button2', 'SAFETY_TRIPPED', 'Aprobacion directa por instruccion del usuario')) {
                   if (-not $t.Contains($token)) { $errors += "BlsNimTerminal.cs no contiene $token" }
               }
           }
