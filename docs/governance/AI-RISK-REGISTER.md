@@ -28,7 +28,7 @@ tags: [governance, risk-register, iso-42001, iso-23894]
 | R-09 | Backoff sin jitter ni circuit breaker satura el proveedor                       | 22     | M | M | **Medio**   | Full jitter 1–30 s + breaker 5 fallos / 30 s / HalfOpen      | `specs/018` + gate 8e + `BlsNimResilienceTests` (9)                           | 🟢 Cerrado en F4    |
 | R-10 | Deriva documentación ↔ código                                                   | 17     | A | M | **Alto**    | Gate de cross-refs + índice de specs + reindex MCP           | Gate 13 ampliado a rutas de código en MDs; verificación en cada fase        | 🟢 Cerrado en F5    |
 | R-11 | Entropía fija DPAPI debilita la protección de la API key                        | 21, 18 | B | A | **Alto**    | `DerivedEntropyDpapiDataProtector` (SHA-256 equipo+usuario+v2) | Migración transparente con fallback legacy solo de lectura (F5)         | 🟢 Cerrado en F5    |
-| R-12 | Bucle infinito de tool calls                                                    | 3      | B | A | **Alto**    | `MaxToolIterations = 8`                                     | `BlsSafetyGate`: kill switch cancela el turno y bloquea nuevos envíos        | 🟢 Cerrado en F2    |
+| R-12 | Bucle infinito de tool calls                                                    | 3      | B | A | **Alto**    | `MaxToolIterations = 32`                                     | `BlsSafetyGate`: kill switch cancela el turno y bloquea nuevos envíos        | 🟢 Cerrado en F2    |
 
 ## 2. Criterios de aceptación del riesgo
 
@@ -105,7 +105,7 @@ El riesgo R-01 ("tool call destructiva sin aprobacion humana") estaba cerrado en
 
 - HITL y kill switch se comprueban ahora en `JsonRpcDispatcher` ademas de en `BlsNimTerminal`.
 - El token de aprobacion es de un solo uso y esta ligado al metodo, al turno y al hash del payload.
-- El tope de 8 iteraciones se refuerza en el servidor.
+- El tope de 32 iteraciones se refuerza en el servidor.
 - La ACL del pipe se restringe al SID del usuario actual.
 
 Evidencia: 8 tests nuevos (`JsonRpcSafetyTests`, `BlsPipeSecurityTests`), 320/320 verdes en x86, gate 8c ampliado con tokens de regresion. CS-008 queda cerrado; CS-009 (auditoria) permanece abierto para la Fase 2.

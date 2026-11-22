@@ -67,7 +67,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added (Fase 1, auditoria 2026-11-22)
 - `BlsToolAuthorizationRegistry`: tokens de aprobacion de un solo uso, con TTL
   de 60 s y vinculados a metodo, turno y SHA-256 del payload.
-- Fail-safe, HITL y tope de 8 tool calls por turno reforzados en
+- Fail-safe, HITL y tope de 32 tool calls por turno reforzados en
   `JsonRpcDispatcher` (codigos -32005, -32006 y -32007).
 - ACL del named pipe restringida al SID del usuario actual
   (`BlsVbeBridgeServer.BuildPipeSecurity`).

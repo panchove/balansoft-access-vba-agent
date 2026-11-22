@@ -57,7 +57,7 @@ public sealed class JsonRpcDispatcher
         IUiScheduler ui,
         IBlsLogger logger,
         IBlsIdempotencyCache idempotency)
-        : this(vbe, access, ui, logger, idempotency, null, null, 8, false)
+        : this(vbe, access, ui, logger, idempotency, null, null, 32, false)
     {
     }
 
@@ -73,7 +73,7 @@ public sealed class JsonRpcDispatcher
         IBlsIdempotencyCache idempotency,
         BlsToolAuthorizationRegistry authorization,
         BlsSafetyGate safetyGate,
-        int maxToolIterations = 8)
+        int maxToolIterations = 32)
         : this(
             vbe, access, ui, logger, idempotency,
             BlsContract.RequiresNotNull(authorization, nameof(authorization)),

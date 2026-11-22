@@ -141,7 +141,7 @@ tags: [change-requests, iso-12207, modification-process, square]
 * **Fecha**: 2026-11-22
 * **Estado**: `Implementado en v1.1.0`
 * **Justificacion**: la auditoria de gobernanza detecto que los controles F2 residian solo en la terminal y que la ACL del pipe heredaba la configuracion por defecto de Windows.
-* **Detalle de implementacion**: registro de autorizaciones de un solo uso; fail-safe, HITL y tope de 8 iteraciones en el dispatcher; ACL por SID del usuario; 8 tests nuevos; gate 8c ampliado.
+* **Detalle de implementacion**: registro de autorizaciones de un solo uso; fail-safe, HITL y tope de 32 iteraciones en el dispatcher; ACL por SID del usuario; 8 tests nuevos; gate 8c ampliado.
 ---
 
 ### CR-008: Integridad de auditoria verificable en ejecucion y DbC completo

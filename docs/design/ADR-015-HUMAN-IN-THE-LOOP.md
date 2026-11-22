@@ -107,7 +107,7 @@ La auditoria de gobernanza detecto que el kill switch y la aprobacion humana sol
 Decision: mover las tres comprobaciones deterministas a la frontera del pipe, sin sustituir las de la terminal (defensa en profundidad).
 
 - `BlsToolAuthorizationRegistry` emite un token opaco de 128 bits tras la aprobacion UI. Es de un solo uso, caduca a los 60 s y se vincula a `method`, `correlation_id` y `SHA-256(payload)`.
-- `JsonRpcDispatcher` comprueba `BlsSafetyGate.EnsureAllowed()` antes de cualquier handler; exige el token para tools `Medium`/`High` y devuelve `HITL_DENIED` (-32005) sin ejecutar; aplica el tope de 8 tool calls por turno con `TOOL_ITERATION_LIMIT` (-32007).
+- `JsonRpcDispatcher` comprueba `BlsSafetyGate.EnsureAllowed()` antes de cualquier handler; exige el token para tools `Medium`/`High` y devuelve `HITL_DENIED` (-32005) sin ejecutar; aplica el tope de 32 tool calls por turno con `TOOL_ITERATION_LIMIT` (-32007).
 - `BlsVbeBridgeServer.BuildPipeSecurity()` sustituye la ACL por defecto de Windows por una unica regla que concede `FullControl` al SID del usuario actual (ISO 27001 A.8.15 / OWASP ASI03).
 - `AddinConnect` crea un unico `BlsSafetyGate` y un unico registro y los comparte entre terminal y bridge.
 

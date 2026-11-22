@@ -17,7 +17,7 @@ tags: [threat-model, owasp-agentic, security, red-team]
 | ID    | Amenaza                                  | Aplicable | Control actual                                        | Mitigación                                                             | Fase     |
 |-------|------------------------------------------|-----------|-------------------------------------------------------|------------------------------------------------------------------------|----------|
 | ASI01 | Secuestro de objetivo (*goal hijacking*) | Sí        | System prompt con reglas de error                     | `BlsHumanApprovalGate`: confirmación UI para escrituras                | F2 ✅     |
-| ASI02 | Mal uso de herramientas                  | Sí        | Whitelist `JsonRpcMethods.All`, `MaxToolIterations=8` | `BlsToolRiskPolicy` (desconocida ⇒ High) + HITL; esquema runtime en F4 | F2 ✅, F4 |
+| ASI02 | Mal uso de herramientas                  | Sí        | Whitelist `JsonRpcMethods.All`, `MaxToolIterations = 32` | `BlsToolRiskPolicy` (desconocida ⇒ High) + HITL; esquema runtime en F4 | F2 ✅, F4 |
 | ASI03 | Abuso de identidad / permisos            | Sí        | DPAPI CurrentUser, sin ROT                            | Archivo de riesgo bajo LP + registro de aprobación                     | F2       |
 | ASI04 | Inyección de memoria/contexto            | Sí        | Historial por proyecto                                | Sanitización de historial + límite de contexto + TTL                   | F5       |
 | ASI05 | Ejecución de código no aislada           | Sí        | Sin sandbox; el modelo edita el VBE real              | Confirmación explícita + preview y SHA-256 del payload; backup en F5   | F2 ✅, F5 |

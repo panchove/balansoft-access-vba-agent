@@ -70,7 +70,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     private const int MaxSelectionLength = 32 * 1024; // 32 KB
 
     /// <summary>Tope de vueltas de herramientas por turno, para no entrar en bucle infinito.</summary>
-    private const int MaxToolIterations = 8;
+    private const int MaxToolIterations = 32;
 
     /// <summary>Timeout global del turno: sustituye al timeout por chunk que se reiniciaba (BalanceSoft-003).</summary>
     private static readonly TimeSpan TurnTimeout = TimeSpan.FromMinutes(5);

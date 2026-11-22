@@ -81,7 +81,7 @@ Restricciones:
   callback `OnToolCall`. Ejecutarlas desde el callback corre el loop en
   paralelo al stream, y el turno se cerraba a mitad de camino con el CTS ya
   liberado.
-- Tope de 8 iteraciones de herramientas. Al superarlo se registra un error y
+- tope de 32 iteraciones de herramientas. Al superarlo se registra un error y
   el turno termina, para no entrar en bucle infinito.
 - `OnToolCall` **solo registra** la llamada en la lista pendiente.
 
