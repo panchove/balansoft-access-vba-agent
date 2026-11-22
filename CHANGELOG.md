@@ -17,6 +17,9 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Documentos de gobernanza anadidos: AIA (`AI-IMPACT-ASSESSMENT.md`),
+  arquitectura C4 con diagramas Mermaid (`ARCHITECTURE-C4.md`) y
+  `AI-INCIDENT-PLAYBOOK.md`. Los gates 3 y 8 exigen su presencia.
 
 ### Added (Fase 4, auditoria 2026-11-22)
 - Clave de idempotencia derivada en el servidor: las claves del cliente se ignoran.

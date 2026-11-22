@@ -122,3 +122,6 @@ El hallazgo H7 de la auditoria (skills con orquestacion retirada) queda cerrado:
 Cerrados los ultimos hallazgos de la auditoria: clave de idempotencia derivada en servidor (R-06 reforzado), timeout global de turno (BalanceSoft-003), delimitacion de contexto no confiable (R-03/ASI04 reforzado), NIF/IBAN en el scrubber, version NuGet fija y SBOM en CI (R-07 reforzado), y SLO estructurado en la cadena de auditoria (R-04/R-05 reforzados).
 
 Evidencia: 5 tests nuevos, 310/310 verdes en x86 y x64, 6 builds sin warnings, SBOM con 11 dependencias. Los doce riesgos R-01..R-12 siguen cerrados.
+## 11. Evaluación de impacto, arquitectura y respuesta a incidentes (2026-11-22)
+
+Se cierra el ultimo hallazgo documental de la auditoria (H8): `AI-IMPACT-ASSESSMENT.md` cubre el Pilar 1, `ARCHITECTURE-C4.md` aporta los diagramas C4/Mermaid de los Pilares 9 y 25, y `AI-INCIDENT-PLAYBOOK.md` establece contencion, recuperacion y simulacro del Pilar 14. Los gates 3 y 8 verifican su presencia.

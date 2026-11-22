@@ -149,6 +149,7 @@ jobs:
               "AGENTS.md",
               "MEMORY.md",
               "docs/PRD.md",
+              "docs/design/ARCHITECTURE-C4.md",
               "docs/CONSTITUTION.md",
               "docs/design/ADR-001-PROJECT-IDENTITY.md",
               "docs/design/ADR-002-PIPE-FRAMING.md",
@@ -226,6 +227,8 @@ jobs:
           $gov = @(
               "docs/governance/AI-POLICY.md",
               "docs/governance/AI-RISK-REGISTER.md",
+              "docs/governance/AI-IMPACT-ASSESSMENT.md",
+              "docs/governance/AI-INCIDENT-PLAYBOOK.md",
               "docs/governance/AI-BOM.md",
               "docs/governance/OWASP-AGENTIC-THREAT-MODEL.md",
               "specs/015-AI-DISCLOSURE.md"
