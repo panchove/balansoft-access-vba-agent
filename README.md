@@ -23,16 +23,16 @@ Permite chatear con modelos LLM, ejecutar *tool calls* y persistir el historial 
 - **Historial de chat** por proyecto (identidad = SHA‑256 de la ruta normalizada – ADR‑001).
 - **Terminal NIM** WinForms con loop de herramientas, *tool calls* y renderizado de resultados.
 - **Registro COM** per‑user / per‑machine mediante scripts PowerShell (x86 o x64 según la arquitectura de Access instalada).
-- **CI/CD** completo: build x86/x64, 165 tests unitarios, 8 gates de calidad, versionado SemVer automático (Nerdbank.GitVersioning) y release automático al pushear tag `v*`.
+- **CI/CD** completo: build x86/x64, 239 tests unitarios, 11 gates de calidad, versionado SemVer automático (Nerdbank.GitVersioning) y release automático al pushear tag `v*`.
 
 ---
 
 ## 📦 Requisitos
-| Requisito | Versión mínima |
-|-----------|----------------|
-| Windows | 10 / 11 (x64) |
-| .NET SDK | 9.0.x |
-| Access | 2010 o superior (32 bit) |
+| Requisito  | Versión mínima                                     |
+|------------|----------------------------------------------------|
+| Windows    | 10 / 11 (x64)                                      |
+| .NET SDK   | 9.0.x                                              |
+| Access     | 2010 o superior (32 bit)                           |
 | PowerShell | 5.1 (versión **x86** para los scripts de registro) |
 
 ---
@@ -47,7 +47,7 @@ cd balansoft-access-vba-agent
 # 2. Compilar (Debug x86)
 dotnet build src\Balansoft.AIAddin.Access\Balansoft.AIAddin.Access.csproj -c Debug -p:Platform=x86
 
-# 3. Ejecutar tests (165/165)
+# 3. Ejecutar tests (239/239)
 dotnet vstest tests\Balansoft.AIAddin.Tests\bin\x86\Debug\net48\Balansoft.AIAddin.Tests.dll `
   /Settings:.runsettings /Platform:x86
 
@@ -70,41 +70,56 @@ Los tests de integración están marcados con `[TestCategory("Integration")]` y 
 
 ---
 
+## 🛡️ Gobernanza de IA
+
+Este repositorio aplica los **25 Pilares** de `AI_GOVERNANCE.md` (ISO/IEC 42001:2023, EU AI Act, OWASP Agentic 2025):
+
+- [Política de IA](docs/governance/AI-POLICY.md) · [Registro de riesgos](docs/governance/AI-RISK-REGISTER.md) · [AI-BOM](docs/governance/AI-BOM.md) · [Modelo de amenazas](docs/governance/OWASP-AGENTIC-THREAT-MODEL.md).
+- **Agente único:** `bls-architect`. La auditoría ISO se ejecuta como gates de CI, no como agentes que revisan.
+- **Divulgación:** la terminal muestra de forma persistente que el contenido es asistido por IA (Art. 50 EU AI Act).
+- **Fail-safe/HITL (F2):** kill switch, aprobación real para tools `Medium`/`High` y rechazo sin invocar el bridge ([ADR-015](docs/design/ADR-015-HUMAN-IN-THE-LOOP.md), [spec 016](specs/016-HUMAN-IN-THE-LOOP.md)).
+- **Auditoría (F3):** log JSONL append-only con cadena SHA-256 verificable, `correlation_id`/`trace_id` de extremo a extremo, saneamiento de secretos y métricas SLO ([ADR-016](docs/design/ADR-016-AUDIT-LOGGING.md), [spec 017](specs/017-AUDIT-LOGGING.md)).
+- **Resiliencia (F4):** idempotencia SHA-256 del bridge, caché TTL/FIFO, full jitter y circuit breaker ([ADR-017](docs/design/ADR-017-IDEMPOTENCY-RESILIENCE.md), [spec 018](specs/018-IDEMPOTENCY-RESILIENCE.md)).
+- **Privacidad (F5):** saneamiento PII en la frontera HTTP, consentimiento UI, catálogo de modelo y entropía DPAPI derivada ([ADR-018](docs/design/ADR-018-PRIVACY-SUPPLY-CHAIN.md), [spec 019](specs/019-PRIVACY-SUPPLY-CHAIN-CONFIG.md)).
+
+> ✅ Riesgos **R-01…R-12 cerrados**. La suite tiene 321 tests verdes en x86 y x64 y la CI ejecuta 13 gates.
+
 ## 📂 Estructura del repositorio
 ```
 src/
   Balansoft.AIAddin.Access/   # Add-in COM, Core, Helpers, UI (WinForms)
 tests/
-  Balansoft.AIAddin.Tests/    # 165 tests unitarios (MSTest)
+  Balansoft.AIAddin.Tests/    # 239 tests unitarios (MSTest)
 docs/
-  design/                     # 14 ADRs (ADR-001 … ADR-014)
+  design/                     # 16 ADRs (ADR-001 … ADR-016)
+  governance/                 # política, riesgos, AI-BOM y threat model (ISO 42001)
   PRD.md
   CONSTITUTION.md
-specs/                        # 14 specs (001–014) con criterios de aceptación
+specs/                        # 17 specs (001–017) con criterios de aceptación
 scripts/
   RegisterAddin.ps1
   UnregisterAddin.ps1
   Pack.ps1
   dev.ps1
 .github/workflows/
-  ci.yml          # build + test + 8 gates
+  ci.yml          # build + test + 11 gates
   release.yml     # tag v* → GitHub Release + ZIP
 .opencode/
-  agents/         # bls-architect, bls-planner, bls-implementer, bls-reviewer, bls-iso
+  agents/         # bls-architect (agente único; la auditoría son gates de CI)
   skills/         # 11 skills modulares (bls-*/SKILL.md)
 ```
 
 ---
 
 ## 🔧 Comandos canónicos
-| Acción | Comando |
-|--------|---------|
-| Build Debug x86 | `dotnet build src\Balansoft.AIAddin.Access\Balansoft.AIAddin.Access.csproj -c Debug -p:Platform=x86` |
-| Build Tests | `dotnet build tests\Balansoft.AIAddin.Tests\Balansoft.AIAddin.Tests.csproj -c Debug -p:Platform=x86` |
-| Tests unitarios | `dotnet vstest tests\Balansoft.AIAddin.Tests\bin\x86\Debug\net48\Balansoft.AIAddin.Tests.dll /Settings:.runsettings /Platform:x86` |
-| Registrar add-in | `powershell -ExecutionPolicy Bypass -File scripts\RegisterAddin.ps1` (x86 o x64 según Access) |
-| Desregistrar | `powershell -ExecutionPolicy Bypass -File scripts\UnregisterAddin.ps1` (x86 o x64 según Access) |
-| Empaquetar Release | `powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1 -Configuration Release` |
+| Acción             | Comando                                                                                                                            |
+|--------------------|------------------------------------------------------------------------------------------------------------------------------------|
+| Build Debug x86    | `dotnet build src\Balansoft.AIAddin.Access\Balansoft.AIAddin.Access.csproj -c Debug -p:Platform=x86`                               |
+| Build Tests        | `dotnet build tests\Balansoft.AIAddin.Tests\Balansoft.AIAddin.Tests.csproj -c Debug -p:Platform=x86`                               |
+| Tests unitarios    | `dotnet vstest tests\Balansoft.AIAddin.Tests\bin\x86\Debug\net48\Balansoft.AIAddin.Tests.dll /Settings:.runsettings /Platform:x86` |
+| Registrar add-in   | `powershell -ExecutionPolicy Bypass -File scripts\RegisterAddin.ps1` (x86 o x64 según Access)                                      |
+| Desregistrar       | `powershell -ExecutionPolicy Bypass -File scripts\UnregisterAddin.ps1` (x86 o x64 según Access)                                    |
+| Empaquetar Release | `powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1 -Configuration Release`                                                 |
 
 ---
 

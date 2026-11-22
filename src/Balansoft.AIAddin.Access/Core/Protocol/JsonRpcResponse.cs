@@ -13,11 +13,14 @@ namespace Balansoft.AIAddin.Core.Protocol;
 /// <param name="Id">Identificador replicado de la solicitud.</param>
 /// <param name="Result">Resultado exitoso (mutuamente exclusivo con <see cref="Error"/>).</param>
 /// <param name="Error">Información de error (mutuamente exclusivo con <see cref="Result"/>).</param>
+/// <param name="IdempotentReplay">F4: true si la respuesta provino de la caché de idempotencia.</param>
 public sealed record JsonRpcResponse(
     [property: JsonPropertyName("jsonrpc")] string JsonRpc,
     [property: JsonPropertyName("id")] JsonElement Id,
     [property: JsonPropertyName("result")] [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] object? Result,
-    [property: JsonPropertyName("error")] [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] JsonRpcError? Error)
+    [property: JsonPropertyName("error")] [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] JsonRpcError? Error,
+    [property: JsonPropertyName("idempotent_replay")]
+    [property: JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] bool? IdempotentReplay = null)
 {
     public static JsonRpcResponse Ok(object id, object? result = null)
     {

@@ -70,7 +70,10 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     private const int MaxSelectionLength = 32 * 1024; // 32 KB
 
     /// <summary>Tope de vueltas de herramientas por turno, para no entrar en bucle infinito.</summary>
-    private const int MaxToolIterations = 8;
+    private const int MaxToolIterations = 32;
+
+    /// <summary>Timeout global del turno: sustituye al timeout por chunk que se reiniciaba (BalanceSoft-003).</summary>
+    private static readonly TimeSpan TurnTimeout = TimeSpan.FromMinutes(5);
 
     private readonly IBlsNimClient _nimClient;
     private readonly IBlsBridgeClient _bridgeClient;
@@ -82,12 +85,24 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     private readonly ISystemPromptBuilder _promptBuilder;
     private readonly IUserInputDialog _userInputDialog;
 
+    // F2 — fail-safe y supervisión humana (Pilares 3 y 4).
+    private readonly BlsSafetyGate _safetyGate;
+    private readonly BlsToolAuthorizationRegistry _authorization;
+    private readonly BlsToolRiskPolicy _riskPolicy = new();
+
+
+    // F5 — privacidad: consentimiento antes de enviar datos a NIM (R-03).
+    private readonly BlsPiiConsentGate _piiConsentGate;
+
     private CancellationTokenSource? _currentTurnCts;
     private HistoryDocument? _currentDoc;
     private bool _isDisposed;
 
     // Estado del turno en curso (accedido desde el hilo de streaming y el de UI)
     private readonly object _turnSync = new object();
+    private readonly object _uiTextSync = new object();
+    private readonly StringBuilder _pendingUiText = new StringBuilder();
+    private bool _uiFlushScheduled;
     private readonly List<ToolCallComplete> _pendingToolCalls = new List<ToolCallComplete>();
     private readonly StringBuilder _assistantBuffer = new StringBuilder();
     private readonly Dictionary<string, ListViewItem> _toolRows = new Dictionary<string, ListViewItem>(StringComparer.Ordinal);
@@ -113,7 +128,9 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     private TextBox _input = null!;
     private Button _btnEnviar = null!;
     private Button _btnDetener = null!;
+    private Button _btnKillSwitch = null!;
     private Label _lblStatus = null!;
+    private Label _lblAiDisclosure = null!;
     private bool _loadingSessions;
 
     // Singleton débil para una sola terminal
@@ -128,7 +145,11 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         IBlsLogger logger,
         IVbeContextProvider vbeContext,
         ISystemPromptBuilder promptBuilder,
-        IUserInputDialog userInputDialog)
+        IUserInputDialog userInputDialog,
+        BlsToolAuthorizationRegistry authorization,
+        BlsSafetyGate safetyGate,
+        Func<BlsApprovalRequest, bool>? approvalPrompt = null,
+        Func<BlsPiiConsentRequest, bool>? piiConsentPrompt = null)
     {
         _nimClient = BlsContract.RequiresNotNull(nimClient, nameof(nimClient));
         _bridgeClient = BlsContract.RequiresNotNull(bridgeClient, nameof(bridgeClient));
@@ -139,6 +160,11 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         _vbeContext = BlsContract.RequiresNotNull(vbeContext, nameof(vbeContext));
         _promptBuilder = BlsContract.RequiresNotNull(promptBuilder, nameof(promptBuilder));
         _userInputDialog = BlsContract.RequiresNotNull(userInputDialog, nameof(userInputDialog));
+        _authorization = BlsContract.RequiresNotNull(authorization, nameof(authorization));
+        _safetyGate = BlsContract.RequiresNotNull(safetyGate, nameof(safetyGate));
+        _piiConsentGate = new BlsPiiConsentGate(
+            piiConsentPrompt ?? DefaultPiiConsentPrompt,
+            _logger);
 
         InitializeComponent();
         _logger.Info("BlsNimTerminal", "Terminal creada");
@@ -157,7 +183,9 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         IBlsLogger logger,
         IVbeContextProvider vbeContext,
         ISystemPromptBuilder promptBuilder,
-        IUserInputDialog userInputDialog)
+        IUserInputDialog userInputDialog,
+        BlsToolAuthorizationRegistry authorization,
+        BlsSafetyGate safetyGate)
     {
         BlsNimTerminal? existing = null;
         if (_instanceRef?.TryGetTarget(out existing) == true && existing != null && !existing.IsDisposed)
@@ -175,7 +203,9 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             logger,
             vbeContext,
             promptBuilder,
-            userInputDialog);
+            userInputDialog,
+            authorization,
+            safetyGate);
 
         _instanceRef = new WeakReference<BlsNimTerminal>(terminal);
         if (owner != null && owner.Handle != IntPtr.Zero)
@@ -444,6 +474,18 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             Font = new Font("Segoe UI", 9F)
         };
 
+        // F2 — Kill switch: detiene TODA la actividad IA hasta reactivación explícita.
+        _btnKillSwitch = new Button
+        {
+            Text = BlsStrings.Get("BtnSafety"),
+            Dock = DockStyle.Right,
+            Width = 95,
+            Height = 28,
+            Font = new Font("Segoe UI", 9F, FontStyle.Bold),
+            BackColor = Color.MistyRose
+        };
+        _btnKillSwitch.Click += OnKillSwitchClick;
+
         _lblStatus = new Label
         {
             Text = BlsStrings.Get("StatusReady"),
@@ -457,6 +499,7 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         bottomControls.Controls.Add(_lblStatus);
         bottomControls.Controls.Add(_btnEnviar);
         bottomControls.Controls.Add(_btnDetener);
+        bottomControls.Controls.Add(_btnKillSwitch);
 
         // Botonera de comandos rápidos (Slash Commands)
         _commandBar = new FlowLayoutPanel
@@ -497,6 +540,21 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
         _mainSplit.Panel2.Controls.Add(bottomPanel);
         Controls.Add(_mainSplit);
+
+        // Divulgación persistente de identidad IA (EU AI Act Art. 50 / Pilar 5).
+        // Se agrega después del Fill para que WinForms lo acople arriba sin reducir el área útil.
+        _lblAiDisclosure = new Label
+        {
+            Text = BlsStrings.Get("AiDisclosure"),
+            Dock = DockStyle.Top,
+            Height = 22,
+            TextAlign = ContentAlignment.MiddleLeft,
+            ForeColor = Color.DimGray,
+            BackColor = Color.LightYellow,
+            Padding = new Padding(6, 0, 6, 0),
+            Font = new Font("Segoe UI", 8F)
+        };
+        Controls.Add(_lblAiDisclosure);
 
         // Ajuste seguro de paneles y SplitterDistance una vez que el formulario ha determinado su tamaño de cliente
         Shown += (s, e) =>
@@ -909,7 +967,10 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             _btnLimpiarDetalle.Text = BlsStrings.Get("BtnClearDetail");
             _btnDetener.Text = BlsStrings.Get("BtnStop");
             _btnEnviar.Text = BlsStrings.Get("BtnSend");
+            _btnKillSwitch.Text = BlsStrings.Get(
+                _safetyGate.IsTripped ? "BtnSafetyReset" : "BtnSafety");
             _lblStatus.Text = BlsStrings.Get("StatusReady");
+            _lblAiDisclosure.Text = BlsStrings.Get("AiDisclosure");
 
             // Refresh session list and detail title
             _lblDetalleTitulo.Text = BlsStrings.Get("DetailTitle");
@@ -1050,6 +1111,19 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             return;
         }
 
+        // F2 — el kill switch se comprueba antes de iniciar cualquier turno.
+        try
+        {
+            _safetyGate.EnsureAllowed();
+        }
+        catch (BlsSafetyTrippedException ex)
+        {
+            _logger.Warn("SAFETY", $"Turno bloqueado por kill switch: {ex.Message}");
+            AppendError(BlsStrings.Get("MsgSafetyTripped", ex.Message));
+            SetState(BlsStrings.Get("StatusError"));
+            return;
+        }
+
         var prompt = _input.Text.Trim();
         if (string.IsNullOrEmpty(prompt))
         {
@@ -1096,19 +1170,33 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
         AppendUserMessage(prompt);
 
         _currentTurnCts = new CancellationTokenSource();
+        _currentTurnCts.CancelAfter(TurnTimeout);
         _btnDetener.Enabled = true;
         _btnEnviar.Enabled = false;
         SetState(BlsStrings.Get("StatusThinking"));
 
+        // F3 — un único ámbito envuelve el turno completo. AsyncLocal propaga
+        // los IDs por await al cliente NIM, al bridge y a los handlers HITL.
+        var turnScope = BlsCorrelationContext.Begin();
+        _logger.Info(
+            "AUDIT",
+            $"Turno iniciado correlation_id={turnScope.CorrelationId} trace_id={turnScope.TraceId}");
+
         try
         {
             await RunTurnAsync(prompt, _currentTurnCts.Token);
+            (_logger as IBlsSloAware)?.Metrics.RecordTurn(true);
         }
         catch (Exception ex)
         {
+            (_logger as IBlsSloAware)?.Metrics.RecordTurn(false);
             _logger.Error("BlsNimTerminal", "Excepción en OnSendClick", ex);
             AppendError(BlsStrings.Get("MsgErrorPrefix", ex.Message));
             SetState(BlsStrings.Get("StatusError"));
+        }
+        finally
+        {
+            turnScope.Dispose();
         }
     }
 
@@ -1119,6 +1207,34 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             _currentTurnCts.Cancel();
             SetState("Cancelando...");
         }
+    }
+
+    /// <summary>
+    /// F2 — Kill switch. A diferencia de "Detener" (cancela un turno), esto bloquea
+    /// TODAS las acciones de IA hasta una reactivación humana explícita (Pilar 3).
+    /// </summary>
+    private void OnKillSwitchClick(object? sender, EventArgs e)
+    {
+        if (_safetyGate.IsTripped)
+        {
+            _safetyGate.Reset();
+            _logger.Info("SAFETY", "Kill switch desactivado por el usuario.");
+            _btnKillSwitch.Text = BlsStrings.Get("BtnSafety");
+            _btnKillSwitch.BackColor = Color.MistyRose;
+            _btnEnviar.Enabled = _currentTurnCts == null;
+            SetState(BlsStrings.Get("StatusReady"));
+            return;
+        }
+
+        const string reason = "kill switch activado manualmente por el usuario";
+        _safetyGate.Trip(reason);
+        _currentTurnCts?.Cancel();
+        _logger.Warn("SAFETY", "Kill switch ACTIVADO: turno cancelado y nuevas acciones de IA bloqueadas.");
+        _btnKillSwitch.Text = BlsStrings.Get("BtnSafetyReset");
+        _btnKillSwitch.BackColor = Color.LightCoral;
+        _btnEnviar.Enabled = false;
+        SetState(BlsStrings.Get("StatusError"));
+        AppendError(BlsStrings.Get("MsgSafetyTripped", reason));
     }
 
     private void OnFormClosing(object? sender, FormClosingEventArgs e)
@@ -1201,6 +1317,18 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
             }
 
             messages.Add(new ChatMessage("user", prompt));
+
+            // F5 / R-03 — si el payload contiene PII se exige consentimiento
+            // explícito antes del envío. El scrubber se aplica de todas formas
+            // en la frontera HTTP (NimHttpRequestBuilder), sin opción de off.
+            var scrubbed = BlsPiiScrubber.Scrub(messages);
+            if (BlsPiiConsentGate.IsRequired(scrubbed.Findings) &&
+                !_piiConsentGate.Approve(scrubbed.Findings, BuildPiiPreview(scrubbed.Messages)))
+            {
+                OnCancelled();
+                CommitAssistantMessage(cancelled: true);
+                return;
+            }
 
             // Guardar mensaje del usuario en historial
             _currentDoc?.Messages.Add(new HistoryMessage
@@ -1334,15 +1462,44 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     }
 
     // IBlsNimSink implementation
-    public void OnTextChunk(string text)
-    {
-        lock (_turnSync)
+        public void OnTextChunk(string text)
         {
-            _assistantBuffer.Append(text);
+            lock (_turnSync)
+            {
+                _assistantBuffer.Append(text);
+            }
+
+            // BalanceSoft-002: un BeginInvoke por chunk saturaba la cola UI
+            // en streams largos. Se agrupan los chunks pendientes en un unico
+            // update por turno de mensaje.
+            lock (_uiTextSync)
+            {
+                _pendingUiText.Append(text);
+            }
+            ScheduleUiFlush();
         }
 
-        OnUi(() => AppendChunkToAssistantMessage(text));
-    }
+        private void ScheduleUiFlush()
+        {
+            lock (_uiTextSync)
+            {
+                if (_uiFlushScheduled) return;
+                _uiFlushScheduled = true;
+                OnUi(FlushUiText);
+            }
+        }
+
+        private void FlushUiText()
+        {
+            string text;
+            lock (_uiTextSync)
+            {
+                text = _pendingUiText.ToString();
+                _pendingUiText.Clear();
+                _uiFlushScheduled = false;
+            }
+            if (text.Length > 0) AppendChunkToAssistantMessage(text);
+        }
 
     public void OnToolCall(ToolCallComplete call)
     {
@@ -1399,21 +1556,67 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
     /// </summary>
     private async Task<string> ExecuteToolAsync(ToolCallComplete call, CancellationToken ct)
     {
+        // Payload canonico: el mismo JsonElement que se enviara por el pipe.
+        // Asi la huella aprobada por el humano coincide con la que valida el
+        // dispatcher y no hay divergencia por espacios ni orden de claves.
+        JsonElement args;
         try
         {
-            JsonElement args;
+            args = string.IsNullOrWhiteSpace(call.ArgumentsJson)
+                ? default
+                : JsonSerializer.Deserialize<JsonElement>(call.ArgumentsJson);
+        }
+        catch (JsonException)
+        {
+            args = default;
+        }
+        var canonicalArgsJson = args.ValueKind == JsonValueKind.Undefined ? "{}" : args.GetRawText();
+        // F2 · Capa 0 — fail-safe: el kill switch se evalúa ANTES de cualquier efecto.
+        try
+        {
+            _safetyGate.EnsureAllowed();
+        }
+        catch (BlsSafetyTrippedException ex)
+        {
+            _logger.Warn("SAFETY", $"Tool {call.Name} bloqueada por kill switch: {ex.Message}");
+            return RejectTool(call, "SAFETY_TRIPPED", ex.Message, null);
+        }
+
+        // F2 - Capa 1: aprobacion directa en el momento en que el usuario da
+        // la instruccion. No se muestra dialogo: la decision se audita con el
+        // SHA-256 del payload y el kill switch se comprueba antes y despues.
+        var risk = _riskPolicy.GetRisk(call.Name);
+        if (BlsToolRiskPolicy.RequiresApproval(risk))
+        {
+            var approval = BlsApprovalRequest.Create(call.Name, risk, canonicalArgsJson);
+            _logger.Info(
+                "HITL",
+                $"Aprobacion directa por instruccion del usuario: {call.Name} (payload_sha256={approval.PayloadSha256})");
+
+            // El usuario pudo activar el kill switch
             try
             {
-                args = string.IsNullOrWhiteSpace(call.ArgumentsJson)
-                    ? default
-                    : JsonSerializer.Deserialize<JsonElement>(call.ArgumentsJson);
+                _safetyGate.EnsureAllowed();
             }
-            catch (JsonException)
+            catch (BlsSafetyTrippedException ex)
             {
-                args = default;
+                return RejectTool(call, "SAFETY_TRIPPED", ex.Message, approval);
+            }
+        }
+
+        // Capa 2 — ejecución contra el bridge (comportamiento previo a F2).
+        try
+        {
+            string? authorizationToken = null;
+            if (BlsToolRiskPolicy.RequiresApproval(risk))
+            {
+                authorizationToken = _authorization.Issue(
+                    call.Name,
+                    BlsCorrelationContext.CorrelationId,
+                    BlsApprovalRequest.Create(call.Name, risk, canonicalArgsJson).PayloadSha256);
             }
 
-            var result = await _bridgeClient.InvokeAsync<JsonElement>(call.Name, args, ct);
+            var result = await _bridgeClient.InvokeAsync<JsonElement>(call.Name, args, ct, authorizationToken);
             var json = result.ValueKind == JsonValueKind.Undefined ? "{}" : result.GetRawText();
 
             OnUi(() =>
@@ -1455,6 +1658,101 @@ public sealed class BlsNimTerminal : Form, IBlsNimSink
 
             return errorJson;
         }
+    }
+
+    /// <summary>
+    /// Rechaza una tool call SIN invocar el bridge y devuelve un JSON de error
+    /// estructurado para que el modelo pueda reaccionar (sin falso éxito, Pilar 3).
+    /// </summary>
+    private string RejectTool(
+        ToolCallComplete call,
+        string code,
+        string message,
+        BlsApprovalRequest? approval)
+    {
+        // F3 — la decisión queda auditada con la correlación del turno y se
+        // contabiliza como rechazo seguro en las métricas SLO.
+        _logger.Warn(
+            "AUDIT",
+            $"Tool {call.Name} rechazada ({code}) correlation_id={BlsCorrelationContext.CorrelationId} trace_id={BlsCorrelationContext.TraceId}");
+        (_logger as IBlsSloAware)?.Metrics.RecordToolRejected();
+
+        var payload = new Dictionary<string, string>
+        {
+            ["error"] = message,
+            ["code"] = code,
+            ["tool"] = call.Name
+        };
+        if (approval != null)
+        {
+            payload["payload_sha256"] = approval.PayloadSha256;
+        }
+
+        var json = JsonSerializer.Serialize(payload);
+        OnUi(() =>
+        {
+            AppendToolErrorMessage(call.Name, message, call.Id);
+            _currentDoc?.Messages.Add(new HistoryMessage
+            {
+                Role = "tool",
+                Content = json,
+                Ts = DateTime.UtcNow,
+                ToolName = call.Name,
+                ToolCallId = call.Id
+            });
+        });
+        return json;
+    }
+
+    /// <summary>
+    /// Prompt de consentimiento PII por defecto: MessageBox modal con "No"
+    /// como botón predeterminado. La vista previa ya está redactada.
+    /// </summary>
+    private bool DefaultPiiConsentPrompt(BlsPiiConsentRequest request)
+    {
+        return OnUiFunc(() =>
+        {
+            var body = BlsStrings.Get(
+                "PiiConsentBody",
+                string.Join(", ", request.Categories),
+                request.RedactedPreview);
+            var answer = MessageBox.Show(
+                this,
+                body,
+                BlsStrings.Get("PiiConsentTitle"),
+                MessageBoxButtons.YesNo,
+                MessageBoxIcon.Warning,
+                MessageBoxDefaultButton.Button2);
+            return answer == DialogResult.Yes;
+        });
+    }
+
+    /// <summary>Vista previa saneada y acotada; nunca incluye los valores originales.</summary>
+    private static string BuildPiiPreview(IReadOnlyList<ChatMessage> scrubbedMessages)
+    {
+        for (var i = scrubbedMessages.Count - 1; i >= 0; i--)
+        {
+            if (scrubbedMessages[i].Role != "user")
+                continue;
+
+            var text = scrubbedMessages[i].Content ?? string.Empty;
+            return text.Length <= 800 ? text : text.Substring(0, 800) + "…";
+        }
+
+        return string.Empty;
+    }
+
+    /// <summary>
+    /// Marshaling síncrono al hilo UI cuando se necesita un valor de retorno
+    /// (los diálogos modales no funcionan con el <see cref="OnUi"/> asíncrono).
+    /// </summary>
+    private T OnUiFunc<T>(Func<T> func)
+    {
+        if (InvokeRequired && IsHandleCreated && !IsDisposed)
+        {
+            return (T)Invoke(func);
+        }
+        return func();
     }
 
     /// <summary>

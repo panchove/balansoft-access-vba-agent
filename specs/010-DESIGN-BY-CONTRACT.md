@@ -89,20 +89,20 @@ Entonces el valor devuelto no es nulo y satisface EnsuresNotNull
 
 ## Tests Obligatorios
 
-| Test | Cubre |
-|---|---|
-| `Requires_TrueCondition_DoesNotThrow` | R001 |
-| `Requires_FalseCondition_ThrowsBlsPreconditionException` | R001 |
-| `RequiresNotNull_NonNullArgument_ReturnsValue` | R001 |
-| `RequiresNotNull_NullArgument_ThrowsArgumentNullException` | R001 |
-| `RequiresNotNullOrWhiteSpace_ValidString_ReturnsString` | R001 |
-| `RequiresNotNullOrWhiteSpace_InvalidString_ThrowsArgumentException` | R001 |
-| `RequiresRange_ConditionFalse_ThrowsArgumentOutOfRangeException` | R002 |
-| `RequiresRange_ConditionTrue_DoesNotThrow` | R002 |
-| `RequiresState_ConditionFalse_ThrowsInvalidOperationException` | R002 |
-| `Ensures_ConditionTrue_DoesNotThrow` | R003 |
-| `Ensures_ConditionFalse_ThrowsBlsPostconditionException` | R003 |
-| `EnsuresNotNull_NonNull_ReturnsValue` | R003 |
-| `EnsuresNotNull_Null_ThrowsBlsPostconditionException` | R003 |
-| `Invariant_ConditionTrue_DoesNotThrow` | R004 |
-| `Invariant_ConditionFalse_ThrowsBlsInvariantException` | R004 |
+| Test                                                                | Cubre |
+|---------------------------------------------------------------------|-------|
+| `Requires_TrueCondition_DoesNotThrow`                               | R001  |
+| `Requires_FalseCondition_ThrowsBlsPreconditionException`            | R001  |
+| `RequiresNotNull_NonNullArgument_ReturnsValue`                      | R001  |
+| `RequiresNotNull_NullArgument_ThrowsArgumentNullException`          | R001  |
+| `RequiresNotNullOrWhiteSpace_ValidString_ReturnsString`             | R001  |
+| `RequiresNotNullOrWhiteSpace_InvalidString_ThrowsArgumentException` | R001  |
+| `RequiresRange_ConditionFalse_ThrowsArgumentOutOfRangeException`    | R002  |
+| `RequiresRange_ConditionTrue_DoesNotThrow`                          | R002  |
+| `RequiresState_ConditionFalse_ThrowsInvalidOperationException`      | R002  |
+| `Ensures_ConditionTrue_DoesNotThrow`                                | R003  |
+| `Ensures_ConditionFalse_ThrowsBlsPostconditionException`            | R003  |
+| `EnsuresNotNull_NonNull_ReturnsValue`                               | R003  |
+| `EnsuresNotNull_Null_ThrowsBlsPostconditionException`               | R003  |
+| `Invariant_ConditionTrue_DoesNotThrow`                              | R004  |
+| `Invariant_ConditionFalse_ThrowsBlsInvariantException`              | R004  |

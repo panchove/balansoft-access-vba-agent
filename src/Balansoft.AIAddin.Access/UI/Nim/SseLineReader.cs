@@ -16,9 +16,10 @@ namespace Balansoft.AIAddin.UI.Nim;
 /// Esta clase lee del <see cref="Stream"/> subyacente con
 /// <see cref="Stream.ReadAsync(byte[],int,int,CancellationToken)"/>, que sí honra el token.
 /// </summary>
-internal sealed class SseLineReader
+internal sealed class SseLineReader : IDisposable
 {
     private const int BufferSize = 4096;
+    private const int MaxLineBytes = 2 * 1024 * 1024;
 
     private readonly Stream _stream;
     private readonly byte[] _buffer = new byte[BufferSize];
@@ -46,6 +47,8 @@ internal sealed class SseLineReader
                 var b = _buffer[_bufferPos++];
                 if (b == (byte)'\n')
                     return TakeLine();
+                if (_lineBuffer.Length >= MaxLineBytes)
+                    throw new InvalidDataException("Linea SSE excede 2 MB; se descarta para evitar crecimiento ilimitado.");
                 _lineBuffer.WriteByte(b);
             }
 
@@ -61,6 +64,11 @@ internal sealed class SseLineReader
         }
     }
 
+        /// <summary>Libera el buffer de linea al terminar el stream.</summary>
+        public void Dispose()
+        {
+            _lineBuffer.Dispose();
+        }
     private string TakeLine()
     {
         var bytes = _lineBuffer.ToArray();

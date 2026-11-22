@@ -7,7 +7,9 @@ using System.Text;
 namespace Balansoft.AIAddin.Helpers;
 
 /// <summary>
-/// Implementación real de IDataProtector usando DPAPI (CurrentUser).
+/// Protector v1 con entropía fija. Se conserva únicamente como fallback de
+/// lectura durante la migración a entropía derivada (ADR-018 / R-11); las
+/// escrituras nuevas usan <see cref="DerivedEntropyDpapiDataProtector"/>.
 /// </summary>
 internal sealed class DpapiDataProtector : IDataProtector
 {

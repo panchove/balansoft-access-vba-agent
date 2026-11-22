@@ -132,22 +132,22 @@ Y no devuelve un detalle vacío
 
 Ya implementados (contra `FakeAccess`):
 
-| Test | Cubre |
-|---|---|
-| `Bridge_ProjectSummary_DevuelveCounts` | R003 |
-| `Bridge_ListObjects_DevuelveCategorias` | R004 |
-| `Bridge_ObjectDetail_DevuelveCampos` | R005 |
+| Test                                    | Cubre |
+|-----------------------------------------|-------|
+| `Bridge_ProjectSummary_DevuelveCounts`  | R003  |
+| `Bridge_ListObjects_DevuelveCategorias` | R004  |
+| `Bridge_ObjectDetail_DevuelveCampos`    | R005  |
 
 **Pendientes** (requieren la implementación real o un doble más fiel):
 
-| Test | Cubre |
-|---|---|
-| `Access_ExcluyeObjetosMSysYTemporalizados` | R002 |
-| `Access_SqlTruncadoAMax8Kb_MarcaTruncamiento` | R005 |
-| `Access_RespetivaMaxFields` | R006 |
-| `Access_ObjetoInexistente_LanzaErrorTipado` | R007 |
-| `ObjectDetail_Tabla_DevuelveCamposSinSql` | R005, ADR-004 |
-| `ObjectDetail_SqlExcede8KB_TruncaYMarca` | R005, ADR-004 |
+| Test                                          | Cubre         |
+|-----------------------------------------------|---------------|
+| `Access_ExcluyeObjetosMSysYTemporalizados`    | R002          |
+| `Access_SqlTruncadoAMax8Kb_MarcaTruncamiento` | R005          |
+| `Access_RespetivaMaxFields`                   | R006          |
+| `Access_ObjetoInexistente_LanzaErrorTipado`   | R007          |
+| `ObjectDetail_Tabla_DevuelveCamposSinSql`     | R005, ADR-004 |
+| `ObjectDetail_SqlExcede8KB_TruncaYMarca`      | R005, ADR-004 |
 
 Los dos últimos los busca la CI por nombre y hoy avisan de que faltan.
 

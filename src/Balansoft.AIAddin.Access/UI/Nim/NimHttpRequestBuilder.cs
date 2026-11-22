@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Balansoft.AIAddin.Helpers;
 
 namespace Balansoft.AIAddin.UI.Nim;
 
@@ -17,9 +18,9 @@ internal static class NimHttpRequestBuilder
     /// <summary>
     /// Modelo por defecto si no se pasa parámetro ni hay NIM_MODEL en el entorno.
     /// </summary>
-    public const string DefaultModel = "nvidia/nemotron-3.5-lightning-30b-a3b";
+    public const string DefaultModel = BlsModelCatalog.DefaultModel;
 
-    private const double Temperature = 0.2;
+    private const double Temperature = 0.6;
     private const int MaxTokens = 8192;
 
     private static readonly JsonSerializerOptions SerializerOptions = new JsonSerializerOptions
@@ -41,10 +42,14 @@ internal static class NimHttpRequestBuilder
         var hasTools = tools != null && tools.Count > 0;
         var sanitizedMessages = NimMessageSanitizer.Sanitize(messages ?? Array.Empty<ChatMessage>());
 
+        // R-03: último saneamiento antes de serializar. No hay opción para
+        // desactivarlo; el historial local permanece intacto.
+        var scrubbed = BlsPiiScrubber.Scrub(sanitizedMessages);
+
         var payload = new
         {
             model = model,
-            messages = sanitizedMessages,
+            messages = scrubbed.Messages,
             tools = hasTools ? tools.Select(Wrap).ToList() : (object)null,
             tool_choice = hasTools ? "auto" : (object)null,
             stream = true,
@@ -77,14 +82,8 @@ internal static class NimHttpRequestBuilder
     /// </summary>
     public static string ResolveModel(string model)
     {
-        if (!string.IsNullOrEmpty(model))
-            return model;
-
-        var env = Environment.GetEnvironmentVariable("NIM_MODEL");
-        if (!string.IsNullOrEmpty(env))
-            return env;
-
-        return DefaultModel;
+        var env = Environment.GetEnvironmentVariable(BlsModelCatalog.EnvironmentVariable);
+        return BlsModelCatalog.Resolve(string.IsNullOrEmpty(model) ? env : model);
     }
 
     internal sealed class ToolRequestEnvelope

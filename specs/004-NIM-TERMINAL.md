@@ -81,7 +81,7 @@ Restricciones:
   callback `OnToolCall`. Ejecutarlas desde el callback corre el loop en
   paralelo al stream, y el turno se cerraba a mitad de camino con el CTS ya
   liberado.
-- Tope de 8 iteraciones de herramientas. Al superarlo se registra un error y
+- tope de 32 iteraciones de herramientas. Al superarlo se registra un error y
   el turno termina, para no entrar en bucle infinito.
 - `OnToolCall` **solo registra** la llamada en la lista pendiente.
 
@@ -199,7 +199,7 @@ un `IBlsNimSink`, y testear eso.
   `assistant` con `tool_calls` que lo precede. NIM debería responder 400.
   Hoy no se ha visto porque cada turno vuelve a pedir `project_summary`.
 - **Sin tests de UI.** Es el gap de calidad más grande del proyecto:
-  ~600 líneas de WinForms sin una sola aserción.
+  1845 líneas de WinForms sin una sola aserción.
 - **`OnFormClosing` llama `.Wait(TimeSpan.FromSeconds(2))` sobre una task
   async.** Es el flush del historial. Bloquea el hilo de UI hasta 2 s; en un
   cierre de Access es aceptable, pero conviene revisarlo con el resto de la

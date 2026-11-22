@@ -37,7 +37,7 @@ Documentar issues de código, buenas prácticas,anti-patrones y sugerencias de m
 
 ### Seguridad y DPAPI
 - [x] API key **SOLO** en `DataProtectionScope.CurrentUser`
-- [x] Entropía fija: `UTF8("Balansoft.AIAddin.Access.v1")`
+- [x] Entropia derivada v2: `SHA256(MachineName|UserName|v2)` (ADR-018); protector fijo solo como fallback de lectura
 - [x] Archivo binario en `%APPDATA%\Balansoft\AIAddin\apikey.bin`
 - [x] **NUNCA** loguear API key, ni completa ni parcial
 - [x] **NUNCA** serializar API key en JSON o registry
@@ -51,13 +51,13 @@ Documentar issues de código, buenas prácticas,anti-patrones y sugerencias de m
 
 ### Bridge y Pipe
 - [x] Framing: 4 bytes LE (uint32) + UTF-8 JSON (ADR-002)
-- [x] `CurrentUserOnly` obligatorio en Named Pipe
-- [x] Whitelist de métodos (10 métodos definidos)
+- [ ] ACL explicita del pipe por SID del usuario (PENDIENTE: Fase 1 de la auditoria 2026-11-22)
+- [x] Whitelist de metodos (19 metodos definidos en `JsonRpcMethods.All`)
 - [x] `SemaphoreSlim(1,1)` para serializar operaciones VBE
 - [x] Token del turno (ADR-003) propagado a todos los handlers
 
 ### Tests y Cobertura
-- [x] 79 tests del MVP (36 ADR + 29 transversales + 6 integración NIM)
+- [x] 321 tests unitarios verdes en CI (los de integracion NIM se filtran con `.runsettings`)
 - [x] **NUNCA** `Thread.Sleep` en tests (usar `WaitAsync(TimeSpan)`)
 - [x] Tests sin Office (unitarias) corren en CI
 - [x] Tests de integración NIM con `NIM_API_KEY` en env
@@ -123,7 +123,7 @@ Los errores logged no siempre incluyen la versión actual del add-in ni el commi
 - [ ] API key no en logs/excepciones?
 - [ ] `VBE == null` chequeado antes uso?
 - [ ] Framing pipe 4bytes LE + UTF-8 JSON?
-- [ ] Tests: 79 pasan (sin integración NIM)?
+- [ ] Tests: 287 pasan (sin integracion NIM)?
 
 ### Código:
 - [ ] Comentarios XML en APIs públicas
@@ -163,6 +163,29 @@ Los errores logged no siempre incluyen la versión actual del add-in ni el commi
 - AGENTS.md — Reglas duras del proyecto
 - PRD.md — Historias de usuario y requisitos
 - .opencode/skills/bls-com-late-binding/SKILL.md — Envoltorio COM
-- .opencode/skills/bls-logging-errors/SKILL.md — Logging y formato
+- AGENTS.md — Logging y formato
 - .opencode/skills/bls-testing-strategy/SKILL.md — Tests y calidad
 - ADR-001..004 — Decisiones arquitectónicas
+
+---
+
+## Correcciones aplicadas - auditoria 2026-11-22 (Fase 0)
+
+| ID     | Hallazgo                                                                                                                | Correccion                                                                                                                                                                               | Evidencia                                                |
+|--------|-------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------|
+| CS-004 | Gate 11 de CI detectaba la palabra `Thread.Sleep` dentro de un comentario de test, dejando la pipeline en rojo          | El comentario de `BlsNimResilienceTests.cs` ya no contiene el literal prohibido                                                                                                          | Gate 11 reproducido en local: 0 coincidencias            |
+| CS-005 | Cinco tests de ADR tenian cuerpo vacio (`{ }`) y se contaban como verdes                                                | Tres se implementaron con dobles CLR y aserciones reales (ADR-001); los dos de ADR-004 se retiraron porque `GetObjectDetail` sigue siendo un stub. El gate 12 ahora rechaza cuerpo vacio | `ProjectKeyAndObjectDetailTests.cs`, gate 12 de `ci.yml` |
+| CS-006 | Asuncion de SLO con tiempo real en `Logger_Metricas_ContabilizanEscriturasCorrectas` (p95 <= 50 ms) hacia el test flaky | Se eliminó la asercion de latencia; el SLO se verifica con reloj inyectable en `BlsSloMetricsTests`                                                                                      | Suite 321/321 en dos ejecuciones consecutivas            |
+| CS-007 | El step "Build (Release)" de CI compilaba el proyecto de tests en vez del add-in                                        | Compila `Balansoft.AIAddin.Access.csproj`                                                                                                                                                | `.github/workflows/ci.yml`                               |
+
+**Recuento:** la suite pasa de 289 a 321 tests porque se retiraron dos tests ficticios y se convirtieron tres vacios en aserciones reales. Ninguna funcionalidad se elimino.
+
+### Issue #4: CS-008 (abierto, prioridad alta)
+**Titulo**: Fail-safe y HITL no se comprueban en la frontera del pipe
+**Descripcion**: `BlsSafetyGate.EnsureAllowed` y `BlsHumanApprovalGate.Evaluate` solo se invocan desde `BlsNimTerminal`. `JsonRpcDispatcher` no los conoce, por lo que un cliente directo del pipe puede ejecutar `delete_module`, `execute_sql` y `migrate_*` sin aprobacion humana ni kill switch.
+**Estado**: Fixed in v1.1.0 (2026-11-22). `BlsToolAuthorizationRegistry` + refuerzo en `JsonRpcDispatcher` + ACL por SID. Evidencia: `JsonRpcSafetyTests` y `BlsPipeSecurityTests`.
+
+### Issue #5: CS-009 (abierto, prioridad alta)
+**Titulo**: Cadena de auditoria no verificada en ejecucion
+**Descripcion**: `BlsAuditChain.Verify` solo se usa en tests; el log se reinicia cada dia con `GENESIS` y `BlsLogger` silencia fallos de escritura.
+**Estado**: Fixed in v1.1.0 (2026-11-22). `VerifyDirectory` + `SeedFor` + verificacion al arranque con kill switch. Evidencia: `BlsAuditChainDirectoryTests`.

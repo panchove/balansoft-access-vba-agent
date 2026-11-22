@@ -4,7 +4,7 @@ COM Add-in para Microsoft Access 2010+ (x86) que integra NVIDIA NIM en el VBE.
 Stack: C# 10, .NET Framework 4.8 (net48), WinForms, sin PIAs, enlace tardío vía `dynamic`.
 ProgID: `Balansoft.AIAddin.Access` | CLSID: `{d31bf73e-dbe1-4739-84bc-2c974fcd3171}`.
 
-> Estado: el producto **no carga todavía en Access** (falta el punto de entrada COM, spec 001). El bridge JSON-RPC, el cliente NIM y el almacén DPAPI están implementados con 165 tests verdes.
+> Estado: el add-in carga en Access con ciclo de vida COM completo (spec 001). El bridge JSON-RPC, el cliente NIM, el almacén DPAPI, la supervision humana (F2), la auditoría JSON con hash encadenado (F3), la idempotencia con resiliencia (F4) y la privacidad/cadena de suministro (F5) están implementados con 321 tests verdes. Los 12 riesgos R-01…R-12 están cerrados.
 
 ## Reglas duras (CI las verifica y bloquea el merge)
 
@@ -18,6 +18,28 @@ ProgID: `Balansoft.AIAddin.Access` | CLSID: `{d31bf73e-dbe1-4739-84bc-2c974fcd31
 8. **Errores COM/NIM se propagan** con categoría + mensaje original. Prohibido éxito falso ni `catch (Exception) { }`.
 9. **Nullable=annotations** (no `disable`).
 10. **Todo acceso a VBE/Access desde hilos no-UI** pasa por marshaling explícito al hilo de UI (`IUiScheduler`).
+11. **Supervision humana por instruccion directa (F2/ADR-015):** la aprobacion de tools `Medium`/`High` se produce en el instante en que el usuario da la instruccion; no se muestra dialogo, pero cada decision se audita con `payload_sha256` ("Aprobacion directa por instruccion del usuario"). El kill switch (`BlsSafetyGate`) se comprueba antes y despues de cada tool call, en la terminal y en `JsonRpcDispatcher`; un rechazo NUNCA invoca el bridge ni reporta exito falso. El tope es de 32 iteraciones por turno.
+12. **PII y supply chain (F5/ADR-018):** el scrubber se aplica siempre en `NimHttpRequestBuilder.BuildJson`; el único literal de modelo en `src/` está en `Helpers/BlsModelCatalog.cs`; la entropía DPAPI es derivada y el protector fijo solo se usa para leer. CI lo verifica en el gate 8f.
+
+## Gobernanza de IA (ISO/IEC 42001 · 25 Pilares)
+
+- **Política de IA:** `docs/governance/AI-POLICY.md`. **Riesgos:** `docs/governance/AI-RISK-REGISTER.md`.
+- **AI-BOM:** `docs/governance/AI-BOM.md`. **Amenazas:** `docs/governance/OWASP-AGENTIC-THREAT-MODEL.md`.
+- **Divulgación:** la terminal muestra `AiDisclosure` de forma persistente (EU AI Act Art. 50).
+- **Agente único:** solo `bls-architect` está activo; la auditoría ISO se ejecuta como gates de CI,
+  no como agentes que revisan. `agents_index` debe contener exactamente un agente.
+- **Supervisión humana (F2, ADR-015):** `delete_module`, `execute_sql`, `migrate_*` y cualquier
+  tool `Medium`/`High` exigen aprobación UI con `payload_sha256`; el kill switch bloquea
+  nuevas acciones sin intervención del modelo. F3 cierra R-04/R-05 (logs JSON
+  auditados y trazabilidad). F4 cierra R-06 (idempotencia por clave derivada
+  del turno, caché TTL/FIFO) y R-09 (full jitter + circuit breaker). Siguen
+  abiertos. F5 cierra R-03 (`BlsPiiScrubber` + `BlsPiiConsentGate`), R-07
+  (`BlsModelCatalog` y hash del prompt en el AI-BOM), R-10 (cross-refs de
+  código + índice de specs) y R-11 (entropía DPAPI derivada con migración
+  transparente). No quedan R-* abiertos.
+- **Trailer de commits con asistencia de IA:** `AI-Assistant: OpenCode Big Pickle`.
+  Este trailer **sustituye** el `Co-Authored-By: Claude Code <noreply@anthropic.com>`
+  de la configuración global: atribuir la autoría a otro modelo violaría el Pilar 5.
 
 ## Comandos canónicos
 
@@ -51,7 +73,7 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1 -Configuration Release
 - **net48 limita APIs:** no `Task.WaitAsync`, no raw strings (C# 11), no `System.Net.Http.Json`, no E/S de archivos async. Para waits con timeout usar `tests/.../TaskTestExtensions.cs`.
 - **Named pipe:** framing `[uint32 LE longitud][UTF-8 JSON]`, máx 1 MB. Las clases `NamedPipe*` anteponen `\\.\pipe\` solas — pasar el nombre completo lo duplica. Usar el nombre pelado (`BlsPipeFraming.DefaultPipeName`).
 - **Scaffold.ps1 está roto** (4 errores de parser, líneas 762-775). **No usar.**
-- **Modelo:** `nvidia/nemotron-3.5-lightning-30b-a3b` (override por variable de entorno `NIM_MODEL`).
+- **Modelo:** `nvidia/nemotron-3-super-120b-a12b` (override por variable de entorno `NIM_MODEL`).
 - **Tests de integración NIM** requieren `NIM_API_KEY` en el entorno (o `.env`); quedan fuera de la CI por defecto.
 - **`.env`** se copia de `.env.example`; nunca se commitea (está en `.gitignore`).
 - **API key en DPAPI:** nunca en logs, excepciones, JSON, registry ni disco (`BlsSecureStore`, `CurrentUser`). Véase AGENTS.md regla 7.
@@ -59,10 +81,12 @@ powershell -ExecutionPolicy Bypass -File scripts\Pack.ps1 -Configuration Release
 ## Estructura
 
 - `src/Balansoft.AIAddin.Access/` — add-in COM, Core, Helpers, UI (WinForms)
-- `tests/Balansoft.AIAddin.Tests/` — 165 tests MSTest (fakes, sin COM real). `BalansoftTest.accdb` es la base de prueba para verificar en Access real (no se usa en la suite por defecto).
-- `specs/` — contratos SDD (001–012, MAYÚSCULAS `NNN-<SLUG>.md`); `specs/README.md` es el índice con estados y tests por spec.
+- `tests/Balansoft.AIAddin.Tests/` — 321 tests MSTest (fakes, sin COM real). `BalansoftTest.accdb` es la base de prueba para verificar en Access real (no se usa en la suite por defecto).
+- `specs/` — contratos SDD (001–019, MAYÚSCULAS `NNN-<SLUG>.md`); `specs/README.md` es el índice con estados y tests por spec.
 - `docs/design/` — ADR (`ADR-NNN-<SLUG>.md`)
+- `docs/governance/` — política de IA, registro de riesgos, AI-BOM y threat model
 - `.opencode/skills/` — skills de OpenCode (bls-*)
+- `.opencode/agents/` — un único agente activo (`bls-architect`)
 - `Balansoft.AIAddin.slnx` — solución real; **no se compila** directamente
 
 ## Gestión de sesiones (historial de chat)
@@ -103,13 +127,13 @@ El filtro `-Filter` también está en `scripts\dev.ps1 test -Filter "<área>"`.
 
 Copia `.env.example` a `.env` (nunca se commitea; está en `.gitignore`):
 
-| Variable | Obligatorio | Valor por defecto |
-|----------|-------------|-------------------|
-| `NIM_API_KEY` | sí (solo integración NIM) | — |
-| `NIM_MODEL` | no | `nvidia/nemotron-3.5-lightning-30b-a3b` |
-| `NIM_ENDPOINT` | no | `https://integrate.api.nvidia.com/v1/chat/completions` |
-| `NIM_REASONING_EFFORT` | no | `default` |
-| `NIM_DEFAULT_LANGUAGE` | no | `english` |
+| Variable               | Obligatorio               | Valor por defecto                                      |
+|------------------------|---------------------------|--------------------------------------------------------|
+| `NIM_API_KEY`          | sí (solo integración NIM) | —                                                      |
+| `NIM_MODEL`            | no                        | `nvidia/nemotron-3-super-120b-a12b`                |
+| `NIM_ENDPOINT`         | no                        | `https://integrate.api.nvidia.com/v1/chat/completions` |
+| `NIM_REASONING_EFFORT` | no                        | `default`                                              |
+| `NIM_DEFAULT_LANGUAGE` | no                        | `english`                                              |
 
 ## Convenciones de commit y PR
 
@@ -123,11 +147,17 @@ test: <descripción>
 chore: <descripción>
 ```
 
+Los commits generados o asistidos por IA deben incluir el trailer de divulgación:
+
+```
+AI-Assistant: OpenCode Big Pickle
+```
+
 Un solo commit por feature a `main`. El PR usa `.github/PULL_REQUEST_TEMPLATE.md` con checklist de rechazo (cualquier ítem en negativo ⇒ rechazo automático salvo justificación explícita en "Notas para el revisor"). Items clave del checklist: sin PIAs, sin ROT, `dynamic` solo en `Helpers/BlsComHelper.cs`, marshaling UI por `IUiScheduler`, API key solo DPAPI, errores propagados, x86, `TreatWarningsAsErrors`, sin `Thread.Sleep` en tests, tests ADR obligatorios presentes.
 
 ## Orden de specs (SDD)
 
-El spec **001 (ADDIN-LIFECYCLE) es bloqueante**: sin el punto de entrada COM el add-in no carga en Access y nada más se puede probar allí. Después van 008 (logging) y 009 (registro), necesarios para diagnosticar y desplegar 001. Los specs 002–007 son el transporte y funcionalidad; 004 (terminal) es el mayor gap de calidad (~600 líneas WinForms sin tests). Índice y estados exactos en `specs/README.md`.
+El spec **001 (ADDIN-LIFECYCLE) ya está implementado**: el add-in carga en Access con `OnConnection`/`OnDisconnection` y 5 tests de ciclo de vida. El orden histórico era 001 → 008 (logging) → 009 (registro) → 002–007 (transporte y funcionalidad). La gobernanza incremental se entregó después: 015 (divulgación, F1), 016 (HITL, F2), 017 (auditoría, F3) y 018 (idempotencia y resiliencia, F4). Siguen como deuda 004 (terminal con 1845 líneas WinForms sin tests directos), 005/006 (sin aserciones) y 008/009 (pendientes parciales). Índice y estados exactos en `specs/README.md`.
 
 ## Nueva dependencia NuGet
 
@@ -144,5 +174,22 @@ Requiere ADR (documentar por qué y evaluar compatibilidad net48/x86). No se agr
 1. Spec en `specs/` con criterios de aceptación verificables (primero).
 2. Implementar + tests (x86 y x64, sin PIAs, `dynamic` aislado).
 3. Verificar: build Debug + Release en **x86 y x64** y suite de tests verde en ambas arquitecturas.
-4. PR → CI ejecuta 8 gates: build, tests (165/165), documentos obligatorios, ausencia de PIAs, aislamiento de `dynamic`, ausencia de `Thread.Sleep` en tests, tests de ADR, referencias cruzadas en MDs.
+4. PR → CI ejecuta 13 gates: build, tests (321/321 en x86 y x64), gobernanza IA (política, BOM, divulgación y agente único), fail-safe/HITL (kill switch + DbC), auditoría (JSONL, cadena SHA-256, correlación y saneamiento, F3), idempotencia y resiliencia (clave SHA-256, caché TTL/FIFO, jitter y breaker, F4), privacidad/supply chain/doc sync (scrubber, hash del prompt y catálogo, entropía derivada, F5), documentos obligatorios, ausencia de PIAs, aislamiento de `dynamic`, ausencia de `Thread.Sleep` en tests, tests de ADR, referencias cruzadas en MDs (incluye rutas de código e índice de specs).
 5. Merge a `main` → tag `v*` → release automático.
+
+## Skills consolidados (auditoría 2026-11-22, Fase 3)
+
+El workspace mantenía 11 skills (2.879 LOC) que duplicaban ADRs y specs; el skill
+`bls-workflow-nemotron` describía un flujo de dos modelos con `bls-implementer`
+que F1 había retirado. Se conservan solo cuatro skills canónicos:
+
+- `.opencode/skills/bls-com-late-binding/SKILL.md`
+- `.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md`
+- `.opencode/skills/bls-secure-store-dpapi/SKILL.md`
+- `.opencode/skills/bls-testing-strategy/SKILL.md`
+
+Los siete restantes se eliminaron y sus referencias históricas en ADRs y specs se
+redirigieron a este fichero, que es la fuente canónica de reglas. La gobernanza
+sigue siendo un agente único (`bls-architect`) con gates de CI; no hay handoffs
+entre modelos. `skills_index` y la lista de documentos obligatorios de CI se
+actualizaron en consecuencia.

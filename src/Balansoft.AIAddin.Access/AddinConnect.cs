@@ -95,6 +95,8 @@ namespace Balansoft.AIAddin.Access
         private ISystemPromptBuilder? _promptBuilder;
         private IUserInputDialog? _userInputDialog;
         private BlsNimTerminal? _terminal;
+        private BlsSafetyGate? _safetyGate;
+        private BlsToolAuthorizationRegistry? _authorization;
 
         /// <summary>
         /// Se invoca cuando el host Microsoft Access carga el complemento COM.
@@ -108,8 +110,16 @@ namespace Balansoft.AIAddin.Access
             _accessApp = application;
             try
             {
-                _vbe = BlsComHelper.GetVbe(_accessApp);
-                CreateMenu();
+                // BalanceSoft-001: en .accde Access no expone VBE. No es un
+                // error: el add-in carga y simplemente no ofrece la terminal.
+                if (BlsComHelper.TryGetVbe(_accessApp, out _vbe))
+                {
+                    CreateMenu();
+                }
+                else
+                {
+                    _logger?.Info("AddinConnect", "VBE no disponible (modo runtime .accde)");
+                }
             }
             catch (Exception ex)
             {
@@ -212,7 +222,7 @@ namespace Balansoft.AIAddin.Access
             {
                 if (_vbe == null && _accessApp != null)
                 {
-                    _vbe = BlsComHelper.GetVbe(_accessApp);
+                    BlsComHelper.TryGetVbe(_accessApp, out _vbe);
                 }
                 if (_commandBarButton == null && _vbe != null)
                 {
@@ -227,6 +237,19 @@ namespace Balansoft.AIAddin.Access
             if (_logger == null)
             {
                 _logger = new BlsLogger();
+
+                // Fase 2 (CS-009): verificar la cadena de auditoria al arranque.
+                // Una cadena manipulada dispara el mismo kill switch que una
+                // accion insegura: el modelo no puede operar sin trazabilidad.
+                var integrity = BlsAuditChain.VerifyDirectory(BlsPaths.LogsDir);
+                if (!integrity.IsValid)
+                {
+                    if (_safetyGate == null) _safetyGate = new BlsSafetyGate();
+                    _safetyGate.Trip("Integridad de la cadena de auditoria comprometida");
+                    _logger.Error(
+                        "BlsLogger",
+                        $"Cadena de auditoria invalida en linea {integrity.FirstInvalidLine}: {integrity.Reason}");
+                }
             }
 
             if (_uiScheduler == null)
@@ -246,7 +269,11 @@ namespace Balansoft.AIAddin.Access
 
             if (_secureStore == null)
             {
-                _secureStore = new BlsSecureStore(new DpapiDataProtector(), BlsPaths.ApiKeyFile, _logger);
+                _secureStore = new BlsSecureStore(
+                    new DerivedEntropyDpapiDataProtector(),
+                    BlsPaths.ApiKeyFile,
+                    _logger,
+                    new DpapiDataProtector());
             }
 
             if (_chatHistory == null)
@@ -256,7 +283,9 @@ namespace Balansoft.AIAddin.Access
 
             if (_httpClient == null)
             {
-                _httpClient = new HttpClient();
+                // Fase 4: timeout explicito de transporte; el timeout logico
+                // del turno se aplica en BlsNimTerminal con CancelAfter.
+                _httpClient = new HttpClient { Timeout = TimeSpan.FromMinutes(10) };
             }
 
             if (_nimClient == null && _secureStore != null)
@@ -264,9 +293,22 @@ namespace Balansoft.AIAddin.Access
                 _nimClient = new BlsNimClient(_httpClient, _secureStore, _logger);
             }
 
+            // Fase 1: un unico kill switch y un unico registro de autorizaciones
+            // compartidos por la terminal y el bridge. Asi el fail-safe y el HITL
+            // se comprueban tanto en la UI como en la frontera del pipe.
+            if (_safetyGate == null)
+            {
+                _safetyGate = new BlsSafetyGate();
+            }
+            if (_authorization == null)
+            {
+                _authorization = new BlsToolAuthorizationRegistry();
+            }
+
             if (_bridgeServer == null && _vbeService != null && _accessService != null && _uiScheduler != null)
             {
-                _bridgeServer = new BlsVbeBridgeServer(_vbeService, _accessService, _uiScheduler, _logger);
+                _bridgeServer = new BlsVbeBridgeServer(
+                    _vbeService, _accessService, _uiScheduler, _logger, _authorization, _safetyGate);
                 try
                 {
                     _bridgeServer.Start();
@@ -325,7 +367,10 @@ namespace Balansoft.AIAddin.Access
                     _commandBarButton = null;
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                _logger?.Warn("AddinConnect", "No se pudo eliminar el menu del VBE al desconectar", ex);
+            }
         }
 
         internal void OnMenuClick(object ctrl, ref bool cancelDefault)
@@ -344,11 +389,11 @@ namespace Balansoft.AIAddin.Access
                 // Asegurarse de que dispongamos de un VBE (puede ser nulo si no hay proyecto abierto)
                 if (_vbe == null && _accessApp != null)
                 {
-                    _vbe = BlsComHelper.GetVbe(_accessApp);
+                    BlsComHelper.TryGetVbe(_accessApp, out _vbe);
                 }
                 if (_vbe == null)
                 {
-                    MessageBox.Show("No se puede abrir la terminal NIM sin un proyecto de VBA abierto.", "Balansoft AI Add-in", MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                    MessageBox.Show(BlsStrings.Get("MsgNoVbeRuntime"), "Balansoft AI Add-in", MessageBoxButtons.OK, MessageBoxIcon.Warning);
                     return;
                 }
 
@@ -365,7 +410,9 @@ namespace Balansoft.AIAddin.Access
                     _logger,
                     _vbeContext,
                     _promptBuilder,
-                    _userInputDialog);
+                    _userInputDialog,
+                    _authorization,
+                    _safetyGate);
 
                 _terminal.FormClosed += (s, e) => { _terminal = null; };
                 _terminal.BringToFront();

@@ -125,16 +125,16 @@ Entonces no falla por buscar la solución (los scripts usan `dotnet build` sobre
 
 Ninguno. No hay framework de tests para PowerShell en el repositorio.
 
-| Test | Cubre |
-|---|---|
-| `Register_X86_RegistraClsidEnHKCU` | R001 |
-| `Register_ArquitecturaIncorrecta_AbortaConCodigo1` | R002 |
-| `Register_DosVeces_NoDuplicaClaves` | R003 |
-| `Register_VerificaLoadBehaviorAlFinal` | R004 |
-| `Register_NoTocaHKLM` | R001 |
-| `Pack_ZipContieneLosCincoArchivos` | R005 |
-| `Pack_VersionTxtIncluyeVersionYCommit` | R005 |
-| `Scripts_ResuelvenSolucionSlnx` | R006 |
+| Test                                               | Cubre |
+|----------------------------------------------------|-------|
+| `Register_X86_RegistraClsidEnHKCU`                 | R001  |
+| `Register_ArquitecturaIncorrecta_AbortaConCodigo1` | R002  |
+| `Register_DosVeces_NoDuplicaClaves`                | R003  |
+| `Register_VerificaLoadBehaviorAlFinal`             | R004  |
+| `Register_NoTocaHKLM`                              | R001  |
+| `Pack_ZipContieneLosCincoArchivos`                 | R005  |
+| `Pack_VersionTxtIncluyeVersionYCommit`             | R005  |
+| `Scripts_ResuelvenSolucionSlnx`                    | R006  |
 
 Los tres primeros son de integración y requieren un PowerShell de la misma
 arquitectura que `-Architecture`; los de

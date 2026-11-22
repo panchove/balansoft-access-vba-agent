@@ -114,3 +114,86 @@ tags: [change-requests, iso-12207, modification-process, square]
 ---
 
 ## 3. Próximo CR ID disponible: `CR-007`
+
+---
+
+### CR-006: Correcciones de veracidad de gates y tests (Fase 0)
+* **ID**: `CR-006`
+* **Titulo**: Eliminar falsos verdes en gates 11 y 12 y corregir el step Release de CI
+* **Prioridad**: Alta
+* **Area**: `CI`, `tests/`, documentacion de gobernanza
+* **Fecha**: 2026-11-22
+* **Estado**: `Implementado en v1.1.0`
+* **Justificacion**: la auditoria de gobernanza detecto que el gate 11 fallaba por un comentario, que cinco tests de ADR tenian cuerpo vacio y que el step Release compilaba el proyecto equivocado. La documentacion declaraba 289 tests y 600 lineas de terminal mientras el codigo tenia otra realidad.
+* **Detalle de implementacion**:
+  - Comentario de `BlsNimResilienceTests.cs` reescrito sin el literal prohibido.
+  - Tres tests ADR-001 implementados con dobles CLR; dos tests ADR-004 retirados por ser stubs; gate 12 rechaza cuerpos vacios.
+  - Test de SLO con asercion de latencia real eliminado (no determinista).
+  - Step Release de `ci.yml` compila el `.csproj` del add-in.
+  - Documentacion sincronizada: recuento 287/287, terminal 1845 lineas, entropia derivada v2, 19 metodos JSON-RPC y registros de bugs/change requests actualizados.
+---
+
+### CR-007: Refuerzo de fail-safe y HITL en la frontera del bridge
+* **ID**: `CR-007`
+* **Titulo**: Impedir la ejecucion directa de tools destructivas desde el unnamed pipe
+* **Prioridad**: Critical
+* **Area**: `Core/Protocol`, `Core/BlsVbeBridgeServer`, `UI/BlsNimTerminal`, `AddinConnect`
+* **Fecha**: 2026-11-22
+* **Estado**: `Implementado en v1.1.0`
+* **Justificacion**: la auditoria de gobernanza detecto que los controles F2 residian solo en la terminal y que la ACL del pipe heredaba la configuracion por defecto de Windows.
+* **Detalle de implementacion**: registro de autorizaciones de un solo uso; fail-safe, HITL y tope de 32 iteraciones en el dispatcher; ACL por SID del usuario; 8 tests nuevos; gate 8c ampliado.
+---
+
+### CR-008: Integridad de auditoria verificable en ejecucion y DbC completo
+* **ID**: `CR-008`
+* **Titulo**: Encadenar los logs entre dias, verificar al arranque y anadir postcondiciones
+* **Prioridad**: Alta
+* **Area**: `Helpers/BlsAuditChain`, `Helpers/BlsLogger`, `AddinConnect`, `Helpers/BlsContract`
+* **Fecha**: 2026-11-22
+* **Estado**: `Implementado en v1.1.0`
+* **Justificacion**: la cadena SHA-256 solo se verificaba en tests y se reiniciaba cada dia; ADR-005 exigia los tres tipos de contrato.
+* **Detalle de implementacion**: `VerifyDirectory`/`SeedFor`, verificacion al arranque con kill switch, `LastWriteError`, postcondiciones e invariantes, 10 tests nuevos y gate 8d reforzado.
+---
+
+### CR-009: Consolidacion de skills y sincronizacion documental
+* **ID**: `CR-009`
+* **Titulo**: Reducir 11 skills a 4 y eliminar el workflow de dos modelos
+* **Prioridad**: Media
+* **Area**: `.opencode/skills`, `docs`, `.github/workflows/ci.yml`
+* **Fecha**: 2026-11-22
+* **Estado**: `Implementado en v1.1.0`
+* **Justificacion**: sobreingenieria documental detectada en la auditoria; duplicidad con ADRs y presencia de un workflow retirado.
+* **Detalle**: siete skills eliminados, referencias redirigidas a `AGENTS.md`, indices y gates actualizados.
+---
+
+### CR-010: Endurecimiento final de resiliencia, privacidad y supply chain
+* **ID**: `CR-010`
+* **Titulo**: Timeout global, contexto no confiable, NIF/IBAN, SBOM y SLO estructurado
+* **Prioridad**: Alta
+* **Area**: `Core/Protocol`, `UI`, `Helpers`, `scripts`, CI
+* **Fecha**: 2026-11-22
+* **Estado**: `Implementado en v1.1.0`
+* **Justificacion**: cierre de los hallazgos pendientes de la auditoria de gobernanza.
+* **Detalle**: clave de idempotencia derivada en servidor; timeout global de turno; delimitacion del contexto VBE; NIF/IBAN; NBGV 3.6.146 fijo; `GenerateSbom.ps1`; `EmitSloSnapshot`; hash del prompt actualizado en el AI-BOM.
+---
+
+### CR-011: Cierre de bugs de runtime y streams, y verificacion real
+* **ID**: `CR-011`
+* **Titulo**: BalanceSoft-001/002, red teaming y correccion de scripts de registro
+* **Prioridad**: Alta
+* **Area**: `AddinConnect`, `BlsComHelper`, `BlsNimTerminal`, `SseLineReader`, `scripts`
+* **Fecha**: 2026-11-22
+* **Estado**: `Implementado en v1.1.0`
+* **Justificacion**: ultimos bugs abiertos del registro y verificacion contra Access real.
+* **Detalle**: TryGetVbe sin excepcion, coalescing de UI, limite de linea SSE, scripts de registro con API .NET, red teaming de prompt y verificacion E2E en Access 2010 x86 con cadena SHA-256 valida.
+---
+
+### CR-012: Actualizacion de modelo y prompt para reducir repeticion
+* **ID**: `CR-012`
+* **Titulo**: Modelo Nemotron Super 120B, temperatura 0.6 y regla anti-repeticion
+* **Prioridad**: Media
+* **Area**: `Helpers/BlsModelCatalog`, `UI/Nim/NimHttpRequestBuilder`, `UI/SystemPromptBuilder`
+* **Fecha**: 2026-11-22
+* **Estado**: `Implementado en v1.1.0`
+* **Justificacion**: el modelo anterior (30B/3B activos, temperatura 0.2) tendia a repetir los patrones del codigo seleccionado en lugar de generar codigo nuevo.
+* **Detalle**: modelo por defecto `nvidia/nemotron-3-super-120b-a12b`, temperatura 0.6, PROMPT-v1.1 con regla anti-repeticion y AI-BOM actualizado.

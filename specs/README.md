@@ -59,18 +59,30 @@ Un spec por archivo, nombrado en mayúsculas estrictas `NNN-SLUG.md` (ej. `001-A
 | 012 | [ACCESS-AUTHORING](012-ACCESS-AUTHORING.md)     | FR-11         | ADR-014          | `implementado` | 7 verdes               |
 | 013 | [SESSION-DELETE](013-SESSION-DELETE.md)         | FR-10         | ADR-001, ADR-013 | `implementado` | 3 verdes               |
 | 014 | [I18N-UI](014-I18N-UI.md)                       | FR-13         | ADR-001          | `implementado` | 10 verdes              |
+| 015 | [AI-DISCLOSURE](015-AI-DISCLOSURE.md)           | GOV-01        | —                | `implementado` | 1 verde                |
+| 016 | [HUMAN-IN-THE-LOOP](016-HUMAN-IN-THE-LOOP.md)   | SEG-01        | ADR-003, ADR-005, ADR-015 | `implementado` | 22 verdes  |
+| 017 | [AUDIT-LOGGING](017-AUDIT-LOGGING.md)           | FR-07, FR-12  | ADR-011, ADR-015, ADR-016 | `implementado` | 51 verdes  |
+| 018 | [IDEMPOTENCY-RESILIENCE](018-IDEMPOTENCY-RESILIENCE.md) | FR-03, FR-04, FR-09 | ADR-002, ADR-003, ADR-015, ADR-017 | `implementado` | 18 verdes |
+| 019 | [PRIVACY-SUPPLY-CHAIN-CONFIG](019-PRIVACY-SUPPLY-CHAIN-CONFIG.md) | FR-08, GOV-01/04 | ADR-009, ADR-018 | `implementado` | 32 verdes |
 
 `implementado` solo si hay tests verdes. Los specs 005 y 006 tienen el código
 completo pero ninguna aserción que lo valide, así que no pueden declararse
 implementados.
 
-Los 165 tests de la suite se reparten en catorce ficheros:
-`BlsNimClientTests` 28 · `JsonRpcDispatcherTests` 27 · `BlsContractTests` 17
-· `BlsStringsTests` 16 · `NimStreamParserTests` 14 · `BlsVbeBridgeServerTests` 12
-· `NimHttpRequestBuilderTests` 11 · `BlsPipeFramingTests` 10
-· `JsonRpcDeserializationTests` 7 · `BlsChatHistoryMultiSessionTests` 6
+Los 321 tests de la suite se reparten en veintinueve ficheros (los 257 anteriores
+más 32 de F5):
+`BlsNimClientTests` 28 · `JsonRpcDispatcherTests` 27 · `BlsSafetyGateTests` 18
+· `BlsContractTests` 17 · `BlsStringsTests` 18 · `NimStreamParserTests` 14
+· `BlsVbeBridgeServerTests` 12 · `NimHttpRequestBuilderTests` 11
+· `BlsAuditLoggerTests` 11 · `BlsAuditChainTests` 11 · `BlsLogSanitizerTests` 10
+· `BlsPipeFramingTests` 10 · `BlsSloMetricsTests` 8 · `JsonRpcDeserializationTests` 7
+· `BlsCorrelationContextTests` 7 · `BlsChatHistoryMultiSessionTests` 6
 · `AddinConnectTests` 5 · `NimMessageSanitizerTests` 5
-· `ProjectKeyAndObjectDetailTests` 5 · `NimTerminalIconTests` 2.
+· `ProjectKeyAndObjectDetailTests` 5 · `JsonRpcCorrelationTests` 4
+· `BlsComHelperSafetyTests` 3 · `NimTerminalIconTests` 2
+· `JsonRpcIdempotencyTests` 9 · `BlsNimResilienceTests` 9
+· `BlsPiiScrubberTests` 8 · `BlsSecureStoreEntropyTests` 8
+· `BlsPiiConsentGateTests` 6 · `BlsModelCatalogTests` 6 · `NimPiiScrubbingTests` 4.
 
 ## Orden de implementación
 
@@ -87,21 +99,23 @@ lo demás queda sin forma de probarse en Access real.
 
 Los specs 003 a 006 tienen código. La terminal (004) es la única que puede
 arrastrar a los otros dos, y por eso es el siguiente gap de calidad después
-de 001: ~600 líneas de WinForms sin un solo test.
+de 001: 1845 líneas de WinForms sin un solo test.
 
 ## Gaps que bloquean la CI
 
 - **La CI está operativa** y ejecuta todos los gates:
   - Build Debug x86 y x64 y Release x86 y x64 con `dotnet build` (0 warnings, 0 errors).
-  - Tests 165/165 con `dotnet vstest` + `.runsettings` + `/Platform:x86`.
-  - 47 documentos obligatorios verificados (incluye `docs/PRD.md`,
-    `docs/CONSTITUTION.md`, `specs/` y los 14 ADRs).
+  - Tests 321/321 en x86 y x64 con `dotnet vstest` + `.runsettings` + `/Platform`.
+  - 56 documentos obligatorios verificados (incluye `docs/PRD.md`,
+    `docs/CONSTITUTION.md`, `specs/` y los 18 ADRs).
   - Sin PIAs de Office en `src/`.
   - `dynamic` solo en `Helpers/BlsComHelper.cs`.
   - Sin `Thread.Sleep` en `tests/`.
-  - Tests de ADR implementados presentes (5 blocking + 5 warning).
+  - Tests de ADR implementados presentes (14 blocking + 5 warning).
   - Referencias cruzadas en `docs/`, `.opencode/skills/`, `specs/`,
-    `AGENTS.md`, `MEMORY.md` — **cero rotas**.
+    `AGENTS.md`, `MEMORY.md` — **cero rotas**, incluidas rutas de código en
+    backticks e índice completo de specs (gate 13 ampliado en F5).
+  - Privacidad, supply chain y doc sync (gate 8f, F5).
 - **`Directory.Build.props` existe** con versión `0.1.0`,
   `TreatWarningsAsErrors=true`, CPU-agnóstico (sin `PlatformTarget`/`Prefer32Bit`
   forzados; se pasa con `-p:`),

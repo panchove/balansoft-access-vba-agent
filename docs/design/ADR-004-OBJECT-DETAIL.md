@@ -239,7 +239,7 @@ public ObjectDetailResult GetObjectDetail(
 
 ## Referencias
 - PRD §3.2 (bridge), §7 FR-11 (read-only Access).
-- `.opencode/skills/bls-vbe-automation/SKILL.md` (identidad de proyecto).
+- `AGENTS.md` (identidad de proyecto).
 - `.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md` (códigos de error).
 - `.opencode/skills/bls-testing-strategy/SKILL.md` (tests).
 - ADR-001 (projectKey en `project_summary`).

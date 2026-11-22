@@ -38,6 +38,43 @@ public sealed class BlsStringsTests
     }
 
     [TestMethod]
+    public void AiDisclosure_PresentInAllLanguages()
+    {
+        foreach (var language in new[] { "es", "en", "pt", "fr" })
+        {
+            BlsStrings.CurrentLanguage = language;
+            var text = BlsStrings.Get("AiDisclosure");
+
+            Assert.AreNotEqual("AiDisclosure", text, $"Falta AiDisclosure en {language}");
+            StringAssert.Contains(text, "Balansoft");
+            StringAssert.Contains(text, "NVIDIA NIM");
+        }
+
+        BlsStrings.CurrentLanguage = "es";
+    }
+
+    [TestMethod]
+    public void SafetyStrings_PresentInAllLanguages()
+    {
+        var keys = new[]
+        {
+            "BtnSafety", "BtnSafetyReset", "MsgSafetyTripped",
+            "MsgToolDenied", "MsgApproveTitle", "MsgApproveBody"
+        };
+
+        foreach (var language in new[] { "es", "en", "pt", "fr" })
+        {
+            BlsStrings.CurrentLanguage = language;
+            foreach (var key in keys)
+            {
+                Assert.AreNotEqual(key, BlsStrings.Get(key), $"Falta {key} en {language}");
+            }
+        }
+
+        BlsStrings.CurrentLanguage = "es";
+    }
+
+    [TestMethod]
     public void SwitchToEnglish_ReturnsEnglishText()
     {
         BlsStrings.CurrentLanguage = "en";

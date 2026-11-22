@@ -14,7 +14,8 @@ tags: [spec, logging, error-handling, diagnostics]
 **PRD:** FR-07, FR-12
 **ADRs:** ADR-011 (logging y versionado)
 **Spec de diseño:** `docs/design/ADR-011-LOGGING-VERSION.md`
-**Tests:** 2 parciales en `JsonRpcDispatcherTests`
+**Tests:** 2 parciales en `JsonRpcDispatcherTests` + 4 tests de auditoría en F3
+(`BlsAuditLoggerTests`, ver spec 017)
 
 ---
 
@@ -51,7 +52,7 @@ funcionó" y no hay forma de averiguar qué pasó.
 **No entra:**
 
 - Telemetría o envío remoto.
-- Logging estructurado en JSON.
+- ~~Logging estructurado en JSON.~~ Implementado en F3: `specs/017-AUDIT-LOGGING.md`.
 
 ---
 
@@ -158,22 +159,22 @@ Y el HResult aparece en hexadecimal
 
 Implementado parcialmente:
 
-| Test | Cubre | Estado |
-|---|---|---|
-| `Bridge_ExcepcionNoControlada_RegistraEnLogger` | R005 | existe |
-| `SendAsync_NoRegistraLaApiKeyEnLogs` | R007 | existe |
+| Test                                            | Cubre | Estado |
+|-------------------------------------------------|-------|--------|
+| `Bridge_ExcepcionNoControlada_RegistraEnLogger` | R005  | existe |
+| `SendAsync_NoRegistraLaApiKeyEnLogs`            | R007  | existe |
 
 Pendientes:
 
-| Test | Cubre |
-|---|---|
-| `Logger_Rotacion_DeleteSieteDias` | R002 |
-| `Logger_PrimeraLineaIncluyeVersionYCommit` | R003 |
-| `Logger_UnhandledException_EscribeAntesDeMorir` | R004 |
-| `Logger_Cancelacion_NoSeRegistraComoError` | R006 |
-| `Logger_FalloDeEscritura_NoPropaga` | R008 |
-| `Logger_NoRegistraApiKeyNiBodyNiCodigoVba` | R007 |
-| `JsonRpcErrorData_HResultEnHexadecimal` | R005 |
+| Test                                            | Cubre |
+|-------------------------------------------------|-------|
+| `Logger_Rotacion_DeleteSieteDias`               | R002  |
+| `Logger_PrimeraLineaIncluyeVersionYCommit`      | R003  |
+| `Logger_UnhandledException_EscribeAntesDeMorir` | R004  |
+| `Logger_Cancelacion_NoSeRegistraComoError`      | R006  |
+| `Logger_FalloDeEscritura_NoPropaga`             | R008  |
+| `Logger_NoRegistraApiKeyNiBodyNiCodigoVba`      | R007  |
+| `JsonRpcErrorData_HResultEnHexadecimal`         | R005  |
 
 Todos testeables con un directorio temporal. `FakeLogger` ya captura
 entradas con nivel y origen, así que varios pueden escribirse sin esperar a la

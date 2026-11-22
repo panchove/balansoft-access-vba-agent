@@ -43,27 +43,23 @@
     "ADR-004-object-detail"
   ],
   "skills_index": [
-    "bls-project-context",
     "bls-com-late-binding",
-    "bls-vbe-automation",
-    "bls-nim-client-streaming",
     "bls-jsonrpc-pipe-bridge",
     "bls-secure-store-dpapi",
-    "bls-winforms-threading",
-    "bls-registration-scripts",
-    "bls-logging-errors",
-    "bls-testing-strategy",
-    "bls-workflow-nemotron"
+    "bls-testing-strategy"
   ],
   "default_agent": "bls-architect",
+  "agents_model": "single-primary",
   "agents_index": [
-    "bls-architect",
-    "bls-planner",
-    "bls-implementer",
-    "bls-reviewer",
-    "bls-iso",
-    "bls-testing-qta"
+    "bls-architect"
   ],
+  "governance": {
+    "policy": "docs/governance/AI-POLICY.md",
+    "risk_register": "docs/governance/AI-RISK-REGISTER.md",
+    "ai_bom": "docs/governance/AI-BOM.md",
+    "threat_model": "docs/governance/OWASP-AGENTIC-THREAT-MODEL.md",
+    "enforcement": "ci"
+  },
   "model": {
     "primary": "nvidia/nemotron-3.5-lightning-30b-a3b",
     "override_env": "NIM_MODEL",

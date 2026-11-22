@@ -9,6 +9,13 @@ tags: [design, architecture, logging, version, diagnostics, nbgv]
 
 # ADR-011 — Logging + Version (BlsLogger, BlsVersion)
 
+> **Actualización F3 (2026-11-19):** el formato de línea de texto plano y la
+> decisión de no redactar credenciales en el logger (§11.12) quedan **superados
+> por [ADR-016](ADR-016-AUDIT-LOGGING.md)**. `BlsLogger` escribe JSON Lines con
+> hash encadenado, `correlation_id`/`trace_id` y saneamiento. Se conservan la
+> ruta diaria, el directorio y la regla de no propagar fallos de escritura.
+> La rotación de 7 días y `BlsVersion` siguen siendo deuda pendiente.
+
 ## Estado
 Aprobado para implementación.
 
@@ -37,7 +44,7 @@ Dos utilidades transversales que **todo** el resto del código usa:
    de arranque.
 
 Sin ellas no hay forma de:
-- Diagnosticar fallos en producción (skill bls-logging-errors).
+- Diagnosticar fallos en producción (AGENTS.md).
 - Saber qué versión está corriendo cada usuario.
 - Cumplir la promesa de "versión + commit en primera línea del log"
   (PRD FR-07).
@@ -49,7 +56,7 @@ Cubre:
 Y materializa:
 - AGENTS.md regla 4 (nunca API key en log).
 - AGENTS.md regla 5 (errores reales, nunca éxito falso).
-- skill bls-logging-errors (logging y propagación de errores).
+- AGENTS.md (logging y propagación de errores).
 
 ---
 
@@ -66,13 +73,13 @@ Y materializa:
 - Tests sin escribir en `%APPDATA%` real.
 
 ### Excluido (fuera de MVP)
-- Logging estructurado (JSON).
+- ~~Logging estructurado (JSON).~~ → F3 (ADR-016, spec 017).
 - Envío de logs a servidor remoto.
 - Rotación por tamaño dentro del mismo día.
 - Niveles configurables en runtime.
 - Filtros por componente.
 - Compresión de logs antiguos.
-- Firma digital del log.
+- ~~Firma digital del log.~~ → cadena SHA-256 en F3 (ADR-016).
 - Auditoría de usuario (qué usuario hizo qué).
 - Versionado semántico automático.
 
@@ -198,11 +205,11 @@ internal static class GlobalExceptionHandlers
 | PRD FR-07                | Rotación 7 días                   | `RotateOldLogs()` en constructor                  |
 | PRD FR-07                | Captura global                    | `GlobalExceptionHandlers.Register`                |
 | PRD FR-07                | Versión + commit en primera línea | `BlsVersionContext.BuildFirstLine`                |
-| skill bls-logging-errors | Formato canónico                  | `Write(...)` centralizado                         |
-| skill bls-logging-errors | Nivel alineado 5 chars            | `level.PadRight(5)`                               |
-| skill bls-logging-errors | Stack solo en Debug               | `#if DEBUG` en `Error`                            |
-| skill bls-logging-errors | Cancelación ≠ error               | `BlsLogger` no distingue; lo hacen los llamadores |
-| skill bls-logging-errors | No loguear código VBA completo    | Llamadores truncan a 80 chars                     |
+| AGENTS.md | Formato canónico                  | `Write(...)` centralizado                         |
+| AGENTS.md | Nivel alineado 5 chars            | `level.PadRight(5)`                               |
+| AGENTS.md | Stack solo en Debug               | `#if DEBUG` en `Error`                            |
+| AGENTS.md | Cancelación ≠ error               | `BlsLogger` no distingue; lo hacen los llamadores |
+| AGENTS.md | No loguear código VBA completo    | Llamadores truncan a 80 chars                     |
 
 ---
 
@@ -608,16 +615,17 @@ El campo `IsDebug` **no** se incluye en la primera línea del log. Se
 puede inferir del entorno (build). Mantener la primera línea corta.
 
 ### 11.12 Sin sanitización de la API key en `BlsLogger`
-El logger **no** sabe qué es una API key. Es responsabilidad de cada
-llamador no pasarla. Los tests de integración verifican que ningún
-flujo la pase. La alternativa (regex para detectar patrones de Nvidia)
-es frágil y se descarta.
+**Supersedido por ADR-016 (F3).** Se mantuvo así en el diseño original, pero
+el registro append-only exigido por el Pilar 6 hace del logger la última
+barrera antes del disco: `BlsLogSanitizer` redacta credenciales aquí. Los
+llamadores siguen siendo responsables de no pasarlas, pero ya no es la única
+defensa.
 
 ---
 
 ## 12. Fuera de alcance (recordatorio)
 
-- Logging estructurado (JSON).
+- ~~Logging estructurado (JSON).~~ → implementado en F3 (ADR-016, spec 017).
 - Envío a servidor remoto.
 - Rotación por tamaño dentro del día.
 - Niveles configurables en runtime.
@@ -635,14 +643,14 @@ es frágil y se descarta.
 En este orden:
 
 1. `AGENTS.md` (reglas 4, 5).
-2. `.opencode/skills/bls-project-context/SKILL.md`.
-3. `.opencode/skills/bls-logging-errors/SKILL.md` (este dominio).
+2. `AGENTS.md`.
+3. `AGENTS.md` (este dominio).
 4. `.opencode/skills/bls-testing-strategy/SKILL.md` (temp dirs, fakes).
 5. `docs/design/ADR-010-REGISTRATION-SCRIPTS.md` (version.txt en el
    ZIP).
 
 Opcional:
-- `.opencode/skills/bls-registration-scripts/SKILL.md` (relación con el
+- `AGENTS.md` (relación con el
   packaging).
 
 ---
@@ -687,7 +695,7 @@ Cuando Nemotron termine, el PR debe:
 
 - `AGENTS.md` reglas 4, 5.
 - `PRD.md` §7 FR-07, §11 criterio 8.
-- `.opencode/skills/bls-logging-errors/SKILL.md`.
+- `AGENTS.md`.
 - `.opencode/skills/bls-testing-strategy/SKILL.md`.
 - `docs/design/ADR-009-SECURE-STORE.md` (`BlsPaths`).
 - `docs/design/ADR-010-REGISTRATION-SCRIPTS.md` (`version.txt` en el ZIP).
@@ -706,7 +714,7 @@ opencode --model nemotron-3-ultra \
 
 Lee en este orden:
 1. AGENTS.md
-2. .opencode/skills/bls-project-context/SKILL.md
+2. AGENTS.md
 3. docs/design/ADR-011-LOGGING-VERSION.md (el diseño)
 4. Los skills citados en §13 del diseño
 
@@ -730,16 +738,16 @@ opencode --model big-pickle \
 
 Lee:
 1. AGENTS.md
-2. .opencode/skills/bls-workflow-nemotron/SKILL.md (checklist de rechazo)
+2. AGENTS.md (checklist de rechazo)
 3. docs/design/ADR-011-LOGGING-VERSION.md (diseño)
 4. El diff del PR
 
-Aplica el checklist de rechazo del skill bls-workflow-nemotron.
+Aplica el checklist de rechazo del AGENTS.md.
 Presta especial atención a:
 - Nunca loguear la API key (regla 4).
-- Stack solo en Debug (skill bls-logging-errors §Error).
-- UnhandledException no relanza (skill bls-logging-errors §Captura global).
-- UnobservedTaskException llama SetObserved (skill bls-logging-errors §Captura global).
+- Stack solo en Debug (AGENTS.md §Error).
+- UnhandledException no relanza (AGENTS.md §Captura global).
+- UnobservedTaskException llama SetObserved (AGENTS.md §Captura global).
 - Formato canónico de línea (timestamp ISO 8601 UTC, nivel 5 chars).
 - Rotación 7 días en constructor (no en cada Write).
 
@@ -750,13 +758,13 @@ Si todo pasa, aprueba con 'LGTM'. Si algo falla, indica la regla violada."
 
 ## Estado del backlog de diseño
 
-| # | Doc                                | Estado            | Depende de    |
-|---|------------------------------------|-------------------|---------------|
+| # | Doc                               | Estado            | Depende de    |
+|---|-----------------------------------|-------------------|---------------|
 | 1 | `ADR-006-VBE-BRIDGE.md`           | ✅ Entregado       | —             |
 | 2 | `ADR-007-NIM-CLIENT.md`           | ✅ Entregado       | —             |
 | 3 | `ADR-008-NIM-TERMINAL.md`         | ✅ Entregado       | #1, #2, #4    |
 | 4 | `ADR-009-SECURE-STORE.md`         | ✅ Entregado       | ADR-001       |
-| 5 | `20250105-chat-history.md`         | ⚠️ Fusionado en #4 | —             |
+| 5 | `20250105-chat-history.md`        | ⚠️ Fusionado en #4 | —             |
 | 6 | `ADR-010-REGISTRATION-SCRIPTS.md` | ✅ Entregado       | #7            |
 | 7 | `ADR-011-LOGGING-VERSION.md`      | ✅ Entregado       | #4 (BlsPaths) |
 | 8 | `ADR-012-ADDIN-LIFECYCLE.md`      | Pendiente         | Todos         |

@@ -108,8 +108,10 @@ Write-Host ""
 Write-Host "Desregistrando (por si estaba registrada previamente)..." -ForegroundColor DarkGray
 $clsidKey = "HKCU:\Software\Classes\CLSID\{d31bf73e-dbe1-4739-84bc-2c974fcd3171}"
 $progidKey = "HKCU:\Software\Classes\Balansoft.AIAddin.Access"
-if (Test-Path $clsidKey) { Remove-Item -Path $clsidKey -Recurse -Force -ErrorAction SilentlyContinue }
-if (Test-Path $progidKey) { Remove-Item -Path $progidKey -Recurse -Force -ErrorAction SilentlyContinue }
+# El provider de registro de PowerShell 5.1 x86 falla con CLSID entre llaves
+# (GetDynamicParametersException). Se usa la API .NET, equivalente y fiable.
+try { [Microsoft.Win32.Registry]::CurrentUser.DeleteSubKeyTree("Software\Classes\CLSID\{d31bf73e-dbe1-4739-84bc-2c974fcd3171}", $false) } catch { }
+try { [Microsoft.Win32.Registry]::CurrentUser.DeleteSubKeyTree("Software\Classes\Balansoft.AIAddin.Access", $false) } catch { }
 
 # 5. Registrar tipos COM en HKCU (per-user, sin requerir admin)
 Write-Host ""

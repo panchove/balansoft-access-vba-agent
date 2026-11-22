@@ -17,6 +17,73 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
+- Modelo por defecto actualizado a `nvidia/nemotron-3-super-120b-a12b`
+  (120B/12B activos, `max_tokens` hasta 32768 y tool calls en NIM).
+- Temperatura de generacion de 0.2 a 0.6 para reducir la repeticion de
+  patrones del contexto.
+- Regla anti-repeticion anadida al system prompt (PROMPT-v1.1): genera codigo
+  nuevo a partir del requisito, no reproduzcas el ejemplo.
+- AI-BOM actualizado con los nuevos hashes normalizados del prompt y catalogo.
+- Aprobacion directa de tools `Medium`/`High` en el momento de la instruccion:
+  se elimina el dialogo modal y el mensaje "HITL Denied... requiere aprobacion
+  humana". Cada aprobacion se audita con `payload_sha256`; se conservan kill
+  switch, token de un solo uso, ACL del pipe y tope de 32 iteraciones.
+- Cierre de BalanceSoft-001: degradacion elegante en modo runtime `.accde`
+  (`TryGetVbe`, `MsgNoVbeRuntime` en 4 idiomas).
+- Cierre de BalanceSoft-002: `SseLineReader` con limite de 2 MB y dispose;
+  coalescing de chunks de texto en la terminal (un `BeginInvoke` por turno).
+- Red teaming determinista de inyeccion de prompt: 4 payloads, incluido
+  intento de cierre de etiqueta, ahora escapado.
+- Correccion de `RegisterAddin.ps1`/`UnregisterAddin.ps1`: las rutas CLSID
+  con llaves fallaban en PowerShell 5.1 x86; se usa la API de registro .NET.
+- Verificacion real en Access 2010 x86: add-in conectado, menu Tools ->
+  NIM Terminal, JSON-RPC `list_modules` respondiendo y log 48/48 valido.
+- Documentos de gobernanza anadidos: AIA (`AI-IMPACT-ASSESSMENT.md`),
+  arquitectura C4 con diagramas Mermaid (`ARCHITECTURE-C4.md`) y
+  `AI-INCIDENT-PLAYBOOK.md`. Los gates 3 y 8 exigen su presencia.
+
+### Added (Fase 4, auditoria 2026-11-22)
+- Clave de idempotencia derivada en el servidor: las claves del cliente se ignoran.
+- Timeout global de turno (5 min) y `HttpClient.Timeout` explicito (10 min).
+- Delimitacion `<untrusted_vbe_context>` en el system prompt y reglas `[NIF]`/`[IBAN]`.
+- `scripts/GenerateSbom.ps1`: SBOM de dependencias NuGet publicado en CI.
+- `BlsLogger.EmitSloSnapshot`: metricas SLO como evento JSONL cubierto por la cadena SHA-256.
+
+### Changed
+- `Nerdbank.GitVersioning` fijado a 3.6.146 (antes version flotante 3.6.*).
+- SHA-256 del system prompt actualizado en el AI-BOM.
+- 5 tests nuevos; suite 321/321 en x86 y x64.
+
+### Removed (Fase 3, auditoria 2026-11-22)
+- Siete skills redundantes u obsoletos: `bls-workflow-nemotron` (describia
+  el flujo de dos modelos retirado en F1), `bls-logging-errors`,
+  `bls-nim-client-streaming`, `bls-project-context`,
+  `bls-registration-scripts`, `bls-vbe-automation` y `bls-winforms-threading`.
+- Aproximadamente 2.500 LOC de documentacion duplicada; quedan cuatro skills canonicos.
+
+### Changed
+- `skills_index` y la lista de documentos obligatorios de CI reducidos a 4 skills.
+- Las referencias historicas a skills retirados en ADRs y specs se redirigen
+  a `AGENTS.md` como fuente canonica de reglas.
+
+### Added (Fase 2, auditoria 2026-11-22)
+- `BlsAuditChain.VerifyDirectory` y `SeedFor`: cadena SHA-256 entre dias, con
+  compatibilidad para los logs legacy que empezaban con GENESIS cada dia.
+- Verificacion de integridad al arranque: una cadena rota dispara el kill switch.
+- `BlsLogger.LastWriteError`: los fallos de escritura dejan de silenciarse.
+- Postcondiciones e invariantes en registro de autorizaciones, almacen seguro
+  y cache de idempotencia (ADR-005).
+- 10 tests nuevos: `BlsAuditChainDirectoryTests` y `BlsPostconditionTests`.
+
+### Added (Fase 1, auditoria 2026-11-22)
+- `BlsToolAuthorizationRegistry`: tokens de aprobacion de un solo uso, con TTL
+  de 60 s y vinculados a metodo, turno y SHA-256 del payload.
+- Fail-safe, HITL y tope de 32 tool calls por turno reforzados en
+  `JsonRpcDispatcher` (codigos -32005, -32006 y -32007).
+- ACL del named pipe restringida al SID del usuario actual
+  (`BlsVbeBridgeServer.BuildPipeSecurity`).
+- 8 tests nuevos: `JsonRpcSafetyTests` y `BlsPipeSecurityTests`.
+ 
 
 ## [0.2.0] - 2026-10-16
 

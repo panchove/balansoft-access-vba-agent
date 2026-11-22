@@ -1,9 +1,9 @@
 ---
-version: 1.2.0
-date: 2026-10-15
+version: 1.4.0
+date: 2026-11-19
 status: approved
 iso_standard: [12207, 25010, 29148, 42010]
-aligns_to: [AGENTS.md, PRD.md, ADR-001..012]
+aligns_to: [AGENTS.md, PRD.md, ADR-001..017]
 tags: [governance, constitution, sdd, iso-standards, quality-gates]
 ---
 
@@ -14,7 +14,7 @@ tags: [governance, constitution, sdd, iso-standards, quality-gates]
 > de CI en `.github/workflows/ci.yml`.
 > Los contratos por feature están en `specs/`, indexados en `specs/README.md`.
 >
-> **Estado:** v1.2 · Aceptado · 2026-10-15
+> **Estado:** v1.4 · Aceptado · 2026-11-19
 
 ---
 
@@ -163,15 +163,15 @@ Todo documento Markdown (`.md`) dentro del repositorio debe declarar taxativamen
 
 ## II. Restricciones técnicas
 
-| Ámbito        | Valor                     | Motivo                                           |
-|---------------|---------------------------|--------------------------------------------------|
-| Target        | `net48`                   | Access 2010+ sobre .NET Framework                |
-| Lenguaje      | C# 10 (`LangVersion`)     | Sin raw strings ni features de C# 11             |
+| Ámbito        | Valor                     | Motivo                                               |
+|---------------|---------------------------|------------------------------------------------------|
+| Target        | `net48`                   | Access 2010+ sobre .NET Framework                    |
+| Lenguaje      | C# 10 (`LangVersion`)     | Sin raw strings ni features de C# 11                 |
 | Nullable      | `annotations`             | Anotaciones de nulabilidad sin exigir refactor total |
-| Platform      | x86 y x64                 | P3                                               |
-| Serialización | `System.Text.Json` 8.0.5  | Sin Newtonsoft; más apto para AOT                |
-| HTTP          | `System.Net.Http`         | Sin `System.Net.Http.Json` en net48              |
-| Testing       | MSTest + `VSTest.Console` | Sin infrastructure externa                       |
+| Platform      | x86 y x64                 | P3                                                   |
+| Serialización | `System.Text.Json` 8.0.5  | Sin Newtonsoft; más apto para AOT                    |
+| HTTP          | `System.Net.Http`         | Sin `System.Net.Http.Json` en net48                  |
+| Testing       | MSTest + `VSTest.Console` | Sin infrastructure externa                           |
 
 ### APIs prohibidas por no existir en `net48`
 
@@ -190,15 +190,25 @@ Para waits con timeout existe el helper `tests/.../Infrastructure/TaskTestExtens
 
 1. El build `Debug` o `Release` (x86 o x64) de los `.csproj` no sale limpio con
    `TreatWarningsAsErrors`.
-2. Los tests (sin integración NIM) no están verdes: 165/165.
-3. Falta cualquiera de los 47 documentos obligatorios.
-4. Aparece `Microsoft.Office.Interop` en `src/`.
-5. Aparece `dynamic` fuera de `Helpers/BlsComHelper.cs`.
-6. Aparece `Thread.Sleep` en `tests/`.
-7. Desaparece un test de ADR ya implementado (los de ADR-001 y ADR-004
+2. Los tests (sin integración NIM) no están verdes: 321/321 en x86 y x64.
+3. Faltan la gobernanza IA, la divulgación o el modelo de agente único; falta
+   el kill switch, el gate HITL o el DbC en `DeleteModule` (F2); faltan el
+   logger JSONL, la cadena SHA-256 o la correlación (F3); faltan la clave
+   de idempotencia, la caché, el jitter o el breaker (F4); o faltan el
+   scrubber PII, el consentimiento, el catálogo de modelo o la entropía
+   derivada (F5).
+4. Falta cualquiera de los 56 documentos obligatorios.
+5. Aparece `Microsoft.Office.Interop` en `src/`.
+6. Aparece `dynamic` fuera de `Helpers/BlsComHelper.cs`.
+7. Aparece `Thread.Sleep` en `tests/`.
+8. Desaparece un test de ADR ya implementado (los de ADR-001 y ADR-004
    pendientes solo avisan).
-8. Hay una referencia cruzada rota en `docs/`, `.opencode/skills/`, `specs/`,
-   `AGENTS.md` o `MEMORY.md`.
+9. Hay una referencia cruzada rota en `docs/`, `.opencode/skills/`, `specs/`,
+   `AGENTS.md` o `MEMORY.md`, incluidas las rutas de código en backticks y un
+   spec `NNN-*.md` ausente del índice (F5).
+10. El hash del prompt o del catálogo de modelo del AI-BOM no coincide con el
+    código, aparece un segundo literal de modelo en `src/`, se carga un prompt
+    o modelo en runtime, o el rechazo de PII no aborta antes del envío (F5).
 
 En `push` a `main` además ejecuta `scripts/Pack.ps1` y sube el ZIP como
 artefacto.
@@ -207,7 +217,7 @@ artefacto.
 > existe, así que el job moría en el restore y ninguno de los gates llegaba a
 > comprobarse. Ahora compila los `.csproj` (la solución `.slnx` no propaga
 > `Platform` a proyectos SDK-style) con `dotnet build`, y los tests con
-> `dotnet vstest` sobre `.runsettings`. Los ocho gates se ejecutan; el comando
+> `dotnet vstest` sobre `.runsettings`. Los trece gates se ejecutan; el comando
 > de test es el mismo que se ha verificado en local.
 
 ### Gate de spec
@@ -238,13 +248,12 @@ Puntos que **solo** puede verificar una persona y por eso son bloqueantes:
 
 ```
 1. Spec (specs/NNN-*.md) con alcance + criterios de aceptación + tests
-2. Revisión del spec            ← bls-architect
-3. ADR si la decisión es estructural y no está cubierta
-4. Implementación + tests       ← bls-implementer
-5. Verificación: build Debug + Release x86 y x64 + suite completa
-6. PR con checklist de rechazo y referencias cruzadas válidas
-7. Revisión y auditoría         ← bls-reviewer + bls-iso
-8. Merge
+2. ADR si la decisión es estructural y no está cubierta
+3. Implementación + tests       ← bls-architect (agente único desde F1)
+4. Verificación: build Debug + Release x86 y x64 + suite completa + 13 gates
+5. PR con checklist de rechazo y referencias cruzadas válidas
+6. Auditoría ISO                ← gates de CI, no agentes revisores
+7. Merge
 ```
 
 Un cambio sin spec pasa si es `fix` de un defecto ya cubierto por un spec
@@ -338,7 +347,7 @@ Estos puntos del diagnóstico inicial ya no son deuda; se resuelven con
 - **`msbuild` de Visual Studio no sirve** en un equipo con VS/BuildTools sin el
   workload de .NET: falla con MSB4236 al no resolver `Microsoft.NET.Sdk`. El
   comando canónico es `dotnet build`.
-- **Referencias cruzadas**: los ficheros apuntaban al skill bls-workflow-nemotron con otro nombre
+- **Referencias cruzadas**: los ficheros apuntaban al AGENTS.md con otro nombre
   y `AGENTS.md` a un nombre de skills que no existe. Corregidos; el gate de
   referencias pasa.
 
@@ -364,9 +373,12 @@ Estos puntos del diagnóstico inicial ya no son deuda; se resuelven con
 
 ### Estado de los specs
 
-`specs/README.md` es el índice. Resumen: 003 `implementado`; 002, 004, 005 y
-006 `aceptado` con implementación parcial o sin tests; 001, 007, 008 y 009
-`borrador`. Ningún spec está `obsoleto`.
+`specs/README.md` es el índice. Resumen a 2026-11-19: specs **015** (divulgación,
+F1), **016** (HITL, F2), **017** (auditoría, F3) y **018** (idempotencia y
+resiliencia, F4) `implementado`, además de 001, 003, 010–014. Los specs 002, 004–009 siguen con implementación parcial o
+sin tests. Ningún spec está `obsoleto`. La sección V es un snapshot histórico
+de 2026-10-02: el punto de entrada COM (spec 001), `BlsComHelper`, `BlsLogger`
+y el menú Tools ya existen en el árbol actual.
 
 ---
 
@@ -375,11 +387,14 @@ Estos puntos del diagnóstico inicial ya no son deuda; se resuelven con
 Esta constitución cambia solo por decisión explícita, registrada aquí con
 fecha, motivo y responsable.
 
-| Versión | Fecha      | Cambio                                                                                                                                                                                                                 | Motivo                                                                                                                 |
-|---------|------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------------------------------------------------------------------------|
-| v1.0    | 2026-10-02 | Versión inicial derivada de `AGENTS.md`, ADR-001..004 y `ci.yml`                                                                                                                                                       | Punto de partida del SDD                                                                                               |
-| v1.1    | 2026-10-02 | Índice de `specs/` como parte del documento; P2 y P3 alineados con el código real; el gate de CI marcado como no ejecutado; estado del árbol verificado (`Directory.Build.props` y `TreatWarningsAsErrors` no existen) | Los nueve specs obligaron a contrastar la constitución con el árbol y encontraron afirmaciones que el código desmiente |
-| v1.2    | 2026-10-15 | Homologación obligatoria de `docs/design/` al patrón `ADR-NNN-<SLUG>.md` (ISO/IEC 42010); archivos de `specs/` en MAYÚSCULAS `NNN-<SLUG>.md` (ISO/IEC 29148); metadatos YAML unificados | Exigencia de trazabilidad y consistencia formal en toda la documentación de arquitectura, diseño y contratos funcionales |
+| Versión | Fecha      | Cambio                                                                                                                                                                                                                 | Motivo                                                                                                                   |
+|---------|------------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------|
+| v1.0    | 2026-10-02 | Versión inicial derivada de `AGENTS.md`, ADR-001..004 y `ci.yml`                                                                                                                                                       | Punto de partida del SDD                                                                                                 |
+| v1.1    | 2026-10-02 | Índice de `specs/` como parte del documento; P2 y P3 alineados con el código real; el gate de CI marcado como no ejecutado; estado del árbol verificado (`Directory.Build.props` y `TreatWarningsAsErrors` no existen) | Los nueve specs obligaron a contrastar la constitución con el árbol y encontraron afirmaciones que el código desmiente   |
+| v1.2    | 2026-10-15 | Homologación obligatoria de `docs/design/` al patrón `ADR-NNN-<SLUG>.md` (ISO/IEC 42010); archivos de `specs/` en MAYÚSCULAS `NNN-<SLUG>.md` (ISO/IEC 29148); metadatos YAML unificados                                | Exigencia de trazabilidad y consistencia formal en toda la documentación de arquitectura, diseño y contratos funcionales |
+| v1.3    | 2026-11-19 | Gates 3–5 (gobernanza, HITL y auditoría F3), 239/239 tests, 11 gates de CI, flujo con agente único y estado de specs actualizado                                                                                       | Sincronización F1→F3: la constitución debía reflejar los gates ejecutables y la retirada de los agentes revisores        |
+| v1.4    | 2026-11-19 | Gate 8e (idempotencia y resiliencia F4), 257/257 tests en x86 y x64, 12 gates de CI, spec 018 y ADR-017                                                                                                                | Sincronización F4: cierre de R-06 y R-09 y adecuación de la constitución al nuevo gate ejecutable                        |
+| v1.5    | 2026-11-19 | Gate 8f (privacidad, supply chain y doc sync F5), 321/321 tests en x86 y x64, 13 gates de CI, spec 019 y ADR-018; cross-refs con rutas de código e índice de specs                                                     | Sincronización F5: cierre de R-03, R-07, R-10 y R-11; hash del prompt y catálogo verificables en el AI-BOM               |
 
 Los hallazgos que surjan del propio SDD (este documento y los specs) se resuelven
 corrigiendo el spec o la constitución, no marcándolos como "agendados".

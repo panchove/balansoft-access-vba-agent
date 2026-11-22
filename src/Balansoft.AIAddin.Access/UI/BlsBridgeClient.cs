@@ -49,7 +49,8 @@ public sealed class BlsBridgeClient : IBlsBridgeClient
     public async Task<TResult> InvokeAsync<TResult>(
         string method,
         object? parameters,
-        CancellationToken ct)
+        CancellationToken ct,
+        string? authorizationToken = null)
     {
         BlsContract.RequiresState(!_disposed, "El cliente del bridge ha sido dispuesto.");
         BlsContract.RequiresNotNullOrWhiteSpace(method, nameof(method));
@@ -67,11 +68,26 @@ public sealed class BlsBridgeClient : IBlsBridgeClient
                 await ConnectAsync(ct).ConfigureAwait(false);
             }
 
+            // F3 — la correlación cruza la frontera del pipe: AsyncLocal no
+            // atraviesa el hilo del servidor, así que se envía en el request.
+            var correlationId = BlsCorrelationContext.CorrelationId;
+            var traceId = BlsCorrelationContext.TraceId;
+            var parametersElement = parameters != null
+                ? JsonSerializer.SerializeToElement(parameters)
+                : (JsonElement?)null;
+
+            // F4 — la clave se deriva del turno (correlation_id), el método y
+            // los parámetros. Un frame reenviado dentro del mismo turno llega
+            // con la misma clave y el dispatcher no vuelve a ejecutar la tool.
             var request = new JsonRpcRequest(
                 "2.0",
                 JsonSerializer.SerializeToElement(Interlocked.Increment(ref _requestId)),
                 method,
-                parameters != null ? JsonSerializer.SerializeToElement(parameters) : (JsonElement?)null);
+                parametersElement,
+                string.IsNullOrEmpty(correlationId) ? null : correlationId,
+                string.IsNullOrEmpty(traceId) ? null : traceId,
+                BlsIdempotencyKey.For(method, parametersElement, correlationId),
+                authorizationToken);
 
             var requestBytes = JsonSerializer.SerializeToUtf8Bytes(request);
             var header = BitConverter.GetBytes((uint)requestBytes.Length);
@@ -189,6 +205,9 @@ public sealed class BlsBridgeClient : IBlsBridgeClient
             -32002 => new BlsBridgeException($"Tool Timeout: {error.Message}"),
             -32003 => new BlsBridgeException($"Frame Incomplete: {error.Message}"),
             -32004 => new BlsBridgeException($"Bridge Busy: {error.Message}"),
+            -32005 => new BlsBridgeException(error.Message),
+            -32006 => new BlsBridgeException($"Safety Tripped: {error.Message}"),
+            -32007 => new BlsBridgeException($"Tool Iteration Limit: {error.Message}"),
             _ => new BlsBridgeException($"Unknown Error ({error.Code}): {error.Message}")
         };
     }

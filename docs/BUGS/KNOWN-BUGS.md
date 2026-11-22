@@ -1,4 +1,4 @@
----
+s---
 version: 1.1.0
 date: 2026-10-15
 status: active
@@ -30,7 +30,7 @@ tags: [bugs, quality, iso-12207, problem-resolution, square]
 **Área**: Registration | COM loading
 **Fecha**: 2025-10-10
 **Reporte por**: Sistema de documentación ISO/IEC
-**Estado**: Abierto
+**Estado**: Fixed in v1.1.0 (2026-11-22)
 
 **Descripción**:
 El add-in falla al cargarse cuando Access está en modo runtime (.accde) porque `Application.VBE` es nulo. El código actual asume que VBE siempre está disponible después de `OnConnection`.
@@ -45,7 +45,7 @@ El add-in falla al cargarse cuando Access está en modo runtime (.accde) porque 
 
 **Referencias**: 
 - ADR-001 (Identidad de proyecto)
-- .opencode/skills/bls-vbe-automation/SKILL.md
+- AGENTS.md
 - AGENTS.md regla 4
 
 ---
@@ -56,7 +56,7 @@ El add-in falla al cargarse cuando Access está en modo runtime (.accde) porque 
 **Área**: UI | NimClient | streaming
 **Fecha**: 2025-10-12
 **Reporte por**: Sistema de documentación ISO/IEC
-**Estado**: Abierto
+**Estado**: Fixed in v1.1.0 (2026-11-22)
 
 **Descripción**:
 Durante streams de NIM prolongados (>30 minutos), el consumo de memoria del add-in aumenta progresivamente sin liberarse adecuadamente. Se sospecha que chunks SSE no se están liberando de memoria después de procesarlos.
@@ -70,7 +70,7 @@ Durante streams de NIM prolongados (>30 minutos), el consumo de memoria del add-
 **Fecha de corrección estimada**: v1.2.0
 
 **Referencias**: 
-- .opencode/skills/bls-nim-client-streaming/SKILL.md
+- AGENTS.md
 - AGENTS.md regla 5 (errores reales)
 
 ---
@@ -95,7 +95,7 @@ El timeout de 120 segundos por chunk se reinicia incorrectamente cuando hay múl
 **Fecha de corrección estimada**: v1.1.1
 
 **Referencias**: 
-- .opencode/skills/bls-nim-client-streaming/SKILL.md
+- AGENTS.md
 - ADR-003 (Abort model)
 - AGENTS.md regla 5
 
@@ -216,14 +216,82 @@ En procesos host de Office 32-bit (.NET Framework 4.8), `ServicePointManager.Sec
 
 ---
 
-## Próximo Bug ID disponible: BalanceSoft-010
+#
+## Próximo Bug ID disponible: BalanceSoft-018
 
 ### Política de cierre de bugs
 1. Cuando se corrige un bug, se añade la fecha de corrección
 2. Se marca el estado como "Fixed in vX.Y.Z"
 3. Se añade a la sección "Bugs Resueltos" del CHANGELOG.md
 4. El bug queda en el registro histórico pero ya no es "abierto"
-### Próxima revisión de bugs
+- Fecha: 2026-11-22 (revision tras auditoria de gobernanza)
 - Fecha: 2025-11-15
-- Responsable: bls-documentador
+- Responsable: propietario del producto (agente unico bls-architect)
 - Verificar: todos los bugs abiertos desde v1.0.0
+
+---
+
+## Estado de bugs abiertos (revision 2026-11-22)
+
+Los bugs historicos 001 y 002 quedan cerrados; el 003 ya se cerro en Fase 4; la Fase 0 no los cerro porque no se han implementado las correcciones:
+
+| ID              | Gravedad | Estado          | Motivo de permanencia                                                                                                 |
+|-----------------|----------|-----------------|-----------------------------------------------------------------------------------------------------------------------|
+| BalanceSoft-001 | Critical | Fixed in v1.1.0 | `Application.VBE` es null en modo runtime `.accde`; requiere discriminacion de `IsAvailable` en el arranque (Fase 1). |
+| BalanceSoft-002 | Medium   | Fixed in v1.1.0 | Posible retencion de memoria en streams SSE largos; requiere perfilado en Access real.                                |
+| BalanceSoft-003 | High     | Abierto         | Timeout por chunk que se reinicia con multiples tool_calls; requiere timeout global de turno (Fase 4).                |
+
+**Nota de gobernanza**: los 12 riesgos R-01..R-12 del registro de IA siguen cerrados. Los bugs de esta tabla son de producto, no de gobernanza, y se registran aqui para evitar que el cierre de riesgos se interprete como "sin incidencias abiertas".
+### Bug #14: BalanceSoft-014
+**Titulo**: HITL y kill switch eludibles mediante cliente directo del pipe
+**Gravedad**: Critical
+**Area**: Core/Protocol | Named Pipe | Frontera de seguridad
+**Fecha**: 2026-11-22
+**Reporte por**: Auditoria de gobernanza (asistida por IA)
+**Estado**: Fixed in v1.1.0
+
+**Descripcion**:
+`BlsSafetyGate.EnsureAllowed` y `BlsHumanApprovalGate.Evaluate` solo se invocaban desde `BlsNimTerminal`. `JsonRpcDispatcher` no las conocia, de modo que un frame JSON-RPC directo al pipe podia ejecutar `delete_module`, `execute_sql` o `migrate_*` sin aprobacion ni kill switch. La ACL por defecto del pipe tampoco estaba restringida al usuario actual.
+
+**Correccion**: token de aprobacion de un solo uso (`BlsToolAuthorizationRegistry`), comprobaciones de fail-safe/HITL/limite de iteraciones en el dispatcher y ACL por SID en `BlsVbeBridgeServer.BuildPipeSecurity`. El next bug ID pasa a BalanceSoft-015.
+### Bug #15: BalanceSoft-015
+**Titulo**: Cadena de auditoria no verificada en ejecucion y reiniciada cada dia
+**Gravedad**: High
+**Area**: Helpers/BlsAuditChain, Helpers/BlsLogger, AddinConnect
+**Fecha**: 2026-11-22
+**Reporte por**: Auditoria de gobernanza (asistida por IA)
+**Estado**: Fixed in v1.1.0
+
+**Descripcion**: `BlsAuditChain.Verify` solo se usaba en tests; cada fichero diario empezaba con `GENESIS`, por lo que borrar un dia completo era indetectable. Ademas `BlsLogger` silenciaba los fallos de escritura con un `catch { }` y ADR-005 tenia solo precondiciones.
+
+**Correccion**: `VerifyDirectory` + `SeedFor` encadenan los dias; `AddinConnect` verifica al arranque y dispara el kill switch si la cadena esta rota; `LastWriteError` expone el fallo; se anaden postcondiciones e invariantes. El next bug ID pasa a BalanceSoft-016.
+### Bug #16: BalanceSoft-016
+**Titulo**: Skill de workflow con orquestacion de modelos retirada
+**Gravedad**: Medium
+**Area**: Documentacion | .opencode/skills
+**Fecha**: 2026-11-22
+**Reporte por**: Auditoria de gobernanza (asistida por IA)
+**Estado**: Fixed in v1.1.0
+
+**Descripcion**: once skills con 2.879 LOC duplicaban ADRs y specs. `bls-workflow-nemotron` describia handoffs con `bls-implementer` y un modelo de dos agentes que F1 habia retirado, contradiciendo el agente unico y generando deriva documental.
+
+**Correccion**: eliminados siete skills; los cuatro restantes son canonicos. `skills_index` y la lista de documentos obligatorios de CI actualizados; referencias historicas redirigidas a AGENTS.md. Next bug ID: BalanceSoft-017.
+
+### Bug #17: BalanceSoft-017
+**Titulo**: Timeout por chunk reiniciado y contexto VBE sin delimitar
+**Gravedad**: High
+**Area**: UI/BlsNimTerminal, UI/SystemPromptBuilder, UI/Nim/BlsPiiScrubber
+**Fecha**: 2026-11-22
+**Reporte por**: Auditoria de gobernanza (asistida por IA)
+**Estado**: Fixed in v1.1.0
+
+**Descripcion**: el timeout de 120 s por chunk se reiniciaba con multiples tool_calls (BalanceSoft-003, abierto desde 2025). Ademas la seleccion VBE se inyectaba como texto plano en el system prompt, sin separacion entre datos no confiables e instrucciones, y el scrubber no cubria NIF/IBAN.
+
+**Correccion**: timeout global de 5 min por turno via `CancelAfter`, HttpClient con timeout explicito de 10 min, etiquetas `<untrusted_vbe_context>`, reglas `[NIF]` y `[IBAN]`. Next bug ID: BalanceSoft-018.
+
+### Correcciones de BalanceSoft-001 y BalanceSoft-002 (2026-11-22)
+
+- **001**: `BlsComHelper.TryGetVbe` sustituye al `GetVbe` que lanzaba en modo runtime `.accde`. `AddinConnect` degrada sin diálogo de error: el add-in carga, no ofrece la terminal y registra un aviso. Hay 4 textos localizados `MsgNoVbeRuntime`.
+- **002**: `SseLineReader` limita la línea a 2 MB y se dispone al terminar el stream; `BlsNimTerminal` agrupa los chunks de texto en un único `BeginInvoke` por turno de UI, evitando la saturación de la cola en streams largos.
+
+Verificación real con Access 2010 x86 y `tests/BalansoftTest.accdb`: `Connect=True`, menú `Tools → NIM Terminal` presente, JSON-RPC `list_modules` respondiendo por el pipe y cadena SHA-256 del log 48/48 válida.

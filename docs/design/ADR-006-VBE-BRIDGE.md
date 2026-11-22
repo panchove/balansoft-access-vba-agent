@@ -216,10 +216,10 @@ public sealed class BlsVbeBridgeServer : IBlsBridgeServer
 
 **Dependencias inyectadas** (todas interfaces, cero acoplamiento a COM):
 
-- `IBlsVbe`: automatización VBE (skill bls-vbe-automation).
-- `IBlsAccess`: lectura de objetos Access (skill bls-vbe-automation / AccessIntegration).
-- `IUiScheduler`: marshaling al hilo UI (skill bls-winforms-threading).
-- `IBlsLogger`: logging (skill bls-logging-errors).
+- `IBlsVbe`: automatización VBE (AGENTS.md).
+- `IBlsAccess`: lectura de objetos Access (AGENTS.md / AccessIntegration).
+- `IUiScheduler`: marshaling al hilo UI (AGENTS.md).
+- `IBlsLogger`: logging (AGENTS.md).
 - `pipeName`: por defecto el de ADR-002, parametrizable para tests.
 
 ---
@@ -305,7 +305,7 @@ try
     var result = await _ui.RunAsync(op);   // marshaling al hilo UI
     return Ok(id, result);
 }
-catch (BlsException ex)              // skill bls-logging-errors
+catch (BlsException ex)              // AGENTS.md
 {
     return ErrorFrom(ex, method, id);
 }
@@ -546,18 +546,18 @@ poder leer el error antes del cierre. Esto se garantiza con un
 En este orden:
 
 1. `AGENTS.md` (reglas duras).
-2. `.opencode/skills/bls-project-context/SKILL.md` (contexto general).
+2. `AGENTS.md` (contexto general).
 3. `.opencode/skills/bls-com-late-binding/SKILL.md` (envoltura COM).
-4. `.opencode/skills/bls-vbe-automation/SKILL.md` (contrato `IBlsVbe`, `IUiScheduler`).
+4. `AGENTS.md` (contrato `IBlsVbe`, `IUiScheduler`).
 5. `.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md` (este dominio).
-6. `.opencode/skills/bls-logging-errors/SKILL.md` (mapeo de errores).
+6. `AGENTS.md` (mapeo de errores).
 7. `.opencode/skills/bls-testing-strategy/SKILL.md` (tests obligatorios).
 8. `docs/design/ADR-002-PIPE-FRAMING.md`.
 9. `docs/design/ADR-003-ABORT-MODEL.md`.
 10. `docs/design/ADR-004-OBJECT-DETAIL.md`.
 
 Opcional pero recomendado:
-- `.opencode/skills/bls-winforms-threading/SKILL.md` (cómo funciona el
+- `AGENTS.md` (cómo funciona el
   `IUiScheduler`).
 
 ---
@@ -606,9 +606,9 @@ Cuando Nemotron termine, el PR debe:
 - `docs/design/ADR-004-OBJECT-DETAIL.md`.
 - `PRD.md` §3.2, §7 FR-04, FR-12, §11.
 - `.opencode/skills/bls-com-late-binding/SKILL.md`.
-- `.opencode/skills/bls-vbe-automation/SKILL.md`.
+- `AGENTS.md`.
 - `.opencode/skills/bls-jsonrpc-pipe-bridge/SKILL.md`.
-- `.opencode/skills/bls-logging-errors/SKILL.md`.
+- `AGENTS.md`.
 - `.opencode/skills/bls-testing-strategy/SKILL.md`.
 ```
 
@@ -624,7 +624,7 @@ opencode --model nemotron-3-ultra \
 
 Lee en este orden:
 1. AGENTS.md
-2. .opencode/skills/bls-project-context/SKILL.md
+2. AGENTS.md
 3. docs/design/ADR-006-VBE-BRIDGE.md (el diseño)
 4. Los skills citados en §11 del diseño
 5. Los ADRs referenciados en §14 del diseño
@@ -642,11 +642,11 @@ opencode --model big-pickle \
 
 Lee:
 1. AGENTS.md
-2. .opencode/skills/bls-workflow-nemotron/SKILL.md (checklist de rechazo)
+2. AGENTS.md (checklist de rechazo)
 3. docs/design/ADR-006-VBE-BRIDGE.md (diseño)
 4. El diff del PR
 
-Aplica el checklist de rechazo del skill bls-workflow-nemotron. Si todo pasa, aprueba con
+Aplica el checklist de rechazo del AGENTS.md. Si todo pasa, aprueba con
 'LGTM'. Si algo falla, indica la regla violada y el skill a releer.
 NO reescribas el código tú mismo."
 ```

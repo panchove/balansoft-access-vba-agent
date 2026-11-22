@@ -103,7 +103,7 @@ public class NimHttpRequestBuilderTests
         var json = Build(null, new List<ChatMessage> { new ChatMessage("user", "Hola") });
 
         using var doc = JsonDocument.Parse(json);
-        Assert.AreEqual(0.2, doc.RootElement.GetProperty("temperature").GetDouble());
+        Assert.AreEqual(0.6, doc.RootElement.GetProperty("temperature").GetDouble());
         Assert.AreEqual(8192, doc.RootElement.GetProperty("max_tokens").GetInt32());
     }
 
